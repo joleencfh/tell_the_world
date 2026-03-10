@@ -106,6 +106,8 @@ create table applications (
   audience_size     integer,
   content_language  text,
   publication_name  text,
+  publication_url   text,
+  reporting_beat    text,
   affiliation       text,
   credibility_url   text,
   org_name          text,
