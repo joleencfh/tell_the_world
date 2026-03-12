@@ -12,6 +12,14 @@
 
 # testing
 /coverage
+/test-results
+/playwright-report
+
+# claude
+.claude/settings.local.json
+
+# local artifacts
+ui-directions.html
 
 # next.js
 /.next/
