@@ -6,49 +6,49 @@ import Link from "next/link";
 
 const MEMBERS = [
   {
-    name: "Dr. Sarah Chen",
+    name: "Dr. Stuart Russell",
     role: "expert" as const,
-    affiliation: "Professor of Climate Policy, University of Oxford",
+    affiliation: "Professor of Computer Science, UC Berkeley",
   },
   {
-    name: "James Okafor",
+    name: "Dr. Paul Christiano",
     role: "expert" as const,
-    affiliation: "Former Senior Negotiator, UN Climate Affairs",
+    affiliation: "Founder, Alignment Research Center",
   },
   {
-    name: "Prof. David Walsh",
+    name: "Prof. Yoshua Bengio",
     role: "expert" as const,
-    affiliation: "Economist, London School of Economics",
+    affiliation: "Professor, Université de Montréal / Mila",
   },
   {
-    name: "Dr. Aisha Ndlovu",
+    name: "Jaan Tallinn",
     role: "expert" as const,
-    affiliation: "Public Health Researcher, Wits University",
+    affiliation: "Co-founder, Centre for the Study of Existential Risk",
   },
   {
-    name: "Maria Santos",
+    name: "Dr. Victoria Krakovna",
     role: "expert" as const,
-    affiliation: "CEO, Renewable Energy Coalition",
+    affiliation: "Research Scientist, Google DeepMind Safety",
   },
   {
-    name: "Global Health Alliance",
+    name: "Machine Intelligence Research Institute",
     role: "organisation" as const,
-    affiliation: "Geneva, Switzerland",
+    affiliation: "Berkeley, USA",
   },
   {
-    name: "Transparency International",
+    name: "Centre for Human-Compatible AI",
     role: "organisation" as const,
-    affiliation: "Berlin, Germany",
+    affiliation: "Berkeley, USA",
   },
   {
-    name: "Future of Work Institute",
+    name: "Center for AI Safety",
     role: "organisation" as const,
     affiliation: "San Francisco, USA",
   },
   {
-    name: "Climate Action Network Europe",
+    name: "UK AI Safety Institute",
     role: "organisation" as const,
-    affiliation: "Brussels, Belgium",
+    affiliation: "London, UK",
   },
 ];
 
@@ -64,171 +64,272 @@ type Brief = {
 const BRIEFS: Brief[] = [
   {
     id: 1,
-    title: "The Hidden Cost of Fast Fashion",
-    tldr: "We're investigating the environmental and labour impacts of the global fast fashion industry — from manufacturing plants in Southeast Asia to the landfills receiving discarded clothing in the Global South.",
+    title: "Who Controls the Off Switch?",
+    tldr: "Imagine building a powerful tool and realising you're not sure you can turn it off. That's not a hypothetical. It's a live debate in AI research right now.",
     visibility: "public",
     sections: [
       {
-        title: "Background",
+        title: "The idea",
         content:
-          "The global fashion industry produces roughly 10% of all human carbon emissions and is the second-largest consumer of the world's water supply. Despite growing consumer awareness, fast fashion brands have accelerated production cycles rather than slowing them. Regulatory pressure is building in the EU, but enforcement remains patchy.",
+          "One of the central questions in AI safety is whether an AI system will actually do what its operators tell it to, including stopping when asked. Researchers call this 'corrigibility', but the concept is simple: can you correct it, adjust it, or shut it down if something goes wrong?",
       },
       {
-        title: "What we're looking for",
+        title: "What kind of creator fits this",
         content:
-          "We want to hear from supply chain workers, environmental scientists, policy experts, and NGOs working on fashion industry reform. We're particularly interested in first-hand accounts from manufacturing regions in Bangladesh, Vietnam, and Cambodia, as well as from communities receiving exported second-hand clothing in sub-Saharan Africa.",
-      },
-      {
-        title: "Timeline",
-        content:
-          "We're aiming to publish in Q2 2026. Initial contributor calls will begin in April. Final deadline for written submissions is 31 May 2026.",
+          "You don't need a technical background. You need curiosity and an audience. This brief suits educators, science communicators, tech YouTubers, newsletter writers, and podcast hosts.",
       },
     ],
   },
   {
     id: 2,
-    title: "AI in Healthcare: Promise vs Reality",
-    tldr: "As AI diagnostic tools enter hospitals globally, we're examining the gap between vendor claims and real-world outcomes — and who bears the risk when systems fail.",
+    title: "Inside the Alignment Labs",
+    tldr: "A quiet community of researchers is working on what they believe is the most important problem in the world. Most people have never heard of them.",
     visibility: "public",
     sections: [
       {
-        title: "Background",
+        title: "The idea",
         content:
-          "AI-powered diagnostic tools are being deployed in hospitals across Europe, North America, and parts of Asia, with adoption accelerating post-pandemic. Early trials show promise in radiology and pathology, but independent validation remains limited. Several high-profile failures have gone largely unreported.",
+          "Alongside the big AI companies, a cluster of organisations has grown up with a different goal: not to build the most powerful AI, but to figure out how to build it safely. They're mostly small, mostly underfunded, and mostly ignored by mainstream coverage.",
       },
       {
-        title: "What we're looking for",
+        title: "What kind of creator fits this",
         content:
-          "We're seeking radiologists, hospital administrators, patient advocates, clinical AI researchers, and regulatory experts who can speak to real deployment experiences — successes and failures alike. Whistleblowers with direct knowledge of product misrepresentation are especially welcome.",
-      },
-      {
-        title: "Timeline",
-        content:
-          "This is an ongoing investigation. We are accepting contributions on a rolling basis through June 2026.",
+          "This brief is for creators who like going behind the scenes: documentary makers, long-form explainers, investigative newsletter writers. You'd be getting access to researchers who are usually very hard to reach.",
       },
     ],
   },
   {
     id: 3,
-    title: "Corporate Lobbying and Climate Policy",
-    tldr: "How fossil fuel companies are shaping international climate negotiations from the inside — and what that means for net-zero targets.",
+    title: "The Compute Governance Gap",
+    tldr: "The most powerful AI systems in the world run on a small number of chips, built by a small number of companies, sitting in a small number of data centres. Nobody elected those companies, and almost no government has a plan for what happens if they make the wrong decisions.",
     visibility: "members",
     sections: [],
   },
   {
     id: 4,
-    title: "The Mental Health Crisis in Schools",
-    tldr: "A cross-country investigation into why youth mental health services are failing students, and what schools and governments are — and aren't — doing about it.",
+    title: "Safety vs Speed: The Culture War Inside AI Labs",
+    tldr: "Inside the companies building the most powerful AI, two groups of people are in constant tension: the ones who want to move fast, and the ones who want to be careful. The outcome of that tension will affect all of us, but it's happening behind closed doors.",
     visibility: "members",
     sections: [],
   },
   {
     id: 5,
-    title: "Housing Affordability: A Global Perspective",
-    tldr: "Examining policy failures and grassroots solutions in cities where housing has become inaccessible to the majority of residents.",
+    title: "Are AI Safety Tests Rigorous Enough?",
+    tldr: "Before releasing a powerful new AI, labs run tests to make sure it won't do anything dangerous. But who writes those tests? Who checks the results? And what happens when a company has a financial incentive to pass?",
     visibility: "members",
     sections: [],
   },
 ];
 
 // ---------------------------------------------------------------------------
+// Brief illustrations — abstract CSS gradient + SVG per topic
+// ---------------------------------------------------------------------------
+
+type IllustrationConfig = {
+  gradient: string;
+  svgContent: React.ReactNode;
+};
+
+const ILLUSTRATIONS: Record<number, IllustrationConfig> = {
+  1: {
+    gradient: "linear-gradient(135deg, #0f0c08 0%, #1c1508 40%, #120e06 100%)",
+    svgContent: (
+      <svg viewBox="0 0 480 220" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice" aria-hidden>
+        {Array.from({ length: 12 }, (_, col) =>
+          Array.from({ length: 6 }, (_, row) => (
+            <circle key={`${col}-${row}`} cx={col * 44 + 10} cy={row * 40 + 10} r="1" fill="rgba(255,255,255,0.12)" />
+          ))
+        )}
+        <path d="M 60 110 L 160 110 L 160 60 L 280 60 L 280 110 L 380 110" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" fill="none" />
+        <path d="M 60 110 L 160 110 L 160 160 L 280 160 L 280 110 L 380 110" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" fill="none" />
+        <circle cx="60" cy="110" r="5" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" />
+        <circle cx="60" cy="110" r="2.5" fill="rgba(255,255,255,0.6)" />
+        <circle cx="160" cy="110" r="4" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
+        <circle cx="280" cy="110" r="4" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
+        <circle cx="380" cy="110" r="5" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" />
+        <circle cx="380" cy="110" r="2.5" fill="rgba(255,255,255,0.6)" />
+        <circle cx="160" cy="60" r="3" fill="rgba(255,255,255,0.25)" />
+        <circle cx="160" cy="160" r="3" fill="rgba(255,255,255,0.25)" />
+        <circle cx="280" cy="60" r="3" fill="rgba(255,255,255,0.25)" />
+        <circle cx="280" cy="160" r="3" fill="rgba(255,255,255,0.25)" />
+        <circle cx="220" cy="110" r="40" fill="rgba(255,255,255,0.03)" />
+        <circle cx="220" cy="110" r="20" fill="rgba(255,255,255,0.04)" />
+      </svg>
+    ),
+  },
+  2: {
+    gradient: "linear-gradient(135deg, #0a0a0a 0%, #141414 40%, #0d0d0d 100%)",
+    svgContent: (
+      <svg viewBox="0 0 480 220" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice" aria-hidden>
+        {Array.from({ length: 8 }, (_, i) => (
+          <line key={i} x1="0" y1={i * 30 + 15} x2="480" y2={i * 30 + 15} stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
+        ))}
+        {[
+          [120, 70], [140, 90], [115, 105], [155, 75], [130, 130],
+          [240, 80], [260, 60], [250, 110], [275, 85], [235, 140],
+          [360, 90], [380, 70], [350, 120], [375, 110], [355, 60],
+        ].map(([cx, cy], i) => (
+          <circle key={i} cx={cx} cy={cy} r={i % 3 === 0 ? 3 : i % 3 === 1 ? 2 : 1.5} fill="rgba(255,255,255,0.45)" opacity={0.4 + (i % 4) * 0.1} />
+        ))}
+        <line x1="130" y1="90" x2="250" y2="85" stroke="rgba(255,255,255,0.15)" strokeWidth="0.75" strokeDasharray="4 3" />
+        <line x1="250" y1="85" x2="365" y2="90" stroke="rgba(255,255,255,0.15)" strokeWidth="0.75" strokeDasharray="4 3" />
+        <line x1="60" y1="170" x2="420" y2="170" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
+        <line x1="60" y1="30" x2="60" y2="170" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
+        <circle cx="240" cy="100" r="60" fill="rgba(255,255,255,0.02)" />
+      </svg>
+    ),
+  },
+  3: {
+    gradient: "linear-gradient(135deg, #111111 0%, #1a1a1a 100%)",
+    svgContent: (
+      <svg viewBox="0 0 480 200" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice" aria-hidden>
+        {Array.from({ length: 10 }, (_, col) =>
+          Array.from({ length: 6 }, (_, row) => (
+            <rect key={`${col}-${row}`} x={col * 48 + 10} y={row * 32 + 12} width="28" height="18" rx="2" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
+          ))
+        )}
+        <rect x="160" y="60" width="160" height="80" rx="4" fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="1.5" />
+      </svg>
+    ),
+  },
+  4: {
+    gradient: "linear-gradient(135deg, #1a1000 0%, #2d1f08 100%)",
+    svgContent: (
+      <svg viewBox="0 0 480 200" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice" aria-hidden>
+        {Array.from({ length: 8 }, (_, i) => (
+          <line key={i} x1={-20 + i * 60} y1="200" x2={60 + i * 60} y2="0" stroke="rgba(251,191,36,0.08)" strokeWidth="16" />
+        ))}
+        <line x1="0" y1="100" x2="480" y2="100" stroke="rgba(251,191,36,0.12)" strokeWidth="1" strokeDasharray="8 6" />
+      </svg>
+    ),
+  },
+  5: {
+    gradient: "linear-gradient(135deg, #111111 0%, #1c1c1c 100%)",
+    svgContent: (
+      <svg viewBox="0 0 480 200" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice" aria-hidden>
+        {[50, 90, 130, 170].map((y, i) => (
+          <g key={i} opacity="0.18">
+            <rect x="140" y={y} width="14" height="14" rx="2" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
+            <line x1="166" y1={y + 7} x2={166 + 100 + (i % 2) * 40} y2={y + 7} stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
+          </g>
+        ))}
+      </svg>
+    ),
+  },
+};
+
+function BriefIllustration({ id, tall = false }: { id: number; tall?: boolean }) {
+  const config = ILLUSTRATIONS[id] ?? ILLUSTRATIONS[1];
+  return (
+    <div
+      className={`relative w-full overflow-hidden ${tall ? "h-52" : "h-36"}`}
+      style={{ background: config.gradient }}
+    >
+      {config.svgContent}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Sub-components
 // ---------------------------------------------------------------------------
 
+// Shared placeholder line widths for blurred content
+const aria_hidden_lines = [
+  ["w-full", "w-5/6", "w-4/5"],
+  ["w-full", "w-11/12"],
+];
+
 function LockIcon() {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
       <path d="M7 11V7a5 5 0 0 1 10 0v4" />
     </svg>
   );
 }
 
-function PublicBriefCard({ brief }: { brief: Brief }) {
+function PublicBriefCard({ brief, index }: { brief: Brief; index: number }) {
+  const num = String(index + 1).padStart(2, "0");
   return (
-    <article className="rounded-2xl border border-zinc-200 bg-white p-8">
-      <div className="mb-1 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
-        <span
-          className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500"
-          aria-hidden="true"
-        />
-        Open brief
-      </div>
-      <h3 className="mt-3 text-xl font-semibold text-zinc-900">{brief.title}</h3>
-      <p className="mt-2 text-base leading-relaxed text-zinc-600">{brief.tldr}</p>
-      <div className="mt-6 space-y-5 border-t border-zinc-100 pt-6">
-        {brief.sections.map((section) => (
-          <div key={section.title}>
-            <h4 className="mb-1.5 text-sm font-semibold uppercase tracking-wide text-zinc-400">
-              {section.title}
-            </h4>
-            <p className="text-sm leading-relaxed text-zinc-700">{section.content}</p>
+    <div className="flex flex-col">
+      {/* Number label */}
+      <p className="font-display text-5xl sm:text-6xl leading-none text-edge select-none mb-1" aria-hidden>
+        #{num}
+      </p>
+      <article className="border border-edge bg-card overflow-hidden flex flex-col flex-1">
+        <BriefIllustration id={brief.id} tall />
+        <div className="p-7 sm:p-9 flex flex-col flex-1">
+          {/* Badge */}
+          <div className="mb-5 inline-flex items-center gap-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-live shrink-0" aria-hidden />
+            <span className="font-mono text-[9px] tracking-[0.25em] uppercase text-live">Open brief</span>
           </div>
-        ))}
-      </div>
-      <div className="mt-6">
-        <Link
-          href="/apply"
-          className="inline-flex items-center gap-2 rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-zinc-700"
-        >
-          Apply to contribute
-        </Link>
-      </div>
-    </article>
+
+          {/* Title */}
+          <h3 className="font-serif text-2xl sm:text-3xl font-bold leading-[1.15] text-dark mb-4">
+            {brief.title}
+          </h3>
+
+          {/* TLDR */}
+          <p className="font-serif text-base leading-[1.8] text-soft line-clamp-3 mb-7">
+            {brief.tldr}
+          </p>
+
+          {/* CTA */}
+          <Link
+            href="/apply"
+            className="mt-auto inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.22em] uppercase text-live hover:opacity-75 transition-opacity group"
+          >
+            Cover this story
+            <span className="group-hover:translate-x-1 transition-transform duration-150" aria-hidden>→</span>
+          </Link>
+        </div>
+      </article>
+    </div>
   );
 }
 
 function LockedBriefCard({ brief }: { brief: Brief }) {
   return (
-    <article className="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
-      <div className="p-8 pb-5">
-        <div className="mb-1 inline-flex items-center gap-1.5 rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-500">
+    <article className="border border-edge bg-card overflow-hidden flex flex-col">
+      <BriefIllustration id={brief.id} />
+
+      <div className="p-5 flex flex-col flex-1">
+        {/* Badge */}
+        <div className="mb-3 inline-flex items-center gap-1.5 text-soft">
           <LockIcon />
-          Members only
-        </div>
-        <h3 className="mt-3 text-xl font-semibold text-zinc-900">{brief.title}</h3>
-        <p className="mt-2 text-base leading-relaxed text-zinc-600">{brief.tldr}</p>
-      </div>
-
-      {/* Blurred content placeholder */}
-      <div className="relative px-8 pb-8">
-        <div
-          aria-hidden="true"
-          className="select-none space-y-5 blur-sm"
-        >
-          {[
-            { w1: "w-1/4", lines: ["w-full", "w-5/6", "w-4/6"] },
-            { w1: "w-1/3", lines: ["w-full", "w-11/12", "w-3/5"] },
-          ].map((block, i) => (
-            <div key={i} className="space-y-2">
-              <div className={`h-3 rounded ${block.w1} bg-zinc-300`} />
-              {block.lines.map((w, j) => (
-                <div key={j} className={`h-2.5 rounded ${w} bg-zinc-200`} />
-              ))}
-            </div>
-          ))}
+          <span className="font-mono text-[9px] tracking-[0.2em] uppercase">Members only</span>
         </div>
 
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-white/75 backdrop-blur-[2px]">
-          <p className="text-sm font-medium text-zinc-500">
-            Full brief visible to members
-          </p>
+        {/* Title */}
+        <h3 className="font-serif text-base font-bold leading-snug text-dark mb-3">
+          {brief.title}
+        </h3>
+
+        {/* Blurred placeholder */}
+        <div className="relative overflow-hidden rounded-sm mb-3">
+          <div aria-hidden="true" className="select-none pointer-events-none blur-[3px] space-y-1.5">
+            {[aria_hidden_lines[0], aria_hidden_lines[1]].map((widths, i) => (
+              <div key={i} className="space-y-1">
+                {widths.map((w, j) => (
+                  <div key={j} className={`h-1.5 rounded-sm bg-edge ${w}`} />
+                ))}
+              </div>
+            ))}
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-card" aria-hidden="true" />
+        </div>
+
+        {/* Join prompt */}
+        <div className="mt-auto pt-3 border-t border-edge flex items-center justify-between">
+          <span className="font-mono text-[9px] text-soft">Full brief for members.</span>
           <Link
             href="/apply"
-            className="inline-flex items-center gap-2 rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-zinc-700"
+            className="font-mono text-[9px] tracking-[0.15em] uppercase text-live hover:opacity-75 transition-opacity inline-flex items-center gap-1 group"
           >
             Apply to join
+            <span className="group-hover:translate-x-0.5 transition-transform duration-150" aria-hidden>→</span>
           </Link>
         </div>
       </div>
@@ -247,18 +348,19 @@ export default function LandingPage() {
   const organisations = MEMBERS.filter((m) => m.role === "organisation");
 
   return (
-    <div className="min-h-screen bg-zinc-50 text-zinc-900">
+    <div className="min-h-screen bg-base text-text">
+
       {/* ------------------------------------------------------------------ */}
-      {/* Nav */}
+      {/* Nav                                                                  */}
       {/* ------------------------------------------------------------------ */}
-      <header className="sticky top-0 z-10 border-b border-zinc-200 bg-white/90 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <span className="text-base font-semibold tracking-tight text-zinc-900">
-            Tell The World
+      <header className="sticky top-0 z-10 bg-base/95 backdrop-blur-sm border-b border-edge px-6">
+        <div className="mx-auto flex max-w-5xl items-center justify-between py-4">
+          <span className="font-serif text-base font-bold tracking-tight text-text">
+            Tell <em className="italic text-live">The</em> World
           </span>
           <Link
             href="/login"
-            className="text-sm font-medium text-zinc-500 transition-colors hover:text-zinc-900"
+            className="font-mono text-[10px] tracking-[0.18em] uppercase text-soft hover:text-text transition-colors"
           >
             Log in
           </Link>
@@ -266,106 +368,118 @@ export default function LandingPage() {
       </header>
 
       <main>
+
         {/* ---------------------------------------------------------------- */}
-        {/* Hero */}
+        {/* Hero                                                              */}
         {/* ---------------------------------------------------------------- */}
-        <section className="bg-zinc-900 px-6 py-24 text-center">
-          <div className="mx-auto max-w-3xl">
-            <h1 className="text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl">
-              Expert knowledge meets
-              <br />
-              public interest journalism.
+        <section className="bg-base px-6 pt-20 pb-20 sm:pt-28 sm:pb-24 border-b border-edge">
+          <div className="mx-auto max-w-5xl">
+            {/* Eyebrow */}
+            <div className="mb-8 inline-flex items-center gap-2.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-live animate-pulse shrink-0" aria-hidden />
+              <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-soft">
+                Now open: AI safety x independent media
+              </span>
+            </div>
+
+            {/* Headline — Anton, full impact */}
+            <h1 className="font-display uppercase leading-[0.96] tracking-tight mb-8 max-w-4xl">
+              <span className="block text-[3.5rem] sm:text-[5.5rem] text-dark">AI safety is</span>
+              <span className="block text-[3.5rem] sm:text-[5.5rem] text-dark">the story</span>
+              <span className="block text-[3.5rem] sm:text-[5.5rem] text-dark">your audience</span>
+              <span className="block text-[3.5rem] sm:text-[5.5rem] text-live">hasn't heard yet.</span>
             </h1>
-            <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-zinc-400">
-              Tell The World connects journalists with verified experts and
-              organisations. If you have knowledge that the public deserves to
-              hear, this is where your voice belongs.
+
+            {/* Subtext */}
+            <p className="font-serif text-lg leading-[1.8] text-soft max-w-xl mb-10">
+              The people who understand AI safety best are looking for creators like you.
+              Podcasters, writers, educators, video makers. No PhD. No jargon.
+              Just good storytelling that reaches the audiences who need to hear it.
             </p>
-            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+
+            {/* CTAs */}
+            <div className="flex items-center gap-6 flex-wrap">
               <Link
                 href="/apply"
-                className="inline-flex items-center justify-center rounded-full bg-white px-7 py-3 text-sm font-semibold text-zinc-900 transition-colors hover:bg-zinc-100"
+                className="font-display uppercase tracking-widest text-sm bg-live text-white px-8 py-4 hover:bg-amber-700 transition-colors"
               >
                 Apply to join
               </Link>
               <a
                 href="#briefs"
-                className="inline-flex items-center justify-center rounded-full border border-zinc-600 px-7 py-3 text-sm font-semibold text-zinc-300 transition-colors hover:border-zinc-400 hover:text-white"
+                className="font-mono text-[10px] tracking-[0.2em] uppercase text-soft hover:text-text transition-colors inline-flex items-center gap-2"
               >
-                See active briefs
+                See active briefs <span aria-hidden>↓</span>
               </a>
             </div>
           </div>
         </section>
 
         {/* ---------------------------------------------------------------- */}
-        {/* Who's here */}
+        {/* Who's here — dark trust strip                                    */}
         {/* ---------------------------------------------------------------- */}
-        <section className="border-b border-zinc-200 bg-white px-6 py-16">
+        <section className="bg-dark px-6 py-10">
           <div className="mx-auto max-w-5xl">
-            <h2 className="text-xs font-semibold uppercase tracking-widest text-zinc-400">
-              Who's on the platform
-            </h2>
-            <div className="mt-8 grid gap-10 sm:grid-cols-2">
+            <p className="font-mono text-[9px] tracking-[0.22em] uppercase text-white/25 mb-7">
+              Trusted by leading researchers and organisations
+            </p>
+            <div className="grid sm:grid-cols-2 gap-10">
               <div>
-                <h3 className="mb-4 text-sm font-semibold text-zinc-900">
+                <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-white/40 border-b border-white/10 pb-2 mb-4">
                   Experts
-                </h3>
-                <ul className="space-y-3">
+                </p>
+                <div className="flex flex-col gap-2.5">
                   {experts.map((m) => (
-                    <li key={m.name}>
-                      <p className="text-sm font-medium text-zinc-800">{m.name}</p>
-                      <p className="text-xs text-zinc-500">{m.affiliation}</p>
-                    </li>
+                    <div key={m.name} className="flex flex-col">
+                      <span className="font-serif text-sm text-white/75 leading-snug">{m.name}</span>
+                      <span className="font-mono text-[9px] text-white/30 mt-0.5">{m.affiliation}</span>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
               <div>
-                <h3 className="mb-4 text-sm font-semibold text-zinc-900">
+                <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-white/40 border-b border-white/10 pb-2 mb-4">
                   Organisations
-                </h3>
-                <ul className="space-y-3">
+                </p>
+                <div className="flex flex-col gap-2.5">
                   {organisations.map((m) => (
-                    <li key={m.name}>
-                      <p className="text-sm font-medium text-zinc-800">{m.name}</p>
-                      <p className="text-xs text-zinc-500">{m.affiliation}</p>
-                    </li>
+                    <div key={m.name} className="flex flex-col">
+                      <span className="font-serif text-sm text-white/75 leading-snug">{m.name}</span>
+                      <span className="font-mono text-[9px] text-white/30 mt-0.5">{m.affiliation}</span>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
             </div>
-            <p className="mt-8 text-xs text-zinc-400">
-              And more — full directory visible to members.
-            </p>
           </div>
         </section>
 
         {/* ---------------------------------------------------------------- */}
-        {/* Briefs */}
+        {/* Briefs                                                            */}
         {/* ---------------------------------------------------------------- */}
         <section id="briefs" className="px-6 py-16">
           <div className="mx-auto max-w-5xl">
-            <h2 className="text-xs font-semibold uppercase tracking-widest text-zinc-400">
-              Active briefs
-            </h2>
-            <p className="mt-2 text-sm text-zinc-500">
-              Journalists are actively seeking expert sources for these stories.
-            </p>
+            {/* Section label */}
+            <div className="flex items-center gap-5 mb-14">
+              <span className="font-display uppercase tracking-[0.18em] text-dark text-sm shrink-0">Active briefs</span>
+              <div className="flex-1 h-px bg-edge" />
+            </div>
 
-            {/* Public briefs — fully visible */}
-            <div className="mt-8 space-y-6">
-              {publicBriefs.map((brief) => (
-                <PublicBriefCard key={brief.id} brief={brief} />
+            {/* Public briefs */}
+            <div className="grid sm:grid-cols-2 gap-8 mb-16">
+              {publicBriefs.map((brief, i) => (
+                <PublicBriefCard key={brief.id} brief={brief} index={i} />
               ))}
             </div>
 
-            {/* Members-only briefs — locked previews */}
+            {/* Members-only briefs */}
             {membersBriefs.length > 0 && (
               <>
-                <h3 className="mt-12 text-xs font-semibold uppercase tracking-widest text-zinc-400">
-                  More briefs — members only
-                </h3>
-                <div className="mt-6 space-y-6">
+                <div className="flex items-center gap-5 mb-8">
+                  <span className="font-display uppercase tracking-[0.18em] text-soft text-sm shrink-0">More briefs: members only</span>
+                  <div className="flex-1 h-px bg-edge" />
+                </div>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
                   {membersBriefs.map((brief) => (
                     <LockedBriefCard key={brief.id} brief={brief} />
                   ))}
@@ -376,42 +490,47 @@ export default function LandingPage() {
         </section>
 
         {/* ---------------------------------------------------------------- */}
-        {/* Bottom CTA */}
+        {/* Bottom CTA                                                        */}
         {/* ---------------------------------------------------------------- */}
-        <section className="border-t border-zinc-200 bg-white px-6 py-16 text-center">
+        <section className="bg-dark px-6 py-24 text-center">
           <div className="mx-auto max-w-xl">
-            <h2 className="text-2xl font-bold text-zinc-900">
-              Ready to tell the world?
+            <h2 className="font-display uppercase leading-[0.88] tracking-tight mb-7">
+              <span className="block text-5xl sm:text-6xl text-white">Ready to tell</span>
+              <span className="block text-5xl sm:text-6xl text-live">the world?</span>
             </h2>
-            <p className="mt-3 text-base leading-relaxed text-zinc-500">
-              Applications are reviewed by our editorial team. We accept experts,
-              researchers, NGOs, and organisations with relevant knowledge to
-              share.
+            <p className="font-serif text-base leading-[1.8] text-white/50 mb-9 max-w-md mx-auto">
+              Whether you research AI safety, run an organisation working on it, or create content
+              that reaches real people, Tell The World is where your work connects with the
+              audiences that matter.
             </p>
             <Link
               href="/apply"
-              className="mt-8 inline-flex items-center justify-center rounded-full bg-zinc-900 px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-zinc-700"
+              className="font-display uppercase tracking-widest text-sm bg-live text-white px-8 py-4 inline-block hover:bg-amber-700 transition-colors"
             >
               Apply to join
             </Link>
           </div>
         </section>
+
       </main>
 
       {/* ------------------------------------------------------------------ */}
-      {/* Footer */}
+      {/* Footer                                                              */}
       {/* ------------------------------------------------------------------ */}
-      <footer className="border-t border-zinc-200 bg-zinc-50 px-6 py-8">
+      <footer className="bg-dark border-t border-white/10 px-6 py-6">
         <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <span className="text-sm font-medium text-zinc-400">Tell The World</span>
+          <span className="font-serif text-sm font-bold text-white/40 tracking-tight">
+            Tell <em className="italic">The</em> World
+          </span>
           <Link
             href="/login"
-            className="text-sm text-zinc-400 transition-colors hover:text-zinc-600"
+            className="font-mono text-[10px] tracking-[0.18em] uppercase text-white/40 hover:text-white/70 transition-colors"
           >
             Log in
           </Link>
         </div>
       </footer>
+
     </div>
   );
 }

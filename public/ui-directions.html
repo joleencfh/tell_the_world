@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tell The World — UI Direction Proposals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+
+/* ===================================================================
+   RESET + BASE
+=================================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+a { text-decoration: none; }
+
+/* ===================================================================
+   PRESENTATION LAYER
+=================================================================== */
+body {
+  background: #0B0B0B;
+  color: #fff;
+  font-family: 'DM Mono', monospace;
+}
+
+.pres-header {
+  padding: 72px 56px 56px;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.pres-label {
+  font-size: 9px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  margin-bottom: 16px;
+}
+
+.pres-title {
+  font-family: 'Anton', sans-serif;
+  font-size: 38px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.pres-desc {
+  font-size: 11px;
+  line-height: 1.8;
+  color: rgba(255,255,255,0.35);
+  max-width: 580px;
+}
+
+.pres-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(11,11,11,0.97);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  gap: 0;
+  padding: 0 56px;
+  max-width: none;
+}
+
+.pres-nav a {
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  padding: 18px 24px;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+
+.pres-nav a:hover {
+  color: rgba(255,255,255,0.8);
+  border-bottom-color: rgba(255,255,255,0.3);
+}
+
+.proposal {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 72px 56px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.proposal-meta {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 40px;
+  margin-bottom: 40px;
+}
+
+.proposal-tag {
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  margin-bottom: 8px;
+}
+
+.proposal-name {
+  font-family: 'Anton', sans-serif;
+  font-size: 32px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+.proposal-desc-text {
+  font-size: 11px;
+  line-height: 1.7;
+  color: rgba(255,255,255,0.35);
+  max-width: 480px;
+}
+
+.mockup-frame {
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.08),
+    0 40px 120px rgba(0,0,0,0.7);
+}
+
+
+/* ===================================================================
+   01 — THE SIGNAL
+   Dark, electric teal, broadcast editorial
+=================================================================== */
+
+.signal {
+  background: #030C09;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Scanline texture */
+.signal::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 3px,
+    rgba(0, 229, 160, 0.009) 3px,
+    rgba(0, 229, 160, 0.009) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Dot grid */
+.signal::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(0,229,160,0.07) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.signal > * { position: relative; z-index: 2; }
+
+.signal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 40px;
+  border-bottom: 1px solid rgba(0,229,160,0.12);
+}
+
+.signal-logo {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: #00E5A0;
+}
+
+.signal-login {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(0,229,160,0.3);
+}
+
+.signal-hero {
+  padding: 52px 40px 48px;
+  border-bottom: 1px solid rgba(0,229,160,0.08);
+}
+
+.signal-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.signal-dot {
+  width: 6px;
+  height: 6px;
+  background: #00E5A0;
+  border-radius: 50%;
+  animation: pulse-teal 1.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes pulse-teal {
+  0%, 100% { opacity: 1; box-shadow: 0 0 6px #00E5A0; }
+  50% { opacity: 0.25; box-shadow: none; }
+}
+
+.signal-eyebrow-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(0,229,160,0.55);
+}
+
+.signal-h1 {
+  font-family: 'Anton', sans-serif;
+  font-size: 78px;
+  line-height: 0.88;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: #DCF0E8;
+  margin-bottom: 24px;
+  max-width: 700px;
+}
+
+.signal-h1 .acc { color: #00E5A0; text-shadow: 0 0 40px rgba(0,229,160,0.3); }
+
+.signal-sub {
+  font-family: 'Source Serif 4', serif;
+  font-size: 14px;
+  line-height: 1.8;
+  color: rgba(220,240,232,0.38);
+  max-width: 460px;
+  margin-bottom: 32px;
+}
+
+.signal-cta-row {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.signal-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #00E5A0;
+  padding: 13px 26px;
+  border: 1px solid rgba(0,229,160,0.45);
+  background: rgba(0,229,160,0.04);
+  position: relative;
+  overflow: hidden;
+}
+
+.signal-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0 100% 0 0;
+  background: rgba(0,229,160,0.06);
+  transition: inset 0.3s ease;
+}
+
+.signal-btn:hover::before { inset: 0; }
+
+.signal-brief {
+  padding: 36px 40px;
+}
+
+.signal-sec-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(0,229,160,0.28);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.signal-sec-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(0,229,160,0.1);
+}
+
+.signal-card {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  border: 1px solid rgba(0,229,160,0.18);
+  overflow: hidden;
+}
+
+.signal-card-vis {
+  background: #020E0A;
+  border-right: 1px solid rgba(0,229,160,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  min-height: 170px;
+  position: relative;
+}
+
+.signal-card-body {
+  padding: 28px 32px;
+}
+
+.signal-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 7px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: #00E5A0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.signal-badge::before {
+  content: '';
+  width: 4px;
+  height: 4px;
+  background: #00E5A0;
+  border-radius: 50%;
+}
+
+.signal-card-title {
+  font-family: 'Anton', sans-serif;
+  font-size: 21px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: #DCF0E8;
+  line-height: 1.08;
+  margin-bottom: 12px;
+}
+
+.signal-card-tldr {
+  font-family: 'Source Serif 4', serif;
+  font-size: 12px;
+  line-height: 1.75;
+  color: rgba(220,240,232,0.35);
+}
+
+
+/* ===================================================================
+   02 — STATIC
+   Warm off-white, electric indigo, grain, cultural editorial
+=================================================================== */
+
+.static-wrap {
+  background: #FAF9F6;
+  position: relative;
+  overflow: hidden;
+}
+
+.static-grain {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 180px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.static-wrap > *:not(.static-grain) { position: relative; z-index: 2; }
+
+.static-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 40px;
+  border-bottom: 1px solid #DDD7D0;
+}
+
+.static-logo {
+  font-family: 'Source Serif 4', serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1A1A1A;
+  letter-spacing: -0.01em;
+}
+
+.static-login {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #AAA099;
+}
+
+.static-hero {
+  padding: 60px 40px 52px;
+  border-bottom: 1px solid #DDD7D0;
+}
+
+.static-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.static-eyebrow-rule {
+  width: 22px;
+  height: 2px;
+  background: #5B00F5;
+  flex-shrink: 0;
+}
+
+.static-eyebrow-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #5B00F5;
+}
+
+.static-h1 {
+  font-family: 'Anton', sans-serif;
+  font-size: 76px;
+  line-height: 0.89;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+  color: #1A1A1A;
+  margin-bottom: 26px;
+  max-width: 660px;
+}
+
+.static-h1 .acc {
+  color: #5B00F5;
+}
+
+.static-sub {
+  font-family: 'Source Serif 4', serif;
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.78;
+  color: #6B6060;
+  max-width: 450px;
+  margin-bottom: 32px;
+}
+
+.static-btn {
+  display: inline-flex;
+  align-items: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #fff;
+  background: #5B00F5;
+  padding: 14px 28px;
+}
+
+.static-brief {
+  padding: 36px 40px;
+}
+
+.static-sec-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #B8B0A8;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.static-sec-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #DDD7D0;
+}
+
+.static-card {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  background: #fff;
+  border: 1px solid #DDD7D0;
+  border-left: 3px solid #5B00F5;
+  overflow: hidden;
+}
+
+.static-card-vis {
+  background: #F2EEFF;
+  border-right: 1px solid #E4DAFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  min-height: 170px;
+}
+
+.static-card-body {
+  padding: 28px 32px;
+}
+
+.static-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 7px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: #5B00F5;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.static-badge::before {
+  content: '';
+  width: 4px;
+  height: 4px;
+  background: #5B00F5;
+  border-radius: 50%;
+}
+
+.static-card-title {
+  font-family: 'Source Serif 4', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1A1A1A;
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+
+.static-card-tldr {
+  font-family: 'Source Serif 4', serif;
+  font-style: italic;
+  font-size: 13px;
+  line-height: 1.72;
+  color: #7A7060;
+}
+
+
+/* ===================================================================
+   03 — TRANSMISSION
+   Deep warm black, amber/ochre, cinematic editorial
+=================================================================== */
+
+.transmission {
+  background: #0C0906;
+  position: relative;
+  overflow: hidden;
+}
+
+.transmission-film {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='0.055'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.transmission > *:not(.transmission-film) { position: relative; z-index: 1; }
+
+.transmission-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 40px;
+  border-bottom: 1px solid rgba(200,129,10,0.13);
+}
+
+.transmission-logo {
+  font-family: 'Source Serif 4', serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(240,228,206,0.85);
+  letter-spacing: 0.01em;
+}
+
+.transmission-logo em {
+  font-style: italic;
+  color: #C8810A;
+}
+
+.transmission-login {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(200,129,10,0.35);
+}
+
+.transmission-hero {
+  padding: 56px 40px 48px;
+  border-bottom: 1px solid rgba(200,129,10,0.08);
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 48px;
+  align-items: start;
+}
+
+.transmission-hero-left {}
+
+.transmission-hero-right {
+  padding-top: 8px;
+  border-left: 1px solid rgba(200,129,10,0.1);
+  padding-left: 36px;
+}
+
+.transmission-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 26px;
+}
+
+.transmission-rule {
+  width: 32px;
+  height: 2px;
+  background: #C8810A;
+  flex-shrink: 0;
+}
+
+.transmission-eyebrow-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(200,129,10,0.6);
+}
+
+.transmission-h1 {
+  font-family: 'Anton', sans-serif;
+  font-size: 70px;
+  line-height: 0.88;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: #EDE4D0;
+  margin-bottom: 0;
+}
+
+.transmission-h1 .acc { color: #C8810A; }
+
+.transmission-right-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(200,129,10,0.35);
+  margin-bottom: 18px;
+  border-bottom: 1px solid rgba(200,129,10,0.1);
+  padding-bottom: 12px;
+}
+
+.transmission-sub {
+  font-family: 'Source Serif 4', serif;
+  font-size: 14px;
+  line-height: 1.78;
+  color: rgba(237,228,208,0.38);
+  margin-bottom: 28px;
+}
+
+.transmission-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #0C0906;
+  background: #C8810A;
+  padding: 13px 26px;
+}
+
+.transmission-brief {
+  padding: 36px 40px;
+}
+
+.transmission-sec-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(200,129,10,0.28);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.transmission-sec-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(200,129,10,0.1);
+}
+
+.transmission-card {
+  display: grid;
+  grid-template-columns: 80px 1fr 2fr;
+  border-top: 2px solid #C8810A;
+  overflow: hidden;
+}
+
+.transmission-card-num-col {
+  background: rgba(200,129,10,0.06);
+  border-right: 1px solid rgba(200,129,10,0.1);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 20px 12px;
+}
+
+.transmission-num {
+  font-family: 'Anton', sans-serif;
+  font-size: 36px;
+  color: rgba(200,129,10,0.18);
+  line-height: 1;
+}
+
+.transmission-card-vis {
+  background: rgba(200,129,10,0.04);
+  border-right: 1px solid rgba(200,129,10,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  min-height: 160px;
+}
+
+.transmission-card-body {
+  padding: 28px 32px;
+}
+
+.transmission-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 7px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: #C8810A;
+  margin-bottom: 14px;
+}
+
+.transmission-card-title {
+  font-family: 'Source Serif 4', serif;
+  font-size: 21px;
+  font-weight: 700;
+  color: #EDE4D0;
+  line-height: 1.18;
+  margin-bottom: 12px;
+}
+
+.transmission-card-tldr {
+  font-family: 'Source Serif 4', serif;
+  font-size: 12px;
+  line-height: 1.78;
+  color: rgba(237,228,208,0.35);
+}
+
+
+/* ===================================================================
+   04 — THE GRID
+   White, electric yellow highlight, Swiss-modern, grid-forward
+=================================================================== */
+
+.grid-wrap {
+  background: #FFFFFF;
+  position: relative;
+}
+
+/* Grid lines */
+.grid-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+  background-size: 36px 36px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.grid-wrap > * { position: relative; z-index: 1; }
+
+.grid-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 40px;
+  border-bottom: 2px solid #0D0D0D;
+}
+
+.grid-logo {
+  font-family: 'Anton', sans-serif;
+  font-size: 15px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #0D0D0D;
+}
+
+.grid-login {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #999;
+}
+
+.grid-hero {
+  padding: 52px 40px 44px;
+  border-bottom: 2px solid #0D0D0D;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: end;
+}
+
+.grid-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.grid-eyebrow-sq {
+  width: 8px;
+  height: 8px;
+  background: #FFE500;
+  flex-shrink: 0;
+}
+
+.grid-eyebrow-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #888;
+}
+
+.grid-h1 {
+  font-family: 'Anton', sans-serif;
+  font-size: 74px;
+  line-height: 0.88;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: #0D0D0D;
+}
+
+.grid-h1 .acc {
+  background: #FFE500;
+  color: #0D0D0D;
+  padding: 1px 5px;
+  line-height: 1;
+  display: inline;
+}
+
+.grid-hero-right {
+  padding-bottom: 2px;
+}
+
+.grid-sub {
+  font-family: 'Source Serif 4', serif;
+  font-size: 14px;
+  line-height: 1.76;
+  color: #555;
+  margin-bottom: 28px;
+}
+
+.grid-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #fff;
+  background: #0D0D0D;
+  padding: 14px 26px;
+}
+
+.grid-btn span { font-size: 14px; }
+
+.grid-brief {
+  padding: 36px 40px;
+}
+
+.grid-sec-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #AAA;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.grid-sec-label::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  background: #0D0D0D;
+}
+
+.grid-card {
+  display: grid;
+  grid-template-columns: 56px 200px 1fr;
+  border: 2px solid #0D0D0D;
+  overflow: hidden;
+}
+
+.grid-card-idx {
+  background: #FFE500;
+  border-right: 2px solid #0D0D0D;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.grid-card-idx-num {
+  font-family: 'Anton', sans-serif;
+  font-size: 24px;
+  color: #0D0D0D;
+  line-height: 1;
+  letter-spacing: 0.04em;
+}
+
+.grid-card-vis {
+  background: #F5F5F5;
+  border-right: 2px solid #0D0D0D;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  min-height: 160px;
+}
+
+.grid-card-body {
+  padding: 24px 28px;
+}
+
+.grid-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 7px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: #888;
+  margin-bottom: 10px;
+}
+
+.grid-card-title {
+  font-family: 'Anton', sans-serif;
+  font-size: 19px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #0D0D0D;
+  line-height: 1.08;
+  margin-bottom: 10px;
+}
+
+.grid-card-tldr {
+  font-family: 'Source Serif 4', serif;
+  font-size: 12px;
+  line-height: 1.72;
+  color: #666;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ================================================================
+     PRESENTATION HEADER
+================================================================ -->
+<div class="pres-header">
+  <p class="pres-label">Tell The World — UI Direction Proposals — March 2026</p>
+  <h1 class="pres-title">Four directions to choose from</h1>
+  <p class="pres-desc">Each proposal interprets the same content: editorial weight, forward-looking feel, hint of pop culture. Scroll through and choose a direction — then I'll apply it to the full UI.</p>
+</div>
+
+<nav class="pres-nav">
+  <a href="#signal">01 — The Signal</a>
+  <a href="#static">02 — Static</a>
+  <a href="#transmission">03 — Transmission</a>
+  <a href="#grid">04 — The Grid</a>
+</nav>
+
+
+<!-- ================================================================
+     01 — THE SIGNAL
+================================================================ -->
+<div id="signal" class="proposal">
+  <div class="proposal-meta">
+    <div>
+      <p class="proposal-tag">Direction 01</p>
+      <h2 class="proposal-name">The Signal</h2>
+      <p class="proposal-desc-text">Dark mode with electric teal. Broadcast-editorial — late-night intelligence. Scanlines, monospace precision, glowing accents. Feels like WIRED if it ran on a monitor in 2031.</p>
+    </div>
+  </div>
+
+  <div class="mockup-frame">
+    <div class="signal">
+
+      <!-- Nav -->
+      <nav class="signal-nav">
+        <span class="signal-logo">Tell The World</span>
+        <span class="signal-login">Log in</span>
+      </nav>
+
+      <!-- Hero -->
+      <section class="signal-hero">
+        <div class="signal-eyebrow">
+          <div class="signal-dot"></div>
+          <span class="signal-eyebrow-text">Now transmitting — AI safety × independent media</span>
+        </div>
+
+        <h1 class="signal-h1">
+          AI safety is<br>
+          your next<br>
+          <span class="acc">big story.</span>
+        </h1>
+
+        <p class="signal-sub">
+          The people who understand AI safety best are looking for creators like you.
+          Podcasters, writers, educators, video makers. No PhD. No jargon.
+          Just good storytelling that reaches the audiences who need to hear it.
+        </p>
+
+        <div class="signal-cta-row">
+          <a href="#" class="signal-btn">Apply to join &nbsp;→</a>
+          <span style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.28em;text-transform:uppercase;color:rgba(0,229,160,0.25);">See active briefs ↓</span>
+        </div>
+      </section>
+
+      <!-- Brief card -->
+      <section class="signal-brief">
+        <p class="signal-sec-label">Active briefs</p>
+
+        <div class="signal-card">
+          <div class="signal-card-vis">
+            <!-- Circuit SVG -->
+            <svg viewBox="0 0 140 140" width="120" height="120" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="70" cy="70" r="40" stroke="rgba(0,229,160,0.12)" stroke-width="1"/>
+              <circle cx="70" cy="70" r="20" stroke="rgba(0,229,160,0.2)" stroke-width="1"/>
+              <circle cx="70" cy="70" r="4" fill="rgba(0,229,160,0.6)"/>
+              <circle cx="70" cy="70" r="1.5" fill="#00E5A0"/>
+              <line x1="70" y1="30" x2="70" y2="10" stroke="rgba(0,229,160,0.3)" stroke-width="1"/>
+              <line x1="70" y1="110" x2="70" y2="130" stroke="rgba(0,229,160,0.3)" stroke-width="1"/>
+              <line x1="30" y1="70" x2="10" y2="70" stroke="rgba(0,229,160,0.3)" stroke-width="1"/>
+              <line x1="110" y1="70" x2="130" y2="70" stroke="rgba(0,229,160,0.3)" stroke-width="1"/>
+              <circle cx="70" cy="10" r="2.5" fill="rgba(0,229,160,0.4)"/>
+              <circle cx="70" cy="130" r="2.5" fill="rgba(0,229,160,0.4)"/>
+              <circle cx="10" cy="70" r="2.5" fill="rgba(0,229,160,0.4)"/>
+              <circle cx="130" cy="70" r="2.5" fill="rgba(0,229,160,0.4)"/>
+              <line x1="99" y1="41" x2="111" y2="29" stroke="rgba(0,229,160,0.2)" stroke-width="1"/>
+              <line x1="41" y1="99" x2="29" y2="111" stroke="rgba(0,229,160,0.2)" stroke-width="1"/>
+              <circle cx="115" cy="25" r="2" fill="rgba(0,229,160,0.3)"/>
+              <circle cx="25" cy="115" r="2" fill="rgba(0,229,160,0.3)"/>
+            </svg>
+          </div>
+          <div class="signal-card-body">
+            <div class="signal-badge">Open brief</div>
+            <h3 class="signal-card-title">Who Controls<br>the Off Switch?</h3>
+            <p class="signal-card-tldr">Imagine building a powerful tool and realising you're not sure you can turn it off. That's not a hypothetical. It's a live debate in AI research right now.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     02 — STATIC
+================================================================ -->
+<div id="static" class="proposal">
+  <div class="proposal-meta">
+    <div>
+      <p class="proposal-tag">Direction 02</p>
+      <h2 class="proposal-name">Static</h2>
+      <p class="proposal-desc-text">Keeps the warm off-white base, adds electric indigo and a film grain texture. Italic serif body, expressive typography. Feels like early The Verge crossed with a cultural magazine. Familiar but charged.</p>
+    </div>
+  </div>
+
+  <div class="mockup-frame">
+    <div class="static-wrap">
+      <div class="static-grain"></div>
+
+      <!-- Nav -->
+      <nav class="static-nav">
+        <span class="static-logo">Tell The World</span>
+        <span class="static-login">Log in</span>
+      </nav>
+
+      <!-- Hero -->
+      <section class="static-hero">
+        <div class="static-eyebrow">
+          <div class="static-eyebrow-rule"></div>
+          <span class="static-eyebrow-text">Now open — AI safety × independent media</span>
+        </div>
+
+        <h1 class="static-h1">
+          AI safety is<br>
+          your next<br>
+          <span class="acc">big story.</span>
+        </h1>
+
+        <p class="static-sub">
+          The people who understand AI safety best are looking for creators like you.
+          Podcasters, writers, educators, video makers. No PhD required.
+          Just good storytelling that reaches the audiences who need to hear it.
+        </p>
+
+        <a href="#" class="static-btn">Apply to join</a>
+      </section>
+
+      <!-- Brief card -->
+      <section class="static-brief">
+        <p class="static-sec-label">Active briefs</p>
+
+        <div class="static-card">
+          <div class="static-card-vis">
+            <!-- Abstract constellation SVG -->
+            <svg viewBox="0 0 140 140" width="110" height="110" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="50" cy="40" r="4" fill="rgba(91,0,245,0.25)"/>
+              <circle cx="90" cy="55" r="3" fill="rgba(91,0,245,0.2)"/>
+              <circle cx="70" cy="80" r="5" fill="rgba(91,0,245,0.3)"/>
+              <circle cx="35" cy="90" r="2.5" fill="rgba(91,0,245,0.15)"/>
+              <circle cx="110" cy="75" r="3.5" fill="rgba(91,0,245,0.2)"/>
+              <circle cx="60" cy="110" r="2" fill="rgba(91,0,245,0.15)"/>
+              <circle cx="95" cy="100" r="3" fill="rgba(91,0,245,0.18)"/>
+              <circle cx="30" cy="55" r="3" fill="rgba(91,0,245,0.18)"/>
+              <line x1="50" y1="40" x2="90" y2="55" stroke="rgba(91,0,245,0.12)" stroke-width="1"/>
+              <line x1="90" y1="55" x2="70" y2="80" stroke="rgba(91,0,245,0.12)" stroke-width="1"/>
+              <line x1="70" y1="80" x2="35" y2="90" stroke="rgba(91,0,245,0.1)" stroke-width="1"/>
+              <line x1="70" y1="80" x2="110" y2="75" stroke="rgba(91,0,245,0.1)" stroke-width="1"/>
+              <line x1="70" y1="80" x2="60" y2="110" stroke="rgba(91,0,245,0.1)" stroke-width="1"/>
+              <line x1="110" y1="75" x2="95" y2="100" stroke="rgba(91,0,245,0.1)" stroke-width="1"/>
+              <line x1="30" y1="55" x2="50" y2="40" stroke="rgba(91,0,245,0.1)" stroke-width="1"/>
+              <line x1="30" y1="55" x2="35" y2="90" stroke="rgba(91,0,245,0.08)" stroke-width="1"/>
+              <!-- Triangles -->
+              <polygon points="70,26 78,40 62,40" fill="none" stroke="rgba(91,0,245,0.2)" stroke-width="1"/>
+              <polygon points="105,38 113,52 97,52" fill="rgba(91,0,245,0.08)" stroke="rgba(91,0,245,0.2)" stroke-width="1"/>
+            </svg>
+          </div>
+          <div class="static-card-body">
+            <div class="static-badge">Open brief</div>
+            <h3 class="static-card-title">Who Controls the Off Switch?</h3>
+            <p class="static-card-tldr">Imagine building a powerful tool and realising you're not sure you can turn it off. That's not a hypothetical. It's a live debate in AI research right now.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     03 — TRANSMISSION
+================================================================ -->
+<div id="transmission" class="proposal">
+  <div class="proposal-meta">
+    <div>
+      <p class="proposal-tag">Direction 03</p>
+      <h2 class="proposal-name">Transmission</h2>
+      <p class="proposal-desc-text">Deep warm-black base with amber/ochre. Cinematic, column-based layout. Film grain texture. Feels like Pitchfork's best editorial era crossed with a smart long-form publication. More gravitas, more atmosphere.</p>
+    </div>
+  </div>
+
+  <div class="mockup-frame">
+    <div class="transmission">
+      <div class="transmission-film"></div>
+
+      <!-- Nav -->
+      <nav class="transmission-nav">
+        <span class="transmission-logo">Tell <em>The</em> World</span>
+        <span class="transmission-login">Log in</span>
+      </nav>
+
+      <!-- Hero — two column -->
+      <section class="transmission-hero">
+        <div class="transmission-hero-left">
+          <div class="transmission-eyebrow">
+            <div class="transmission-rule"></div>
+            <span class="transmission-eyebrow-text">Now open — AI safety × independent media</span>
+          </div>
+          <h1 class="transmission-h1">
+            AI safety is<br>
+            your next<br>
+            <span class="acc">big story.</span>
+          </h1>
+        </div>
+        <div class="transmission-hero-right">
+          <p class="transmission-right-label">About this platform</p>
+          <p class="transmission-sub">
+            The people who understand AI safety best are looking for creators like you.
+            Podcasters, writers, educators, video makers. No PhD. No jargon.
+            Just good storytelling that reaches the audiences who need to hear it.
+          </p>
+          <a href="#" class="transmission-btn">Apply to join →</a>
+        </div>
+      </section>
+
+      <!-- Brief card -->
+      <section class="transmission-brief">
+        <p class="transmission-sec-label">Active briefs</p>
+
+        <div class="transmission-card">
+          <div class="transmission-card-num-col">
+            <span class="transmission-num">01</span>
+          </div>
+          <div class="transmission-card-vis">
+            <!-- Light beam / cinematic SVG -->
+            <svg viewBox="0 0 120 120" width="100" height="100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Diagonal light rays -->
+              <line x1="10" y1="0" x2="80" y2="120" stroke="rgba(200,129,10,0.12)" stroke-width="12"/>
+              <line x1="30" y1="0" x2="100" y2="120" stroke="rgba(200,129,10,0.07)" stroke-width="8"/>
+              <line x1="0" y1="20" x2="60" y2="120" stroke="rgba(200,129,10,0.06)" stroke-width="6"/>
+              <!-- Circle -->
+              <circle cx="60" cy="60" r="22" stroke="rgba(200,129,10,0.25)" stroke-width="1" stroke-dasharray="4 3"/>
+              <circle cx="60" cy="60" r="3" fill="rgba(200,129,10,0.5)"/>
+              <!-- Frame lines -->
+              <line x1="0" y1="0" x2="0" y2="20" stroke="rgba(200,129,10,0.3)" stroke-width="1.5"/>
+              <line x1="0" y1="0" x2="20" y2="0" stroke="rgba(200,129,10,0.3)" stroke-width="1.5"/>
+              <line x1="120" y1="0" x2="100" y2="0" stroke="rgba(200,129,10,0.3)" stroke-width="1.5"/>
+              <line x1="120" y1="0" x2="120" y2="20" stroke="rgba(200,129,10,0.3)" stroke-width="1.5"/>
+              <line x1="0" y1="120" x2="0" y2="100" stroke="rgba(200,129,10,0.3)" stroke-width="1.5"/>
+              <line x1="0" y1="120" x2="20" y2="120" stroke="rgba(200,129,10,0.3)" stroke-width="1.5"/>
+              <line x1="120" y1="120" x2="100" y2="120" stroke="rgba(200,129,10,0.3)" stroke-width="1.5"/>
+              <line x1="120" y1="120" x2="120" y2="100" stroke="rgba(200,129,10,0.3)" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <div class="transmission-card-body">
+            <div class="transmission-badge">Open brief</div>
+            <h3 class="transmission-card-title">Who Controls the Off Switch?</h3>
+            <p class="transmission-card-tldr">Imagine building a powerful tool and realising you're not sure you can turn it off. That's not a hypothetical. It's a live debate in AI research right now.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     04 — THE GRID
+================================================================ -->
+<div id="grid" class="proposal">
+  <div class="proposal-meta">
+    <div>
+      <p class="proposal-tag">Direction 04</p>
+      <h2 class="proposal-name">The Grid</h2>
+      <p class="proposal-desc-text">White, structural, Swiss-modern bones with electric yellow highlight. Heavy black borders, visible grid, structured cards. Pop culture in the colour — not the layout. Feels like Dezeen × i-D × a very good zine.</p>
+    </div>
+  </div>
+
+  <div class="mockup-frame">
+    <div class="grid-wrap">
+
+      <!-- Nav -->
+      <nav class="grid-nav">
+        <span class="grid-logo">Tell The World</span>
+        <span class="grid-login">Log in</span>
+      </nav>
+
+      <!-- Hero — two column -->
+      <section class="grid-hero">
+        <div class="grid-hero-left">
+          <div class="grid-eyebrow">
+            <div class="grid-eyebrow-sq"></div>
+            <span class="grid-eyebrow-text">Now open — AI safety × independent media</span>
+          </div>
+          <h1 class="grid-h1">
+            AI safety is<br>
+            your next<br>
+            <span class="acc">big story.</span>
+          </h1>
+        </div>
+        <div class="grid-hero-right">
+          <p class="grid-sub">
+            The people who understand AI safety best are looking for creators like you.
+            Podcasters, writers, educators, video makers. No PhD. No jargon.
+            Just good storytelling that reaches the audiences who need to hear it.
+          </p>
+          <a href="#" class="grid-btn">Apply to join <span>→</span></a>
+        </div>
+      </section>
+
+      <!-- Brief card -->
+      <section class="grid-brief">
+        <p class="grid-sec-label">Active briefs</p>
+
+        <div class="grid-card">
+          <div class="grid-card-idx">
+            <span class="grid-card-idx-num">01</span>
+          </div>
+          <div class="grid-card-vis">
+            <!-- Grid SVG -->
+            <svg viewBox="0 0 120 120" width="90" height="90" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Grid lines -->
+              <line x1="0" y1="30" x2="120" y2="30" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+              <line x1="0" y1="60" x2="120" y2="60" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+              <line x1="0" y1="90" x2="120" y2="90" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+              <line x1="30" y1="0" x2="30" y2="120" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+              <line x1="60" y1="0" x2="60" y2="120" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+              <line x1="90" y1="0" x2="90" y2="120" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+              <!-- Focal crosshair -->
+              <line x1="52" y1="60" x2="68" y2="60" stroke="#0D0D0D" stroke-width="1.5"/>
+              <line x1="60" y1="52" x2="60" y2="68" stroke="#0D0D0D" stroke-width="1.5"/>
+              <circle cx="60" cy="60" r="12" stroke="#0D0D0D" stroke-width="1.5"/>
+              <!-- Yellow highlight squares -->
+              <rect x="27" y="27" width="6" height="6" fill="#FFE500"/>
+              <rect x="87" y="87" width="6" height="6" fill="#FFE500"/>
+              <rect x="87" y="27" width="6" height="6" fill="rgba(255,229,0,0.4)"/>
+              <rect x="27" y="87" width="6" height="6" fill="rgba(255,229,0,0.4)"/>
+            </svg>
+          </div>
+          <div class="grid-card-body">
+            <div class="grid-badge">Open brief</div>
+            <h3 class="grid-card-title">Who Controls<br>the Off Switch?</h3>
+            <p class="grid-card-tldr">Imagine building a powerful tool and realising you're not sure you can turn it off. That's not a hypothetical. It's a live debate in AI research right now.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- Spacer -->
+<div style="height: 80px;"></div>
+
+</body>
+</html>
