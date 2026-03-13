@@ -1,8 +1,10 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { signOut } from '@/lib/auth/actions'
+import EditProfileModal from './EditProfileModal'
 import type { ProfileUser, ProfilePost, UserRole, AvailabilityStatus } from './page'
 
 // ---------------------------------------------------------------------------
@@ -194,6 +196,7 @@ export default function ProfileView({
   currentUserId,
 }: ProfileViewProps) {
   const router = useRouter()
+  const [editOpen, setEditOpen] = useState(false)
 
   async function handleSignOut() {
     await signOut()
@@ -321,9 +324,8 @@ export default function ProfileView({
                       {isOwnProfile ? (
                         <>
                           <button
-                            disabled
-                            title="Coming soon"
-                            className="font-display uppercase tracking-widest text-xs bg-dark text-base px-5 py-2.5 opacity-40 cursor-not-allowed"
+                            onClick={() => setEditOpen(true)}
+                            className="font-display uppercase tracking-widest text-xs bg-dark text-base px-5 py-2.5 hover:opacity-80 transition-opacity"
                           >
                             Edit Profile
                           </button>
@@ -388,6 +390,14 @@ export default function ProfileView({
           </span>
         </div>
       </footer>
+
+      {/* Edit profile modal */}
+      {editOpen && profileUser && (
+        <EditProfileModal
+          user={profileUser}
+          onClose={() => setEditOpen(false)}
+        />
+      )}
     </div>
   )
 }

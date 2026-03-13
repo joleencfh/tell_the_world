@@ -9,6 +9,9 @@ import ProfileView from './ProfileView'
 export type UserRole = 'creator' | 'expert' | 'organisation' | 'journalist' | 'admin'
 export type AvailabilityStatus = 'open' | 'limited' | 'unavailable'
 
+export type PrimaryPlatform = 'youtube' | 'podcast' | 'instagram' | 'tiktok' | 'other'
+export type OrgSize = 'small' | 'medium' | 'large'
+
 export interface ProfileUser {
   id: string
   email: string
@@ -19,9 +22,10 @@ export interface ProfileUser {
   role: UserRole
   availability: AvailabilityStatus
   website_url: string | null
+  preferred_language: string | null
   created_at: string
   // creator / journalist
-  primary_platform: string | null
+  primary_platform: PrimaryPlatform | null
   platform_url: string | null
   audience_size: number | null
   content_language: string | null
@@ -35,7 +39,7 @@ export interface ProfileUser {
   areas_of_focus: string[] | null
   // organisation
   org_name: string | null
-  org_size: string | null
+  org_size: OrgSize | null
   org_mission: string | null
 }
 
@@ -73,7 +77,7 @@ export default async function ProfilePage({
       .from('users')
       .select(
         `id, email, full_name, display_name, bio, avatar_url, role,
-         availability, website_url, created_at,
+         availability, website_url, preferred_language, created_at,
          primary_platform, platform_url, audience_size, content_language,
          publication_name, publication_url, reporting_beat,
          affiliation, job_title, credibility_url, areas_of_focus,
