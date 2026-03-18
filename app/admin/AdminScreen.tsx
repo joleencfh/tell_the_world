@@ -1,19 +1,25 @@
 'use client'
 
 import { useState } from 'react'
-import { approveApplication, rejectApplication } from '@/lib/admin/actions'
-import type { Application } from '@/lib/admin/actions'
+import {
+  approveApplication, rejectApplication,
+  approveQuestion, dismissQuestion,
+  approveContribution, dismissContribution,
+} from '@/lib/admin/actions'
+import type { Application, PendingQuestion, PendingContribution } from '@/lib/admin/actions'
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-type Tab = 'pending' | 'approved'
+type Tab = 'pending' | 'questions' | 'contributions' | 'approved'
 
 interface Props {
   adminEmail: string
   pending: Application[]
   approved: Partial<Application>[]
+  pendingQuestions: PendingQuestion[]
+  pendingContributions: PendingContribution[]
 }
 
 // ---------------------------------------------------------------------------
@@ -251,6 +257,126 @@ function ApplicationCard({ app }: { app: Application }) {
 }
 
 // ---------------------------------------------------------------------------
+// Pending question card
+// ---------------------------------------------------------------------------
+
+function QuestionCard({ question }: { question: PendingQuestion }) {
+  const [loading, setLoading] = useState<'approving' | 'dismissing' | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const submitterName = question.users.display_name || question.users.email.split('@')[0]
+
+  async function handleApprove() {
+    setLoading('approving')
+    setError(null)
+    const result = await approveQuestion(question.id)
+    if (result.error) { setError(result.error); setLoading(null) }
+  }
+
+  async function handleDismiss() {
+    setLoading('dismissing')
+    setError(null)
+    const result = await dismissQuestion(question.id)
+    if (result.error) { setError(result.error); setLoading(null) }
+  }
+
+  return (
+    <div className="border border-edge bg-card px-5 py-4 space-y-3">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div className="space-y-0.5">
+          <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-live">
+            {question.briefs.title}
+          </p>
+          <p className="font-mono text-[9px] text-soft">
+            {submitterName} · {formatDate(question.created_at)}
+          </p>
+        </div>
+      </div>
+      <p className="font-serif text-sm text-dark leading-snug">{question.question_text}</p>
+      {error && <p className="font-mono text-[10px] text-red-600">{error}</p>}
+      <div className="flex gap-3">
+        <button
+          onClick={handleApprove}
+          disabled={loading !== null}
+          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 bg-dark text-white hover:bg-text transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {loading === 'approving' ? 'Approving…' : 'Approve'}
+        </button>
+        <button
+          onClick={handleDismiss}
+          disabled={loading !== null}
+          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-edge text-soft hover:border-text hover:text-text transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {loading === 'dismissing' ? 'Dismissing…' : 'Dismiss'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Pending contribution card
+// ---------------------------------------------------------------------------
+
+function ContributionCard({ contribution }: { contribution: PendingContribution }) {
+  const [loading, setLoading] = useState<'approving' | 'dismissing' | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const submitterName = contribution.users.display_name || contribution.users.email.split('@')[0]
+
+  async function handleApprove() {
+    setLoading('approving')
+    setError(null)
+    const result = await approveContribution(contribution.id)
+    if (result.error) { setError(result.error); setLoading(null) }
+  }
+
+  async function handleDismiss() {
+    setLoading('dismissing')
+    setError(null)
+    const result = await dismissContribution(contribution.id)
+    if (result.error) { setError(result.error); setLoading(null) }
+  }
+
+  return (
+    <div className="border border-edge bg-card px-5 py-4 space-y-3">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div className="space-y-0.5">
+          <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-live">
+            {contribution.briefs.title}
+          </p>
+          <p className="font-mono text-[9px] text-soft">
+            {submitterName}
+            {' · '}
+            <span className="capitalize">{contribution.users.role}</span>
+            {' · '}
+            {formatDate(contribution.created_at)}
+          </p>
+        </div>
+      </div>
+      <p className="font-serif text-sm text-dark leading-relaxed whitespace-pre-wrap">
+        {contribution.contribution_text}
+      </p>
+      {error && <p className="font-mono text-[10px] text-red-600">{error}</p>}
+      <div className="flex gap-3">
+        <button
+          onClick={handleApprove}
+          disabled={loading !== null}
+          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 bg-dark text-white hover:bg-text transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {loading === 'approving' ? 'Approving…' : 'Approve'}
+        </button>
+        <button
+          onClick={handleDismiss}
+          disabled={loading !== null}
+          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-edge text-soft hover:border-text hover:text-text transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {loading === 'dismissing' ? 'Dismissing…' : 'Dismiss'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Recently approved row
 // ---------------------------------------------------------------------------
 
@@ -278,7 +404,7 @@ function ApprovedRow({ app }: { app: Partial<Application> }) {
 // Main screen
 // ---------------------------------------------------------------------------
 
-export default function AdminScreen({ adminEmail, pending, approved }: Props) {
+export default function AdminScreen({ adminEmail, pending, approved, pendingQuestions, pendingContributions }: Props) {
   const [tab, setTab] = useState<Tab>('pending')
 
   return (
@@ -311,10 +437,26 @@ export default function AdminScreen({ adminEmail, pending, approved }: Props) {
           {/* Tabs */}
           <div className="flex gap-0 border-b border-edge mb-6">
             <TabButton active={tab === 'pending'} onClick={() => setTab('pending')}>
-              Pending
+              Applications
               {pending.length > 0 && (
                 <span className="ml-2 font-mono text-[9px] bg-live text-white px-1.5 py-0.5">
                   {pending.length}
+                </span>
+              )}
+            </TabButton>
+            <TabButton active={tab === 'questions'} onClick={() => setTab('questions')}>
+              Questions
+              {pendingQuestions.length > 0 && (
+                <span className="ml-2 font-mono text-[9px] bg-live text-white px-1.5 py-0.5">
+                  {pendingQuestions.length}
+                </span>
+              )}
+            </TabButton>
+            <TabButton active={tab === 'contributions'} onClick={() => setTab('contributions')}>
+              Contributions
+              {pendingContributions.length > 0 && (
+                <span className="ml-2 font-mono text-[9px] bg-live text-white px-1.5 py-0.5">
+                  {pendingContributions.length}
                 </span>
               )}
             </TabButton>
@@ -323,7 +465,7 @@ export default function AdminScreen({ adminEmail, pending, approved }: Props) {
             </TabButton>
           </div>
 
-          {/* Pending tab */}
+          {/* Pending applications tab */}
           {tab === 'pending' && (
             <>
               {pending.length === 0 ? (
@@ -334,6 +476,40 @@ export default function AdminScreen({ adminEmail, pending, approved }: Props) {
                 <div className="flex flex-col gap-2">
                   {pending.map(app => (
                     <ApplicationCard key={app.id} app={app} />
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Pending questions tab */}
+          {tab === 'questions' && (
+            <>
+              {pendingQuestions.length === 0 ? (
+                <p className="font-serif text-sm text-soft italic py-8 text-center">
+                  No pending questions.
+                </p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {pendingQuestions.map(q => (
+                    <QuestionCard key={q.id} question={q} />
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Pending contributions tab */}
+          {tab === 'contributions' && (
+            <>
+              {pendingContributions.length === 0 ? (
+                <p className="font-serif text-sm text-soft italic py-8 text-center">
+                  No pending contributions.
+                </p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {pendingContributions.map(c => (
+                    <ContributionCard key={c.id} contribution={c} />
                   ))}
                 </div>
               )}

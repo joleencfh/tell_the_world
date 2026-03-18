@@ -14,8 +14,8 @@ function isPublicRoute(pathname: string): boolean {
   if (PUBLIC_ROUTES.has(pathname)) return true
   // Auth callback
   if (pathname.startsWith('/auth/')) return true
-  // Public brief pages (e.g. /brief/[slug]) — not yet built, reserved for later
-  if (pathname.startsWith('/brief/')) return true
+  // Public brief pages — logged-out visitors may view public briefs; page handles visibility
+  if (pathname.startsWith('/briefs/')) return true
   return false
 }
 

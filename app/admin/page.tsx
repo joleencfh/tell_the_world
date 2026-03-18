@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { getPendingApplications, getRecentlyApproved } from '@/lib/admin/actions'
+import { getPendingApplications, getRecentlyApproved, getPendingQuestions, getPendingContributions } from '@/lib/admin/actions'
 import AdminScreen from './AdminScreen'
 
 export default async function AdminPage() {
@@ -13,9 +13,11 @@ export default async function AdminPage() {
   }
 
   // Fetch data with the service-role client (bypasses RLS)
-  const [pendingResult, approvedResult] = await Promise.all([
+  const [pendingResult, approvedResult, questionsResult, contributionsResult] = await Promise.all([
     getPendingApplications(),
     getRecentlyApproved(),
+    getPendingQuestions(),
+    getPendingContributions(),
   ])
 
   return (
@@ -23,6 +25,8 @@ export default async function AdminPage() {
       adminEmail={user.email!}
       pending={pendingResult.data}
       approved={approvedResult.data}
+      pendingQuestions={questionsResult.data}
+      pendingContributions={contributionsResult.data}
     />
   )
 }

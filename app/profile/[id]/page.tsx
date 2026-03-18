@@ -53,6 +53,14 @@ export interface ProfilePost {
   created_at: string
 }
 
+export interface ProfileContribution {
+  id: string
+  contribution_text: string
+  status: 'pending' | 'approved' | 'dismissed'
+  created_at: string
+  briefs: { title: string; slug: string }
+}
+
 // ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
@@ -72,7 +80,7 @@ export default async function ProfilePage({
   if (!user) redirect('/login')
 
   // Fetch profile user's row and their posts in parallel
-  const [profileUserResult, postsResult] = await Promise.all([
+  const [profileUserResult, postsResult, contributionsResult] = await Promise.all([
     supabase
       .from('users')
       .select(
@@ -91,16 +99,26 @@ export default async function ProfilePage({
       .eq('user_id', profileId)
       .order('created_at', { ascending: false })
       .limit(20),
+    supabase
+      .from('brief_contributions')
+      .select('id, contribution_text, status, created_at, briefs(title, slug)')
+      .eq('user_id', profileId)
+      .order('created_at', { ascending: false }),
   ])
 
   const profileUser = profileUserResult.data as ProfileUser | null
   const posts = (postsResult.data ?? []) as ProfilePost[]
+  // RLS returns: approved contributions for everyone, plus own pending/dismissed when viewing own profile.
+  // Filter out dismissed — they shouldn't appear on the profile.
+  const contributions = ((contributionsResult.data ?? []) as unknown as ProfileContribution[])
+    .filter(c => c.status !== 'dismissed')
   const isOwnProfile = user.id === profileId
 
   return (
     <ProfileView
       profileUser={profileUser}
       posts={posts}
+      contributions={contributions}
       isOwnProfile={isOwnProfile}
       currentUserId={user.id}
     />

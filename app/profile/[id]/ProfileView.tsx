@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { signOut } from '@/lib/auth/actions'
 import EditProfileModal from './EditProfileModal'
-import type { ProfileUser, ProfilePost, UserRole, AvailabilityStatus } from './page'
+import type { ProfileUser, ProfilePost, ProfileContribution, UserRole, AvailabilityStatus } from './page'
 
 // ---------------------------------------------------------------------------
 // Utilities
@@ -185,6 +185,7 @@ function PostCard({ post }: { post: ProfilePost }) {
 interface ProfileViewProps {
   profileUser: ProfileUser | null
   posts: ProfilePost[]
+  contributions: ProfileContribution[]
   isOwnProfile: boolean
   currentUserId: string
 }
@@ -192,6 +193,7 @@ interface ProfileViewProps {
 export default function ProfileView({
   profileUser,
   posts,
+  contributions,
   isOwnProfile,
   currentUserId,
 }: ProfileViewProps) {
@@ -377,6 +379,31 @@ export default function ProfileView({
                   </p>
                 )}
               </section>
+
+              {/* Contributions section — experts and organisations only */}
+              {(profileUser.role === 'expert' || profileUser.role === 'organisation') &&
+                (contributions.length > 0 || isOwnProfile) && (
+                <section>
+                  <div className="flex items-center gap-5 mb-7">
+                    <h2 className="font-display uppercase tracking-[0.18em] text-dark text-sm shrink-0">
+                      Brief contributions
+                    </h2>
+                    <div className="flex-1 h-px bg-edge" />
+                  </div>
+
+                  {contributions.length > 0 ? (
+                    <div className="space-y-4">
+                      {contributions.map((c) => (
+                        <ContributionCard key={c.id} contribution={c} isOwnProfile={isOwnProfile} />
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="font-serif text-sm text-soft/60 italic py-4">
+                      No contributions yet.
+                    </p>
+                  )}
+                </section>
+              )}
             </>
           )}
 
@@ -399,6 +426,41 @@ export default function ProfileView({
         />
       )}
     </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Contribution card
+// ---------------------------------------------------------------------------
+
+function ContributionCard({
+  contribution,
+  isOwnProfile,
+}: {
+  contribution: ProfileContribution
+  isOwnProfile: boolean
+}) {
+  const isPending = contribution.status === 'pending'
+  return (
+    <article className="bg-card border border-edge rounded-xl p-5 flex flex-col gap-3">
+      <div className="flex items-start justify-between gap-3">
+        <Link
+          href={`/briefs/${contribution.briefs.slug}`}
+          className="font-mono text-[9px] tracking-[0.15em] uppercase text-live hover:opacity-75 transition-opacity"
+        >
+          {contribution.briefs.title} →
+        </Link>
+        {isOwnProfile && isPending && (
+          <span className="shrink-0 font-mono text-[9px] tracking-[0.1em] uppercase text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
+            Pending review
+          </span>
+        )}
+      </div>
+      <p className="font-serif text-sm text-text leading-relaxed whitespace-pre-wrap">
+        {contribution.contribution_text}
+      </p>
+      <span className="font-mono text-[9px] text-soft/70">{formatDate(contribution.created_at)}</span>
+    </article>
   )
 }
 

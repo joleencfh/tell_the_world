@@ -187,6 +187,101 @@ export async function approveApplication(applicationId: string): Promise<{ succe
 }
 
 // ---------------------------------------------------------------------------
+// Questions moderation
+// ---------------------------------------------------------------------------
+
+export interface PendingQuestion {
+  id: string
+  question_text: string
+  created_at: string
+  brief_id: string
+  briefs: { title: string; slug: string }
+  users: { display_name: string | null; email: string }
+}
+
+export async function getPendingQuestions(): Promise<{ data: PendingQuestion[]; error: string | null }> {
+  const { data, error } = await getAdminClient()
+    .from('questions')
+    .select('id, question_text, created_at, brief_id, briefs(title, slug), users(display_name, email)')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: true })
+
+  return { data: (data as unknown as PendingQuestion[]) ?? [], error: error?.message ?? null }
+}
+
+export async function approveQuestion(questionId: string): Promise<{ success?: boolean; error?: string }> {
+  const { error } = await getAdminClient()
+    .from('questions')
+    .update({ status: 'approved' })
+    .eq('id', questionId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/admin')
+  return { success: true }
+}
+
+export async function dismissQuestion(questionId: string): Promise<{ success?: boolean; error?: string }> {
+  const { error } = await getAdminClient()
+    .from('questions')
+    .delete()
+    .eq('id', questionId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/admin')
+  return { success: true }
+}
+
+// ---------------------------------------------------------------------------
+// Brief contributions moderation
+// ---------------------------------------------------------------------------
+
+export interface PendingContribution {
+  id: string
+  contribution_text: string
+  status: 'pending' | 'approved' | 'dismissed'
+  created_at: string
+  brief_id: string
+  briefs: { title: string; slug: string }
+  users: { id: string; display_name: string | null; email: string; role: string }
+}
+
+export async function getPendingContributions(): Promise<{ data: PendingContribution[]; error: string | null }> {
+  const { data, error } = await getAdminClient()
+    .from('brief_contributions')
+    .select('id, contribution_text, status, created_at, brief_id, briefs(title, slug), users(id, display_name, email, role)')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: true })
+
+  return { data: (data as unknown as PendingContribution[]) ?? [], error: error?.message ?? null }
+}
+
+export async function approveContribution(contributionId: string): Promise<{ success?: boolean; error?: string }> {
+  const { error } = await getAdminClient()
+    .from('brief_contributions')
+    .update({ status: 'approved' })
+    .eq('id', contributionId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/admin')
+  return { success: true }
+}
+
+export async function dismissContribution(contributionId: string): Promise<{ success?: boolean; error?: string }> {
+  const { error } = await getAdminClient()
+    .from('brief_contributions')
+    .update({ status: 'dismissed' })
+    .eq('id', contributionId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/admin')
+  return { success: true }
+}
+
+// ---------------------------------------------------------------------------
 // Reject
 // ---------------------------------------------------------------------------
 

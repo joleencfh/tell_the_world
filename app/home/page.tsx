@@ -313,7 +313,7 @@ export default async function HomePage() {
   const currentUser = currentUserResult.data as CurrentUser | null
   const briefs = (briefsResult.data ?? []) as Brief[]
   const recentUsers = (recentUsersResult.data ?? []) as RecentUser[]
-  const posts = (postsRaw ?? []) as ContentPost[]
+  const posts = (postsRaw ?? []) as unknown as ContentPost[]
 
   const welcomeName = currentUser
     ? getDisplayName(currentUser)
