@@ -50,6 +50,7 @@ export interface ProfilePost {
   title: string
   body: string | null
   url: string | null
+  topic_tags: string[]
   created_at: string
 }
 
@@ -79,8 +80,8 @@ export default async function ProfilePage({
 
   if (!user) redirect('/login')
 
-  // Fetch profile user's row and their posts in parallel
-  const [profileUserResult, postsResult, contributionsResult] = await Promise.all([
+  // Fetch profile user's row, their posts, contributions, and current user's own info in parallel
+  const [profileUserResult, postsResult, contributionsResult, currentUserResult] = await Promise.all([
     supabase
       .from('users')
       .select(
@@ -95,7 +96,7 @@ export default async function ProfilePage({
       .single(),
     supabase
       .from('content_posts')
-      .select('id, user_id, post_type, title, body, url, created_at')
+      .select('id, user_id, post_type, title, body, url, topic_tags, created_at')
       .eq('user_id', profileId)
       .order('created_at', { ascending: false })
       .limit(20),
@@ -104,6 +105,11 @@ export default async function ProfilePage({
       .select('id, contribution_text, status, created_at, briefs(title, slug)')
       .eq('user_id', profileId)
       .order('created_at', { ascending: false }),
+    supabase
+      .from('users')
+      .select('id, display_name, email, role')
+      .eq('id', user.id)
+      .single(),
   ])
 
   const profileUser = profileUserResult.data as ProfileUser | null
@@ -113,6 +119,12 @@ export default async function ProfilePage({
   const contributions = ((contributionsResult.data ?? []) as unknown as ProfileContribution[])
     .filter(c => c.status !== 'dismissed')
   const isOwnProfile = user.id === profileId
+  const currentUser = (currentUserResult.data ?? null) as {
+    id: string
+    display_name: string | null
+    email: string
+    role: UserRole
+  } | null
 
   return (
     <ProfileView
@@ -121,6 +133,7 @@ export default async function ProfilePage({
       contributions={contributions}
       isOwnProfile={isOwnProfile}
       currentUserId={user.id}
+      currentUser={currentUser}
     />
   )
 }

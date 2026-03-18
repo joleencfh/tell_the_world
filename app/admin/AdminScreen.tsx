@@ -5,14 +5,15 @@ import {
   approveApplication, rejectApplication,
   approveQuestion, dismissQuestion,
   approveContribution, dismissContribution,
+  dismissBriefProposal,
 } from '@/lib/admin/actions'
-import type { Application, PendingQuestion, PendingContribution } from '@/lib/admin/actions'
+import type { Application, PendingQuestion, PendingContribution, BriefProposal } from '@/lib/admin/actions'
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-type Tab = 'pending' | 'questions' | 'contributions' | 'approved'
+type Tab = 'pending' | 'questions' | 'contributions' | 'proposals' | 'approved'
 
 interface Props {
   adminEmail: string
@@ -20,6 +21,7 @@ interface Props {
   approved: Partial<Application>[]
   pendingQuestions: PendingQuestion[]
   pendingContributions: PendingContribution[]
+  briefProposals: BriefProposal[]
 }
 
 // ---------------------------------------------------------------------------
@@ -377,6 +379,81 @@ function ContributionCard({ contribution }: { contribution: PendingContribution 
 }
 
 // ---------------------------------------------------------------------------
+// Brief proposal card
+// ---------------------------------------------------------------------------
+
+function BriefProposalCard({ proposal }: { proposal: BriefProposal }) {
+  const [expanded, setExpanded] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  async function handleDismiss() {
+    setLoading(true)
+    setError(null)
+    const result = await dismissBriefProposal(proposal.id)
+    if (result.error) { setError(result.error); setLoading(false) }
+  }
+
+  return (
+    <div className="border border-edge bg-card">
+      {/* Summary row */}
+      <button
+        className="w-full text-left px-5 py-4 flex items-center gap-4 hover:bg-base/60 transition-colors"
+        onClick={() => setExpanded(e => !e)}
+        aria-expanded={expanded}
+      >
+        <span
+          className="font-mono text-[9px] tracking-[0.15em] text-soft shrink-0 transition-transform duration-150"
+          aria-hidden
+          style={{ transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)' }}
+        >
+          ▶
+        </span>
+        <div className="flex-1 min-w-0">
+          <p className="font-serif text-sm font-semibold text-dark truncate mb-0.5">
+            {proposal.topic_title}
+          </p>
+          <p className="font-mono text-[10px] text-soft">
+            {proposal.submitter_name} · {proposal.submitter_email}
+          </p>
+        </div>
+        <span className="font-mono text-[9px] text-soft shrink-0 hidden sm:block">
+          {formatDate(proposal.created_at)}
+        </span>
+      </button>
+
+      {/* Expanded body */}
+      {expanded && (
+        <div className="border-t border-edge px-5 pt-4 pb-5 space-y-4">
+          {proposal.from_brief_title && (
+            <p className="font-mono text-[9px] tracking-[0.15em] uppercase text-soft">
+              Submitted from brief: <span className="text-live">{proposal.from_brief_title}</span>
+            </p>
+          )}
+          <div>
+            <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-soft mb-2">
+              Why it matters / what it should cover
+            </p>
+            <p className="font-serif text-sm text-dark leading-relaxed whitespace-pre-wrap">
+              {proposal.why_it_matters}
+            </p>
+          </div>
+          <Field label="Submitted by" value={`${proposal.submitter_name} (${proposal.submitter_email})`} />
+          {error && <p className="font-mono text-[10px] text-red-600" role="alert">{error}</p>}
+          <button
+            onClick={handleDismiss}
+            disabled={loading}
+            className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-edge text-soft hover:border-text hover:text-text transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Dismissing…' : 'Dismiss'}
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Recently approved row
 // ---------------------------------------------------------------------------
 
@@ -404,7 +481,7 @@ function ApprovedRow({ app }: { app: Partial<Application> }) {
 // Main screen
 // ---------------------------------------------------------------------------
 
-export default function AdminScreen({ adminEmail, pending, approved, pendingQuestions, pendingContributions }: Props) {
+export default function AdminScreen({ adminEmail, pending, approved, pendingQuestions, pendingContributions, briefProposals }: Props) {
   const [tab, setTab] = useState<Tab>('pending')
 
   return (
@@ -460,6 +537,14 @@ export default function AdminScreen({ adminEmail, pending, approved, pendingQues
                 </span>
               )}
             </TabButton>
+            <TabButton active={tab === 'proposals'} onClick={() => setTab('proposals')}>
+              Brief proposals
+              {briefProposals.length > 0 && (
+                <span className="ml-2 font-mono text-[9px] bg-live text-white px-1.5 py-0.5">
+                  {briefProposals.length}
+                </span>
+              )}
+            </TabButton>
             <TabButton active={tab === 'approved'} onClick={() => setTab('approved')}>
               Recently approved
             </TabButton>
@@ -510,6 +595,23 @@ export default function AdminScreen({ adminEmail, pending, approved, pendingQues
                 <div className="flex flex-col gap-2">
                   {pendingContributions.map(c => (
                     <ContributionCard key={c.id} contribution={c} />
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Brief proposals tab */}
+          {tab === 'proposals' && (
+            <>
+              {briefProposals.length === 0 ? (
+                <p className="font-serif text-sm text-soft italic py-8 text-center">
+                  No brief proposals yet.
+                </p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {briefProposals.map(p => (
+                    <BriefProposalCard key={p.id} proposal={p} />
                   ))}
                 </div>
               )}

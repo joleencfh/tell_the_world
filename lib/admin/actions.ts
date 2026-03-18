@@ -282,6 +282,44 @@ export async function dismissContribution(contributionId: string): Promise<{ suc
 }
 
 // ---------------------------------------------------------------------------
+// Brief proposals
+// ---------------------------------------------------------------------------
+
+export interface BriefProposal {
+  id: string
+  user_id: string | null
+  submitter_name: string
+  submitter_email: string
+  topic_title: string
+  why_it_matters: string
+  from_brief_title: string | null
+  status: 'pending' | 'dismissed'
+  created_at: string
+}
+
+export async function getBriefProposals(): Promise<{ data: BriefProposal[]; error: string | null }> {
+  const { data, error } = await getAdminClient()
+    .from('brief_proposals')
+    .select('*')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: true })
+
+  return { data: (data as BriefProposal[]) ?? [], error: error?.message ?? null }
+}
+
+export async function dismissBriefProposal(proposalId: string): Promise<{ success?: boolean; error?: string }> {
+  const { error } = await getAdminClient()
+    .from('brief_proposals')
+    .update({ status: 'dismissed' })
+    .eq('id', proposalId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/admin')
+  return { success: true }
+}
+
+// ---------------------------------------------------------------------------
 // Reject
 // ---------------------------------------------------------------------------
 
