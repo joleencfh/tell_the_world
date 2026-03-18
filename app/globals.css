@@ -3,6 +3,7 @@
 @theme inline {
   /* Palette — Punchy Media Brand */
   --color-base:   #FAF9F6;
+  --color-warm:   #F5EDD9;  /* amber-tinted cream — section alternation */
   --color-dark:   #0D0D0D;
   --color-text:   #1C1C1C;
   --color-soft:   #6B7A8D;
@@ -28,4 +29,46 @@ body {
     linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
   background-size: 40px 40px;
+}
+
+/* ── Entrance animation ─────────────────────────────────────── */
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.anim-rise {
+  animation: rise 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-rise { animation: none; }
+}
+
+/* ── Source drawer slide-down ───────────────────────────────── */
+
+@keyframes drawer-open {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.anim-drawer {
+  animation: drawer-open 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-drawer { animation: none; }
 }
