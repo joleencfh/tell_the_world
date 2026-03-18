@@ -5,6 +5,9 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { signOut } from '@/lib/auth/actions'
 import EditProfileModal from './EditProfileModal'
+import PostModal from '@/components/PostModal'
+import ContactModal from '@/components/ContactModal'
+import type { PostData } from '@/components/PostModal'
 import type { ProfileUser, ProfilePost, ProfileContribution, UserRole, AvailabilityStatus } from './page'
 
 // ---------------------------------------------------------------------------
@@ -144,14 +147,26 @@ function DetailRow({ label, value }: { label: string; value: string }) {
   )
 }
 
-function PostCard({ post }: { post: ProfilePost }) {
+function PostCard({ post, onEdit }: { post: ProfilePost; onEdit?: () => void }) {
   return (
     <article className="bg-card border border-edge rounded-xl p-5 flex flex-col gap-3">
       <div className="flex items-start justify-between gap-3">
         <p className="font-serif text-sm font-bold text-dark leading-snug flex-1">
           {post.title}
         </p>
-        <PostTypeBadge type={post.post_type} />
+        <div className="flex items-center gap-2 shrink-0">
+          <PostTypeBadge type={post.post_type} />
+          {onEdit && (
+            <button
+              type="button"
+              onClick={onEdit}
+              className="font-mono text-[9px] tracking-[0.1em] uppercase text-soft/60 hover:text-text transition-colors"
+              aria-label="Edit post"
+            >
+              Edit
+            </button>
+          )}
+        </div>
       </div>
       {post.body && (
         <p className="font-serif text-sm text-soft leading-relaxed">
@@ -188,6 +203,7 @@ interface ProfileViewProps {
   contributions: ProfileContribution[]
   isOwnProfile: boolean
   currentUserId: string
+  currentUser: { id: string; display_name: string | null; email: string; role: UserRole } | null
 }
 
 export default function ProfileView({
@@ -196,9 +212,34 @@ export default function ProfileView({
   contributions,
   isOwnProfile,
   currentUserId,
+  currentUser,
 }: ProfileViewProps) {
   const router = useRouter()
   const [editOpen, setEditOpen] = useState(false)
+  const [postModalOpen, setPostModalOpen] = useState(false)
+  const [editingPost, setEditingPost] = useState<PostData | null>(null)
+  const [contactOpen, setContactOpen] = useState(false)
+
+  function openNewPost() {
+    setEditingPost(null)
+    setPostModalOpen(true)
+  }
+
+  function openEditPost(post: ProfilePost) {
+    setEditingPost({
+      id: post.id,
+      post_type: post.post_type,
+      title: post.title,
+      body: post.body,
+      url: post.url,
+      topic_tags: post.topic_tags ?? [],
+    })
+    setPostModalOpen(true)
+  }
+
+  function handlePostSuccess() {
+    router.refresh()
+  }
 
   async function handleSignOut() {
     await signOut()
@@ -332,18 +373,16 @@ export default function ProfileView({
                             Edit Profile
                           </button>
                           <button
-                            disabled
-                            title="Coming soon"
-                            className="font-display uppercase tracking-widest text-xs border border-edge text-soft px-5 py-2.5 opacity-40 cursor-not-allowed"
+                            onClick={openNewPost}
+                            className="font-display uppercase tracking-widest text-xs border border-edge text-soft px-5 py-2.5 hover:text-text hover:border-text transition-colors"
                           >
                             New Post
                           </button>
                         </>
                       ) : (
                         <button
-                          disabled
-                          title="Coming soon"
-                          className="font-display uppercase tracking-widest text-xs bg-dark text-base px-5 py-2.5 opacity-40 cursor-not-allowed"
+                          onClick={() => setContactOpen(true)}
+                          className="font-display uppercase tracking-widest text-xs bg-dark text-base px-5 py-2.5 hover:opacity-80 transition-opacity"
                         >
                           Contact
                         </button>
@@ -368,7 +407,11 @@ export default function ProfileView({
                 {posts.length > 0 ? (
                   <div className="grid sm:grid-cols-2 gap-4">
                     {posts.map((post) => (
-                      <PostCard key={post.id} post={post} />
+                      <PostCard
+                        key={post.id}
+                        post={post}
+                        onEdit={isOwnProfile ? () => openEditPost(post) : undefined}
+                      />
                     ))}
                   </div>
                 ) : (
@@ -423,6 +466,33 @@ export default function ProfileView({
         <EditProfileModal
           user={profileUser}
           onClose={() => setEditOpen(false)}
+        />
+      )}
+
+      {/* Post modal (create or edit) */}
+      {postModalOpen && (
+        <PostModal
+          currentUserId={currentUserId}
+          existingPost={editingPost}
+          onClose={() => setPostModalOpen(false)}
+          onSuccess={handlePostSuccess}
+        />
+      )}
+
+      {/* Contact modal */}
+      {contactOpen && profileUser && currentUser && (
+        <ContactModal
+          recipient={{
+            id: profileUser.id,
+            display_name: profileUser.display_name,
+            email: profileUser.email,
+            role: profileUser.role,
+          }}
+          sender={{
+            display_name: currentUser.display_name,
+            role: currentUser.role,
+          }}
+          onClose={() => setContactOpen(false)}
         />
       )}
     </div>

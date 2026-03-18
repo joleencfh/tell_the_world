@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { submitQuestion, submitContribution } from '@/lib/briefs/actions'
+import ProposeBriefModal from '@/components/ProposeBriefModal'
 import type {
   Brief,
   BriefSectionType,
@@ -860,6 +861,7 @@ export default function BriefView({ brief, quotes, questions, currentUser }: Bri
   const showSections = isLoggedIn || brief.visibility === 'public'
   const canContribute = currentUser?.role === 'expert' || currentUser?.role === 'organisation'
   const [contributeOpen, setContributeOpen] = useState(false)
+  const [proposeBriefOpen, setProposeBriefOpen] = useState(false)
   const sortedSections = [...brief.brief_sections].sort(
     (a, b) => a.display_order - b.display_order,
   )
@@ -1036,16 +1038,25 @@ export default function BriefView({ brief, quotes, questions, currentUser }: Bri
           </div>
         )}
 
-        {/* ── Propose correction — experts and orgs only ───────────────── */}
-        {canContribute && (
+        {/* ── Footer actions — logged-in members ───────────────────────── */}
+        {isLoggedIn && (
           <div className="px-6 py-6 border-t border-edge">
-            <div className="mx-auto max-w-4xl">
+            <div className="mx-auto max-w-4xl flex flex-wrap items-center gap-6">
+              {canContribute && (
+                <button
+                  type="button"
+                  onClick={() => setContributeOpen(true)}
+                  className="font-mono text-[10px] tracking-[0.15em] uppercase text-soft hover:text-text transition-colors inline-flex items-center gap-2"
+                >
+                  <span aria-hidden>→</span> Propose a correction or addition
+                </button>
+              )}
               <button
                 type="button"
-                onClick={() => setContributeOpen(true)}
+                onClick={() => setProposeBriefOpen(true)}
                 className="font-mono text-[10px] tracking-[0.15em] uppercase text-soft hover:text-text transition-colors inline-flex items-center gap-2"
               >
-                <span aria-hidden>→</span> Propose a correction or addition
+                <span aria-hidden>→</span> Propose a new brief
               </button>
             </div>
           </div>
@@ -1058,6 +1069,16 @@ export default function BriefView({ brief, quotes, questions, currentUser }: Bri
             briefSlug={brief.slug}
             briefTitle={brief.title}
             onClose={() => setContributeOpen(false)}
+          />
+        )}
+
+        {/* ── Propose brief modal ───────────────────────────────────────── */}
+        {proposeBriefOpen && currentUser && (
+          <ProposeBriefModal
+            submitterName={currentUser.display_name || currentUser.email.split('@')[0]}
+            submitterEmail={currentUser.email}
+            fromBriefTitle={brief.title}
+            onClose={() => setProposeBriefOpen(false)}
           />
         )}
 
