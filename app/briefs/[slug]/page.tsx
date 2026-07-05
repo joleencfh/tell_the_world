@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { getAdminClient } from '@/lib/supabase/admin'
 import BriefView from './BriefView'
 
 // ---------------------------------------------------------------------------
@@ -55,6 +54,9 @@ export interface QuestionAuthor {
   display_name: string | null
   email: string
   avatar_url: string | null
+  role?: UserRole | null
+  expert_category?: string | null
+  creator_platforms?: string[] | null
 }
 
 export interface Question {
@@ -63,6 +65,7 @@ export interface Question {
   answer_text: string | null
   created_at: string
   users: QuestionAuthor
+  answered_by?: QuestionAuthor | null
 }
 
 export interface CurrentUser {
@@ -90,20 +93,21 @@ export default async function BriefPage({
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Use admin client to fetch all data, bypassing RLS.
-  // Visibility enforcement is handled in BriefView.
-  const admin = getAdminClient()
+  // All fetches go through the RLS client, so the database enforces
+  // visibility: logged-out visitors get brief metadata (title/tldr for the
+  // locked preview) but no members-only sections, quotes, or questions
+  // (policies in 008 and 013). The lock UI in BriefView is presentation only.
 
   // Fetch brief + sections + recent quotes in parallel
   const [briefResult, quotesResult] = await Promise.all([
-    admin
+    supabase
       .from('briefs')
       .select(
         'id, title, slug, tldr, visibility, brief_sections(id, section_type, content, display_order)',
       )
       .eq('slug', slug)
       .single(),
-    admin
+    supabase
       .from('content_posts')
       .select(
         'id, title, body, url, user_id, users(id, display_name, email, avatar_url, role, affiliation, org_name)',
@@ -123,15 +127,15 @@ export default async function BriefPage({
 
   if (user) {
     const [questionsResult, currentUserResult] = await Promise.all([
-      admin
+      supabase
         .from('questions')
         .select(
-          'id, question_text, answer_text, created_at, users(id, display_name, email, avatar_url)',
+          'id, question_text, answer_text, created_at, users(id, display_name, email, avatar_url, role)',
         )
         .eq('brief_id', brief.id)
         .eq('status', 'approved')
         .order('created_at', { ascending: true }),
-      admin
+      supabase
         .from('users')
         .select('id, display_name, email, avatar_url, role')
         .eq('id', user.id)

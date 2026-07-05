@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
-import { sendApplicationConfirmation } from "@/lib/email/send-application-confirmation";
+import { submitApplication } from "@/lib/applications/actions";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -229,124 +228,23 @@ export default function ApplyPage() {
     setSubmitError(null);
     setSubmitting(true);
 
-    const supabase = createClient();
-
-    const payload: Record<string, unknown> = {
-      first_name: form.first_name.trim(),
-      last_name: form.last_name.trim(),
-      // Keep full_name populated for admin convenience / existing queries
-      full_name: `${form.first_name.trim()} ${form.last_name.trim()}`,
-      email: form.email.trim().toLowerCase(),
-      desired_role: form.desired_role,
-      bio: form.bio.trim(),
-      status: "pending",
-    };
-
-    if (form.website_url.trim()) payload.website_url = form.website_url.trim();
-
-    // "Other" role: store the description in its own column
-    if (form.desired_role_other.trim())
-      payload.desired_role_other = form.desired_role_other.trim();
-
-    // referral_source: if "other" was chosen, store the typed value instead
-    if (form.referral_source) {
-      payload.referral_source =
-        form.referral_source === "other" && form.referral_source_other.trim()
-          ? form.referral_source_other.trim()
-          : form.referral_source;
-    }
-
-    if (form.additional_info.trim()) payload.additional_info = form.additional_info.trim();
-    if (form.sample_work_url.trim()) payload.sample_work_url = form.sample_work_url.trim();
-
-    if (role === "creator") {
-      // If "other" platform was chosen, store the typed value instead
-      if (form.primary_platform) {
-        payload.primary_platform =
-          form.primary_platform === "other" && form.primary_platform_other.trim()
-            ? form.primary_platform_other.trim()
-            : form.primary_platform;
-      }
-      if (form.platform_url.trim()) payload.platform_url = form.platform_url.trim();
-      if (form.audience_size.trim()) {
-        const n = parseInt(form.audience_size, 10);
-        if (!isNaN(n)) payload.audience_size = n;
-      }
-      if (form.content_language.trim())
-        payload.content_language = form.content_language.trim();
-    }
-
-    if (role === "journalist") {
-      if (form.publication_name.trim())
-        payload.publication_name = form.publication_name.trim();
-      if (form.publication_url.trim())
-        payload.publication_url = form.publication_url.trim();
-      if (form.reporting_beat.trim())
-        payload.reporting_beat = form.reporting_beat.trim();
-      if (form.content_language.trim())
-        payload.content_language = form.content_language.trim();
-    }
-
-    if (role === "expert") {
-      if (form.affiliation.trim()) payload.affiliation = form.affiliation.trim();
-      if (form.job_title.trim()) payload.job_title = form.job_title.trim();
-      if (form.credibility_url.trim())
-        payload.credibility_url = form.credibility_url.trim();
-    }
-
-    if (role === "organisation") {
-      if (form.org_name.trim()) payload.org_name = form.org_name.trim();
-      if (form.org_size) payload.org_size = form.org_size;
-      // Bio doubles as mission for orgs — mirror it into org_mission for admin queries
-      payload.org_mission = form.bio.trim();
-    }
-
-    const { error } = await supabase.from("applications").insert(payload);
+    // Validation here is UX only — the server action re-validates, rate
+    // limits, inserts the row, and sends the confirmation email. The browser
+    // never talks to Supabase or Resend directly.
+    const result = await submitApplication(form);
 
     setSubmitting(false);
 
-    if (error) {
-      setSubmitError(error.message);
+    if (result.error) {
+      setSubmitError(result.error);
       return;
     }
 
-    // Send confirmation email — capture any error into a local variable so we
-    // can surface it in the UI and avoid navigating away before the user sees it.
-    let emailError: string | null = null;
-    await sendApplicationConfirmation({
-      first_name:           form.first_name.trim(),
-      last_name:            form.last_name.trim(),
-      email:                form.email.trim().toLowerCase(),
-      desired_role:         form.desired_role,
-      desired_role_other:   form.desired_role_other.trim() || undefined,
-      bio:                  form.bio.trim(),
-      website_url:          form.website_url.trim() || undefined,
-      primary_platform:     form.primary_platform || undefined,
-      primary_platform_other: form.primary_platform_other.trim() || undefined,
-      platform_url:         form.platform_url.trim() || undefined,
-      audience_size:        form.audience_size.trim() || undefined,
-      content_language:     form.content_language.trim() || undefined,
-      publication_name:     form.publication_name.trim() || undefined,
-      publication_url:      form.publication_url.trim() || undefined,
-      reporting_beat:       form.reporting_beat.trim() || undefined,
-      affiliation:          form.affiliation.trim() || undefined,
-      job_title:            form.job_title.trim() || undefined,
-      credibility_url:      form.credibility_url.trim() || undefined,
-      org_name:             form.org_name.trim() || undefined,
-      org_size:             form.org_size || undefined,
-      sample_work_url:      form.sample_work_url.trim() || undefined,
-      referral_source:      form.referral_source || undefined,
-      referral_source_other: form.referral_source_other.trim() || undefined,
-      additional_info:      form.additional_info.trim() || undefined,
-    }).catch((err: unknown) => {
-      emailError = err instanceof Error ? err.message : String(err);
-      console.error("Confirmation email failed:", emailError);
-    });
-
-    if (emailError) {
-      // Stay on page so the error is readable — the application was saved successfully
-      setSubmitError(`Your application was saved, but the confirmation email failed: ${emailError}`);
-      setSubmitting(false);
+    if (result.emailFailed) {
+      // Stay on page so the message is readable — the application was saved successfully
+      setSubmitError(
+        "Your application was saved, but the confirmation email failed to send. We have your application — no need to resubmit.",
+      );
       return;
     }
 
