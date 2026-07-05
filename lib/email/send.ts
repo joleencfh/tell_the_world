@@ -1,4 +1,4 @@
-'use server'
+import 'server-only'
 
 import { resend, EMAIL_FROM } from './resend'
 

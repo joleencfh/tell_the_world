@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { headers } from 'next/headers'
+import { requireAdmin } from '@/lib/auth/require'
 import { getAdminClient } from '@/lib/supabase/admin'
 import { sendApprovalEmail } from '@/lib/email/send-approval'
 import { sendRejectionEmail } from '@/lib/email/send-rejection'
@@ -63,6 +64,8 @@ const ORG_SIZE_ENUM = new Set(['small', 'medium', 'large'])
 // ---------------------------------------------------------------------------
 
 export async function getPendingApplications(): Promise<{ data: Application[]; error: string | null }> {
+  await requireAdmin()
+
   const { data, error } = await getAdminClient()
     .from('applications')
     .select('*')
@@ -73,6 +76,8 @@ export async function getPendingApplications(): Promise<{ data: Application[]; e
 }
 
 export async function getRecentlyApproved(): Promise<{ data: Partial<Application>[]; error: string | null }> {
+  await requireAdmin()
+
   const { data, error } = await getAdminClient()
     .from('applications')
     .select('id, full_name, first_name, last_name, email, desired_role, desired_role_other, reviewed_at, created_at')
@@ -88,6 +93,8 @@ export async function getRecentlyApproved(): Promise<{ data: Partial<Application
 // ---------------------------------------------------------------------------
 
 export async function approveApplication(applicationId: string): Promise<{ success?: boolean; error?: string }> {
+  await requireAdmin()
+
   // 1. Fetch the full application
   const { data: app, error: fetchError } = await getAdminClient()
     .from('applications')
@@ -200,6 +207,8 @@ export interface PendingQuestion {
 }
 
 export async function getPendingQuestions(): Promise<{ data: PendingQuestion[]; error: string | null }> {
+  await requireAdmin()
+
   const { data, error } = await getAdminClient()
     .from('questions')
     .select('id, question_text, created_at, brief_id, briefs(title, slug), users(display_name, email)')
@@ -210,6 +219,8 @@ export async function getPendingQuestions(): Promise<{ data: PendingQuestion[]; 
 }
 
 export async function approveQuestion(questionId: string): Promise<{ success?: boolean; error?: string }> {
+  await requireAdmin()
+
   const { error } = await getAdminClient()
     .from('questions')
     .update({ status: 'approved' })
@@ -222,6 +233,8 @@ export async function approveQuestion(questionId: string): Promise<{ success?: b
 }
 
 export async function dismissQuestion(questionId: string): Promise<{ success?: boolean; error?: string }> {
+  await requireAdmin()
+
   const { error } = await getAdminClient()
     .from('questions')
     .delete()
@@ -248,6 +261,8 @@ export interface PendingContribution {
 }
 
 export async function getPendingContributions(): Promise<{ data: PendingContribution[]; error: string | null }> {
+  await requireAdmin()
+
   const { data, error } = await getAdminClient()
     .from('brief_contributions')
     .select('id, contribution_text, status, created_at, brief_id, briefs(title, slug), users(id, display_name, email, role)')
@@ -258,6 +273,8 @@ export async function getPendingContributions(): Promise<{ data: PendingContribu
 }
 
 export async function approveContribution(contributionId: string): Promise<{ success?: boolean; error?: string }> {
+  await requireAdmin()
+
   const { error } = await getAdminClient()
     .from('brief_contributions')
     .update({ status: 'approved' })
@@ -270,6 +287,8 @@ export async function approveContribution(contributionId: string): Promise<{ suc
 }
 
 export async function dismissContribution(contributionId: string): Promise<{ success?: boolean; error?: string }> {
+  await requireAdmin()
+
   const { error } = await getAdminClient()
     .from('brief_contributions')
     .update({ status: 'dismissed' })
@@ -286,6 +305,8 @@ export async function dismissContribution(contributionId: string): Promise<{ suc
 // ---------------------------------------------------------------------------
 
 export async function rejectApplication(applicationId: string): Promise<{ success?: boolean; error?: string }> {
+  await requireAdmin()
+
   // 1. Fetch just what we need for the email
   const { data: app, error: fetchError } = await getAdminClient()
     .from('applications')

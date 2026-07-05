@@ -48,6 +48,21 @@ export type QuoteResult = {
 }
 
 // ---------------------------------------------------------------------------
+// Sanitization
+// ---------------------------------------------------------------------------
+
+// PostgREST .or() filters are comma/paren-delimited expression strings, so a
+// search term containing those characters could alter the filter shape
+// (filter injection). Strip the structural characters before interpolating.
+// Applied to single .ilike() filters too, for consistency.
+function sanitizeSearchTerm(raw: string): string {
+  return raw
+    .replace(/[,()"'\\]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+// ---------------------------------------------------------------------------
 // Queries
 // ---------------------------------------------------------------------------
 
@@ -64,10 +79,12 @@ export async function searchUsers(
     .neq('role', 'admin')
 
   if (params.q) {
-    const q = params.q
-    query = query.or(
-      `display_name.ilike.%${q}%,bio.ilike.%${q}%,affiliation.ilike.%${q}%,org_name.ilike.%${q}%`,
-    )
+    const q = sanitizeSearchTerm(params.q)
+    if (q) {
+      query = query.or(
+        `display_name.ilike.%${q}%,bio.ilike.%${q}%,affiliation.ilike.%${q}%,org_name.ilike.%${q}%`,
+      )
+    }
   }
 
   if (params.role) {
@@ -108,7 +125,10 @@ export async function searchQuotes(
     .eq('post_type', 'quote')
 
   if (params.q) {
-    query = query.ilike('body', `%${params.q}%`)
+    const q = sanitizeSearchTerm(params.q)
+    if (q) {
+      query = query.ilike('body', `%${q}%`)
+    }
   }
 
   if (params.topic) {
