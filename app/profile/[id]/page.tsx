@@ -136,6 +136,7 @@ const MOCK_POSTS: Record<string, ProfilePost[]> = {
       title: 'On the Difficulty of Specifying Human Values to Optimising Systems',
       body: 'We argue that the core difficulty in AI alignment is not technical but conceptual — we do not have a sufficiently precise account of what we want AI systems to do.',
       url: 'https://example.com',
+      topic_tags: ['alignment', 'values'],
       created_at: '2025-11-20T10:00:00Z',
     },
     {
@@ -145,6 +146,7 @@ const MOCK_POSTS: Record<string, ProfilePost[]> = {
       title: 'Inner Alignment Failures Are More Common Than We Think',
       body: 'A review of recent empirical findings suggesting that mesa-optimisers arise more readily than the theoretical literature has assumed.',
       url: 'https://example.com',
+      topic_tags: ['alignment', 'research'],
       created_at: '2025-10-05T09:00:00Z',
     },
   ],
@@ -156,6 +158,7 @@ const MOCK_POSTS: Record<string, ProfilePost[]> = {
       title: 'The AI race nobody is talking about (and why it worries me)',
       body: 'I spent three months reading everything I could find on how AI labs actually operate. This is what changed my mind about where things are heading — told through the lens of competitive dynamics I usually apply to markets.',
       url: 'https://example.com',
+      topic_tags: ['ai-safety', 'industry'],
       created_at: '2025-12-01T16:00:00Z',
     },
     {
@@ -165,6 +168,7 @@ const MOCK_POSTS: Record<string, ProfilePost[]> = {
       title: 'What economists get wrong about AI risk',
       body: 'Most economic models of AI treat it like any other productivity tool. I think that framing misses something important — here\'s what I wish more people in my field were asking.',
       url: 'https://example.com',
+      topic_tags: ['economics', 'ai-risk'],
       created_at: '2025-11-10T12:00:00Z',
     },
   ],
