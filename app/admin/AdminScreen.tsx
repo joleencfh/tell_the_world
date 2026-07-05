@@ -7,6 +7,7 @@ import {
   approveContribution, dismissContribution,
   dismissBriefProposal,
 } from '@/lib/admin/actions'
+import { createBrief } from '@/lib/admin/brief-actions'
 import type { Application, PendingQuestion, PendingContribution, BriefProposal } from '@/lib/admin/actions'
 
 // ---------------------------------------------------------------------------
@@ -505,10 +506,18 @@ export default function AdminScreen({ adminEmail, pending, approved, pendingQues
         <div className="mx-auto max-w-4xl">
 
           {/* Page title */}
-          <div className="mb-8">
-            <h1 className="font-display uppercase text-[2rem] tracking-tight text-dark leading-none mb-1">
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="font-display uppercase text-[2rem] tracking-tight text-dark leading-none">
               Applications
             </h1>
+            <form action={createBrief}>
+              <button
+                type="submit"
+                className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-edge text-soft hover:border-dark hover:text-dark transition-colors"
+              >
+                + New brief
+              </button>
+            </form>
           </div>
 
           {/* Tabs */}
