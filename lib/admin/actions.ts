@@ -317,6 +317,8 @@ export interface BriefProposal {
 }
 
 export async function getBriefProposals(): Promise<{ data: BriefProposal[]; error: string | null }> {
+  await requireAdmin()
+
   const { data, error } = await getAdminClient()
     .from('brief_proposals')
     .select('*')
@@ -327,6 +329,8 @@ export async function getBriefProposals(): Promise<{ data: BriefProposal[]; erro
 }
 
 export async function dismissBriefProposal(proposalId: string): Promise<{ success?: boolean; error?: string }> {
+  await requireAdmin()
+
   const { error } = await getAdminClient()
     .from('brief_proposals')
     .update({ status: 'dismissed' })
