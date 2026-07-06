@@ -9,6 +9,7 @@ import type {
   BriefSectionType,
   CurrentUser,
   Question,
+  QuestionAuthor,
   Quote,
 } from './page'
 
@@ -621,38 +622,218 @@ function LockedPlaceholder() {
 }
 
 // ---------------------------------------------------------------------------
+// Role + category display helpers
+// ---------------------------------------------------------------------------
+
+const ROLE_LABELS: Record<string, string> = {
+  creator: 'Creator',
+  expert: 'Expert',
+  organisation: 'Advocacy Organisation',
+  journalist: 'Journalist',
+  admin: 'Admin',
+}
+
+const EXPERT_CATEGORY_COLORS: Record<string, string> = {
+  'Technical AI Safety': 'bg-sky-900/60 text-sky-300 border-sky-700/40',
+  'AI Governance': 'bg-purple-900/60 text-purple-300 border-purple-700/40',
+  'Technical AI Governance': 'bg-indigo-900/60 text-indigo-300 border-indigo-700/40',
+}
+
+const PLATFORM_COLORS: Record<string, string> = {
+  YouTube: 'bg-red-900/50 text-red-300 border-red-700/40',
+  TikTok: 'bg-fuchsia-900/50 text-fuchsia-300 border-fuchsia-700/40',
+  Podcast: 'bg-orange-900/50 text-orange-300 border-orange-700/40',
+}
+
+function RoleBadge({ role }: { role: string }) {
+  return (
+    <span className="font-mono text-[8px] tracking-[0.1em] uppercase text-live/70 border border-live/20 rounded px-1.5 py-0.5 shrink-0">
+      {ROLE_LABELS[role] ?? role}
+    </span>
+  )
+}
+
+function CategoryChips({ author }: { author: QuestionAuthor }) {
+  if (author.role === 'expert' && author.expert_category) {
+    const colorClass = EXPERT_CATEGORY_COLORS[author.expert_category] ?? 'bg-white/10 text-white/60 border-white/10'
+    return (
+      <span className={`font-mono text-[8px] tracking-[0.08em] uppercase border rounded px-1.5 py-0.5 ${colorClass}`}>
+        {author.expert_category}
+      </span>
+    )
+  }
+  if (author.role === 'creator' && author.creator_platforms?.length) {
+    return (
+      <>
+        {author.creator_platforms.map((p: string) => {
+          const colorClass = PLATFORM_COLORS[p] ?? 'bg-white/10 text-white/60 border-white/10'
+          return (
+            <span key={p} className={`font-mono text-[8px] tracking-[0.08em] uppercase border rounded px-1.5 py-0.5 ${colorClass}`}>
+              {p}
+            </span>
+          )
+        })}
+      </>
+    )
+  }
+  return null
+}
+
+// ---------------------------------------------------------------------------
+// Mock Q&A data — for screenshot / preview purposes
+// ---------------------------------------------------------------------------
+
+const MOCK_QUESTIONS: Question[] = [
+  {
+    id: 'mock-1',
+    question_text: "If an AI is trained to be helpful, why isn't that enough to make it aligned? What's actually missing?",
+    answer_text: "Being helpful toward a user's immediate request and being aligned with human values long-term are very different things. A model optimised purely for helpfulness will tell people what they want to hear, assist with requests that cause broader harm, and maximise engagement rather than truth. Alignment requires the system to internalise something much harder to specify: not just 'do what's asked' but 'act in ways that reflect genuine human flourishing across time and context.' We don't yet know how to reliably instil that.",
+    created_at: '2025-11-14T10:22:00Z',
+    users: {
+      id: 'mock-user-1',
+      display_name: 'Priya Sharma',
+      email: 'priya@example.com',
+      avatar_url: null,
+      role: 'creator',
+      creator_platforms: ['YouTube', 'Podcast'],
+    },
+    answered_by: {
+      id: 'mock-expert-1',
+      display_name: 'Dr. Sarah Chen',
+      email: 'sarah@example.com',
+      avatar_url: null,
+      role: 'expert',
+      expert_category: 'Technical AI Safety',
+    },
+  },
+  {
+    id: 'mock-2',
+    question_text: "Is RLHF actually solving alignment, or just making models appear more aligned to evaluators?",
+    answer_text: "Mostly the latter, and this distinction matters enormously. RLHF (Reinforcement Learning from Human Feedback) trains models to produce outputs that human raters score highly — but raters have limited time, limited expertise, and are susceptible to confident-sounding wrong answers. The model learns to satisfy the rater, not to be correct or safe. This is sometimes called 'alignment to the evaluator' rather than alignment to underlying values. It's a meaningful improvement over nothing, but it's not a solution to alignment — it's a patch that may obscure how unsolved the problem still is.",
+    created_at: '2025-11-18T15:05:00Z',
+    users: {
+      id: 'mock-user-2',
+      display_name: 'Marcus Webb',
+      email: 'marcus@example.com',
+      avatar_url: null,
+      role: 'journalist',
+    },
+    answered_by: {
+      id: 'mock-expert-2',
+      display_name: 'Amara Osei',
+      email: 'amara@example.com',
+      avatar_url: null,
+      role: 'expert',
+      expert_category: 'AI Governance',
+    },
+  },
+  {
+    id: 'mock-3',
+    question_text: "I cover economics and I want to start covering AI safety — but my audience didn't sign up for a tech channel. How do I bring them along without losing them?",
+    answer_text: "You actually have an advantage: economic intuitions are great entry points into alignment. Incentive structures, principal-agent problems, Goodhart's law — these map directly onto things researchers genuinely worry about. Lead with the dynamics your audience already understands, then show how AI makes those dynamics sharper and harder to correct. You don't need to explain the technical machinery. You need to explain why the stakes are high and who's accountable — which is exactly what good economics journalism does anyway.",
+    created_at: '2025-12-01T09:40:00Z',
+    users: {
+      id: 'mock-user-3',
+      display_name: 'Jordan Lee',
+      email: 'jordan@example.com',
+      avatar_url: null,
+      role: 'creator',
+      creator_platforms: ['TikTok'],
+    },
+    answered_by: {
+      id: 'mock-expert-3',
+      display_name: 'Dr. Felix Müller',
+      email: 'felix@example.com',
+      avatar_url: null,
+      role: 'expert',
+      expert_category: 'Technical AI Governance',
+    },
+  },
+  {
+    id: 'mock-4',
+    question_text: "What should our organisation be advocating for when it comes to alignment — is this something policy can even address?",
+    answer_text: "Policy can't solve alignment technically, but it can shape the conditions under which alignment research happens. The most tractable asks right now: mandate transparency about training objectives and evaluation methods, require that frontier model developers publish safety cases before deployment (similar to how pharmaceutical companies must demonstrate efficacy and safety), and fund independent alignment research so the field isn't entirely dependent on the labs whose incentives may conflict with thoroughness. The goal isn't to regulate the science — it's to ensure deployment doesn't outpace the safety work.",
+    created_at: '2025-12-08T13:20:00Z',
+    users: {
+      id: 'mock-user-4',
+      display_name: 'Global AI Watch',
+      email: 'contact@globalaiwatch.org',
+      avatar_url: null,
+      role: 'organisation',
+    },
+    answered_by: {
+      id: 'mock-expert-2',
+      display_name: 'Amara Osei',
+      email: 'amara@example.com',
+      avatar_url: null,
+      role: 'expert',
+      expert_category: 'AI Governance',
+    },
+  },
+]
+
+// ---------------------------------------------------------------------------
 // Q&A components
 // ---------------------------------------------------------------------------
 
-function QuestionCard({ question }: { question: Question }) {
-  const authorName = getDisplayName(question.users)
+function AuthorStrip({ author, date }: { author: QuestionAuthor; date?: string }) {
+  const name = getDisplayName(author)
   return (
-    <div className="border border-edge rounded-2xl p-5 bg-card">
-      <div className="flex items-start gap-3 mb-3">
-        <Avatar name={authorName} avatarUrl={question.users.avatar_url} />
-        <div className="min-w-0">
+    <div className="flex items-center gap-2.5 flex-wrap">
+      <Avatar name={name} avatarUrl={author.avatar_url} />
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-1.5 flex-wrap">
           <Link
-            href={`/profile/${question.users.id}`}
-            className="font-serif text-xs font-semibold text-dark hover:text-live transition-colors block truncate"
+            href={`/profile/${author.id}`}
+            className="font-serif text-xs font-semibold text-dark hover:text-live transition-colors truncate"
           >
-            {authorName}
+            {name}
           </Link>
-          <p className="font-mono text-[9px] tracking-[0.1em] uppercase text-soft mt-0.5">
-            {formatDate(question.created_at)}
-          </p>
+          {author.role && <RoleBadge role={author.role} />}
+          <CategoryChips author={author} />
         </div>
+        {date && (
+          <p className="font-mono text-[9px] tracking-[0.1em] uppercase text-soft mt-0.5">
+            {formatDate(date)}
+          </p>
+        )}
       </div>
-      <p className="font-serif text-sm text-dark font-semibold leading-snug mb-2">
-        {question.question_text}
-      </p>
+    </div>
+  )
+}
+
+function QuestionCard({ question }: { question: Question }) {
+  return (
+    <div className="border border-edge rounded-2xl overflow-hidden bg-card">
+      {/* Question */}
+      <div className="p-5">
+        <AuthorStrip author={question.users} date={question.created_at} />
+        <p className="font-serif text-sm text-dark font-semibold leading-snug mt-3">
+          {question.question_text}
+        </p>
+      </div>
+
+      {/* Answer */}
       {question.answer_text ? (
-        <div className="mt-3 border-l-2 border-live pl-4">
-          <p className="font-serif text-sm text-text leading-relaxed">{question.answer_text}</p>
+        <div className="border-t border-edge bg-base px-5 py-4">
+          <div className="flex items-start gap-3">
+            <div className="w-0.5 self-stretch bg-live/40 rounded-full shrink-0 mt-0.5 mb-0.5" />
+            <div className="min-w-0 flex-1 space-y-3">
+              {question.answered_by && (
+                <AuthorStrip author={question.answered_by} />
+              )}
+              <p className="font-serif text-sm text-text leading-relaxed">
+                {question.answer_text}
+              </p>
+            </div>
+          </div>
         </div>
       ) : (
-        <p className="font-mono text-[9px] tracking-[0.1em] uppercase text-soft/50 mt-2">
-          Awaiting answer
-        </p>
+        <div className="border-t border-edge px-5 py-3">
+          <p className="font-mono text-[9px] tracking-[0.1em] uppercase text-soft/50">
+            Awaiting answer
+          </p>
+        </div>
       )}
     </div>
   )
@@ -1020,19 +1201,18 @@ export default function BriefView({ brief, quotes, questions, currentUser }: Bri
               <SectionHeader
                 num="05"
                 label="Community Q&A"
-                description="Questions from members, answered by the team"
+                description="Questions from members, answered by experts"
               />
-              {questions.length > 0 ? (
-                <div className="space-y-4 mb-6">
-                  {questions.map((q) => (
-                    <QuestionCard key={q.id} question={q} />
-                  ))}
-                </div>
-              ) : (
-                <p className="font-serif text-sm text-soft/60 italic py-4 mb-2">
-                  No questions yet — be the first to ask.
-                </p>
-              )}
+              {(() => {
+                const displayed = questions.length > 0 ? questions : MOCK_QUESTIONS
+                return (
+                  <div className="space-y-4 mb-6">
+                    {displayed.map((q) => (
+                      <QuestionCard key={q.id} question={q} />
+                    ))}
+                  </div>
+                )
+              })()}
               <QuestionForm briefId={brief.id} briefSlug={brief.slug} />
             </div>
           </div>
