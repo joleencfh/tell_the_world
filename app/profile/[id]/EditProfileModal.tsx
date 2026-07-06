@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, useTransition } from 'react'
+import { useCallback, useEffect, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { updateProfile } from './actions'
 import type { ProfileUser, UserRole, AvailabilityStatus, PrimaryPlatform, OrgSize } from './page'
@@ -214,6 +214,13 @@ export default function EditProfileModal({ user, onClose }: EditProfileModalProp
 
   const displayName = getDisplayName(user)
 
+  const handleClose = useCallback(() => {
+    if (isDirty(initial.current, form)) {
+      if (!window.confirm('Discard changes?')) return
+    }
+    onClose()
+  }, [form, onClose])
+
   // Close on Escape
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -221,14 +228,7 @@ export default function EditProfileModal({ user, onClose }: EditProfileModalProp
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  })
-
-  function handleClose() {
-    if (isDirty(initial.current, form)) {
-      if (!window.confirm('Discard changes?')) return
-    }
-    onClose()
-  }
+  }, [handleClose])
 
   function set<K extends keyof ProfileUpdatePayload>(key: K, value: ProfileUpdatePayload[K]) {
     setForm((prev) => ({ ...prev, [key]: value }))

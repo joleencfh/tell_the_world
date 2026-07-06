@@ -800,7 +800,7 @@ export default function ApplyPage() {
                 {submitting ? "Submitting…" : "Submit application"}
               </button>
               <p className="font-mono text-[10px] text-soft leading-relaxed max-w-xs">
-                We'll review your application and get back to you by email
+                We&rsquo;ll review your application and get back to you by email
                 within a few days.
               </p>
             </div>

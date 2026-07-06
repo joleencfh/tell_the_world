@@ -387,7 +387,7 @@ export default function LandingPage() {
               <span className="block text-[3.5rem] sm:text-[5.5rem] text-dark">AI safety is</span>
               <span className="block text-[3.5rem] sm:text-[5.5rem] text-dark">the story</span>
               <span className="block text-[3.5rem] sm:text-[5.5rem] text-dark">your audience</span>
-              <span className="block text-[3.5rem] sm:text-[5.5rem] text-live">hasn't heard yet.</span>
+              <span className="block text-[3.5rem] sm:text-[5.5rem] text-live">hasn&rsquo;t heard yet.</span>
             </h1>
 
             {/* Subtext */}

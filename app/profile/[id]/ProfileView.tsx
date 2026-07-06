@@ -301,7 +301,7 @@ export default function ProfileView({
                 Profile not found
               </p>
               <p className="font-serif text-sm text-soft mb-8">
-                This profile doesn't exist or the link may be incorrect.
+                This profile doesn&rsquo;t exist or the link may be incorrect.
               </p>
               <Link
                 href="/directory"
