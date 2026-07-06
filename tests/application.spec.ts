@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, type Page } from '@playwright/test'
 import { createClient } from '@supabase/supabase-js'
 import fs from 'fs'
 import path from 'path'
@@ -29,7 +29,7 @@ loadEnvLocal()
 // ---------------------------------------------------------------------------
 
 /** Selects a role from the role dropdown and waits for the section to appear. */
-async function selectRole(page: Parameters<typeof test>[1]['page'], role: string) {
+async function selectRole(page: Page, role: string) {
   // The role <select> is the first select on the page
   await page.locator('select').first().selectOption(role)
 }
