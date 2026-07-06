@@ -6,6 +6,7 @@ import { requireAdmin } from '@/lib/auth/require'
 import { getAdminClient } from '@/lib/supabase/admin'
 import { sendApprovalEmail } from '@/lib/email/send-approval'
 import { sendRejectionEmail } from '@/lib/email/send-rejection'
+import type { TablesInsert, UserRole, PrimaryPlatform, OrgSize } from '@/lib/types'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -129,16 +130,19 @@ export async function approveApplication(applicationId: string): Promise<{ succe
 
   const displayName = app.full_name || [app.first_name, app.last_name].filter(Boolean).join(' ') || app.email
 
-  // 4. Insert into users table — the service role bypasses RLS
-  const { error: userError } = await getAdminClient().from('users').insert({
+  // 4. Insert into users table — the service role bypasses RLS.
+  // Cast: role/platform/size are validated above (the 'other' role is rejected
+  // earlier, platform and size are mapped to their enums), but arrive typed as
+  // the wider application column types.
+  const newUser: TablesInsert<'users'> = {
     id: userId,
     email: app.email,
     full_name: displayName,
     display_name: displayName,
     bio: app.bio,
-    role: app.desired_role,
+    role: app.desired_role as UserRole,
     website_url: app.website_url || null,
-    primary_platform: primaryPlatform,
+    primary_platform: primaryPlatform as PrimaryPlatform | null,
     platform_url: app.platform_url || null,
     audience_size: app.audience_size || null,
     content_language: app.content_language || null,
@@ -149,9 +153,10 @@ export async function approveApplication(applicationId: string): Promise<{ succe
     job_title: app.job_title || null,
     credibility_url: app.credibility_url || null,
     org_name: app.org_name || null,
-    org_size: orgSize,
+    org_size: orgSize as OrgSize | null,
     org_mission: app.org_mission || null,
-  })
+  }
+  const { error: userError } = await getAdminClient().from('users').insert(newUser)
 
   if (userError) {
     // Roll back: remove the auth user we just created

@@ -1,36 +1,52 @@
 // ---------------------------------------------------------------------------
-// Shared domain types — single source of truth for the enums used across the
-// app. These mirror the Postgres enums defined in supabase/001_initial_schema.sql.
+// Shared domain types — single source of truth for the app.
 //
-// Until a Supabase access token is available, these are hand-maintained. Once
-// `supabase gen types typescript` can run (needs SUPABASE_ACCESS_TOKEN), the
-// generated Database types can back these aliases, e.g.
-//   export type UserRole = Database['public']['Enums']['user_role']
-// so the database stays the single source of truth. Keeping the friendly
-// aliases here means callers never import the verbose generated shape directly.
+// Backed by lib/database.types.ts, which is generated from the live Postgres
+// schema with:
+//   bunx supabase gen types typescript --project-id <ref> --schema public > lib/database.types.ts
+// (needs SUPABASE_ACCESS_TOKEN). Re-run it after every migration.
+//
+// The friendly aliases below mean callers never import the verbose generated
+// shape (Database['public']['Enums']['user_role'], etc.) directly.
 // ---------------------------------------------------------------------------
 
-export type UserRole = 'creator' | 'expert' | 'organisation' | 'journalist' | 'admin'
+import type { Database } from './database.types'
 
-// Roles a person can apply for (admin is assigned, never requested)
-export type ApplicationRole = 'creator' | 'expert' | 'organisation' | 'journalist'
+// ─── Table row / insert / update helpers ──────────────────────────────────
 
-export type AvailabilityStatus = 'open' | 'limited' | 'unavailable'
+type PublicSchema = Database['public']
 
-export type PrimaryPlatform = 'youtube' | 'podcast' | 'instagram' | 'tiktok' | 'other'
+export type Tables<T extends keyof PublicSchema['Tables']> =
+  PublicSchema['Tables'][T]['Row']
 
-export type OrgSize = 'small' | 'medium' | 'large'
+export type TablesInsert<T extends keyof PublicSchema['Tables']> =
+  PublicSchema['Tables'][T]['Insert']
 
-export type BriefVisibility = 'public' | 'members_only'
+export type TablesUpdate<T extends keyof PublicSchema['Tables']> =
+  PublicSchema['Tables'][T]['Update']
 
-export type BriefSectionType =
-  | 'recent_developments'
-  | 'sources_basic'
-  | 'sources_advanced'
-  | 'faq'
+type Enums<T extends keyof PublicSchema['Enums']> = PublicSchema['Enums'][T]
 
-export type ApplicationStatus = 'pending' | 'approved' | 'rejected'
+// ─── Enums (from the Postgres enum types) ──────────────────────────────────
 
-export type PostType = 'video' | 'article' | 'paper' | 'quote' | 'resource'
+export type UserRole = Enums<'user_role'>
+export type ApplicationRole = Enums<'application_role'>
+export type AvailabilityStatus = Enums<'availability_status'>
+export type PrimaryPlatform = Enums<'primary_platform'>
+export type OrgSize = Enums<'org_size'>
+export type BriefVisibility = Enums<'brief_visibility'>
+export type BriefSectionType = Enums<'brief_section_type'>
+export type ApplicationStatus = Enums<'application_status'>
+export type PostType = Enums<'post_type'>
+export type MessageStatus = Enums<'message_status'>
 
-export type MessageStatus = 'pending' | 'accepted' | 'declined'
+// ─── Convenience row aliases for the common tables ─────────────────────────
+
+export type UserRow = Tables<'users'>
+export type BriefRow = Tables<'briefs'>
+export type BriefSectionRow = Tables<'brief_sections'>
+export type ContentPostRow = Tables<'content_posts'>
+export type ApplicationRow = Tables<'applications'>
+export type QuestionRow = Tables<'questions'>
+export type BriefContributionRow = Tables<'brief_contributions'>
+export type MessageRow = Tables<'messages'>

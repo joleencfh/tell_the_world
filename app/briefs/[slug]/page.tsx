@@ -1,6 +1,10 @@
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import type { BriefVisibility, BriefSectionType, UserRole } from '@/lib/types'
+import { getBriefWithSectionsBySlug } from '@/lib/data/briefs'
+import { getRecentQuotes } from '@/lib/data/posts'
+import { getApprovedQuestions } from '@/lib/data/questions'
+import { getUserBasic } from '@/lib/data/users'
 import BriefView from './BriefView'
 
 // ---------------------------------------------------------------------------
@@ -88,57 +92,27 @@ export default async function BriefPage({
     data: { user },
   } = await supabase.auth.getUser()
 
-  // All fetches go through the RLS client, so the database enforces
+  // All reads go through the RLS client (lib/data), so the database enforces
   // visibility: logged-out visitors get brief metadata (title/tldr for the
   // locked preview) but no members-only sections, quotes, or questions
   // (policies in 008 and 013). The lock UI in BriefView is presentation only.
-
-  // Fetch brief + sections + recent quotes in parallel
-  const [briefResult, quotesResult] = await Promise.all([
-    supabase
-      .from('briefs')
-      .select(
-        'id, title, slug, tldr, visibility, brief_sections(id, section_type, content, display_order)',
-      )
-      .eq('slug', slug)
-      .single(),
-    supabase
-      .from('content_posts')
-      .select(
-        'id, title, body, url, user_id, users(id, display_name, email, avatar_url, role, affiliation, org_name)',
-      )
-      .eq('post_type', 'quote')
-      .order('created_at', { ascending: false })
-      .limit(4),
+  const [brief, quotes] = await Promise.all([
+    getBriefWithSectionsBySlug(supabase, slug),
+    getRecentQuotes(supabase, 4),
   ])
 
-  if (briefResult.error || !briefResult.data) notFound()
-
-  const brief = briefResult.data as Brief
-  const quotes = (quotesResult.data ?? []) as unknown as Quote[]
+  if (!brief) notFound()
 
   let questions: Question[] = []
   let currentUser: CurrentUser | null = null
 
   if (user) {
-    const [questionsResult, currentUserResult] = await Promise.all([
-      supabase
-        .from('questions')
-        .select(
-          'id, question_text, answer_text, created_at, users(id, display_name, email, avatar_url, role)',
-        )
-        .eq('brief_id', brief.id)
-        .eq('status', 'approved')
-        .order('created_at', { ascending: true }),
-      supabase
-        .from('users')
-        .select('id, display_name, email, avatar_url, role')
-        .eq('id', user.id)
-        .single(),
+    const [briefQuestions, viewer] = await Promise.all([
+      getApprovedQuestions(supabase, brief.id),
+      getUserBasic(supabase, user.id),
     ])
-
-    questions = (questionsResult.data ?? []) as unknown as Question[]
-    currentUser = (currentUserResult.data ?? null) as CurrentUser | null
+    questions = briefQuestions
+    currentUser = viewer
   }
 
   return (

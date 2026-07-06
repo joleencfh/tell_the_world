@@ -4,6 +4,7 @@ import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { getAdminClient } from '@/lib/supabase/admin'
 import { sendApplicationConfirmation } from '@/lib/email/send-application-confirmation'
+import type { ApplicationRole, TablesInsert } from '@/lib/types'
 
 // ---------------------------------------------------------------------------
 // Input type — mirrors the FormValues shape in app/apply/page.tsx.
@@ -169,13 +170,14 @@ export async function submitApplication(form: ApplicationInput): Promise<SubmitR
 
   const role = form.desired_role
 
-  const payload: Record<string, unknown> = {
+  // desired_role is validated against ROLES above, so the cast is safe.
+  const payload: TablesInsert<'applications'> = {
     first_name: form.first_name.trim(),
     last_name: form.last_name.trim(),
     // Keep full_name populated for admin convenience / existing queries
     full_name: `${form.first_name.trim()} ${form.last_name.trim()}`,
     email,
-    desired_role: form.desired_role,
+    desired_role: form.desired_role as ApplicationRole,
     bio: form.bio.trim(),
     status: 'pending',
   }
