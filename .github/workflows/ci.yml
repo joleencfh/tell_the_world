@@ -23,7 +23,7 @@ jobs:
       TEST_CREATOR_EMAIL: ${{ secrets.TEST_CREATOR_EMAIL }}
       TEST_EXPERT_EMAIL: ${{ secrets.TEST_EXPERT_EMAIL }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: oven-sh/setup-bun@v2
 
