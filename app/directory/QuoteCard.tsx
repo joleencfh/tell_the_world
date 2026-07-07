@@ -1,37 +1,6 @@
 import Link from 'next/link'
 import type { QuoteResult } from '@/lib/directory/queries'
-
-// ---------------------------------------------------------------------------
-// Avatar — coloured initials fallback (matches BriefView pattern)
-// ---------------------------------------------------------------------------
-
-const AVATAR_COLORS = [
-  'bg-amber-700',
-  'bg-emerald-700',
-  'bg-sky-700',
-  'bg-purple-700',
-  'bg-rose-700',
-]
-
-function Avatar({ name, avatarUrl }: { name: string; avatarUrl: string | null }) {
-  const idx = name.charCodeAt(0) % AVATAR_COLORS.length
-  if (avatarUrl) {
-    return (
-      <img
-        src={avatarUrl}
-        alt={name}
-        className="w-9 h-9 rounded-full object-cover shrink-0 ring-2 ring-live/20"
-      />
-    )
-  }
-  return (
-    <div
-      className={`w-9 h-9 ${AVATAR_COLORS[idx]} rounded-full flex items-center justify-center shrink-0 select-none`}
-    >
-      <span className="text-white text-xs font-bold">{name.charAt(0).toUpperCase()}</span>
-    </div>
-  )
-}
+import Avatar from '@/components/ui/Avatar'
 
 // ---------------------------------------------------------------------------
 // QuoteCard
@@ -83,7 +52,13 @@ export default function QuoteCard({ quote }: { quote: QuoteResult }) {
 
       {/* Author strip */}
       <div className="px-7 pb-6 pt-3 flex items-center gap-3 border-t border-live/10">
-        <Avatar name={authorName} avatarUrl={author.avatar_url} />
+        <Avatar
+          name={authorName}
+          avatarUrl={author.avatar_url}
+          palette="colored"
+          size="sm"
+          ringClassName="ring-2 ring-live/20"
+        />
         <div className="min-w-0 flex-1">
           <Link
             href={`/profile/${author.id}`}

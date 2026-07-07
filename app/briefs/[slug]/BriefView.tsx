@@ -4,6 +4,8 @@ import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { submitQuestion, submitContribution } from '@/lib/briefs/actions'
 import ProposeBriefModal from '@/components/ProposeBriefModal'
+import Avatar from '@/components/ui/Avatar'
+import RoleBadge from '@/components/ui/RoleBadge'
 import type {
   Brief,
   BriefSectionType,
@@ -179,46 +181,6 @@ function formatDate(iso: string) {
 }
 
 // ---------------------------------------------------------------------------
-// Avatar
-// ---------------------------------------------------------------------------
-
-function Avatar({
-  name,
-  avatarUrl,
-  size = 'sm',
-}: {
-  name: string
-  avatarUrl: string | null
-  size?: 'sm' | 'md' | 'lg'
-}) {
-  const sizes = { sm: 'w-8 h-8 text-xs', md: 'w-11 h-11 text-sm', lg: 'w-14 h-14 text-base' }
-  const bgColors = [
-    'bg-amber-700',
-    'bg-emerald-700',
-    'bg-sky-700',
-    'bg-purple-700',
-    'bg-rose-700',
-  ]
-  const colorIndex = name.charCodeAt(0) % bgColors.length
-  if (avatarUrl) {
-    return (
-      <img
-        src={avatarUrl}
-        alt={name}
-        className={`${sizes[size]} rounded-full object-cover shrink-0 ring-2 ring-white/10`}
-      />
-    )
-  }
-  return (
-    <div
-      className={`${sizes[size]} ${bgColors[colorIndex]} rounded-full flex items-center justify-center shrink-0 select-none`}
-    >
-      <span className="text-white font-bold">{name.charAt(0).toUpperCase()}</span>
-    </div>
-  )
-}
-
-// ---------------------------------------------------------------------------
 // Quote card — watermark quote mark
 // ---------------------------------------------------------------------------
 
@@ -244,7 +206,13 @@ function QuoteCard({ quote }: { quote: Quote }) {
 
       {/* Author strip */}
       <div className="px-7 pb-6 pt-2 flex items-center gap-3 border-t border-live/10">
-        <Avatar name={authorName} avatarUrl={quote.users.avatar_url} size="md" />
+        <Avatar
+          name={authorName}
+          avatarUrl={quote.users.avatar_url}
+          palette="colored"
+          size="lg"
+          ringClassName="ring-2 ring-white/10"
+        />
         <div className="min-w-0 flex-1">
           <Link
             href={`/profile/${quote.users.id}`}
@@ -622,16 +590,8 @@ function LockedPlaceholder() {
 }
 
 // ---------------------------------------------------------------------------
-// Role + category display helpers
+// Category display helpers
 // ---------------------------------------------------------------------------
-
-const ROLE_LABELS: Record<string, string> = {
-  creator: 'Creator',
-  expert: 'Expert',
-  organisation: 'Advocacy Organisation',
-  journalist: 'Journalist',
-  admin: 'Admin',
-}
 
 const EXPERT_CATEGORY_COLORS: Record<string, string> = {
   'Technical AI Safety': 'bg-sky-900/60 text-sky-300 border-sky-700/40',
@@ -643,14 +603,6 @@ const PLATFORM_COLORS: Record<string, string> = {
   YouTube: 'bg-red-900/50 text-red-300 border-red-700/40',
   TikTok: 'bg-fuchsia-900/50 text-fuchsia-300 border-fuchsia-700/40',
   Podcast: 'bg-orange-900/50 text-orange-300 border-orange-700/40',
-}
-
-function RoleBadge({ role }: { role: string }) {
-  return (
-    <span className="font-mono text-[8px] tracking-[0.1em] uppercase text-live/70 border border-live/20 rounded px-1.5 py-0.5 shrink-0">
-      {ROLE_LABELS[role] ?? role}
-    </span>
-  )
 }
 
 function CategoryChips({ author }: { author: QuestionAuthor }) {
@@ -780,7 +732,13 @@ function AuthorStrip({ author, date }: { author: QuestionAuthor; date?: string }
   const name = getDisplayName(author)
   return (
     <div className="flex items-center gap-2.5 flex-wrap">
-      <Avatar name={name} avatarUrl={author.avatar_url} />
+      <Avatar
+        name={name}
+        avatarUrl={author.avatar_url}
+        palette="colored"
+        size="xs"
+        ringClassName="ring-2 ring-white/10"
+      />
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5 flex-wrap">
           <Link
@@ -789,7 +747,7 @@ function AuthorStrip({ author, date }: { author: QuestionAuthor; date?: string }
           >
             {name}
           </Link>
-          {author.role && <RoleBadge role={author.role} />}
+          {author.role && <RoleBadge role={author.role} variant="outline" />}
           <CategoryChips author={author} />
         </div>
         {date && (

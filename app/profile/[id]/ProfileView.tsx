@@ -9,6 +9,8 @@ import PostModal from '@/components/PostModal'
 import ContactModal from '@/components/ContactModal'
 import type { PostData } from '@/components/PostModal'
 import type { ProfileUser, ProfilePost, ProfileContribution, UserRole, AvailabilityStatus } from './page'
+import Avatar from '@/components/ui/Avatar'
+import RoleBadge from '@/components/ui/RoleBadge'
 
 // ---------------------------------------------------------------------------
 // Utilities
@@ -16,10 +18,6 @@ import type { ProfileUser, ProfilePost, ProfileContribution, UserRole, Availabil
 
 function getDisplayName(user: { display_name: string | null; email: string }): string {
   return user.display_name?.trim() || user.email.split('@')[0]
-}
-
-function getInitials(name: string): string {
-  return name.charAt(0).toUpperCase()
 }
 
 function truncate(text: string, max: number): string {
@@ -44,62 +42,6 @@ function extractDomain(url: string): string {
 // ---------------------------------------------------------------------------
 // Sub-components
 // ---------------------------------------------------------------------------
-
-function Avatar({
-  name,
-  avatarUrl,
-  size = 'md',
-}: {
-  name: string
-  avatarUrl: string | null
-  size?: 'sm' | 'md' | 'lg'
-}) {
-  const sizes = {
-    sm: 'w-8 h-8 text-xs',
-    md: 'w-12 h-12 text-base',
-    lg: 'w-20 h-20 text-2xl',
-  }
-  if (avatarUrl) {
-    return (
-      <img
-        src={avatarUrl}
-        alt={name}
-        className={`${sizes[size]} rounded-full object-cover shrink-0`}
-      />
-    )
-  }
-  return (
-    <div
-      className={`${sizes[size]} rounded-full bg-gray-200 text-gray-600 font-semibold flex items-center justify-center shrink-0 select-none`}
-    >
-      {getInitials(name)}
-    </div>
-  )
-}
-
-function RoleBadge({ role }: { role: UserRole }) {
-  const cls: Record<UserRole, string> = {
-    creator: 'bg-blue-100 text-blue-700',
-    journalist: 'bg-purple-100 text-purple-700',
-    expert: 'bg-green-100 text-green-700',
-    organisation: 'bg-amber-100 text-amber-700',
-    admin: 'bg-red-100 text-red-700',
-  }
-  const label: Record<UserRole, string> = {
-    creator: 'Creator',
-    journalist: 'Journalist',
-    expert: 'Expert',
-    organisation: 'Organisation',
-    admin: 'Admin',
-  }
-  return (
-    <span
-      className={`inline-block px-2.5 py-0.5 rounded-full font-mono text-[9px] tracking-[0.12em] uppercase ${cls[role]}`}
-    >
-      {label[role]}
-    </span>
-  )
-}
 
 function PostTypeBadge({ type }: { type: string }) {
   const cls: Record<string, string> = {
@@ -321,7 +263,7 @@ export default function ProfileView({
                   <Avatar
                     name={profileName!}
                     avatarUrl={profileUser.avatar_url}
-                    size="lg"
+                    size="3xl"
                   />
 
                   {/* Identity */}

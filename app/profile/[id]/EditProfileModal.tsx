@@ -3,8 +3,10 @@
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { updateProfile } from './actions'
-import type { ProfileUser, UserRole, AvailabilityStatus, PrimaryPlatform, OrgSize } from './page'
+import type { ProfileUser, AvailabilityStatus, PrimaryPlatform, OrgSize } from './page'
 import type { ProfileUpdatePayload } from './actions'
+import Avatar from '@/components/ui/Avatar'
+import RoleBadge from '@/components/ui/RoleBadge'
 
 // ---------------------------------------------------------------------------
 // Utilities
@@ -14,54 +16,9 @@ function getDisplayName(user: Pick<ProfileUser, 'display_name' | 'email'>): stri
   return user.display_name?.trim() || user.email.split('@')[0]
 }
 
-function getInitials(name: string): string {
-  return name.charAt(0).toUpperCase()
-}
-
 // ---------------------------------------------------------------------------
 // Small UI pieces
 // ---------------------------------------------------------------------------
-
-function Avatar({ name, avatarUrl }: { name: string; avatarUrl: string | null }) {
-  if (avatarUrl) {
-    return (
-      <img
-        src={avatarUrl}
-        alt={name}
-        className="w-12 h-12 rounded-full object-cover shrink-0"
-      />
-    )
-  }
-  return (
-    <div className="w-12 h-12 rounded-full bg-gray-200 text-gray-600 font-semibold flex items-center justify-center shrink-0 select-none text-base">
-      {getInitials(name)}
-    </div>
-  )
-}
-
-function RoleBadge({ role }: { role: UserRole }) {
-  const cls: Record<UserRole, string> = {
-    creator: 'bg-blue-100 text-blue-700',
-    journalist: 'bg-purple-100 text-purple-700',
-    expert: 'bg-green-100 text-green-700',
-    organisation: 'bg-amber-100 text-amber-700',
-    admin: 'bg-red-100 text-red-700',
-  }
-  const label: Record<UserRole, string> = {
-    creator: 'Creator',
-    journalist: 'Journalist',
-    expert: 'Expert',
-    organisation: 'Organisation',
-    admin: 'Admin',
-  }
-  return (
-    <span
-      className={`inline-block px-2.5 py-0.5 rounded-full font-mono text-[9px] tracking-[0.12em] uppercase ${cls[role]}`}
-    >
-      {label[role]}
-    </span>
-  )
-}
 
 function SectionDivider({ label }: { label: string }) {
   return (
@@ -274,7 +231,7 @@ export default function EditProfileModal({ user, onClose }: EditProfileModalProp
       <div className="bg-white rounded-xl w-full max-w-lg overflow-y-auto max-h-[90vh] shadow-xl">
         {/* Header */}
         <div className="flex items-center gap-3 px-6 py-5 border-b border-gray-100 sticky top-0 bg-white rounded-t-xl">
-          <Avatar name={displayName} avatarUrl={user.avatar_url} />
+          <Avatar name={displayName} avatarUrl={user.avatar_url} size="xl" />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-gray-900 truncate">{displayName}</p>
             <div className="mt-0.5">
