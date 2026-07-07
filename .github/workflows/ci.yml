@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+# One run per branch — a newer push cancels the outdated run
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+      TEST_CREATOR_EMAIL: ${{ secrets.TEST_CREATOR_EMAIL }}
+      TEST_EXPERT_EMAIL: ${{ secrets.TEST_EXPERT_EMAIL }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Type check
+        run: bunx tsc --noEmit
+
+      - name: Build
+        run: bun run build
+
+      - name: Install Playwright browsers
+        run: bunx playwright install --with-deps chromium
+
+      # Idempotent upsert of the test-public-brief / test-members-brief fixtures
+      # the brief specs rely on
+      - name: Seed test briefs
+        run: bun scripts/seed-test-briefs.ts
+
+      # Runs against the live Supabase project (no staging environment yet).
+      # The suite creates throwaway rows (applications, messages) per run.
+      - name: E2E tests
+        run: bunx playwright test
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
