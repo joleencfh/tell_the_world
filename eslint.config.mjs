@@ -6,6 +6,10 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   {
+    // Excludes generated files — e.g. lib/database.types.ts (from
+    // `supabase gen types`) is machine-written and not a candidate for
+    // splitting. Add other generated paths here as they show up.
+    ignores: ["lib/database.types.ts"],
     rules: {
       // Nudge oversized files toward being split into smaller components.
       // A warning, not an error, so existing large views don't block CI while
