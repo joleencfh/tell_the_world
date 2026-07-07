@@ -1,12 +1,11 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import type { UserRole } from '@/lib/types'
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
-
-type UserRole = 'creator' | 'expert' | 'organisation' | 'journalist' | 'admin'
 
 interface CurrentUser {
   id: string
@@ -388,7 +387,7 @@ export default async function HomePage() {
           {!currentUser && (
             <div className="border border-amber-200 bg-amber-50 rounded-xl p-5">
               <p className="font-serif text-sm text-amber-900">
-                Your profile isn't set up yet. Contact the platform admin to
+                Your profile isn&rsquo;t set up yet. Contact the platform admin to
                 complete your onboarding.
               </p>
             </div>

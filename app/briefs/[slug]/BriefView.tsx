@@ -235,7 +235,7 @@ function QuoteCard({ quote }: { quote: Quote }) {
           style={{ fontSize: '11rem' }}
           aria-hidden
         >
-          "
+          &ldquo;
         </span>
         <p className="font-serif text-[1rem] text-dark/85 leading-[1.75] relative z-10">
           {quote.body || quote.title}

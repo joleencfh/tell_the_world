@@ -1,18 +1,13 @@
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import type { BriefVisibility, BriefSectionType, UserRole } from '@/lib/types'
 import BriefView from './BriefView'
 
 // ---------------------------------------------------------------------------
-// Types (exported so BriefView can import them)
+// Types (re-exported so BriefView can import them from here)
 // ---------------------------------------------------------------------------
 
-export type BriefVisibility = 'public' | 'members_only'
-export type BriefSectionType =
-  | 'recent_developments'
-  | 'sources_basic'
-  | 'sources_advanced'
-  | 'faq'
-export type UserRole = 'creator' | 'expert' | 'organisation' | 'journalist' | 'admin'
+export type { BriefVisibility, BriefSectionType, UserRole }
 
 export interface BriefSection {
   id: string

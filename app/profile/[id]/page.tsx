@@ -1,16 +1,13 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import type { UserRole, AvailabilityStatus, PrimaryPlatform, OrgSize } from '@/lib/types'
 import ProfileView from './ProfileView'
 
 // ---------------------------------------------------------------------------
-// Types (exported so ProfileView can import them)
+// Types (re-exported so ProfileView and actions can import them from here)
 // ---------------------------------------------------------------------------
 
-export type UserRole = 'creator' | 'expert' | 'organisation' | 'journalist' | 'admin'
-export type AvailabilityStatus = 'open' | 'limited' | 'unavailable'
-
-export type PrimaryPlatform = 'youtube' | 'podcast' | 'instagram' | 'tiktok' | 'other'
-export type OrgSize = 'small' | 'medium' | 'large'
+export type { UserRole, AvailabilityStatus, PrimaryPlatform, OrgSize }
 
 export interface ProfileUser {
   id: string

@@ -2,12 +2,7 @@
 
 import { useEffect, useState, useTransition } from 'react'
 import { sendMessage } from '@/lib/messages/actions'
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-type UserRole = 'creator' | 'expert' | 'organisation' | 'journalist' | 'admin'
+import type { UserRole } from '@/lib/types'
 
 interface ContactModalProps {
   recipient: {
