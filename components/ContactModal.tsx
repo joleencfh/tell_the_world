@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition } from 'react'
 import { sendMessage } from '@/lib/messages/actions'
 import type { UserRole } from '@/lib/types'
+import RoleBadge from '@/components/ui/RoleBadge'
 
 interface ContactModalProps {
   recipient: {
@@ -24,30 +25,6 @@ interface ContactModalProps {
 
 const inputCls =
   'border border-gray-300 rounded-lg px-3 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-500'
-
-function RoleBadge({ role }: { role: UserRole }) {
-  const cls: Record<UserRole, string> = {
-    creator: 'bg-blue-100 text-blue-700',
-    journalist: 'bg-purple-100 text-purple-700',
-    expert: 'bg-green-100 text-green-700',
-    organisation: 'bg-amber-100 text-amber-700',
-    admin: 'bg-red-100 text-red-700',
-  }
-  const label: Record<UserRole, string> = {
-    creator: 'Creator',
-    journalist: 'Journalist',
-    expert: 'Expert',
-    organisation: 'Organisation',
-    admin: 'Admin',
-  }
-  return (
-    <span
-      className={`inline-block px-2.5 py-0.5 rounded-full font-mono text-[9px] tracking-[0.12em] uppercase ${cls[role]}`}
-    >
-      {label[role]}
-    </span>
-  )
-}
 
 // ---------------------------------------------------------------------------
 // Modal

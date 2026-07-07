@@ -1,61 +1,14 @@
 import Link from 'next/link'
 import type { UserResult } from '@/lib/directory/queries'
+import Avatar from '@/components/ui/Avatar'
+import RoleBadge from '@/components/ui/RoleBadge'
 
 type UserRole = UserResult['role']
 
 // ---------------------------------------------------------------------------
-// Avatar — coloured initials (matches BriefView pattern)
-// ---------------------------------------------------------------------------
-
-const AVATAR_COLORS = [
-  'bg-amber-700',
-  'bg-emerald-700',
-  'bg-sky-700',
-  'bg-purple-700',
-  'bg-rose-700',
-]
-
-function Avatar({ name, avatarUrl }: { name: string; avatarUrl: string | null }) {
-  const idx = name.charCodeAt(0) % AVATAR_COLORS.length
-  if (avatarUrl) {
-    return (
-      <img
-        src={avatarUrl}
-        alt={name}
-        className="w-10 h-10 rounded-full object-cover shrink-0 ring-2 ring-edge"
-      />
-    )
-  }
-  return (
-    <div
-      className={`w-10 h-10 ${AVATAR_COLORS[idx]} rounded-full flex items-center justify-center shrink-0 select-none`}
-    >
-      <span className="text-white text-sm font-bold">{name.charAt(0).toUpperCase()}</span>
-    </div>
-  )
-}
-
-// ---------------------------------------------------------------------------
-// Role badge — exact colours from ProfileView
-// ---------------------------------------------------------------------------
-
-const ROLE_BADGE_CLASS: Record<UserRole, string> = {
-  creator:      'bg-blue-100 text-blue-700',
-  journalist:   'bg-purple-100 text-purple-700',
-  expert:       'bg-green-100 text-green-700',
-  organisation: 'bg-amber-100 text-amber-700',
-  admin:        'bg-red-100 text-red-700',
-}
-
-const ROLE_LABEL: Record<UserRole, string> = {
-  creator:      'Creator',
-  journalist:   'Journalist',
-  expert:       'Expert',
-  organisation: 'Organisation',
-  admin:        'Admin',
-}
-
 // Left-border accent per role — adds identity to the grid at a glance
+// ---------------------------------------------------------------------------
+
 const ROLE_BORDER: Record<UserRole, string> = {
   creator:      'border-l-blue-300',
   journalist:   'border-l-purple-300',
@@ -123,17 +76,19 @@ export default function UserCard({ user }: { user: UserResult }) {
 
         {/* Header: avatar + name + badge */}
         <div className="flex items-start gap-3">
-          <Avatar name={name} avatarUrl={user.avatar_url} />
+          <Avatar
+            name={name}
+            avatarUrl={user.avatar_url}
+            palette="colored"
+            size="md"
+            ringClassName="ring-2 ring-edge"
+          />
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-2 mb-0.5">
               <p className="font-display uppercase text-dark text-sm leading-tight">
                 {name}
               </p>
-              <span
-                className={`shrink-0 inline-block px-2 py-0.5 rounded-full font-mono text-[8px] tracking-[0.12em] uppercase ${ROLE_BADGE_CLASS[user.role]}`}
-              >
-                {ROLE_LABEL[user.role]}
-              </span>
+              <RoleBadge role={user.role} size="xs" />
             </div>
             {affiliation && (
               <p className="font-mono text-[9px] tracking-[0.08em] text-soft/80 truncate">

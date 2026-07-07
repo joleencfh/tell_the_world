@@ -5,6 +5,8 @@ import type { UserRole } from '@/lib/types'
 import { getRecentBriefs } from '@/lib/data/briefs'
 import { getUserBasic, getRecentUsers, getExpertOrgIds } from '@/lib/data/users'
 import { getPostsByAuthors } from '@/lib/data/posts'
+import Avatar from '@/components/ui/Avatar'
+import RoleBadge from '@/components/ui/RoleBadge'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -52,10 +54,6 @@ function getDisplayName(user: { display_name: string | null; email: string }): s
   return user.display_name?.trim() || user.email.split('@')[0]
 }
 
-function initials(name: string): string {
-  return name.charAt(0).toUpperCase()
-}
-
 function truncate(text: string, max: number): string {
   return text.length <= max ? text : text.slice(0, max).trimEnd() + '…'
 }
@@ -63,61 +61,6 @@ function truncate(text: string, max: number): string {
 // ---------------------------------------------------------------------------
 // Sub-components
 // ---------------------------------------------------------------------------
-
-function Avatar({
-  name,
-  avatarUrl,
-  size = 'md',
-}: {
-  name: string
-  avatarUrl: string | null
-  size?: 'sm' | 'md'
-}) {
-  const sizes = {
-    sm: 'w-8 h-8 text-xs',
-    md: 'w-10 h-10 text-sm',
-  }
-  if (avatarUrl) {
-    return (
-      <img
-        src={avatarUrl}
-        alt={name}
-        className={`${sizes[size]} rounded-full object-cover shrink-0`}
-      />
-    )
-  }
-  return (
-    <div
-      className={`${sizes[size]} rounded-full bg-gray-200 text-gray-600 font-semibold flex items-center justify-center shrink-0 select-none`}
-    >
-      {initials(name)}
-    </div>
-  )
-}
-
-function RoleBadge({ role }: { role: UserRole }) {
-  const cls: Record<UserRole, string> = {
-    creator: 'bg-blue-100 text-blue-700',
-    journalist: 'bg-purple-100 text-purple-700',
-    expert: 'bg-green-100 text-green-700',
-    organisation: 'bg-amber-100 text-amber-700',
-    admin: 'bg-red-100 text-red-700',
-  }
-  const label: Record<UserRole, string> = {
-    creator: 'Creator',
-    journalist: 'Journalist',
-    expert: 'Expert',
-    organisation: 'Organisation',
-    admin: 'Admin',
-  }
-  return (
-    <span
-      className={`inline-block px-2 py-0.5 rounded-full font-mono text-[9px] tracking-[0.1em] uppercase ${cls[role]}`}
-    >
-      {label[role]}
-    </span>
-  )
-}
 
 function PostTypeBadge({ type }: { type: string }) {
   const cls: Record<string, string> = {
@@ -196,7 +139,7 @@ function PostCard({ post }: { post: ContentPost }) {
   return (
     <article className="bg-card border border-edge rounded-xl p-5 flex flex-col gap-3">
       <div className="flex items-center gap-3">
-        <Avatar name={authorName} avatarUrl={post.users.avatar_url} size="sm" />
+        <Avatar name={authorName} avatarUrl={post.users.avatar_url} size="xs" />
         <div className="min-w-0 flex-1">
           <Link
             href={`/profile/${post.user_id}`}
@@ -205,7 +148,7 @@ function PostCard({ post }: { post: ContentPost }) {
             {authorName}
           </Link>
           <div className="mt-0.5">
-            <RoleBadge role={post.users.role} />
+            <RoleBadge role={post.users.role} size="sm" />
           </div>
         </div>
         <PostTypeBadge type={post.post_type} />
@@ -244,12 +187,12 @@ function UserChip({ user }: { user: RecentUser }) {
       href={`/profile/${user.id}`}
       className="flex items-center gap-2.5 bg-card border border-edge rounded-full px-3 py-2 hover:border-live/40 transition-colors shrink-0"
     >
-      <Avatar name={name} avatarUrl={user.avatar_url} size="sm" />
+      <Avatar name={name} avatarUrl={user.avatar_url} size="xs" />
       <div className="min-w-0">
         <p className="font-serif text-xs font-semibold text-dark truncate max-w-[100px]">
           {name}
         </p>
-        <RoleBadge role={user.role} />
+        <RoleBadge role={user.role} size="sm" />
       </div>
     </Link>
   )
