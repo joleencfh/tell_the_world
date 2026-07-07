@@ -1,6 +1,9 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import type { UserRole, AvailabilityStatus, PrimaryPlatform, OrgSize } from '@/lib/types'
+import { getFullProfile, getUserBasic } from '@/lib/data/users'
+import { getUserPosts } from '@/lib/data/posts'
+import { getUserContributions } from '@/lib/data/briefs'
 import ProfileView from './ProfileView'
 
 // ---------------------------------------------------------------------------
@@ -188,11 +191,7 @@ export default async function ProfilePage({
   // Serve mock profiles without hitting the DB for the profile itself —
   // the viewer's own row is still fetched so the contact modal works
   if (profileId in MOCK_PROFILES) {
-    const { data: mockViewer } = await supabase
-      .from('users')
-      .select('id, display_name, email, role')
-      .eq('id', user.id)
-      .single()
+    const mockViewer = await getUserBasic(supabase, user.id)
 
     return (
       <ProfileView
@@ -201,61 +200,24 @@ export default async function ProfilePage({
         contributions={[]}
         isOwnProfile={false}
         currentUserId={user.id}
-        currentUser={(mockViewer ?? null) as {
-          id: string
-          display_name: string | null
-          email: string
-          role: UserRole
-        } | null}
+        currentUser={mockViewer}
       />
     )
   }
 
-  // Fetch profile user's row, their posts, contributions, and current user's own info in parallel
-  const [profileUserResult, postsResult, contributionsResult, currentUserResult] = await Promise.all([
-    supabase
-      .from('users')
-      .select(
-        `id, email, full_name, display_name, bio, avatar_url, role,
-         availability, website_url, preferred_language, created_at,
-         primary_platform, platform_url, audience_size, content_language,
-         publication_name, publication_url, reporting_beat,
-         affiliation, job_title, credibility_url, areas_of_focus,
-         org_name, org_size, org_mission`
-      )
-      .eq('id', profileId)
-      .single(),
-    supabase
-      .from('content_posts')
-      .select('id, user_id, post_type, title, body, url, topic_tags, created_at')
-      .eq('user_id', profileId)
-      .order('created_at', { ascending: false })
-      .limit(20),
-    supabase
-      .from('brief_contributions')
-      .select('id, contribution_text, status, created_at, briefs(title, slug)')
-      .eq('user_id', profileId)
-      .order('created_at', { ascending: false }),
-    supabase
-      .from('users')
-      .select('id, display_name, email, role')
-      .eq('id', user.id)
-      .single(),
+  // Fetch profile user's row, their posts, contributions, and the viewer's own
+  // info in parallel — all through the lib/data layer (RLS client).
+  const [profileUser, posts, rawContributions, currentUser] = await Promise.all([
+    getFullProfile(supabase, profileId),
+    getUserPosts(supabase, profileId, 20),
+    getUserContributions(supabase, profileId),
+    getUserBasic(supabase, user.id),
   ])
 
-  const profileUser = profileUserResult.data as ProfileUser | null
-  const posts = (postsResult.data ?? []) as ProfilePost[]
-  // RLS returns: approved contributions for everyone, plus own pending/dismissed when viewing own profile.
-  // Filter out dismissed — they shouldn't appear on the profile.
-  const contributions = ((contributionsResult.data ?? []) as unknown as ProfileContribution[])
-    .filter(c => c.status !== 'dismissed')
+  // RLS returns: approved contributions for everyone, plus own pending/dismissed
+  // when viewing own profile. Filter out dismissed — they don't belong on the profile.
+  const contributions = rawContributions.filter((c) => c.status !== 'dismissed')
   const isOwnProfile = user.id === profileId
-  const currentUser = (currentUserResult.data ?? null) as {
-    id: string
-    display_name: string | null
-    email: string
-    role: UserRole
-  } | null
 
   return (
     <ProfileView

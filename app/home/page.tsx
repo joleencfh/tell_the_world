@@ -2,19 +2,13 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import type { UserRole } from '@/lib/types'
+import { getRecentBriefs } from '@/lib/data/briefs'
+import { getUserBasic, getRecentUsers, getExpertOrgIds } from '@/lib/data/users'
+import { getPostsByAuthors } from '@/lib/data/posts'
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
-
-interface CurrentUser {
-  id: string
-  email: string
-  full_name: string
-  display_name: string
-  role: UserRole
-  avatar_url: string | null
-}
 
 interface Brief {
   id: string
@@ -274,45 +268,15 @@ export default async function HomePage() {
   if (!user) redirect('/login')
 
   // Round 1 — parallel: current user, briefs, recently joined, expert/org IDs
-  const [currentUserResult, briefsResult, recentUsersResult, expertOrgResult] =
-    await Promise.all([
-      supabase
-        .from('users')
-        .select('id, email, full_name, display_name, role, avatar_url')
-        .eq('id', user.id)
-        .single(),
-      supabase
-        .from('briefs')
-        .select('id, title, slug, tldr, created_at')
-        .order('created_at', { ascending: false })
-        .limit(5),
-      supabase
-        .from('users')
-        .select('id, display_name, email, role, avatar_url, created_at')
-        .neq('id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(8),
-      supabase.from('users').select('id').in('role', ['expert', 'organisation']),
-    ])
+  const [currentUser, briefs, recentUsers, expertOrgIds] = await Promise.all([
+    getUserBasic(supabase, user.id),
+    getRecentBriefs(supabase, 5),
+    getRecentUsers(supabase, user.id, 8),
+    getExpertOrgIds(supabase),
+  ])
 
   // Round 2 — posts filtered by expert/org user IDs
-  const expertOrgIds = (expertOrgResult.data ?? []).map((u: { id: string }) => u.id)
-  const { data: postsRaw } =
-    expertOrgIds.length > 0
-      ? await supabase
-          .from('content_posts')
-          .select(
-            'id, user_id, post_type, title, body, url, created_at, users(display_name, email, role, avatar_url)'
-          )
-          .in('user_id', expertOrgIds)
-          .order('created_at', { ascending: false })
-          .limit(10)
-      : { data: [] }
-
-  const currentUser = currentUserResult.data as CurrentUser | null
-  const briefs = (briefsResult.data ?? []) as Brief[]
-  const recentUsers = (recentUsersResult.data ?? []) as RecentUser[]
-  const posts = (postsRaw ?? []) as unknown as ContentPost[]
+  const posts = await getPostsByAuthors(supabase, expertOrgIds, 10)
 
   const welcomeName = currentUser
     ? getDisplayName(currentUser)
