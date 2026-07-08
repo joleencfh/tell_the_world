@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import UserCard from './UserCard'
 import QuoteCard from './QuoteCard'
+import Pagination from '@/components/ui/Pagination'
+import { DIRECTORY_PAGE_SIZE } from '@/lib/directory/queries'
 import type { UserResult, QuoteResult, SearchParams } from '@/lib/directory/queries'
 
 // ---------------------------------------------------------------------------
@@ -13,7 +15,9 @@ import type { UserResult, QuoteResult, SearchParams } from '@/lib/directory/quer
 
 interface Props {
   users: UserResult[]
+  usersCount: number
   quotes: QuoteResult[]
+  quotesCount: number
   searchParams: SearchParams
   currentUserId: string
 }
@@ -30,9 +34,14 @@ function buildUrl(base: SearchParams, update: Partial<SearchParams>): string {
   if (merged.language)     p.set('language', merged.language)
   if (merged.topic)        p.set('topic', merged.topic)
   if (merged.availability) p.set('availability', merged.availability)
+  if (merged.upage)        p.set('upage', merged.upage)
+  if (merged.qpage)        p.set('qpage', merged.qpage)
   const qs = p.toString()
   return qs ? `/directory?${qs}` : '/directory'
 }
+
+// Any filter change resets both lists back to page 1.
+const RESET_PAGES = { upage: undefined, qpage: undefined }
 
 // ---------------------------------------------------------------------------
 // Inline SVGs
@@ -74,7 +83,7 @@ function SectionRule({ num }: { num: string }) {
 // DirectoryView
 // ---------------------------------------------------------------------------
 
-export default function DirectoryView({ users, quotes, searchParams, currentUserId }: Props) {
+export default function DirectoryView({ users, usersCount, quotes, quotesCount, searchParams, currentUserId }: Props) {
   const router     = useRouter()
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -97,7 +106,7 @@ export default function DirectoryView({ users, quotes, searchParams, currentUser
     setSearchInput(value)
     if (debounceRef.current) clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(() => {
-      router.push(buildUrl(searchParams, { q: value || undefined }))
+      router.push(buildUrl(searchParams, { q: value || undefined, ...RESET_PAGES }))
     }, 300)
   }
 
@@ -107,7 +116,7 @@ export default function DirectoryView({ users, quotes, searchParams, currentUser
     router.push(
       buildUrl(
         { ...searchParams, q: searchInput || undefined },
-        { [key]: value || undefined },
+        { [key]: value || undefined, ...RESET_PAGES },
       ),
     )
   }
@@ -117,7 +126,7 @@ export default function DirectoryView({ users, quotes, searchParams, currentUser
     router.push(
       buildUrl(
         { ...searchParams, q: searchInput || undefined },
-        { topic: value || undefined },
+        { topic: value || undefined, ...RESET_PAGES },
       ),
     )
   }
@@ -127,7 +136,7 @@ export default function DirectoryView({ users, quotes, searchParams, currentUser
     router.push(
       buildUrl(
         { ...searchParams, q: searchInput || undefined },
-        { language: value || undefined },
+        { language: value || undefined, ...RESET_PAGES },
       ),
     )
   }
@@ -349,7 +358,7 @@ export default function DirectoryView({ users, quotes, searchParams, currentUser
                 {qLabel ? <>Quotes matching {qLabel}</> : 'What the community says'}
               </h2>
               <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-white/30 mt-3">
-                {quotes.length} {quotes.length === 1 ? 'quote' : 'quotes'}
+                {quotesCount} {quotesCount === 1 ? 'quote' : 'quotes'}
               </p>
             </div>
 
@@ -392,6 +401,14 @@ export default function DirectoryView({ users, quotes, searchParams, currentUser
               </div>
             )}
 
+            <Pagination
+              dark
+              page={parseInt(searchParams.qpage ?? '1', 10) || 1}
+              pageSize={DIRECTORY_PAGE_SIZE}
+              total={quotesCount}
+              buildHref={(p) => buildUrl(searchParams, { qpage: String(p) })}
+            />
+
           </div>
         </div>
 
@@ -406,7 +423,7 @@ export default function DirectoryView({ users, quotes, searchParams, currentUser
                 {qLabel ? <>People matching {qLabel}</> : "Who's here"}
               </h2>
               <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-soft/60 mt-3">
-                {users.length} {users.length === 1 ? 'member' : 'members'}
+                {usersCount} {usersCount === 1 ? 'member' : 'members'}
                 {searchParams.role ? ` · ${searchParams.role}s` : ''}
               </p>
             </div>
@@ -449,6 +466,13 @@ export default function DirectoryView({ users, quotes, searchParams, currentUser
                 )}
               </div>
             )}
+
+            <Pagination
+              page={parseInt(searchParams.upage ?? '1', 10) || 1}
+              pageSize={DIRECTORY_PAGE_SIZE}
+              total={usersCount}
+              buildHref={(p) => buildUrl(searchParams, { upage: String(p) })}
+            />
 
           </div>
         </div>

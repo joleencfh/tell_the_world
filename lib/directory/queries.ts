@@ -10,6 +10,15 @@ export type SearchParams = {
   language?: string    // matches users.content_language
   topic?: string       // single topic string
   availability?: string // 'open' | 'limited' | 'unavailable'
+  upage?: string        // users list page (1-indexed)
+  qpage?: string        // quotes list page (1-indexed)
+}
+
+export const DIRECTORY_PAGE_SIZE = 50
+
+export interface PagedResult<T> {
+  data: T[]
+  count: number
 }
 
 // ---------------------------------------------------------------------------
@@ -69,11 +78,13 @@ function sanitizeSearchTerm(raw: string): string {
 export async function searchUsers(
   supabase: SupabaseClient,
   params: SearchParams,
-): Promise<UserResult[]> {
+  page = 1,
+): Promise<PagedResult<UserResult>> {
   let query = supabase
     .from('users')
     .select(
       'id, display_name, bio, avatar_url, role, availability, affiliation, org_name, primary_platform, areas_of_focus, content_language',
+      { count: 'exact' },
     )
     // Never expose admin accounts in the directory
     .neq('role', 'admin')
@@ -103,25 +114,27 @@ export async function searchUsers(
     query = query.contains('areas_of_focus', [params.topic])
   }
 
-  const { data, error } = await query
+  const from = (page - 1) * DIRECTORY_PAGE_SIZE
+  const { data, error, count } = await query
     .order('display_name', { ascending: true })
-    .limit(50)
+    .range(from, from + DIRECTORY_PAGE_SIZE - 1)
 
   if (error) {
     console.error('searchUsers error:', error.message)
-    return []
+    return { data: [], count: 0 }
   }
 
-  return (data ?? []) as UserResult[]
+  return { data: (data ?? []) as UserResult[], count: count ?? 0 }
 }
 
 export async function searchQuotes(
   supabase: SupabaseClient,
   params: SearchParams,
-): Promise<QuoteResult[]> {
+  page = 1,
+): Promise<PagedResult<QuoteResult>> {
   let query = supabase
     .from('content_posts')
-    .select('id, body, topic_tags, created_at, users(id, display_name, avatar_url, role, affiliation, org_name)')
+    .select('id, body, topic_tags, created_at, users(id, display_name, avatar_url, role, affiliation, org_name)', { count: 'exact' })
     .eq('post_type', 'quote')
 
   if (params.q) {
@@ -138,14 +151,15 @@ export async function searchQuotes(
   // TODO: language filter for quotes — not possible with simple .eq() via join in v1
   // Upgrade path: filter after fetch, or use a DB view that denormalises content_language onto quotes
 
-  const { data, error } = await query
+  const from = (page - 1) * DIRECTORY_PAGE_SIZE
+  const { data, error, count } = await query
     .order('created_at', { ascending: false })
-    .limit(50)
+    .range(from, from + DIRECTORY_PAGE_SIZE - 1)
 
   if (error) {
     console.error('searchQuotes error:', error.message)
-    return []
+    return { data: [], count: 0 }
   }
 
-  return (data ?? []) as unknown as QuoteResult[]
+  return { data: (data ?? []) as unknown as QuoteResult[], count: count ?? 0 }
 }

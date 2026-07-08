@@ -4,6 +4,11 @@ import { searchUsers, searchQuotes } from '@/lib/directory/queries'
 import type { SearchParams } from '@/lib/directory/queries'
 import DirectoryView from './DirectoryView'
 
+function toPage(v: string | string[] | undefined): number {
+  const n = typeof v === 'string' ? parseInt(v, 10) : NaN
+  return Number.isFinite(n) && n > 0 ? n : 1
+}
+
 export default async function DirectoryPage({
   searchParams,
 }: {
@@ -30,17 +35,21 @@ export default async function DirectoryPage({
     language:     str(raw.language),
     topic:        str(raw.topic),
     availability: str(raw.availability),
+    upage:        str(raw.upage),
+    qpage:        str(raw.qpage),
   }
 
   const [users, quotes] = await Promise.all([
-    searchUsers(supabase, params),
-    searchQuotes(supabase, params),
+    searchUsers(supabase, params, toPage(raw.upage)),
+    searchQuotes(supabase, params, toPage(raw.qpage)),
   ])
 
   return (
     <DirectoryView
-      users={users}
-      quotes={quotes}
+      users={users.data}
+      usersCount={users.count}
+      quotes={quotes.data}
+      quotesCount={quotes.count}
       searchParams={params}
       currentUserId={user.id}
     />
