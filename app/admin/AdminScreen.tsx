@@ -1,8 +1,11 @@
 'use client'
 
 import { useState } from 'react'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { createBrief } from '@/lib/admin/brief-actions'
 import type { Application, PendingQuestion, PendingContribution, BriefProposal } from '@/lib/admin/actions'
+import { ADMIN_PAGE_SIZE } from '@/lib/data/admin'
+import Pagination from '@/components/ui/Pagination'
 import { ApplicationCard, QuestionCard, ContributionCard, BriefProposalCard, ApprovedRow } from './cards'
 
 // ---------------------------------------------------------------------------
@@ -14,18 +17,54 @@ type Tab = 'pending' | 'questions' | 'contributions' | 'proposals' | 'approved'
 interface Props {
   adminEmail: string
   pending: Application[]
+  pendingCount: number
+  pendingPage: number
   approved: Partial<Application>[]
+  approvedCount: number
+  approvedPage: number
   pendingQuestions: PendingQuestion[]
+  pendingQuestionsCount: number
+  questionsPage: number
   pendingContributions: PendingContribution[]
+  pendingContributionsCount: number
+  contributionsPage: number
   briefProposals: BriefProposal[]
+  briefProposalsCount: number
+  proposalsPage: number
 }
 
 // ---------------------------------------------------------------------------
 // Main screen
 // ---------------------------------------------------------------------------
 
-export default function AdminScreen({ adminEmail, pending, approved, pendingQuestions, pendingContributions, briefProposals }: Props) {
+export default function AdminScreen({
+  adminEmail,
+  pending,
+  pendingCount,
+  pendingPage,
+  approved,
+  approvedCount,
+  approvedPage,
+  pendingQuestions,
+  pendingQuestionsCount,
+  questionsPage,
+  pendingContributions,
+  pendingContributionsCount,
+  contributionsPage,
+  briefProposals,
+  briefProposalsCount,
+  proposalsPage,
+}: Props) {
   const [tab, setTab] = useState<Tab>('pending')
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  // Preserves every other tab's page param when paginating within one tab.
+  function buildPageHref(paramName: string, page: number): string {
+    const p = new URLSearchParams(searchParams.toString())
+    p.set(paramName, String(page))
+    return `${pathname}?${p.toString()}`
+  }
 
   return (
     <div className="min-h-screen bg-base text-text">
@@ -66,33 +105,33 @@ export default function AdminScreen({ adminEmail, pending, approved, pendingQues
           <div className="flex gap-0 border-b border-edge mb-6">
             <TabButton active={tab === 'pending'} onClick={() => setTab('pending')}>
               Applications
-              {pending.length > 0 && (
+              {pendingCount > 0 && (
                 <span className="ml-2 font-mono text-[9px] bg-live text-white px-1.5 py-0.5">
-                  {pending.length}
+                  {pendingCount}
                 </span>
               )}
             </TabButton>
             <TabButton active={tab === 'questions'} onClick={() => setTab('questions')}>
               Questions
-              {pendingQuestions.length > 0 && (
+              {pendingQuestionsCount > 0 && (
                 <span className="ml-2 font-mono text-[9px] bg-live text-white px-1.5 py-0.5">
-                  {pendingQuestions.length}
+                  {pendingQuestionsCount}
                 </span>
               )}
             </TabButton>
             <TabButton active={tab === 'contributions'} onClick={() => setTab('contributions')}>
               Contributions
-              {pendingContributions.length > 0 && (
+              {pendingContributionsCount > 0 && (
                 <span className="ml-2 font-mono text-[9px] bg-live text-white px-1.5 py-0.5">
-                  {pendingContributions.length}
+                  {pendingContributionsCount}
                 </span>
               )}
             </TabButton>
             <TabButton active={tab === 'proposals'} onClick={() => setTab('proposals')}>
               Brief proposals
-              {briefProposals.length > 0 && (
+              {briefProposalsCount > 0 && (
                 <span className="ml-2 font-mono text-[9px] bg-live text-white px-1.5 py-0.5">
-                  {briefProposals.length}
+                  {briefProposalsCount}
                 </span>
               )}
             </TabButton>
@@ -115,6 +154,12 @@ export default function AdminScreen({ adminEmail, pending, approved, pendingQues
                   ))}
                 </div>
               )}
+              <Pagination
+                page={pendingPage}
+                pageSize={ADMIN_PAGE_SIZE}
+                total={pendingCount}
+                buildHref={(p) => buildPageHref('pendingPage', p)}
+              />
             </>
           )}
 
@@ -132,6 +177,12 @@ export default function AdminScreen({ adminEmail, pending, approved, pendingQues
                   ))}
                 </div>
               )}
+              <Pagination
+                page={questionsPage}
+                pageSize={ADMIN_PAGE_SIZE}
+                total={pendingQuestionsCount}
+                buildHref={(p) => buildPageHref('questionsPage', p)}
+              />
             </>
           )}
 
@@ -149,6 +200,12 @@ export default function AdminScreen({ adminEmail, pending, approved, pendingQues
                   ))}
                 </div>
               )}
+              <Pagination
+                page={contributionsPage}
+                pageSize={ADMIN_PAGE_SIZE}
+                total={pendingContributionsCount}
+                buildHref={(p) => buildPageHref('contributionsPage', p)}
+              />
             </>
           )}
 
@@ -166,6 +223,12 @@ export default function AdminScreen({ adminEmail, pending, approved, pendingQues
                   ))}
                 </div>
               )}
+              <Pagination
+                page={proposalsPage}
+                pageSize={ADMIN_PAGE_SIZE}
+                total={briefProposalsCount}
+                buildHref={(p) => buildPageHref('proposalsPage', p)}
+              />
             </>
           )}
 
@@ -183,6 +246,12 @@ export default function AdminScreen({ adminEmail, pending, approved, pendingQues
                   ))}
                 </div>
               )}
+              <Pagination
+                page={approvedPage}
+                pageSize={ADMIN_PAGE_SIZE}
+                total={approvedCount}
+                buildHref={(p) => buildPageHref('approvedPage', p)}
+              />
             </>
           )}
 

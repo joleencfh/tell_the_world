@@ -9,7 +9,16 @@ import {
 } from '@/lib/admin/actions'
 import AdminScreen from './AdminScreen'
 
-export default async function AdminPage() {
+function toPage(v: string | string[] | undefined): number {
+  const n = typeof v === 'string' ? parseInt(v, 10) : NaN
+  return Number.isFinite(n) && n > 0 ? n : 1
+}
+
+export default async function AdminPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
   // Auth check — server-side, before any data is fetched or UI is rendered
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -18,23 +27,40 @@ export default async function AdminPage() {
     redirect('/login')
   }
 
+  const raw = await searchParams
+  const pendingPage = toPage(raw.pendingPage)
+  const questionsPage = toPage(raw.questionsPage)
+  const contributionsPage = toPage(raw.contributionsPage)
+  const proposalsPage = toPage(raw.proposalsPage)
+  const approvedPage = toPage(raw.approvedPage)
+
   // Fetch data with the service-role client (bypasses RLS)
   const [pendingResult, approvedResult, questionsResult, contributionsResult, proposalsResult] = await Promise.all([
-    getPendingApplications(),
-    getRecentlyApproved(),
-    getPendingQuestions(),
-    getPendingContributions(),
-    getBriefProposals(),
+    getPendingApplications(pendingPage),
+    getRecentlyApproved(approvedPage),
+    getPendingQuestions(questionsPage),
+    getPendingContributions(contributionsPage),
+    getBriefProposals(proposalsPage),
   ])
 
   return (
     <AdminScreen
       adminEmail={user.email!}
       pending={pendingResult.data}
+      pendingCount={pendingResult.count}
+      pendingPage={pendingPage}
       approved={approvedResult.data}
+      approvedCount={approvedResult.count}
+      approvedPage={approvedPage}
       pendingQuestions={questionsResult.data}
+      pendingQuestionsCount={questionsResult.count}
+      questionsPage={questionsPage}
       pendingContributions={contributionsResult.data}
+      pendingContributionsCount={contributionsResult.count}
+      contributionsPage={contributionsPage}
       briefProposals={proposalsResult.data}
+      briefProposalsCount={proposalsResult.count}
+      proposalsPage={proposalsPage}
     />
   )
 }
