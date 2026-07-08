@@ -6,6 +6,8 @@ import { requireAdmin } from '@/lib/auth/require'
 import { getAdminClient } from '@/lib/supabase/admin'
 import { sendApprovalEmail } from '@/lib/email/send-approval'
 import { sendRejectionEmail } from '@/lib/email/send-rejection'
+import * as adminData from '@/lib/data/admin'
+import type { PagedResult } from '@/lib/data/admin'
 import type { TablesInsert, UserRole, PrimaryPlatform, OrgSize } from '@/lib/types'
 
 // ---------------------------------------------------------------------------
@@ -64,29 +66,14 @@ const ORG_SIZE_ENUM = new Set(['small', 'medium', 'large'])
 // Data fetching
 // ---------------------------------------------------------------------------
 
-export async function getPendingApplications(): Promise<{ data: Application[]; error: string | null }> {
+export async function getPendingApplications(page = 1): Promise<PagedResult<Application>> {
   await requireAdmin()
-
-  const { data, error } = await getAdminClient()
-    .from('applications')
-    .select('*')
-    .eq('status', 'pending')
-    .order('created_at', { ascending: true })
-
-  return { data: (data as Application[]) ?? [], error: error?.message ?? null }
+  return adminData.getPendingApplications(getAdminClient(), page)
 }
 
-export async function getRecentlyApproved(): Promise<{ data: Partial<Application>[]; error: string | null }> {
+export async function getRecentlyApproved(page = 1): Promise<PagedResult<Partial<Application>>> {
   await requireAdmin()
-
-  const { data, error } = await getAdminClient()
-    .from('applications')
-    .select('id, full_name, first_name, last_name, email, desired_role, desired_role_other, reviewed_at, created_at')
-    .eq('status', 'approved')
-    .order('reviewed_at', { ascending: false })
-    .limit(30)
-
-  return { data: (data as Partial<Application>[]) ?? [], error: error?.message ?? null }
+  return adminData.getRecentlyApproved(getAdminClient(), page)
 }
 
 // ---------------------------------------------------------------------------
@@ -211,16 +198,9 @@ export interface PendingQuestion {
   users: { display_name: string | null; email: string }
 }
 
-export async function getPendingQuestions(): Promise<{ data: PendingQuestion[]; error: string | null }> {
+export async function getPendingQuestions(page = 1): Promise<PagedResult<PendingQuestion>> {
   await requireAdmin()
-
-  const { data, error } = await getAdminClient()
-    .from('questions')
-    .select('id, question_text, created_at, brief_id, briefs(title, slug), users(display_name, email)')
-    .eq('status', 'pending')
-    .order('created_at', { ascending: true })
-
-  return { data: (data as unknown as PendingQuestion[]) ?? [], error: error?.message ?? null }
+  return adminData.getPendingQuestions(getAdminClient(), page)
 }
 
 export async function approveQuestion(questionId: string): Promise<{ success?: boolean; error?: string }> {
@@ -265,16 +245,9 @@ export interface PendingContribution {
   users: { id: string; display_name: string | null; email: string; role: string }
 }
 
-export async function getPendingContributions(): Promise<{ data: PendingContribution[]; error: string | null }> {
+export async function getPendingContributions(page = 1): Promise<PagedResult<PendingContribution>> {
   await requireAdmin()
-
-  const { data, error } = await getAdminClient()
-    .from('brief_contributions')
-    .select('id, contribution_text, status, created_at, brief_id, briefs(title, slug), users(id, display_name, email, role)')
-    .eq('status', 'pending')
-    .order('created_at', { ascending: true })
-
-  return { data: (data as unknown as PendingContribution[]) ?? [], error: error?.message ?? null }
+  return adminData.getPendingContributions(getAdminClient(), page)
 }
 
 export async function approveContribution(contributionId: string): Promise<{ success?: boolean; error?: string }> {
@@ -321,16 +294,9 @@ export interface BriefProposal {
   created_at: string
 }
 
-export async function getBriefProposals(): Promise<{ data: BriefProposal[]; error: string | null }> {
+export async function getBriefProposals(page = 1): Promise<PagedResult<BriefProposal>> {
   await requireAdmin()
-
-  const { data, error } = await getAdminClient()
-    .from('brief_proposals')
-    .select('*')
-    .eq('status', 'pending')
-    .order('created_at', { ascending: true })
-
-  return { data: (data as BriefProposal[]) ?? [], error: error?.message ?? null }
+  return adminData.getBriefProposals(getAdminClient(), page)
 }
 
 export async function dismissBriefProposal(proposalId: string): Promise<{ success?: boolean; error?: string }> {
