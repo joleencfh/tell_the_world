@@ -16,7 +16,7 @@ const MEMBERS_URL = '/briefs/test-members-brief'
 const PUBLIC_URL = '/briefs/test-public-brief'
 
 // Known section content from scripts/seed-test-briefs.ts
-const SECTION_CONTENT = 'Test content for recent developments.'
+const SECTION_CONTENT = 'Test content for featured news.'
 const SECTION_SOURCE = 'A basic source for testing'
 
 // ---------------------------------------------------------------------------

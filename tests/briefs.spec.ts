@@ -80,10 +80,7 @@ test.describe('Members-only brief — logged-out visitor', () => {
   test('does not show section content headings', async ({ page }) => {
     // These h2s are only rendered when sections are unlocked
     await expect(
-      page.getByRole('heading', { name: "What's Happening Now" }),
-    ).not.toBeVisible()
-    await expect(
-      page.getByRole('heading', { name: 'Just Getting Started?' }),
+      page.getByRole('heading', { name: 'Featured News' }),
     ).not.toBeVisible()
     await expect(
       page.getByRole('heading', { name: 'Going Deeper' }),
