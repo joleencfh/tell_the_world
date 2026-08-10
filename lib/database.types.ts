@@ -112,6 +112,77 @@ export type Database = {
       }
       brief_contributions: {
         Row: {
+          body: string | null
+          brief_id: string
+          contested_point_id: string | null
+          created_at: string
+          id: string
+          section_id: string | null
+          section_version: number | null
+          status: Database["public"]["Enums"]["brief_contribution_status"]
+          type: Database["public"]["Enums"]["brief_contribution_type"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          brief_id: string
+          contested_point_id?: string | null
+          created_at?: string
+          id?: string
+          section_id?: string | null
+          section_version?: number | null
+          status?: Database["public"]["Enums"]["brief_contribution_status"]
+          type: Database["public"]["Enums"]["brief_contribution_type"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          brief_id?: string
+          contested_point_id?: string | null
+          created_at?: string
+          id?: string
+          section_id?: string | null
+          section_version?: number | null
+          status?: Database["public"]["Enums"]["brief_contribution_status"]
+          type?: Database["public"]["Enums"]["brief_contribution_type"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brief_contributions_brief_id_fkey"
+            columns: ["brief_id"]
+            isOneToOne: false
+            referencedRelation: "briefs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brief_contributions_contested_point_id_fkey"
+            columns: ["contested_point_id"]
+            isOneToOne: false
+            referencedRelation: "contested_points"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brief_contributions_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "brief_sections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brief_contributions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      brief_correction_proposals: {
+        Row: {
           brief_id: string
           contribution_text: string
           created_at: string
@@ -137,14 +208,14 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "brief_contributions_brief_id_fkey"
+            foreignKeyName: "brief_correction_proposals_brief_id_fkey"
             columns: ["brief_id"]
             isOneToOne: false
             referencedRelation: "briefs"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "brief_contributions_user_id_fkey"
+            foreignKeyName: "brief_correction_proposals_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
@@ -200,6 +271,7 @@ export type Database = {
         Row: {
           brief_id: string
           content: string
+          content_version: number
           display_order: number
           id: string
           section_type: Database["public"]["Enums"]["brief_section_type"]
@@ -208,6 +280,7 @@ export type Database = {
         Insert: {
           brief_id: string
           content: string
+          content_version?: number
           display_order: number
           id?: string
           section_type: Database["public"]["Enums"]["brief_section_type"]
@@ -216,6 +289,7 @@ export type Database = {
         Update: {
           brief_id?: string
           content?: string
+          content_version?: number
           display_order?: number
           id?: string
           section_type?: Database["public"]["Enums"]["brief_section_type"]
@@ -235,31 +309,48 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          last_reviewed_at: string | null
+          pinned_media_post_id: string | null
           slug: string
+          subtitle: string | null
           title: string
-          tldr: string
+          topic_tag: string | null
           updated_at: string
           visibility: Database["public"]["Enums"]["brief_visibility"]
         }
         Insert: {
           created_at?: string
           id?: string
+          last_reviewed_at?: string | null
+          pinned_media_post_id?: string | null
           slug: string
+          subtitle?: string | null
           title: string
-          tldr: string
+          topic_tag?: string | null
           updated_at?: string
           visibility?: Database["public"]["Enums"]["brief_visibility"]
         }
         Update: {
           created_at?: string
           id?: string
+          last_reviewed_at?: string | null
+          pinned_media_post_id?: string | null
           slug?: string
+          subtitle?: string | null
           title?: string
-          tldr?: string
+          topic_tag?: string | null
           updated_at?: string
           visibility?: Database["public"]["Enums"]["brief_visibility"]
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "briefs_pinned_media_post_id_fkey"
+            columns: ["pinned_media_post_id"]
+            isOneToOne: false
+            referencedRelation: "content_posts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       content_posts: {
         Row: {
@@ -301,6 +392,38 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contested_points: {
+        Row: {
+          brief_id: string
+          created_at: string
+          display_order: number
+          id: string
+          question: string
+        }
+        Insert: {
+          brief_id: string
+          created_at?: string
+          display_order: number
+          id?: string
+          question: string
+        }
+        Update: {
+          brief_id?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          question?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contested_points_brief_id_fkey"
+            columns: ["brief_id"]
+            isOneToOne: false
+            referencedRelation: "briefs"
             referencedColumns: ["id"]
           },
         ]
@@ -580,7 +703,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
     }
     Enums: {
       application_role:
@@ -591,10 +715,15 @@ export type Database = {
         | "other"
       application_status: "pending" | "approved" | "rejected"
       availability_status: "open" | "limited" | "unavailable"
+      brief_contribution_status: "pending" | "published" | "archived"
+      brief_contribution_type: "review" | "endorsement" | "take" | "comment"
       brief_section_type:
-        | "recent_developments"
-        | "sources_basic"
-        | "sources_advanced"
+        | "tldr"
+        | "use_this"
+        | "featured_news"
+        | "explainer"
+        | "where_experts_stand"
+        | "going_deeper"
         | "faq"
       brief_visibility: "public" | "members_only"
       message_status: "pending" | "accepted" | "declined"
@@ -738,10 +867,15 @@ export const Constants = {
       ],
       application_status: ["pending", "approved", "rejected"],
       availability_status: ["open", "limited", "unavailable"],
+      brief_contribution_status: ["pending", "published", "archived"],
+      brief_contribution_type: ["review", "endorsement", "take", "comment"],
       brief_section_type: [
-        "recent_developments",
-        "sources_basic",
-        "sources_advanced",
+        "tldr",
+        "use_this",
+        "featured_news",
+        "explainer",
+        "where_experts_stand",
+        "going_deeper",
         "faq",
       ],
       brief_visibility: ["public", "members_only"],

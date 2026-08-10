@@ -232,10 +232,10 @@ export async function dismissQuestion(questionId: string): Promise<{ success?: b
 }
 
 // ---------------------------------------------------------------------------
-// Brief contributions moderation
+// Brief correction proposals moderation
 // ---------------------------------------------------------------------------
 
-export interface PendingContribution {
+export interface PendingCorrectionProposal {
   id: string
   contribution_text: string
   status: 'pending' | 'approved' | 'dismissed'
@@ -245,18 +245,18 @@ export interface PendingContribution {
   users: { id: string; display_name: string | null; email: string; role: string }
 }
 
-export async function getPendingContributions(page = 1): Promise<PagedResult<PendingContribution>> {
+export async function getPendingCorrectionProposals(page = 1): Promise<PagedResult<PendingCorrectionProposal>> {
   await requireAdmin()
-  return adminData.getPendingContributions(getAdminClient(), page)
+  return adminData.getPendingCorrectionProposals(getAdminClient(), page)
 }
 
-export async function approveContribution(contributionId: string): Promise<{ success?: boolean; error?: string }> {
+export async function approveCorrectionProposal(proposalId: string): Promise<{ success?: boolean; error?: string }> {
   await requireAdmin()
 
   const { error } = await getAdminClient()
-    .from('brief_contributions')
+    .from('brief_correction_proposals')
     .update({ status: 'approved' })
-    .eq('id', contributionId)
+    .eq('id', proposalId)
 
   if (error) return { error: error.message }
 
@@ -264,13 +264,13 @@ export async function approveContribution(contributionId: string): Promise<{ suc
   return { success: true }
 }
 
-export async function dismissContribution(contributionId: string): Promise<{ success?: boolean; error?: string }> {
+export async function dismissCorrectionProposal(proposalId: string): Promise<{ success?: boolean; error?: string }> {
   await requireAdmin()
 
   const { error } = await getAdminClient()
-    .from('brief_contributions')
+    .from('brief_correction_proposals')
     .update({ status: 'dismissed' })
-    .eq('id', contributionId)
+    .eq('id', proposalId)
 
   if (error) return { error: error.message }
 

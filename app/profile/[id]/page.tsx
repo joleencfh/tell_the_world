@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import type { UserRole, AvailabilityStatus, PrimaryPlatform, OrgSize } from '@/lib/types'
 import { getFullProfile, getUserBasic } from '@/lib/data/users'
 import { getUserPosts } from '@/lib/data/posts'
-import { getUserContributions } from '@/lib/data/briefs'
+import { getUserCorrectionProposals } from '@/lib/data/briefs'
 import ProfileView from './ProfileView'
 
 // ---------------------------------------------------------------------------
@@ -54,7 +54,7 @@ export interface ProfilePost {
   created_at: string
 }
 
-export interface ProfileContribution {
+export interface ProfileCorrectionProposal {
   id: string
   contribution_text: string
   status: 'pending' | 'approved' | 'dismissed'
@@ -197,7 +197,7 @@ export default async function ProfilePage({
       <ProfileView
         profileUser={MOCK_PROFILES[profileId]}
         posts={MOCK_POSTS[profileId] ?? []}
-        contributions={[]}
+        correctionProposals={[]}
         isOwnProfile={false}
         currentUserId={user.id}
         currentUser={mockViewer}
@@ -205,25 +205,25 @@ export default async function ProfilePage({
     )
   }
 
-  // Fetch profile user's row, their posts, contributions, and the viewer's own
-  // info in parallel — all through the lib/data layer (RLS client).
-  const [profileUser, posts, rawContributions, currentUser] = await Promise.all([
+  // Fetch profile user's row, their posts, correction proposals, and the
+  // viewer's own info in parallel — all through the lib/data layer (RLS client).
+  const [profileUser, posts, rawCorrectionProposals, currentUser] = await Promise.all([
     getFullProfile(supabase, profileId),
     getUserPosts(supabase, profileId, 20),
-    getUserContributions(supabase, profileId),
+    getUserCorrectionProposals(supabase, profileId),
     getUserBasic(supabase, user.id),
   ])
 
-  // RLS returns: approved contributions for everyone, plus own pending/dismissed
+  // RLS returns: approved proposals for everyone, plus own pending/dismissed
   // when viewing own profile. Filter out dismissed — they don't belong on the profile.
-  const contributions = rawContributions.filter((c) => c.status !== 'dismissed')
+  const correctionProposals = rawCorrectionProposals.filter((c) => c.status !== 'dismissed')
   const isOwnProfile = user.id === profileId
 
   return (
     <ProfileView
       profileUser={profileUser}
       posts={posts}
-      contributions={contributions}
+      correctionProposals={correctionProposals}
       isOwnProfile={isOwnProfile}
       currentUserId={user.id}
       currentUser={currentUser}

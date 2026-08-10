@@ -4,7 +4,7 @@ import {
   getPendingApplications,
   getRecentlyApproved,
   getPendingQuestions,
-  getPendingContributions,
+  getPendingCorrectionProposals,
   getBriefProposals,
 } from '@/lib/admin/actions'
 import AdminScreen from './AdminScreen'
@@ -30,16 +30,16 @@ export default async function AdminPage({
   const raw = await searchParams
   const pendingPage = toPage(raw.pendingPage)
   const questionsPage = toPage(raw.questionsPage)
-  const contributionsPage = toPage(raw.contributionsPage)
+  const correctionProposalsPage = toPage(raw.correctionProposalsPage)
   const proposalsPage = toPage(raw.proposalsPage)
   const approvedPage = toPage(raw.approvedPage)
 
   // Fetch data with the service-role client (bypasses RLS)
-  const [pendingResult, approvedResult, questionsResult, contributionsResult, proposalsResult] = await Promise.all([
+  const [pendingResult, approvedResult, questionsResult, correctionProposalsResult, proposalsResult] = await Promise.all([
     getPendingApplications(pendingPage),
     getRecentlyApproved(approvedPage),
     getPendingQuestions(questionsPage),
-    getPendingContributions(contributionsPage),
+    getPendingCorrectionProposals(correctionProposalsPage),
     getBriefProposals(proposalsPage),
   ])
 
@@ -55,9 +55,9 @@ export default async function AdminPage({
       pendingQuestions={questionsResult.data}
       pendingQuestionsCount={questionsResult.count}
       questionsPage={questionsPage}
-      pendingContributions={contributionsResult.data}
-      pendingContributionsCount={contributionsResult.count}
-      contributionsPage={contributionsPage}
+      pendingCorrectionProposals={correctionProposalsResult.data}
+      pendingCorrectionProposalsCount={correctionProposalsResult.count}
+      correctionProposalsPage={correctionProposalsPage}
       briefProposals={proposalsResult.data}
       briefProposalsCount={proposalsResult.count}
       proposalsPage={proposalsPage}

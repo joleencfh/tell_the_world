@@ -4,17 +4,17 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { sendBriefProposalEmail } from '@/lib/email/send-brief-proposal'
 
-export async function submitContribution(
+export async function submitCorrectionProposal(
   briefId: string,
   briefSlug: string,
-  contributionText: string,
+  proposalText: string,
 ): Promise<{ error?: string; success?: boolean }> {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) return { error: 'You must be logged in to submit a contribution.' }
+  if (!user) return { error: 'You must be logged in to submit a correction.' }
 
   // Verify role server-side (belt-and-suspenders — RLS also enforces this)
   const { data: userData } = await supabase
@@ -24,18 +24,18 @@ export async function submitContribution(
     .single()
 
   if (!userData || !['expert', 'organisation'].includes(userData.role)) {
-    return { error: 'Only experts and organisations can propose contributions.' }
+    return { error: 'Only experts and organisations can propose corrections.' }
   }
 
-  const trimmed = contributionText.trim()
-  if (!trimmed) return { error: 'Contribution cannot be empty.' }
-  if (trimmed.length > 3000) return { error: 'Contribution must be under 3000 characters.' }
+  const trimmed = proposalText.trim()
+  if (!trimmed) return { error: 'Correction cannot be empty.' }
+  if (trimmed.length > 3000) return { error: 'Correction must be under 3000 characters.' }
 
   const { error } = await supabase
-    .from('brief_contributions')
+    .from('brief_correction_proposals')
     .insert({ brief_id: briefId, user_id: user.id, contribution_text: trimmed })
 
-  if (error) return { error: 'Failed to submit contribution. Please try again.' }
+  if (error) return { error: 'Failed to submit correction. Please try again.' }
 
   revalidatePath(`/briefs/${briefSlug}`)
   return { success: true }

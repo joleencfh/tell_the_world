@@ -8,33 +8,53 @@ import type { BriefSectionType, Quote } from './page'
 // Constants
 // ---------------------------------------------------------------------------
 
+// 'tldr' is rendered in the hero, not looped here — see BriefView.
 export const SECTION_ORDER: BriefSectionType[] = [
-  'recent_developments',
-  'sources_basic',
-  'sources_advanced',
+  'use_this',
+  'featured_news',
+  'explainer',
+  'where_experts_stand',
+  'going_deeper',
   'faq',
 ]
 
 export const SECTION_META: Record<BriefSectionType, { label: string; num: string; description: string }> =
   {
-    recent_developments: {
-      label: "What's Happening Now",
+    // Not looped over (rendered in the hero instead) but kept here so this
+    // stays a total map over BriefSectionType.
+    tldr: {
+      label: 'TL;DR',
+      num: '00',
+      description: 'The three-minute version',
+    },
+    use_this: {
+      label: 'Use This',
       num: '01',
+      description: 'Story angles, misconceptions to avoid, and quotes ready to use',
+    },
+    featured_news: {
+      label: 'Featured News',
+      num: '02',
       description: 'The latest events and why they matter',
     },
-    sources_basic: {
-      label: 'Just Getting Started?',
-      num: '02',
-      description: 'The friendliest places to learn more',
-    },
-    sources_advanced: {
-      label: 'Going Deeper',
+    explainer: {
+      label: 'Explainer',
       num: '03',
-      description: 'For when you want the full picture',
+      description: 'The full picture, plainly explained',
+    },
+    where_experts_stand: {
+      label: 'Where Experts Stand',
+      num: '04',
+      description: 'Where the experts we consulted agree — and where they don’t',
+    },
+    going_deeper: {
+      label: 'Going Deeper',
+      num: '05',
+      description: 'For when you want to go further',
     },
     faq: {
       label: 'Common Questions',
-      num: '04',
+      num: '06',
       description: 'The things everyone wonders about',
     },
   }
@@ -45,6 +65,8 @@ export const SECTION_BG: Record<number, string> = {
   1: 'bg-warm',
   2: 'bg-base grid-texture',
   3: 'bg-warm',
+  4: 'bg-base grid-texture',
+  5: 'bg-warm',
 }
 
 // ---------------------------------------------------------------------------
@@ -230,7 +252,7 @@ export function SectionContent({ type, content }: { type: BriefSectionType; cont
     }
   }
 
-  if (type === 'sources_basic' || type === 'sources_advanced') {
+  if (type === 'going_deeper') {
     const items = parseSources(content)
     if (items) {
       return <SourcesGrid items={items} />

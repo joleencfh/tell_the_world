@@ -3,16 +3,16 @@
 import { useState } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { createBrief } from '@/lib/admin/brief-actions'
-import type { Application, PendingQuestion, PendingContribution, BriefProposal } from '@/lib/admin/actions'
+import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal } from '@/lib/admin/actions'
 import { ADMIN_PAGE_SIZE } from '@/lib/data/admin'
 import Pagination from '@/components/ui/Pagination'
-import { ApplicationCard, QuestionCard, ContributionCard, BriefProposalCard, ApprovedRow } from './cards'
+import { ApplicationCard, QuestionCard, CorrectionProposalCard, BriefProposalCard, ApprovedRow } from './cards'
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-type Tab = 'pending' | 'questions' | 'contributions' | 'proposals' | 'approved'
+type Tab = 'pending' | 'questions' | 'correctionProposals' | 'proposals' | 'approved'
 
 interface Props {
   adminEmail: string
@@ -25,9 +25,9 @@ interface Props {
   pendingQuestions: PendingQuestion[]
   pendingQuestionsCount: number
   questionsPage: number
-  pendingContributions: PendingContribution[]
-  pendingContributionsCount: number
-  contributionsPage: number
+  pendingCorrectionProposals: PendingCorrectionProposal[]
+  pendingCorrectionProposalsCount: number
+  correctionProposalsPage: number
   briefProposals: BriefProposal[]
   briefProposalsCount: number
   proposalsPage: number
@@ -48,9 +48,9 @@ export default function AdminScreen({
   pendingQuestions,
   pendingQuestionsCount,
   questionsPage,
-  pendingContributions,
-  pendingContributionsCount,
-  contributionsPage,
+  pendingCorrectionProposals,
+  pendingCorrectionProposalsCount,
+  correctionProposalsPage,
   briefProposals,
   briefProposalsCount,
   proposalsPage,
@@ -119,11 +119,11 @@ export default function AdminScreen({
                 </span>
               )}
             </TabButton>
-            <TabButton active={tab === 'contributions'} onClick={() => setTab('contributions')}>
-              Contributions
-              {pendingContributionsCount > 0 && (
+            <TabButton active={tab === 'correctionProposals'} onClick={() => setTab('correctionProposals')}>
+              Correction proposals
+              {pendingCorrectionProposalsCount > 0 && (
                 <span className="ml-2 font-mono text-[9px] bg-live text-white px-1.5 py-0.5">
-                  {pendingContributionsCount}
+                  {pendingCorrectionProposalsCount}
                 </span>
               )}
             </TabButton>
@@ -186,25 +186,25 @@ export default function AdminScreen({
             </>
           )}
 
-          {/* Pending contributions tab */}
-          {tab === 'contributions' && (
+          {/* Pending correction proposals tab */}
+          {tab === 'correctionProposals' && (
             <>
-              {pendingContributions.length === 0 ? (
+              {pendingCorrectionProposals.length === 0 ? (
                 <p className="font-serif text-sm text-soft italic py-8 text-center">
-                  No pending contributions.
+                  No pending correction proposals.
                 </p>
               ) : (
                 <div className="flex flex-col gap-2">
-                  {pendingContributions.map(c => (
-                    <ContributionCard key={c.id} contribution={c} />
+                  {pendingCorrectionProposals.map(c => (
+                    <CorrectionProposalCard key={c.id} proposal={c} />
                   ))}
                 </div>
               )}
               <Pagination
-                page={contributionsPage}
+                page={correctionProposalsPage}
                 pageSize={ADMIN_PAGE_SIZE}
-                total={pendingContributionsCount}
-                buildHref={(p) => buildPageHref('contributionsPage', p)}
+                total={pendingCorrectionProposalsCount}
+                buildHref={(p) => buildPageHref('correctionProposalsPage', p)}
               />
             </>
           )}

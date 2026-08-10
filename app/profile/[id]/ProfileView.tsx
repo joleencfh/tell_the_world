@@ -8,10 +8,10 @@ import EditProfileModal from './EditProfileModal'
 import PostModal from '@/components/PostModal'
 import ContactModal from '@/components/ContactModal'
 import type { PostData } from '@/components/PostModal'
-import type { ProfileUser, ProfilePost, ProfileContribution, UserRole, AvailabilityStatus } from './page'
+import type { ProfileUser, ProfilePost, ProfileCorrectionProposal, UserRole, AvailabilityStatus } from './page'
 import Avatar from '@/components/ui/Avatar'
 import RoleBadge from '@/components/ui/RoleBadge'
-import { PostCard, ContributionCard } from './cards'
+import { PostCard, CorrectionProposalCard } from './cards'
 import { RoleDetails, extractDomain } from './RoleDetails'
 
 // ---------------------------------------------------------------------------
@@ -51,7 +51,7 @@ function AvailabilityBadge({ status }: { status: AvailabilityStatus }) {
 interface ProfileViewProps {
   profileUser: ProfileUser | null
   posts: ProfilePost[]
-  contributions: ProfileContribution[]
+  correctionProposals: ProfileCorrectionProposal[]
   isOwnProfile: boolean
   currentUserId: string
   currentUser: { id: string; display_name: string | null; email: string; role: UserRole } | null
@@ -60,7 +60,7 @@ interface ProfileViewProps {
 export default function ProfileView({
   profileUser,
   posts,
-  contributions,
+  correctionProposals,
   isOwnProfile,
   currentUserId,
   currentUser,
@@ -274,26 +274,26 @@ export default function ProfileView({
                 )}
               </section>
 
-              {/* Contributions section — experts and organisations only */}
+              {/* Correction proposals section — experts and organisations only */}
               {(profileUser.role === 'expert' || profileUser.role === 'organisation') &&
-                (contributions.length > 0 || isOwnProfile) && (
+                (correctionProposals.length > 0 || isOwnProfile) && (
                 <section>
                   <div className="flex items-center gap-5 mb-7">
                     <h2 className="font-display uppercase tracking-[0.18em] text-dark text-sm shrink-0">
-                      Brief contributions
+                      Correction proposals
                     </h2>
                     <div className="flex-1 h-px bg-edge" />
                   </div>
 
-                  {contributions.length > 0 ? (
+                  {correctionProposals.length > 0 ? (
                     <div className="space-y-4">
-                      {contributions.map((c) => (
-                        <ContributionCard key={c.id} contribution={c} isOwnProfile={isOwnProfile} />
+                      {correctionProposals.map((c) => (
+                        <CorrectionProposalCard key={c.id} proposal={c} isOwnProfile={isOwnProfile} />
                       ))}
                     </div>
                   ) : (
                     <p className="font-serif text-sm text-soft/60 italic py-4">
-                      No contributions yet.
+                      No correction proposals yet.
                     </p>
                   )}
                 </section>

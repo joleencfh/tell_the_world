@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
-import { submitQuestion, submitContribution } from '@/lib/briefs/actions'
+import { submitQuestion, submitCorrectionProposal } from '@/lib/briefs/actions'
 import Avatar from '@/components/ui/Avatar'
 import RoleBadge from '@/components/ui/RoleBadge'
 import { getDisplayName, formatDate } from './helpers'
@@ -183,10 +183,10 @@ export function QuestionForm({ briefId, briefSlug }: { briefId: string; briefSlu
 }
 
 // ---------------------------------------------------------------------------
-// Contribute modal — experts and organisations only
+// Propose correction modal — experts and organisations only
 // ---------------------------------------------------------------------------
 
-export function ContributeModal({
+export function ProposeCorrectionModal({
   briefId,
   briefSlug,
   briefTitle,
@@ -205,13 +205,13 @@ export function ContributeModal({
     e.preventDefault()
     setFeedback(null)
     startTransition(async () => {
-      const result = await submitContribution(briefId, briefSlug, text)
+      const result = await submitCorrectionProposal(briefId, briefSlug, text)
       if (result.error) {
         setFeedback({ type: 'error', message: result.error })
       } else {
         setFeedback({
           type: 'success',
-          message: 'Contribution submitted for review. Once approved, it will appear on your profile.',
+          message: 'Correction submitted for review. Once approved, it will appear on your profile.',
         })
         setText('')
       }
@@ -238,7 +238,7 @@ export function ContributeModal({
         <div className="flex items-start justify-between px-7 pt-7 pb-5 border-b border-edge">
           <div>
             <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-live mb-1">
-              Brief contribution
+              Correction proposal
             </p>
             <h2 className="font-display uppercase text-dark text-xl leading-tight">
               Propose a correction or addition
@@ -260,7 +260,7 @@ export function ContributeModal({
         <form onSubmit={handleSubmit} className="px-7 py-6 space-y-4">
           <div>
             <label className="font-mono text-[10px] tracking-[0.18em] uppercase text-soft block mb-2">
-              Your contribution
+              Your correction
             </label>
             <textarea
               value={text}

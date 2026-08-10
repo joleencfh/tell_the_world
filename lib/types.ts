@@ -49,4 +49,5 @@ export type ContentPostRow = Tables<'content_posts'>
 export type ApplicationRow = Tables<'applications'>
 export type QuestionRow = Tables<'questions'>
 export type BriefContributionRow = Tables<'brief_contributions'>
+export type BriefCorrectionProposalRow = Tables<'brief_correction_proposals'>
 export type MessageRow = Tables<'messages'>
