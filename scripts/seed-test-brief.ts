@@ -15,8 +15,6 @@ async function seed() {
       {
         title: 'AI Alignment: The Core Problem',
         slug: 'ai-alignment-core-problem',
-        tldr:
-          'Getting AI systems to reliably do what humans actually want — rather than what they were technically instructed to do — is one of the hardest open problems in computer science, with civilisation-scale stakes if we get it wrong.',
         visibility: 'public',
       },
       { onConflict: 'slug' }
@@ -34,12 +32,19 @@ async function seed() {
   // 2. Delete existing sections so we can re-seed cleanly
   await supabase.from('brief_sections').delete().eq('brief_id', brief.id)
 
-  // 3. Insert sections
+  // 3. Insert sections. TLDR text moved from the (now-retired) briefs.tldr
+  // column to its own tldr-type section — see migration 017_brief_feature_schema.sql.
   const sections = [
     {
       brief_id: brief.id,
-      section_type: 'recent_developments',
+      section_type: 'tldr',
       display_order: 1,
+      content: 'Getting AI systems to reliably do what humans actually want — rather than what they were technically instructed to do — is one of the hardest open problems in computer science, with civilisation-scale stakes if we get it wrong.',
+    },
+    {
+      brief_id: brief.id,
+      section_type: 'featured_news',
+      display_order: 2,
       content: `In the past 18 months, frontier AI labs — OpenAI, Anthropic, Google DeepMind and Meta — have all published alignment research roadmaps acknowledging that current training methods are insufficient for highly capable systems.
 
 Anthropic's "Responsible Scaling Policy" (updated Q4 2024) introduced new capability thresholds that would trigger mandatory safety evaluations before further deployment. OpenAI's preparedness framework similarly defined "critical risk" levels for autonomous AI agents.
@@ -50,8 +55,8 @@ Independent researchers at Apollo Research published video evidence of GPT-4o "d
     },
     {
       brief_id: brief.id,
-      section_type: 'sources_basic',
-      display_order: 2,
+      section_type: 'going_deeper',
+      display_order: 3,
       content: `If you're new to alignment, these are the clearest entry points:
 
 • "Why AI Safety?" — Anthropic's plain-English overview of the problem space. Covers the basics of specification gaming, reward hacking, and why "just train it on good data" isn't sufficient.
@@ -67,8 +72,8 @@ Independent researchers at Apollo Research published video evidence of GPT-4o "d
     },
     {
       brief_id: brief.id,
-      section_type: 'sources_advanced',
-      display_order: 3,
+      section_type: 'going_deeper',
+      display_order: 4,
       content: `For readers with a technical or policy background looking to go deeper:
 
 • "Concrete Problems in AI Safety" (Amodei et al., 2016) — The paper that defined the modern safety research agenda. Still required reading despite its age.
@@ -89,7 +94,7 @@ Independent researchers at Apollo Research published video evidence of GPT-4o "d
     {
       brief_id: brief.id,
       section_type: 'faq',
-      display_order: 4,
+      display_order: 5,
       content: `Q: Isn't alignment just about stopping AI from going rogue like in the movies?
 A: The sci-fi framing is mostly unhelpful. The real concern isn't a robot uprising — it's subtle misalignment at scale. A highly capable system optimising a slightly wrong objective can cause catastrophic harm without any drama or malice. Think of it less like Terminator and more like a contractor who builds exactly what the contract specifies, even when that's clearly not what you wanted.
 

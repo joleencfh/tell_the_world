@@ -20,7 +20,6 @@ export interface BriefWithSections {
   id: string
   title: string
   slug: string
-  tldr: string
   visibility: BriefVisibility
   brief_sections: BriefSection[]
 }
@@ -29,11 +28,13 @@ export interface BriefListItem {
   id: string
   title: string
   slug: string
+  // TLDR text — sourced from the tldr-type brief_sections row (briefs.tldr
+  // was retired in migration 017), kept flat here for callers.
   tldr: string
   created_at: string
 }
 
-export interface UserContribution {
+export interface UserCorrectionProposal {
   id: string
   contribution_text: string
   status: 'pending' | 'approved' | 'dismissed'
@@ -51,7 +52,7 @@ export async function getBriefWithSectionsBySlug(
   const { data, error } = await db
     .from('briefs')
     .select(
-      'id, title, slug, tldr, visibility, brief_sections(id, section_type, content, display_order)',
+      'id, title, slug, visibility, brief_sections(id, section_type, content, display_order)',
     )
     .eq('slug', slug)
     .single()
@@ -63,24 +64,31 @@ export async function getBriefWithSectionsBySlug(
 export async function getRecentBriefs(db: DB, limit = 5): Promise<BriefListItem[]> {
   const { data } = await db
     .from('briefs')
-    .select('id, title, slug, tldr, created_at')
+    .select('id, title, slug, created_at, brief_sections!inner(content)')
+    .eq('brief_sections.section_type', 'tldr')
     .order('created_at', { ascending: false })
     .limit(limit)
 
-  return (data ?? []) as BriefListItem[]
+  return (data ?? []).map((b) => ({
+    id: b.id,
+    title: b.title,
+    slug: b.slug,
+    created_at: b.created_at,
+    tldr: b.brief_sections[0]?.content ?? '',
+  }))
 }
 
-// Contributions authored by a user, for their profile. RLS returns approved
-// contributions to everyone plus the user's own pending/dismissed ones.
-export async function getUserContributions(
+// Correction proposals authored by a user, for their profile. RLS returns
+// approved proposals to everyone plus the user's own pending/dismissed ones.
+export async function getUserCorrectionProposals(
   db: DB,
   userId: string,
-): Promise<UserContribution[]> {
+): Promise<UserCorrectionProposal[]> {
   const { data } = await db
-    .from('brief_contributions')
+    .from('brief_correction_proposals')
     .select('id, contribution_text, status, created_at, briefs(title, slug)')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
 
-  return (data ?? []) as unknown as UserContribution[]
+  return (data ?? []) as unknown as UserCorrectionProposal[]
 }

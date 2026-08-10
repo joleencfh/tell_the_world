@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import type { ProfilePost, ProfileContribution } from './page'
+import type { ProfilePost, ProfileCorrectionProposal } from './page'
 
 // ---------------------------------------------------------------------------
 // Utilities
@@ -86,25 +86,25 @@ export function PostCard({ post, onEdit }: { post: ProfilePost; onEdit?: () => v
 }
 
 // ---------------------------------------------------------------------------
-// Contribution card
+// Correction proposal card
 // ---------------------------------------------------------------------------
 
-export function ContributionCard({
-  contribution,
+export function CorrectionProposalCard({
+  proposal,
   isOwnProfile,
 }: {
-  contribution: ProfileContribution
+  proposal: ProfileCorrectionProposal
   isOwnProfile: boolean
 }) {
-  const isPending = contribution.status === 'pending'
+  const isPending = proposal.status === 'pending'
   return (
     <article className="bg-card border border-edge rounded-xl p-5 flex flex-col gap-3">
       <div className="flex items-start justify-between gap-3">
         <Link
-          href={`/briefs/${contribution.briefs.slug}`}
+          href={`/briefs/${proposal.briefs.slug}`}
           className="font-mono text-[9px] tracking-[0.15em] uppercase text-live hover:opacity-75 transition-opacity"
         >
-          {contribution.briefs.title} →
+          {proposal.briefs.title} →
         </Link>
         {isOwnProfile && isPending && (
           <span className="shrink-0 font-mono text-[9px] tracking-[0.1em] uppercase text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
@@ -113,9 +113,9 @@ export function ContributionCard({
         )}
       </div>
       <p className="font-serif text-sm text-text leading-relaxed whitespace-pre-wrap">
-        {contribution.contribution_text}
+        {proposal.contribution_text}
       </p>
-      <span className="font-mono text-[9px] text-soft/70">{formatDate(contribution.created_at)}</span>
+      <span className="font-mono text-[9px] text-soft/70">{formatDate(proposal.created_at)}</span>
     </article>
   )
 }

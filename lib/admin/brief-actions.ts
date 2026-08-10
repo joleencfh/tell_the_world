@@ -14,16 +14,24 @@ export interface Brief {
   id: string
   title: string
   slug: string
-  tldr: string
   visibility: 'public' | 'members_only'
   created_at: string
   updated_at: string
 }
 
+export type BriefSectionType =
+  | 'tldr'
+  | 'use_this'
+  | 'featured_news'
+  | 'explainer'
+  | 'where_experts_stand'
+  | 'going_deeper'
+  | 'faq'
+
 export interface BriefSection {
   id: string
   brief_id: string
-  section_type: 'recent_developments' | 'sources_basic' | 'sources_advanced' | 'faq'
+  section_type: BriefSectionType
   content: string
   display_order: number
 }
@@ -39,17 +47,20 @@ export async function createBrief(): Promise<never> {
 
   const { data: brief, error } = await getAdminClient()
     .from('briefs')
-    .insert({ title: 'Untitled', slug, tldr: '', visibility: 'members_only' })
+    .insert({ title: 'Untitled', slug, visibility: 'members_only' })
     .select('id')
     .single()
 
   if (error || !brief) throw new Error(error?.message ?? 'Failed to create brief')
 
   await getAdminClient().from('brief_sections').insert([
-    { brief_id: brief.id, section_type: 'recent_developments', content: '', display_order: 1 },
-    { brief_id: brief.id, section_type: 'sources_basic',        content: '', display_order: 2 },
-    { brief_id: brief.id, section_type: 'sources_advanced',     content: '', display_order: 3 },
-    { brief_id: brief.id, section_type: 'faq',                  content: '', display_order: 4 },
+    { brief_id: brief.id, section_type: 'tldr',                 content: '', display_order: 1 },
+    { brief_id: brief.id, section_type: 'use_this',              content: '', display_order: 2 },
+    { brief_id: brief.id, section_type: 'featured_news',         content: '', display_order: 3 },
+    { brief_id: brief.id, section_type: 'explainer',             content: '', display_order: 4 },
+    { brief_id: brief.id, section_type: 'where_experts_stand',   content: '', display_order: 5 },
+    { brief_id: brief.id, section_type: 'going_deeper',          content: '', display_order: 6 },
+    { brief_id: brief.id, section_type: 'faq',                   content: '', display_order: 7 },
   ])
 
   redirect(`/admin/briefs/${brief.id}`)
@@ -120,7 +131,6 @@ export async function saveBrief(
   briefId: string,
   data: {
     title: string
-    tldr: string
     visibility: 'public' | 'members_only'
     sections: Array<{ id: string; content: string; display_order: number }>
   }
@@ -129,7 +139,6 @@ export async function saveBrief(
 
   const updates: Record<string, unknown> = {
     title: data.title,
-    tldr: data.tldr,
     visibility: data.visibility,
   }
 

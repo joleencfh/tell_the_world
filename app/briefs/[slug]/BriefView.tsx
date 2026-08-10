@@ -12,7 +12,7 @@ import {
   LockedPlaceholder,
   QuoteCard,
 } from './section-content'
-import { QuestionCard, QuestionForm, ContributeModal } from './qa'
+import { QuestionCard, QuestionForm, ProposeCorrectionModal } from './qa'
 import { MOCK_QUESTIONS } from './mock-questions'
 import type { Brief, CurrentUser, Question, Quote } from './page'
 
@@ -31,11 +31,12 @@ export default function BriefView({ brief, quotes, questions, currentUser }: Bri
   const isLoggedIn = !!currentUser
   const showSections = isLoggedIn || brief.visibility === 'public'
   const canContribute = currentUser?.role === 'expert' || currentUser?.role === 'organisation'
-  const [contributeOpen, setContributeOpen] = useState(false)
+  const [proposeCorrectionOpen, setProposeCorrectionOpen] = useState(false)
   const [proposeBriefOpen, setProposeBriefOpen] = useState(false)
   const sortedSections = [...brief.brief_sections].sort(
     (a, b) => a.display_order - b.display_order,
   )
+  const tldr = sortedSections.find((s) => s.section_type === 'tldr')?.content ?? ''
 
   return (
     <div className="min-h-screen bg-base text-text">
@@ -95,7 +96,7 @@ export default function BriefView({ brief, quotes, questions, currentUser }: Bri
             <div className="anim-rise" style={{ animationDelay: '200ms' }}>
               <div className="w-10 h-[3px] bg-live mb-5" />
               <p className="font-serif text-[1.1rem] sm:text-[1.2rem] text-dark/75 leading-[1.65] max-w-2xl">
-                {brief.tldr}
+                {tldr}
               </p>
             </div>
           </div>
@@ -134,8 +135,12 @@ export default function BriefView({ brief, quotes, questions, currentUser }: Bri
         {showSections ? (
           <>
             {SECTION_ORDER.map((type, i) => {
-              const section = sortedSections.find((s) => s.section_type === type)
-              if (!section) return null
+              // A section type can have more than one row (e.g. the old
+              // sources_basic/sources_advanced both remapped to
+              // going_deeper) — render every matching row, not just the
+              // first, so migrated content isn't silently dropped.
+              const sections = sortedSections.filter((s) => s.section_type === type)
+              if (sections.length === 0) return null
               const meta = SECTION_META[type]
               const bgClass = SECTION_BG[i] ?? 'bg-base'
 
@@ -146,7 +151,11 @@ export default function BriefView({ brief, quotes, questions, currentUser }: Bri
                     style={{ animationDelay: '100ms' }}
                   >
                     <SectionHeader num={meta.num} label={meta.label} description={meta.description} />
-                    <SectionContent type={type} content={section.content} />
+                    <div className="space-y-10">
+                      {sections.map((section) => (
+                        <SectionContent key={section.id} type={type} content={section.content} />
+                      ))}
+                    </div>
                   </div>
                 </div>
               )
@@ -215,7 +224,7 @@ export default function BriefView({ brief, quotes, questions, currentUser }: Bri
               {canContribute && (
                 <button
                   type="button"
-                  onClick={() => setContributeOpen(true)}
+                  onClick={() => setProposeCorrectionOpen(true)}
                   className="font-mono text-[10px] tracking-[0.15em] uppercase text-soft hover:text-text transition-colors inline-flex items-center gap-2"
                 >
                   <span aria-hidden>→</span> Propose a correction or addition
@@ -232,13 +241,13 @@ export default function BriefView({ brief, quotes, questions, currentUser }: Bri
           </div>
         )}
 
-        {/* ── Contribute modal ─────────────────────────────────────────── */}
-        {contributeOpen && currentUser && (
-          <ContributeModal
+        {/* ── Propose correction modal ─────────────────────────────────── */}
+        {proposeCorrectionOpen && currentUser && (
+          <ProposeCorrectionModal
             briefId={brief.id}
             briefSlug={brief.slug}
             briefTitle={brief.title}
-            onClose={() => setContributeOpen(false)}
+            onClose={() => setProposeCorrectionOpen(false)}
           />
         )}
 

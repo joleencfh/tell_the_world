@@ -4,10 +4,10 @@ import { useState } from 'react'
 import {
   approveApplication, rejectApplication,
   approveQuestion, dismissQuestion,
-  approveContribution, dismissContribution,
+  approveCorrectionProposal, dismissCorrectionProposal,
   dismissBriefProposal,
 } from '@/lib/admin/actions'
-import type { Application, PendingQuestion, PendingContribution, BriefProposal } from '@/lib/admin/actions'
+import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal } from '@/lib/admin/actions'
 
 // ---------------------------------------------------------------------------
 // Role badges
@@ -301,25 +301,25 @@ export function QuestionCard({ question }: { question: PendingQuestion }) {
 }
 
 // ---------------------------------------------------------------------------
-// Pending contribution card
+// Pending correction proposal card
 // ---------------------------------------------------------------------------
 
-export function ContributionCard({ contribution }: { contribution: PendingContribution }) {
+export function CorrectionProposalCard({ proposal }: { proposal: PendingCorrectionProposal }) {
   const [loading, setLoading] = useState<'approving' | 'dismissing' | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const submitterName = contribution.users.display_name || contribution.users.email.split('@')[0]
+  const submitterName = proposal.users.display_name || proposal.users.email.split('@')[0]
 
   async function handleApprove() {
     setLoading('approving')
     setError(null)
-    const result = await approveContribution(contribution.id)
+    const result = await approveCorrectionProposal(proposal.id)
     if (result.error) { setError(result.error); setLoading(null) }
   }
 
   async function handleDismiss() {
     setLoading('dismissing')
     setError(null)
-    const result = await dismissContribution(contribution.id)
+    const result = await dismissCorrectionProposal(proposal.id)
     if (result.error) { setError(result.error); setLoading(null) }
   }
 
@@ -328,19 +328,19 @@ export function ContributionCard({ contribution }: { contribution: PendingContri
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="space-y-0.5">
           <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-live">
-            {contribution.briefs.title}
+            {proposal.briefs.title}
           </p>
           <p className="font-mono text-[9px] text-soft">
             {submitterName}
             {' · '}
-            <span className="capitalize">{contribution.users.role}</span>
+            <span className="capitalize">{proposal.users.role}</span>
             {' · '}
-            {formatDate(contribution.created_at)}
+            {formatDate(proposal.created_at)}
           </p>
         </div>
       </div>
       <p className="font-serif text-sm text-dark leading-relaxed whitespace-pre-wrap">
-        {contribution.contribution_text}
+        {proposal.contribution_text}
       </p>
       {error && <p className="font-mono text-[10px] text-red-600">{error}</p>}
       <div className="flex gap-3">

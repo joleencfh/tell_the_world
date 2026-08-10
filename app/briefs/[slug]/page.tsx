@@ -24,7 +24,6 @@ export interface Brief {
   id: string
   title: string
   slug: string
-  tldr: string
   visibility: BriefVisibility
   brief_sections: BriefSection[]
 }

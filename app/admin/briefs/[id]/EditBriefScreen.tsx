@@ -12,10 +12,13 @@ import type { Brief, BriefSection } from '@/lib/admin/brief-actions'
 // ---------------------------------------------------------------------------
 
 const SECTION_LABELS: Record<BriefSection['section_type'], string> = {
-  recent_developments: 'Recent Developments',
-  sources_basic:       'Basic Sources',
-  sources_advanced:    'Advanced Sources',
-  faq:                 'FAQ',
+  tldr:                 'TL;DR',
+  use_this:             'Use This',
+  featured_news:        'Featured News',
+  explainer:            'Explainer',
+  where_experts_stand:  'Where Experts Stand',
+  going_deeper:         'Going Deeper',
+  faq:                  'FAQ',
 }
 
 // ---------------------------------------------------------------------------
@@ -131,7 +134,6 @@ interface Props {
 
 export default function EditBriefScreen({ adminEmail, brief, sections: initialSections }: Props) {
   const [title, setTitle]           = useState(brief.title)
-  const [tldr, setTldr]             = useState(brief.tldr)
   const [visibility, setVisibility] = useState<Brief['visibility']>(brief.visibility)
   const [sections, setSections]     = useState<BriefSection[]>(
     [...initialSections].sort((a, b) => a.display_order - b.display_order)
@@ -165,7 +167,6 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
 
     const result = await saveBrief(brief.id, {
       title,
-      tldr,
       visibility,
       sections: sections.map(s => ({ id: s.id, content: s.content, display_order: s.display_order })),
     })
@@ -250,20 +251,6 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
               onChange={e => setTitle(e.target.value)}
               className="w-full border border-edge bg-card px-4 py-3 font-serif text-lg text-dark focus:outline-none focus:border-text"
               placeholder="Brief title"
-            />
-          </div>
-
-          {/* TLDR */}
-          <div className="space-y-1.5">
-            <label className="font-mono text-[9px] tracking-[0.18em] uppercase text-soft">
-              TL;DR
-            </label>
-            <textarea
-              value={tldr}
-              onChange={e => setTldr(e.target.value)}
-              rows={3}
-              className="w-full border border-edge bg-card px-4 py-3 font-serif text-sm text-text leading-relaxed focus:outline-none focus:border-text resize-y"
-              placeholder="A short summary of this brief…"
             />
           </div>
 

@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/lib/database.types'
-import type { Application, PendingQuestion, PendingContribution, BriefProposal } from '@/lib/admin/actions'
+import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal } from '@/lib/admin/actions'
 
 // Data-access layer for admin queue reads. See lib/data/briefs.ts for the
 // pattern. No auth here — callers (lib/admin/actions.ts) call requireAdmin()
@@ -53,15 +53,15 @@ export async function getPendingQuestions(db: DB, page = 1): Promise<PagedResult
   return { data: error ? [] : (data as unknown as PendingQuestion[]) ?? [], count: count ?? 0 }
 }
 
-export async function getPendingContributions(db: DB, page = 1): Promise<PagedResult<PendingContribution>> {
+export async function getPendingCorrectionProposals(db: DB, page = 1): Promise<PagedResult<PendingCorrectionProposal>> {
   const { data, error, count } = await db
-    .from('brief_contributions')
+    .from('brief_correction_proposals')
     .select('id, contribution_text, status, created_at, brief_id, briefs(title, slug), users(id, display_name, email, role)', { count: 'exact' })
     .eq('status', 'pending')
     .order('created_at', { ascending: true })
     .range(...range(page))
 
-  return { data: error ? [] : (data as unknown as PendingContribution[]) ?? [], count: count ?? 0 }
+  return { data: error ? [] : (data as unknown as PendingCorrectionProposal[]) ?? [], count: count ?? 0 }
 }
 
 export async function getBriefProposals(db: DB, page = 1): Promise<PagedResult<BriefProposal>> {
