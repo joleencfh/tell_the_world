@@ -13,13 +13,11 @@ async function main() {
       {
         title: 'Test Public Brief',
         slug: 'test-public-brief',
-        tldr: 'This is a publicly visible test brief used for end-to-end testing. It is safe to ignore.',
         visibility: 'public',
       },
       {
         title: 'Test Members Brief',
         slug: 'test-members-brief',
-        tldr: 'This is a members-only test brief used for end-to-end testing. It is safe to ignore.',
         visibility: 'members_only',
       },
     ], { onConflict: 'slug' })
@@ -32,7 +30,9 @@ async function main() {
 
   console.log('✓ Test briefs upserted')
 
-  // Insert one section per brief so section headings render
+  // Insert a few sections per brief so section headings render. TLDR text
+  // moved from the (now-retired) briefs.tldr column to its own tldr-type
+  // section — see migration 017_brief_feature_schema.sql.
   for (const brief of briefs!) {
     // Clear existing sections first so re-runs are safe
     await supabase.from('brief_sections').delete().eq('brief_id', brief.id)
@@ -42,15 +42,21 @@ async function main() {
       .insert([
         {
           brief_id: brief.id,
-          section_type: 'recent_developments',
-          content: 'Test content for recent developments.',
+          section_type: 'tldr',
+          content: 'This is a test brief used for end-to-end testing. It is safe to ignore.',
           display_order: 1,
         },
         {
           brief_id: brief.id,
-          section_type: 'sources_basic',
-          content: '• Test Source — A basic source for testing.\nhttps://example.com',
+          section_type: 'featured_news',
+          content: 'Test content for featured news.',
           display_order: 2,
+        },
+        {
+          brief_id: brief.id,
+          section_type: 'going_deeper',
+          content: '• Test Source — A basic source for testing.\nhttps://example.com',
+          display_order: 3,
         },
       ])
 
