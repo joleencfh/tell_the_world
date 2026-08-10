@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brief feature — mobile wireframes · Tell The World</title>
+<style>
+  :root{
+    --ink:#1a1a1a; --mut:#8a8a86; --line:#d9d7d0; --blk:#eceae4; --card:#ffffff;
+    --bg:#f7f6f3; --note:#6b5fd6; --amber-bg:#faeeda; --amber-tx:#854f0b;
+    --green-bg:#e1f5ee; --green-tx:#085041;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font:15px/1.6 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);padding:40px 16px}
+  .wrap{max-width:520px;margin:0 auto}
+  h1{font-size:24px;font-weight:600;margin-bottom:6px}
+  .sub{color:var(--mut);margin-bottom:32px;font-size:14px}
+  h2{font-size:18px;font-weight:600;margin:52px 0 4px}
+  .h2sub{color:var(--mut);font-size:13.5px;margin-bottom:16px}
+  .note{color:var(--note);font-size:12px;font-style:italic}
+  .callout{border-left:3px solid var(--note);padding:2px 0 2px 12px;margin:16px 0;color:var(--note);font-size:13px;font-style:italic}
+  /* phone frame */
+  .phone{width:100%;max-width:375px;margin:0 auto;background:var(--card);border:2px solid #c9c7bf;border-radius:26px;padding:14px 12px;position:relative}
+  .statusbar{height:16px;display:flex;justify-content:center;margin-bottom:8px}
+  .statusbar::after{content:"";width:80px;height:5px;border-radius:3px;background:var(--blk)}
+  /* atoms */
+  .bar{height:9px;background:var(--blk);border-radius:4px;margin:5px 0}
+  .blk{background:#f4f3ef;border:1px solid var(--line);border-radius:8px;padding:12px;margin:8px 0}
+  .lbl{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
+  .chip{display:inline-block;font-size:11px;background:var(--blk);border-radius:20px;padding:3px 9px;color:#5f5e5a;margin:0 4px 4px 0}
+  .chip.amber{background:var(--amber-bg);color:var(--amber-tx)}
+  .chip.green{background:var(--green-bg);color:var(--green-tx)}
+  .btn{display:inline-block;font-size:13px;border:1.5px solid var(--ink);border-radius:7px;padding:7px 14px;font-weight:500;background:#fff}
+  .btn.full{display:block;text-align:center}
+  .btn.ghost{border-color:var(--line);color:var(--mut);font-weight:400}
+  .av{width:26px;height:26px;border-radius:50%;background:#dcd9f5;color:#3c3489;font-size:10.5px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;flex:none}
+  .row{display:flex;gap:9px;align-items:flex-start;margin:9px 0}
+  .small{font-size:12.5px;color:#5f5e5a}
+  .tiny{font-size:11px;color:var(--mut)}
+  .topbar{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:10px}
+  .stickybottom{border-top:1.5px dashed #b8b5ab;margin:12px -12px -14px;padding:10px 12px 12px;background:#fbfaf8;border-radius:0 0 24px 24px}
+  .cb{width:16px;height:16px;border:1.5px solid #9a988f;border-radius:3px;display:inline-block;vertical-align:-3px}
+  .cb.on{background:var(--ink);border-color:var(--ink);position:relative}
+  .cb.on::after{content:"✓";color:#fff;font-size:11px;position:absolute;left:2.5px;top:-3px}
+  .tg{width:32px;height:17px;border-radius:9px;background:#d5d3cb;display:inline-block;position:relative;vertical-align:-4px}
+  .tg::after{content:"";width:13px;height:13px;border-radius:50%;background:#fff;position:absolute;left:2px;top:2px}
+  .tg.on{background:var(--green-tx)}
+  .tg.on::after{left:17px}
+  .ctl{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-top:1px solid #eceae4;font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Brief feature — mobile wireframes</h1>
+<p class="sub">Tell The World · v1 · companion to <em>brief-feature-design.md</em> and the desktop wireframes. Frames are 375&nbsp;px. Mobile-first surface: experts arrive from email, so the review-pass and reconfirmation land here more often than on desktop.</p>
+
+<!-- ============ 1. BRIEF PAGE MOBILE ============ -->
+<h2>1 · Brief page (mobile)</h2>
+<p class="h2sub">Variant A collapsed to one column. TOC becomes a dropdown in the top bar; the review CTA becomes a sticky bottom bar for experts and orgs only.</p>
+
+<div class="phone">
+  <div class="statusbar"></div>
+
+  <div class="topbar">
+    <span style="font-size:12px;font-weight:600">Tell <span style="color:#d85a30">The</span> World</span>
+    <span class="chip" style="margin:0">On this page ▾</span>
+  </div>
+
+  <div style="font-size:20px;font-weight:700;line-height:1.25">The AI Race</div>
+  <div class="small" style="margin:3px 0 8px">Subtitle — one sentence with a point of view</div>
+  <div>
+    <span class="chip green">✓ Reviewed by 5 · 3 orgs</span><span class="chip">14 Jul</span><span class="chip">12 min</span>
+  </div>
+  <p class="note">chips wrap to two lines; never truncate the review count — it's the trust signal</p>
+
+  <div class="blk">
+    <div class="lbl">TLDR</div>
+    <div class="bar"></div><div class="bar" style="width:92%"></div><div class="bar" style="width:58%"></div>
+  </div>
+
+  <div class="blk" style="border-width:2px;border-color:#b8b5ab">
+    <div class="lbl">Use this</div>
+    <div class="small" style="font-weight:600">Story angles</div>
+    <div class="bar"></div><div class="bar" style="width:78%"></div>
+    <div class="small" style="font-weight:600;margin-top:8px">Misconceptions</div>
+    <div class="bar"></div><div class="bar" style="width:84%"></div>
+    <div class="small" style="font-weight:600;margin-top:8px">Top quotes</div>
+    <div class="bar" style="width:88%"></div>
+    <div class="tiny">⧉ copy with attribution</div>
+    <p class="note">three columns stack — all visible, no accordion. Never hide the skimmer's exit point.</p>
+  </div>
+
+  <div class="blk">
+    <div class="lbl">Featured news</div>
+    <div class="tiny">Jun 2026</div><div class="bar"></div><div class="bar" style="width:62%"></div>
+    <div class="tiny" style="margin-top:6px">May 2026</div><div class="bar" style="width:80%"></div>
+  </div>
+
+  <div class="blk">
+    <div class="lbl">Explainer</div>
+
+    <div style="background:#fff;border:1px solid var(--line);border-radius:7px;padding:11px;margin:6px 0">
+      <div class="small" style="font-weight:600;margin-bottom:4px">1 · What the race actually is</div>
+      <div class="bar"></div><div class="bar" style="width:90%"></div><div class="bar" style="width:83%"></div>
+      <div style="border-top:1px solid #eceae4;margin-top:8px;padding-top:7px">
+        <span class="chip">✓ 4</span><span class="chip">★ 2</span><span class="chip">💬 1</span>
+      </div>
+    </div>
+
+    <div style="background:#fff;border:1px solid var(--line);border-radius:7px;padding:11px;margin:6px 0">
+      <div class="small" style="font-weight:600;margin-bottom:4px">2 · Why racing makes AI less safe</div>
+      <div class="bar"></div><div class="bar" style="width:87%"></div>
+      <div style="border-top:1px solid #eceae4;margin-top:8px;padding-top:7px">
+        <span class="chip">✓ 1</span><span class="chip amber">⏱ 3 predate edit</span>
+      </div>
+      <div style="background:#faf9f6;border:1px solid var(--line);border-radius:7px;padding:9px;margin-top:8px">
+        <div class="tiny" style="margin-bottom:5px">REVIEWED BY</div>
+        <div class="row" style="margin:5px 0">
+          <span class="av">SC</span>
+          <div class="small"><b>Dr. Sarah Chen</b> · TAIS<br><span class="chip green" style="margin-top:3px">★ Endorsed</span></div>
+        </div>
+        <div class="row" style="margin:5px 0">
+          <span class="av">AO</span>
+          <div class="small"><b>Amara Osei</b> · AIGL<br><span class="tiny">reviewed v3 · current is v4</span></div>
+        </div>
+        <div class="tiny" style="margin:7px 0 4px">NOTES</div>
+        <div class="small" style="background:#fff;border-radius:6px;padding:7px 9px"><b>A. Osei:</b> export-control update is Oct 2025, not 2024.</div>
+      </div>
+      <p class="note">panel expands inline (accordion), pushing content down — never a bottom sheet or modal. The reader keeps their place in a 12-minute read.</p>
+    </div>
+  </div>
+
+  <div class="blk">
+    <div class="lbl">Where experts stand</div>
+    <div class="bar" style="width:76%"></div>
+    <div style="background:#fff;border:1px solid var(--line);border-radius:7px;padding:9px;margin-top:6px">
+      <div class="small" style="font-weight:600">Is the US–China framing accurate?</div>
+      <div class="tiny">2 takes — see screen 3</div>
+    </div>
+  </div>
+
+  <div class="blk"><div class="lbl">Quotes — auto</div><div class="bar" style="width:70%"></div></div>
+  <div class="blk"><div class="lbl">Media — auto · 📌 start here pick</div><div class="bar" style="width:70%"></div></div>
+  <div class="blk"><div class="lbl">Going deeper · FAQ · Q&amp;A</div><div class="bar" style="width:55%"></div></div>
+
+  <div class="stickybottom">
+    <span class="btn full">Review this brief</span>
+    <p class="note" style="text-align:center;margin-top:4px">sticky bottom bar — rendered for experts &amp; orgs only; creators and journalists never see it</p>
+  </div>
+</div>
+
+<div class="callout">The "On this page ▾" dropdown lists the same ten sections as the desktop rail and closes on selection. Quotes and media cards keep one-thumb copy actions — a creator on a phone grabbing a quote is a core scenario, not an edge case.</div>
+
+<!-- ============ 2. REVIEW-PASS MOBILE ============ -->
+<h2>2 · Review-pass (mobile)</h2>
+<p class="h2sub">The desktop table becomes a card list — one card per section, controls stacked inside. This is the primary version of this surface: experts arrive from the solicitation email on their phones.</p>
+
+<div class="phone">
+  <div class="statusbar"></div>
+
+  <div style="font-size:17px;font-weight:600">Review: The AI Race</div>
+  <div class="callout" style="margin:10px 0">Only confirm sections within your expertise — skipped sections simply won't list you as a reviewer.</div>
+
+  <div class="blk" style="background:#fff">
+    <div class="small" style="font-weight:600">TLDR</div>
+    <div class="tiny" style="margin-bottom:4px">Leading AI companies are locked in a race…</div>
+    <div class="ctl"><span>Looks right</span><span class="cb on"></span></div>
+    <div class="ctl"><span>Endorse</span><span class="tg on"></span></div>
+    <div class="ctl" style="border-top:none;padding-top:0"><span class="tiny">Add a note…</span></div>
+  </div>
+
+  <div class="blk" style="background:#fff">
+    <div class="small" style="font-weight:600">1 · What the race actually is</div>
+    <div class="tiny" style="margin-bottom:4px">Two distinct dynamics: corporate and geopolitical…</div>
+    <div class="ctl"><span>Looks right</span><span class="cb on"></span></div>
+    <div class="ctl"><span>Endorse</span><span class="tg"></span></div>
+  </div>
+
+  <div class="blk" style="background:#fff">
+    <div class="small" style="font-weight:600">2 · Why racing makes AI less safe</div>
+    <div class="tiny" style="margin-bottom:4px">Competitive pressure compresses testing timelines…</div>
+    <div class="ctl"><span>Looks right</span><span class="cb"></span></div>
+    <div class="ctl"><span style="color:#b4b2a9">Endorse</span><span class="tg" style="opacity:.35"></span></div>
+    <div class="small" style="background:#f4f3ef;border-radius:6px;padding:8px 10px;margin-top:6px">"The causal claim in ¶2 overstates the current evidence."</div>
+    <p class="note">the disagreement path: tick left blank, correction goes in the note → pending comment. Endorse is disabled until "Looks right" is ticked.</p>
+  </div>
+
+  <div class="blk" style="background:#fff">
+    <div class="small" style="font-weight:600">3 · What the racers themselves say</div>
+    <div class="ctl"><span>Looks right</span><span class="cb"></span></div>
+    <div class="ctl"><span style="color:#b4b2a9">Endorse</span><span class="tg" style="opacity:.35"></span></div>
+    <p class="note">left fully blank → no row is created. Silence is "no claim", never "it's wrong".</p>
+  </div>
+
+  <div class="blk" style="background:#fff">
+    <div class="small" style="font-weight:600">FAQ <span class="tiny">· 8 questions</span></div>
+    <div class="ctl"><span>Looks right</span><span class="cb on"></span></div>
+    <div class="ctl"><span>Endorse</span><span class="tg"></span></div>
+  </div>
+
+  <div class="stickybottom">
+    <div class="small" style="margin-bottom:8px"><span class="cb"></span>&nbsp; Confirm the brief as a whole</div>
+    <span class="btn full">Submit review · 3 sections</span>
+    <p class="note" style="text-align:center;margin-top:4px">sticky submit shows a live count of sections being confirmed — the expert always knows what one tap will claim</p>
+  </div>
+</div>
+
+<div class="callout">Same flow, reconfirmation flavour: the magic link from the weekly digest lands on this screen pre-filtered to the expert's stale sections, each showing the author's one-line change summary, with every "Looks right" pre-ticked. One tap on submit re-pins everything — the email promise of "one click" kept honest.</div>
+
+<!-- ============ 3. CONTESTED POINT MOBILE ============ -->
+<h2>3 · Contested-point card (mobile)</h2>
+<p class="h2sub">Takes go full-width and stack — the desktop layout was already vertical, so nothing is lost.</p>
+
+<div class="phone">
+  <div class="statusbar"></div>
+
+  <div class="lbl">Where experts stand · contested point</div>
+  <div style="font-size:15.5px;font-weight:600;line-height:1.35">Is the US–China framing accurate or self-serving?</div>
+  <div class="tiny" style="margin:3px 0 10px">2 takes</div>
+
+  <div style="background:#faf9f6;border:1px solid var(--line);border-radius:8px;padding:11px;margin:8px 0">
+    <div class="row" style="margin:0 0 6px">
+      <span class="av">MK</span>
+      <div class="small"><b>Dr. Mei Kwan</b><br><span class="tiny">AI Governance Lab · Expert</span></div>
+    </div>
+    <div class="bar"></div><div class="bar" style="width:93%"></div><div class="bar" style="width:96%"></div><div class="bar" style="width:64%"></div>
+    <div class="tiny" style="margin-top:5px">12 Jun 2026</div>
+  </div>
+
+  <div style="background:#faf9f6;border:1px solid var(--line);border-radius:8px;padding:11px;margin:8px 0">
+    <div class="row" style="margin:0 0 6px">
+      <span class="av">TB</span>
+      <div class="small"><b>Tomás Barreto</b><br><span class="tiny">Frontier Policy Institute · Org</span></div>
+    </div>
+    <div class="bar"></div><div class="bar" style="width:88%"></div><div class="bar" style="width:71%"></div>
+    <div class="tiny" style="margin-top:5px">3 Jul 2026</div>
+  </div>
+
+  <span class="btn ghost full">Write a take</span>
+  <p class="note" style="text-align:center;margin-top:4px">experts &amp; orgs only · opens a plain full-screen text field with the question as the prompt · published after admin review</p>
+</div>
+
+<div class="callout">Takes stay chronological with equal visual weight on every screen size. ~100 words fills a phone screen comfortably — the format was accidentally mobile-native all along.</div>
+
+<p style="margin:52px 0 20px;color:var(--mut);font-size:13px">Tell The World · brief feature mobile wireframes · July 2026 · pairs with brief-feature-design.md and brief-wireframes.html</p>
+
+</div>
+</body>
+</html>

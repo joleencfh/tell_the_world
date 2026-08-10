@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brief feature — wireframes · Tell The World</title>
+<style>
+  :root{
+    --ink:#1a1a1a; --mut:#8a8a86; --line:#d9d7d0; --blk:#eceae4; --card:#ffffff;
+    --bg:#f7f6f3; --note:#6b5fd6; --amber-bg:#faeeda; --amber-tx:#854f0b;
+    --green-bg:#e1f5ee; --green-tx:#085041;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font:15px/1.6 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);padding:48px 24px}
+  .wrap{max-width:860px;margin:0 auto}
+  h1{font-size:26px;font-weight:600;margin-bottom:6px}
+  .sub{color:var(--mut);margin-bottom:36px}
+  h2{font-size:19px;font-weight:600;margin:56px 0 4px}
+  .h2sub{color:var(--mut);font-size:14px;margin-bottom:18px}
+  .frame{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:22px;position:relative}
+  .note{color:var(--note);font-size:12px;font-style:italic}
+  .callout{border-left:3px solid var(--note);padding:2px 0 2px 12px;margin:14px 0;color:var(--note);font-size:13px;font-style:italic}
+  .legend{display:flex;gap:22px;flex-wrap:wrap;font-size:13px;color:var(--mut);margin-bottom:8px}
+  .legend span{display:flex;align-items:center;gap:7px}
+  .sw{width:26px;height:12px;border-radius:3px;display:inline-block}
+  /* wireframe atoms */
+  .bar{height:9px;background:var(--blk);border-radius:4px;margin:5px 0}
+  .blk{background:#f4f3ef;border:1px solid var(--line);border-radius:7px;padding:13px;margin:10px 0}
+  .lbl{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin-bottom:7px}
+  .chip{display:inline-block;font-size:11.5px;background:var(--blk);border-radius:20px;padding:3px 10px;color:#5f5e5a;margin-right:5px}
+  .chip.amber{background:var(--amber-bg);color:var(--amber-tx)}
+  .chip.green{background:var(--green-bg);color:var(--green-tx)}
+  .btn{display:inline-block;font-size:13px;border:1.5px solid var(--ink);border-radius:6px;padding:6px 14px;font-weight:500}
+  .btn.ghost{border-color:var(--line);color:var(--mut);font-weight:400}
+  .cols{display:grid;gap:10px}
+  .av{width:26px;height:26px;border-radius:50%;background:#dcd9f5;color:#3c3489;font-size:10.5px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;flex:none}
+  .row{display:flex;gap:9px;align-items:flex-start;margin:9px 0}
+  .small{font-size:12.5px;color:#5f5e5a}
+  .tiny{font-size:11.5px;color:var(--mut)}
+  .toc{font-size:11.5px;color:var(--mut);line-height:2.1}
+  .toc b{color:var(--ink);font-weight:600}
+  table.pass{width:100%;border-collapse:collapse;font-size:13px}
+  table.pass th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);font-weight:500}
+  table.pass td{padding:10px 8px;border-bottom:1px solid #eceae4;vertical-align:top}
+  .cb{width:15px;height:15px;border:1.5px solid #9a988f;border-radius:3px;display:inline-block;vertical-align:-2px}
+  .cb.on{background:var(--ink);border-color:var(--ink);position:relative}
+  .cb.on::after{content:"✓";color:#fff;font-size:11px;position:absolute;left:2px;top:-3px}
+  .tg{width:30px;height:16px;border-radius:9px;background:#d5d3cb;display:inline-block;position:relative;vertical-align:-3px}
+  .tg::after{content:"";width:12px;height:12px;border-radius:50%;background:#fff;position:absolute;left:2px;top:2px}
+  .tg.on{background:var(--green-tx)}
+  .tg.on::after{left:16px}
+  @media(max-width:640px){.cols{grid-template-columns:1fr !important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Brief feature — wireframes</h1>
+<p class="sub">Tell The World · v1 · companion to <em>brief-feature-design.md</em>. Deliberately low-fidelity: gray boxes are placeholder content, real text appears only where it clarifies behaviour. Visual identity comes later.</p>
+<div class="legend">
+  <span><span class="sw" style="background:var(--blk)"></span>placeholder content</span>
+  <span><span class="sw" style="background:#dcd9f5"></span>expert identity</span>
+  <span><span class="sw" style="border:1.5px solid var(--ink);background:#fff"></span>action</span>
+  <span style="color:var(--note);font-style:italic">purple notes = behaviour annotations</span>
+</div>
+
+<!-- ============ 1. BRIEF PAGE — VARIANT A ============ -->
+<h2>1 · Brief page — Variant A: single reading column + sticky TOC</h2>
+<p class="h2sub">Recommended. Everything in one scroll path, ordered by depth; trust signals inline.</p>
+
+<div class="frame">
+<div style="display:grid;grid-template-columns:120px minmax(0,1fr);gap:22px">
+
+  <div>
+    <div class="toc">
+      <div class="lbl">On this page</div>
+      TLDR<br>Use this<br>Featured news<br><b>Explainer</b><br>Where experts stand<br>Quotes<br>Media<br>Going deeper<br>FAQ<br>Q&amp;A
+    </div>
+    <p class="note" style="margin-top:14px">sticky; tracks scroll position</p>
+    <div style="margin-top:18px"><span class="btn" style="font-size:12px">Review this brief</span></div>
+    <p class="note" style="margin-top:6px">experts &amp; orgs only — persistent in the rail, borrowed from Variant B</p>
+  </div>
+
+  <div>
+    <!-- header -->
+    <div class="blk" style="background:#fff">
+      <div style="font-size:21px;font-weight:700;line-height:1.25">The AI Race</div>
+      <div class="small" style="margin:3px 0 10px">Subtitle — one sentence, allowed a point of view</div>
+      <span class="chip green">✓ Reviewed by 5 experts · 3 orgs</span>
+      <span class="chip">Last reviewed 14 Jul 2026</span>
+      <span class="chip">12 min read</span>
+      <p class="note" style="margin-top:8px">bar counts only current reviews (§8 of design doc) · endorsers shown separately when &gt; 0</p>
+    </div>
+
+    <!-- tldr -->
+    <div class="blk">
+      <div class="lbl">TLDR</div>
+      <div class="bar"></div><div class="bar" style="width:94%"></div><div class="bar" style="width:88%"></div><div class="bar" style="width:55%"></div>
+      <p class="note">written to be quotable near-verbatim on camera</p>
+    </div>
+
+    <!-- use this -->
+    <div class="blk" style="border-width:2px;border-color:#b8b5ab">
+      <div class="lbl">Use this</div>
+      <div class="cols" style="grid-template-columns:1fr 1fr 1fr">
+        <div><div class="small" style="font-weight:600">Story angles</div><div class="bar"></div><div class="bar" style="width:80%"></div><div class="bar" style="width:85%"></div></div>
+        <div><div class="small" style="font-weight:600">Misconceptions</div><div class="bar"></div><div class="bar" style="width:75%"></div><div class="bar" style="width:90%"></div></div>
+        <div><div class="small" style="font-weight:600">Top quotes</div><div class="bar"></div><div class="bar" style="width:70%"></div><span class="tiny">⧉ copy with attribution</span></div>
+      </div>
+      <p class="note">the skimmer's exit point — a 3-minute visit ends here, satisfied</p>
+    </div>
+
+    <!-- featured news -->
+    <div class="blk">
+      <div class="lbl">Featured news</div>
+      <div class="row"><span class="tiny" style="min-width:64px">Jun 2026</span><div style="flex:1"><div class="bar" style="margin-top:2px"></div><div class="bar" style="width:60%"></div></div></div>
+      <div class="row"><span class="tiny" style="min-width:64px">May 2026</span><div style="flex:1"><div class="bar" style="margin-top:2px"></div><div class="bar" style="width:70%"></div></div></div>
+      <p class="note">2–4 dated items, each: headline + "why it matters" + link · the freshness signal</p>
+    </div>
+
+    <!-- explainer -->
+    <div class="blk">
+      <div class="lbl">Explainer</div>
+      <div style="background:#fff;border:1px solid var(--line);border-radius:7px;padding:12px;margin:8px 0">
+        <div class="small" style="font-weight:600;margin-bottom:5px">1 · What the race actually is</div>
+        <div class="bar"></div><div class="bar" style="width:92%"></div><div class="bar" style="width:85%"></div>
+        <div style="border-top:1px solid #eceae4;margin-top:9px;padding-top:8px">
+          <span class="chip">✓ 4 reviewed</span><span class="chip">★ 2 endorsed</span><span class="chip">💬 1 note</span>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--line);border-radius:7px;padding:12px;margin:8px 0">
+        <div class="small" style="font-weight:600;margin-bottom:5px">2 · Why racing makes AI less safe</div>
+        <div class="bar"></div><div class="bar" style="width:88%"></div>
+        <div style="border-top:1px solid #eceae4;margin-top:9px;padding-top:8px">
+          <span class="chip">✓ 1 reviewed</span><span class="chip amber">⏱ 3 reviews predate latest edit</span>
+        </div>
+      </div>
+      <p class="note">chips expand inline to the people + notes panel (already wireframed in chat) · collapsed by default; the counts alone are the skimmer's trust signal</p>
+    </div>
+
+    <!-- where experts stand -->
+    <div class="blk">
+      <div class="lbl">Where experts stand</div>
+      <div class="bar"></div><div class="bar" style="width:78%"></div>
+      <p class="tiny" style="margin:4px 0 8px">↑ authored agreement summary</p>
+      <div style="background:#fff;border:1px solid var(--line);border-radius:7px;padding:10px">
+        <div class="small" style="font-weight:600">Contested · Is the US–China framing accurate or self-serving?</div>
+        <div class="tiny" style="margin-top:3px">2 takes — detailed wireframe in section 4 below</div>
+      </div>
+    </div>
+
+    <!-- auto sections -->
+    <div class="cols" style="grid-template-columns:1fr 1fr">
+      <div class="blk" style="margin:0"><div class="lbl">Quotes <span style="text-transform:none;letter-spacing:0">— auto</span></div><div class="bar"></div><div class="bar" style="width:65%"></div><p class="note">filtered view of content_posts by topic tag · zero authoring cost</p></div>
+      <div class="blk" style="margin:0"><div class="lbl">Media <span style="text-transform:none;letter-spacing:0">— auto</span></div><div class="small">📌 Start here: <span class="tiny">author-pinned pick</span></div><div class="bar"></div><div class="bar" style="width:65%"></div></div>
+    </div>
+
+    <div class="cols" style="grid-template-columns:1fr 1fr 1fr;margin-top:10px">
+      <div class="blk" style="margin:0"><div class="lbl">Going deeper</div><div class="bar"></div><p class="note">3–5 annotated pointers</p></div>
+      <div class="blk" style="margin:0"><div class="lbl">FAQ</div><div class="bar"></div><p class="note">harvested from Q&amp;A over time</p></div>
+      <div class="blk" style="margin:0"><div class="lbl">Community Q&amp;A</div><div class="bar"></div><p class="note">existing feature, unchanged</p></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============ 2. BRIEF PAGE — VARIANT B ============ -->
+<h2>2 · Brief page — Variant B: reading column + persistent trust rail</h2>
+<p class="h2sub">Alternative. The content column stays pure prose; all trust and action elements live in a sticky right rail. Only the top of the page is shown — below the fold it continues identically to Variant A minus the inline chips.</p>
+
+<div class="frame">
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 190px;gap:22px">
+  <div>
+    <div class="blk" style="background:#fff">
+      <div style="font-size:21px;font-weight:700">The AI Race</div>
+      <div class="small" style="margin-top:3px">Subtitle</div>
+    </div>
+    <div class="blk"><div class="lbl">TLDR</div><div class="bar"></div><div class="bar" style="width:90%"></div></div>
+    <div class="blk"><div class="lbl">Explainer · 1</div><div class="bar"></div><div class="bar" style="width:92%"></div><div class="bar" style="width:85%"></div><p class="note">no chips — sections are clean prose</p></div>
+    <div class="blk"><div class="lbl">Explainer · 2</div><div class="bar"></div><div class="bar" style="width:88%"></div></div>
+  </div>
+  <div>
+    <div class="blk" style="margin-top:0;background:#fff">
+      <div class="lbl">Trust panel <span style="text-transform:none;letter-spacing:0">(sticky)</span></div>
+      <span class="chip green">✓ 5 reviewed</span><span class="chip">★ 2 endorsed</span>
+      <div style="margin:9px 0 4px"><span class="av">SC</span> <span class="av" style="margin-left:-8px">AO</span> <span class="av" style="margin-left:-8px">+3</span></div>
+      <div class="tiny">per-section detail on click</div>
+      <div style="margin-top:12px"><span class="btn" style="font-size:12px">Review this brief</span></div>
+      <div style="margin-top:12px;border-top:1px solid var(--line);padding-top:10px">
+        <div class="tiny">Jump to</div>
+        <div class="toc">Quotes<br>Media<br>Q&amp;A</div>
+      </div>
+    </div>
+    <p class="note">always visible while reading — maximal expert-participation prompt, but rails suffer banner blindness and collapse awkwardly on mobile</p>
+  </div>
+</div>
+</div>
+
+<!-- ============ 3. REVIEW-PASS ============ -->
+<h2>3 · Review-pass screen (new surface #1)</h2>
+<p class="h2sub">Full-page checklist reached from "Review this brief". One read, one submit. Design doc §7.</p>
+
+<div class="frame">
+  <div style="font-size:17px;font-weight:600">Review: The AI Race</div>
+  <div class="callout">Only confirm sections within your expertise — skipped sections simply won't list you as a reviewer.</div>
+
+  <table class="pass">
+    <tr><th style="width:44%">Section</th><th>Looks right</th><th>Endorse</th><th>Note</th></tr>
+    <tr>
+      <td><b>TLDR</b><br><span class="tiny">Leading AI companies are locked in a race…</span></td>
+      <td><span class="cb on"></span></td>
+      <td><span class="tg on"></span></td>
+      <td><span class="tiny">add a note…</span></td>
+    </tr>
+    <tr>
+      <td><b>1 · What the race actually is</b><br><span class="tiny">Two distinct dynamics: corporate and geopolitical…</span></td>
+      <td><span class="cb on"></span></td>
+      <td><span class="tg"></span></td>
+      <td><span class="tiny">add a note…</span></td>
+    </tr>
+    <tr>
+      <td><b>2 · Why racing makes AI less safe</b><br><span class="tiny">Competitive pressure compresses testing timelines…</span></td>
+      <td><span class="cb"></span></td>
+      <td><span class="tg" style="opacity:.35"></span></td>
+      <td><span class="small">"The causal claim in ¶2 overstates the current evidence."</span></td>
+    </tr>
+    <tr>
+      <td><b>3 · What the racers themselves say</b><br><span class="tiny">On-record statements from lab leadership…</span></td>
+      <td><span class="cb"></span></td>
+      <td><span class="tg" style="opacity:.35"></span></td>
+      <td><span class="tiny">add a note…</span></td>
+    </tr>
+    <tr>
+      <td><b>FAQ</b><br><span class="tiny">8 questions</span></td>
+      <td><span class="cb on"></span></td>
+      <td><span class="tg"></span></td>
+      <td><span class="tiny">add a note…</span></td>
+    </tr>
+  </table>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;flex-wrap:wrap;gap:10px">
+    <span class="small"><span class="cb"></span>&nbsp; Confirm the brief as a whole <span class="tiny">(pins the max version — §3.3 rule 2)</span></span>
+    <span class="btn">Submit review</span>
+  </div>
+
+  <div class="callout" style="margin-top:18px">
+    Row semantics (§5.2): ticked → review row · toggle → upgraded to endorsement · <b>blank → no row created at all</b> — silence, never disapproval. Row 2 shows the disagreement path: tick left blank, correction written as a note → pending comment. Endorse toggle disabled until "Looks right" is ticked.
+  </div>
+</div>
+
+<!-- ============ 4. CONTESTED POINT ============ -->
+<h2>4 · Contested-point card (new surface #2)</h2>
+<p class="h2sub">One card per disputed question inside "Where experts stand". Design doc §6.3.</p>
+
+<div class="frame">
+  <div style="font-size:15px;font-weight:600;margin-bottom:2px">Is the US–China framing accurate or self-serving?</div>
+  <div class="tiny" style="margin-bottom:12px">Contested point · 2 takes</div>
+
+  <div class="row" style="background:#faf9f6;border:1px solid var(--line);border-radius:7px;padding:11px">
+    <span class="av">MK</span>
+    <div>
+      <span class="small"><b>Dr. Mei Kwan</b> · AI Governance Lab</span>
+      <div class="bar" style="margin-top:6px"></div><div class="bar" style="width:93%"></div><div class="bar" style="width:64%"></div>
+      <div class="tiny" style="margin-top:5px">12 Jun 2026</div>
+    </div>
+  </div>
+
+  <div class="row" style="background:#faf9f6;border:1px solid var(--line);border-radius:7px;padding:11px">
+    <span class="av">TB</span>
+    <div>
+      <span class="small"><b>Tomás Barreto</b> · Frontier Policy Institute</span>
+      <div class="bar" style="margin-top:6px"></div><div class="bar" style="width:88%"></div><div class="bar" style="width:71%"></div>
+      <div class="tiny" style="margin-top:5px">3 Jul 2026</div>
+    </div>
+  </div>
+
+  <div style="margin-top:10px"><span class="btn ghost">Write a take</span> <span class="tiny">experts &amp; orgs only · published after admin review</span></div>
+
+  <div class="callout">Takes render chronologically with equal visual weight — no seniority ordering, no "official" answer. ~100 words each, in the expert's own voice. Points are author-created only; each is a solicitation unit.</div>
+</div>
+
+<p style="margin:56px 0 24px;color:var(--mut);font-size:13px">Tell The World · brief feature wireframes · July 2026 · pairs with brief-feature-design.md</p>
+
+</div>
+</body>
+</html>
