@@ -39,37 +39,33 @@
   --font-mono:    var(--font-plex-mono), ui-monospace, "SF Mono", Consolas, monospace;
 }
 
-/* Plain :root override, not @theme — nesting @theme inside @media doesn't
-   work in Tailwind v4: @theme is a build-time directive that gets merged
-   into one static declaration regardless of the @media wrapper around it,
-   so it silently became the permanent (always-on) value instead of a
-   conditional override. Found this after the very first attempt (which used
-   this same plain-:root shape) looked broken too — that earlier failure
-   turned out to be an unrelated CSS comment bug, not this pattern. */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-paper:            #0C0D0E;
-    --color-paper-raised:     #151719;
-    --color-paper-sunken:     #1C1420;
-    --color-paper-sunken-blue:#141B2E;
-    --color-ink:               #F1F2F3;
-    --color-ink-soft:          #B4B8BC;
-    --color-ink-faint:         #787C81;  /* lightened from #6A6E72, same AA failure as the light-mode value above; #787C81 is 4.63:1 */
-    --color-line:              #242628;
-    --color-line-strong:       #35383B;
-    --color-blue:              #5B8DFF;
-    --color-blue-soft:         #16223F;
-    --color-blue-ink:          #CFDDFF;
-    --color-pink:              #FF5FA0;
-    --color-pink-soft:         #3A1226;
-    --color-pink-ink:          #FFD3E8;
-    --color-coverage-bg:       #000000;
-  }
-}
+/* Dark mode is disabled for now — light is the preferred/default theme
+   regardless of OS prefers-color-scheme, since there's no manual toggle yet
+   to opt back into light for a visitor whose OS prefers dark. The values
+   below are kept as a ready-to-restore reference (contrast-checked, see
+   §1.1 of the two-ink-bold-plan.md) — re-wrap them in
+   `@media (prefers-color-scheme: dark) { :root { ... } }` (plain :root, not
+   @theme — see the note that used to sit here about why) once a manual
+   light/dark toggle ships, and add a :root[data-theme="dark"] mirror at
+   the same time so the toggle can override the media query.
 
-/* No manual light/dark toggle exists in this app yet (only prefers-color-scheme).
-   Add a :root[data-theme="dark"] mirror of the block above, and gate the
-   block above on :root:not([data-theme="light"]), the day a toggle ships. */
+--color-paper:            #0C0D0E;
+--color-paper-raised:     #151719;
+--color-paper-sunken:     #1C1420;
+--color-paper-sunken-blue:#141B2E;
+--color-ink:               #F1F2F3;
+--color-ink-soft:          #B4B8BC;
+--color-ink-faint:         #787C81;
+--color-line:              #242628;
+--color-line-strong:       #35383B;
+--color-blue:              #5B8DFF;
+--color-blue-soft:         #16223F;
+--color-blue-ink:          #CFDDFF;
+--color-pink:              #FF5FA0;
+--color-pink-soft:         #3A1226;
+--color-pink-ink:          #FFD3E8;
+--color-coverage-bg:       #000000;
+*/
 
 html {
   color-scheme: light dark;

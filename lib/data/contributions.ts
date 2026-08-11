@@ -6,6 +6,40 @@ import type { Database } from '@/lib/database.types'
 
 type DB = SupabaseClient<Database>
 
+export type ContributionStatus = 'none' | 'review' | 'endorsement'
+
+// The current viewer's own review/endorsement row for a brief (sectionId
+// null) or a specific section (Part 3). Used to render the "Mark as
+// reviewed" / "Endorse" control's initial state — see two-ink-bold-plan.md
+// §2 "Reusing brief_contributions".
+export async function getMyContributionStatus(
+  db: DB,
+  briefId: string,
+  sectionId: string | null,
+  userId: string,
+): Promise<ContributionStatus> {
+  const base = db
+    .from('brief_contributions')
+    .select('type')
+    .eq('brief_id', briefId)
+    .eq('user_id', userId)
+    .in('type', ['review', 'endorsement'])
+    .limit(1)
+
+  const { data } = await (sectionId ? base.eq('section_id', sectionId) : base.is('section_id', null))
+
+  return (data?.[0]?.type as ContributionStatus | undefined) ?? 'none'
+}
+
+// The section_version to pin on a new/updated contribution row: a specific
+// section's current content_version, or (brief-level) the max across all of
+// the brief's sections. Small standalone helper — getEndorsementBarCounts
+// below computes the same max inline and is intentionally left untouched
+// (§2: it already does the right thing for this scope).
+export function getMaxContentVersion(sections: { content_version: number }[]): number {
+  return sections.reduce((m, s) => Math.max(m, s.content_version), 1)
+}
+
 export interface EndorsementBarCounts {
   reviewedCount: number
   endorsedCount: number

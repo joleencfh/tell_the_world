@@ -13,11 +13,13 @@ import {
   QuoteCard,
   MediaCard,
   HeaderChip,
+  TLDRList,
 } from './section-content'
 import { QuestionCard, QuestionForm, ProposeCorrectionModal } from './qa'
+import { ReviewEndorseControl } from './review-endorse'
 import { MOCK_QUESTIONS } from './mock-questions'
 import { formatDate, computeReadTimeMinutes } from './helpers'
-import type { Brief, CurrentUser, Question, Quote, MediaPost, EndorsementBarCounts } from './page'
+import type { Brief, CurrentUser, Question, Quote, MediaPost, EndorsementBarCounts, ContributionStatus } from './page'
 
 // ---------------------------------------------------------------------------
 // Main component
@@ -30,9 +32,10 @@ interface BriefViewProps {
   endorsementBar: EndorsementBarCounts
   questions: Question[]
   currentUser: CurrentUser | null
+  myReviewStatus: ContributionStatus
 }
 
-export default function BriefView({ brief, quotes, media, endorsementBar, questions, currentUser }: BriefViewProps) {
+export default function BriefView({ brief, quotes, media, endorsementBar, questions, currentUser, myReviewStatus }: BriefViewProps) {
   const isLoggedIn = !!currentUser
   const showSections = isLoggedIn || brief.visibility === 'public'
   const canContribute = currentUser?.role === 'expert' || currentUser?.role === 'organisation'
@@ -46,28 +49,28 @@ export default function BriefView({ brief, quotes, media, endorsementBar, questi
   const { reviewedCount, endorsedCount, orgCount } = endorsementBar
 
   return (
-    <div className="min-h-screen bg-base text-text">
+    <div className="min-h-screen bg-paper text-ink">
 
       {/* ── Nav ──────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-10 bg-base/95 backdrop-blur-sm border-b border-edge px-6">
+      <header className="sticky top-0 z-10 bg-paper/95 backdrop-blur-sm border-b border-line px-6">
         <div className="mx-auto flex max-w-4xl items-center justify-between py-4">
           <Link
             href={isLoggedIn ? '/home' : '/'}
-            className="font-serif text-base font-bold tracking-tight text-text"
+            className="font-display text-base font-bold tracking-tight text-ink"
           >
-            Tell <em className="italic text-live">The</em> World
+            Tell <em className="italic text-ink-soft">The</em> World
           </Link>
           <nav className="flex items-center gap-6">
             {isLoggedIn ? (
               <>
-                <Link href="/directory" className="font-mono text-[10px] tracking-[0.18em] uppercase text-soft hover:text-text transition-colors hidden sm:block">Directory</Link>
-                <Link href="/briefs" className="font-mono text-[10px] tracking-[0.18em] uppercase text-soft hover:text-text transition-colors hidden sm:block">Briefs</Link>
-                <Link href={`/profile/${currentUser.id}`} className="font-mono text-[10px] tracking-[0.18em] uppercase text-soft hover:text-text transition-colors">Profile</Link>
+                <Link href="/directory" className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint hover:text-ink transition-colors hidden sm:block">Directory</Link>
+                <Link href="/briefs" className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint hover:text-ink transition-colors hidden sm:block">Briefs</Link>
+                <Link href={`/profile/${currentUser.id}`} className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint hover:text-ink transition-colors">Profile</Link>
               </>
             ) : (
               <>
-                <Link href="/apply" className="font-mono text-[10px] tracking-[0.18em] uppercase text-soft hover:text-text transition-colors">Apply</Link>
-                <Link href="/login" className="font-mono text-[10px] tracking-[0.18em] uppercase text-soft hover:text-text transition-colors">Login</Link>
+                <Link href="/apply" className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint hover:text-ink transition-colors">Apply</Link>
+                <Link href="/login" className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint hover:text-ink transition-colors">Login</Link>
               </>
             )}
           </nav>
@@ -76,23 +79,27 @@ export default function BriefView({ brief, quotes, media, endorsementBar, questi
 
       <main>
 
-        {/* ── Hero — grid-texture, large type, editorial TLDR ─────────── */}
+        {/* ── Hero — neutral ink, no blue/pink tint (§1.1) ─────────────── */}
         <div className="grid-texture relative overflow-hidden px-6 pt-16 pb-20">
           {/* Bottom fade to next section */}
-          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent to-base pointer-events-none" />
+          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent to-paper pointer-events-none" />
 
           <div className="mx-auto max-w-4xl relative">
-            {/* Breadcrumb label */}
-            <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-live mb-6 anim-rise" style={{ animationDelay: '0ms' }}>
-              Brief
-            </p>
+            {/* Numbered eyebrow — 01, so the SectionHeader sequence starting
+                at 02 (TL;DR, just below) doesn't appear to skip 01 (§1.3). */}
+            <div className="flex items-center gap-4 mb-8 anim-rise" style={{ animationDelay: '0ms' }}>
+              <span className="font-mono text-sm tracking-[0.2em] text-ink font-bold tabular-nums">01</span>
+              <div className="h-px flex-1 bg-line" />
+              <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-ink-faint">Brief</span>
+            </div>
 
             {/* Title — large, dominant */}
             <h1
-              className="font-display uppercase text-dark anim-rise"
+              className="font-display uppercase font-bold text-ink anim-rise"
               style={{
-                fontSize: 'clamp(2.75rem, 7vw, 6rem)',
+                fontSize: 'clamp(3.1rem, 7.8vw, 6.6rem)',
                 lineHeight: '0.93',
+                letterSpacing: '-0.035em',
                 animationDelay: '80ms',
               }}
             >
@@ -102,15 +109,21 @@ export default function BriefView({ brief, quotes, media, endorsementBar, questi
             {/* Subtitle — one sentence, allowed a point of view */}
             {brief.subtitle && (
               <p
-                className="font-serif text-base sm:text-lg text-dark/60 italic mt-4 max-w-2xl anim-rise"
+                className="font-body text-base sm:text-lg text-ink-soft italic mt-4 max-w-2xl anim-rise"
                 style={{ animationDelay: '120ms' }}
               >
                 {brief.subtitle}
               </p>
             )}
 
-            {/* Header chip bar — endorsement bar, last reviewed, read time */}
-            <div className="flex flex-wrap items-center gap-2 mt-6 mb-10 anim-rise" style={{ animationDelay: '160ms' }}>
+            {/* Header chip bar — endorsement bar, last reviewed, read time.
+                aria-live: chips appear/change count in place with no
+                navigation when the review/endorse control below is used. */}
+            <div
+              className="flex flex-wrap items-center gap-2 mt-6 anim-rise"
+              style={{ animationDelay: '160ms' }}
+              aria-live="polite"
+            >
               {reviewedCount > 0 && (
                 <HeaderChip tone="blue">
                   ✓ Reviewed by {reviewedCount} expert{reviewedCount === 1 ? '' : 's'}
@@ -128,15 +141,33 @@ export default function BriefView({ brief, quotes, media, endorsementBar, questi
               <HeaderChip>{readTimeMinutes} min read</HeaderChip>
             </div>
 
-            {/* TLDR — editorial standfirst */}
-            <div className="anim-rise" style={{ animationDelay: '200ms' }}>
-              <div className="w-10 h-[3px] bg-live mb-5" />
-              <p className="font-serif text-[1.1rem] sm:text-[1.2rem] text-dark/75 leading-[1.65] max-w-2xl">
-                {tldr}
-              </p>
-            </div>
+            {/* Brief-level review/endorse control — expert/organisation only */}
+            {canContribute && (
+              <div className="mt-4 anim-rise" style={{ animationDelay: '180ms' }}>
+                <ReviewEndorseControl
+                  briefId={brief.id}
+                  briefSlug={brief.slug}
+                  sectionId={null}
+                  initialStatus={myReviewStatus}
+                />
+              </div>
+            )}
           </div>
         </div>
+
+        {/* ── TL;DR ─────────────────────────────────────────────────────── */}
+        {tldr.trim() && (
+          <div className="bg-paper px-6 py-16">
+            <div className="mx-auto max-w-4xl anim-rise" style={{ animationDelay: '0ms' }}>
+              <SectionHeader
+                num={SECTION_META.tldr.num}
+                label={SECTION_META.tldr.label}
+                description={SECTION_META.tldr.description}
+              />
+              <TLDRList content={tldr} />
+            </div>
+          </div>
+        )}
 
         {/* ── Sections or lock ─────────────────────────────────────────── */}
         {showSections ? (

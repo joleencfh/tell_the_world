@@ -22,11 +22,12 @@ export const SECTION_ORDER: BriefSectionType[] = [
 
 export const SECTION_META: Record<BriefSectionType, { label: string; num: string; description: string }> =
   {
-    // Not looped over (rendered in the hero instead) but kept here so this
-    // stays a total map over BriefSectionType.
+    // Not looped over via SECTION_ORDER (BriefView renders it as its own
+    // section right after the hero) but kept here so this stays a total map
+    // over BriefSectionType. num '01' is the hero's own eyebrow numeral.
     tldr: {
       label: 'TL;DR',
-      num: '00',
+      num: '02',
       description: 'The three-minute version',
     },
     use_this: {
@@ -93,6 +94,48 @@ function parseFAQ(content: string): FAQItem[] | null {
     if (question) items.push({ question, answer })
   }
   return items.length >= 1 ? items : null
+}
+
+// ---------------------------------------------------------------------------
+// TL;DR bullets — short lines, optional "**lead term** — rest" shape
+// ---------------------------------------------------------------------------
+
+interface TLDRBullet {
+  lead: string | null
+  rest: string
+}
+
+export function parseTLDR(content: string): TLDRBullet[] | null {
+  const lines = content
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+
+  if (lines.length === 0) return null
+
+  return lines.map((line) => {
+    const match = line.match(/^\*\*(.+?)\*\*\s*—\s*(.*)$/)
+    return match ? { lead: match[1].trim(), rest: match[2].trim() } : { lead: null, rest: line }
+  })
+}
+
+export function TLDRList({ content }: { content: string }) {
+  const bullets = parseTLDR(content)
+  if (!bullets) return null
+
+  return (
+    <ul className="space-y-4 max-w-2xl">
+      {bullets.map((bullet, i) => (
+        <li key={i} className="flex gap-3">
+          <span className="mt-2.5 h-1.5 w-1.5 rounded-full bg-ink-faint shrink-0" aria-hidden />
+          <p className="font-body text-[1.05rem] text-ink leading-[1.7]">
+            {bullet.lead && <strong className="font-semibold text-ink">{bullet.lead} — </strong>}
+            {bullet.rest}
+          </p>
+        </li>
+      ))}
+    </ul>
+  )
 }
 
 // ---------------------------------------------------------------------------
