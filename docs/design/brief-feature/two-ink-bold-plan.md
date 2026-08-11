@@ -1,0 +1,1003 @@
+# Brief page — Two-Ink Bold rebuild: development plan
+
+**Status: draft, not started.** Supersedes `brief-feature-design.md` and
+`build-plan.md` for the Brief page's *content structure and visual design*
+(both now carry a banner pointing here). Their schema work is **not**
+superseded — see "What happens to the old schema" below.
+
+## How to use this
+
+Same convention as the old build-plan: each part below is independently
+buildable and has a ready-to-paste "prompt for next session" block. Parts
+are ordered so nothing depends on a part that comes after it. **Part 0 is a
+hard prerequisite for everything else** — do not start Part 1 before it
+ships.
+
+Per the process change already in place for this feature (see
+`[[brief_feature_v2_progress]]` memory): each part gets its own branch, and
+needs the user's explicit sign-off before being considered done — not just
+`tsc`/`lint`/browser verification.
+
+---
+
+## 0. Where this comes from
+
+The visual language is the "Two-Ink Bold" direction, developed and
+approved across a design-review conversation and applied to a full mock of
+the real Brief page. That mock is the canonical visual reference — read it
+before touching CSS:
+
+- **Visual reference (build against this):** the "The AI Race — Brief
+  (Two-Ink Bold)" artifact from this conversation. Ask the user for the
+  current artifact link if it's not already in your context — it gets
+  redeployed in place, so old links in chat history may be stale.
+- Design tokens and component patterns are transcribed in §2 below so a
+  session doesn't strictly need the artifact to start, but the artifact is
+  the tie-breaker for anything ambiguous in this doc.
+
+### What replaces what
+
+| Old doc said | This doc says instead |
+|---|---|
+| 11 sections: Header, TLDR, Use This, Featured News, Explainer, Where Experts Stand (+ contested points/takes), Quotes, Media, Going Deeper, FAQ, Q&A | 9 sections: Header/Hero, TL;DR, Quotes, Explainer (+ Sources), FAQ, Community Q&A, Calls to Action, Covered By, Related Briefs |
+| Annotation layer (collapsed/expanded/stale chips), review-pass screen, reconfirmation email, admin moderation of takes | Not built. See below. |
+| Palette: `base`/`warm`/`dark`/`live` amber, Anton + Source Serif + DM Mono | Two-Ink Bold tokens, §2 |
+
+### What happens to the old schema
+
+Migration `017_brief_feature_schema.sql` already shipped `contested_points`
+and the polymorphic `brief_contributions` table (types `review` /
+`endorsement` / `take` / `comment`, with `content_version` staleness
+versioning). **Explicit decision: leave these tables in the database,
+untouched.** No cleanup migration, no `DROP TABLE`. Two consequences:
+
+1. `contested_points` and the `take`/`comment` contribution types go
+   unused indefinitely — that's fine, they cost nothing sitting empty.
+2. The `review` / `endorsement` contribution types **are** reused (Part 3,
+   Part 1) — see "Reusing `brief_contributions`" below. This is not a
+   revival of the old review-pass screen or staleness system; it's a much
+   smaller self-serve mechanism that happens to fit the existing table
+   shape.
+
+Do **not** build: the annotation layer (§6 of the old design doc), the
+review-pass screen (§7), the reconfirmation email (§7.1), or admin
+moderation of `take`/`comment` rows. If a future session wants those back,
+that's a new decision, not a resumption of this plan.
+
+---
+
+## 1. Design system (Part 0 builds this; everything else consumes it)
+
+> **Skills consulted for this section and §3 below:** `web-design-guidelines`
+> and `react-best-practices` (Vercel), `composition-patterns` (Vercel),
+> `frontend-design` (Anthropic), and the static `accessibility-*` skill
+> content (AccessLint — methodology/checkpoints only, the live-scan MCP
+> server isn't installed, so nothing below is a substitute for actually
+> running `accessibility-scan`/`accessibility-inspect` once real pages
+> exist). Contrast numbers in §1.1 were computed by hand against the WCAG
+> formula, not via the AccessLint engine — treat them as a strong signal,
+> not a replacement for a real scan once Part 0 ships.
+
+### 1.1 Tokens
+
+Replace `app/globals.css`'s `@theme inline` block. Current tokens
+(`--color-base/warm/dark/text/soft/live/edge/card`, Anton/Source Serif/DM
+Mono) are the "temporary palette" being retired — don't keep them side by
+side, replace them outright so nothing can accidentally reference the old
+names.
+
+```css
+@theme inline {
+  /* Light (default) */
+  --color-paper:            #FFFFFF;
+  --color-paper-raised:     #F7F7F8;
+  --color-paper-sunken:     #FBEFF5;  /* pink wash — Q&A section bg */
+  --color-paper-sunken-blue:#EAF0FE;  /* blue wash — Quotes section bg */
+  --color-ink:               #0C0D0E;
+  --color-ink-soft:          #4A4E53;
+  --color-ink-faint:         #727679;  /* darkened from the artifact's #85898E — that value is 3.52:1 on white, fails WCAG AA (4.5:1) for normal-size text, and this token is used for ~9-11px mono labels/eyebrows/dates that don't qualify for the "large text" 3:1 exemption. #727679 is 4.57:1, passes. */
+  --color-line:              #E2E3E5;
+  --color-line-strong:       #C9CBCE;
+  --color-blue:              #1E4FEB;
+  --color-blue-soft:         #E7EDFD;
+  --color-blue-ink:          #0B2C99;
+  --color-pink:              #F0197E;
+  --color-pink-soft:         #FDE6F1;
+  --color-pink-ink:          #99075A;
+  --color-coverage-bg:       #0C0D0E; /* fixed dark band, both themes */
+
+  --font-display: var(--font-plex-sans), "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-body:    var(--font-plex-sans), "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-mono:    var(--font-plex-mono), ui-monospace, "SF Mono", Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-paper:            #0C0D0E;
+    --color-paper-raised:     #151719;
+    --color-paper-sunken:     #1C1420;
+    --color-paper-sunken-blue:#141B2E;
+    --color-ink:               #F1F2F3;
+    --color-ink-soft:          #B4B8BC;
+    --color-ink-faint:         #787C81;  /* lightened from #6A6E72 — that value is 3.79:1 on the dark paper, same AA failure as the light-mode value above. #787C81 is 4.63:1, passes. */
+    --color-line:              #242628;
+    --color-line-strong:       #35383B;
+    --color-blue:              #5B8DFF;
+    --color-blue-soft:         #16223F;
+    --color-blue-ink:          #CFDDFF;
+    --color-pink:              #FF5FA0;
+    --color-pink-soft:         #3A1226;
+    --color-pink-ink:          #FFD3E8;
+    --color-coverage-bg:       #000000;
+  }
+}
+/* mirror under :root[data-theme="dark"] / [data-theme="light"] for the
+   in-app theme toggle, same pattern as the artifact — see it for the
+   exact block, it's mechanical. */
+```
+
+This repo currently has no light/dark toggle (only `prefers-color-scheme`
+is wired via the artifact's own CSS, not this app's). Check whether the
+app has a manual theme toggle before assuming the `[data-theme]` selectors
+are needed — if not, the `@media` block alone is sufficient and the
+`[data-theme]` mirror can be skipped (add it back the day a toggle ships).
+
+**Fonts:** `app/layout.tsx` currently loads `Anton`, `Source_Serif_4`,
+`DM_Mono` via `next/font/google`. Replace with `IBM_Plex_Sans` (weights
+400/500/600/700/800) and `IBM_Plex_Mono` (weights 400/500/600), same
+`variable:` pattern. Two-Ink Bold uses **one** grotesk family for both
+display and body — weight does the work, not a serif/sans split. Don't
+substitute Inter, Roboto, or system-only fonts (Segoe UI/Helvetica Neue in
+the artifact were a browser-preview constraint, not the real
+recommendation — this app can and should self-host via `next/font`).
+
+**Semantic color mapping** (the load-bearing part — get this right before
+styling anything):
+
+- **Blue = expert/org verification.** Reviewed/endorsed badges, keyterm
+  tooltips, sources, expert quote avatars, FAQ.
+- **Pink = creator/journalist engagement.** Q&A asks, Calls to Action,
+  Covered By.
+- **Ink (neutral) = the editorial spine.** Masthead, hero, TL;DR,
+  Explainer body prose, Related Briefs. Never tinted blue or pink.
+
+**Contrast rule for the accent colors — apply everywhere `blue`/`pink` get
+used as text color, not just where the plan calls it out explicitly:**
+raw `blue` (#1E4FEB) passes WCAG AA (4.5:1) for text at any size in both
+themes, but raw `pink` (#F0197E light / bordering-adequate in dark) does
+**not** at normal text sizes in light mode (4.08:1, needs 4.5:1) — it only
+clears AA at large-text/UI-component sizes (18px+/14px-bold, 3:1
+threshold). Concretely: use `pink` for large headline text, borders,
+fills, dots, and top-rules; use `pink-ink` (#99075A, 8.29:1) for pink text
+below that size — the artifact's own CTA link color and vote-button hover
+color used raw `pink` at ~11px, which is exactly this bug. Same logic for
+`blue`/`blue-ink`, though raw `blue` happens to already clear AA — use
+`blue-ink` anyway for anything sitting on a tinted background
+(`blue-soft`), where the lower-contrast background changes the math.
+
+### 1.2 Type scale (approximate — tune against the artifact, don't treat these as exact)
+
+| Role | Size | Weight | Notes |
+|---|---|---|---|
+| Hero h1 | `clamp(3.1rem, 7.8vw, 6.6rem)` | 800 | letter-spacing -0.035em |
+| Section h2 (main title) | `clamp(1.7rem, 3.2vw, 2.5rem)` | 800 | uppercase, letter-spacing +0.01em |
+| Sub-head (e.g. Explainer subsection title) | ~1.28rem | 500 | *italic*, color ink-soft — deliberately quieter than h2, see §2 note below |
+| Body | ~1.02–1.06rem | 400–500 | line-height 1.7 |
+| Mono labels/eyebrows | 0.6–0.72rem | 600 | uppercase, letter-spacing 0.04–0.1em |
+
+The main-title vs. sub-head distinction (uppercase/heavy/full-ink vs.
+italic/medium/ink-soft) was a specific fix requested mid-review — don't
+let them converge back to "same weight, different size," that was the bug.
+
+### 1.3 Shared components to build once, in `components/ui/` or
+`app/briefs/[slug]/`
+
+- **`SectionHeader`** — already exists (`section-content.tsx`), already
+  has the numbered-divider shape (`num` + rule). Restyle it, don't
+  rewrite it: drop the `EX.`-style prefix if present anywhere, bare
+  two-digit numbers only (`01`, `02`...), and make sure the number itself
+  is visible starting from the very first section a reader sees — don't
+  let the sequence appear to start at 02 with no visible 01 anywhere on
+  the page.
+- **`Chip`** — already exists as `HeaderChip`. Extend with `tone: 'blue' |
+  'pink' | 'default'` instead of the current `'live' | 'default'`.
+- **`Carousel`** (new, client component) — Quotes and Related Briefs
+  currently render as a static CSS grid, not a horizontally-scrollable
+  row. Build it as a **compound component with a shared provider**
+  (`composition-patterns`: lift the scroll-position state into a provider
+  rather than a single monolithic component taking a pile of config
+  props — `showButtons`/`fadeColor`/`itemWidth`-style boolean/prop
+  proliferation is exactly what that skill flags):
+
+  ```tsx
+  const CarouselContext = createContext<{
+    trackRef: React.RefObject<HTMLDivElement | null>
+    atStart: boolean
+    atEnd: boolean
+  } | null>(null)
+
+  function CarouselProvider({ children }: { children: React.ReactNode }) { /* owns trackRef + atStart/atEnd state, one passive scroll listener */ }
+  function CarouselTrack({ children, fadeColor }: { children: React.ReactNode; fadeColor: string }) { /* scrollable row + edge fade masks in fadeColor */ }
+  function CarouselPrevButton() { /* use(CarouselContext), disabled+hidden when atStart */ }
+  function CarouselNextButton() { /* same, atEnd */ }
+
+  export const Carousel = { Provider: CarouselProvider, Track: CarouselTrack, PrevButton: CarouselPrevButton, NextButton: CarouselNextButton }
+  ```
+
+  Consumer (e.g. Quotes): `<Carousel.Provider><Carousel.PrevButton
+  /><Carousel.NextButton /><Carousel.Track
+  fadeColor="var(--color-paper-sunken-blue)">{quotes.map(...)}</Carousel.Track></Carousel.Provider>`
+  — each section passes its own `fadeColor` (Quotes:
+  `paper-sunken-blue`, Covered By: `coverage-bg`, everything else:
+  `paper`) instead of the component hardcoding one background.
+
+  Requirements, sourced from `web-design-guidelines`' interaction
+  checklist — treat all of these as acceptance criteria for Part 0, not
+  optional polish:
+  - Hidden native scrollbar (`scrollbar-width: none` + WebKit
+    equivalent).
+  - Prev/next buttons: `aria-label="Previous"`/`"Next"` (icon-only
+    buttons need one), visible `focus-visible` ring (never
+    `outline: none` without a replacement), and `touch-action:
+    manipulation` so a tap doesn't wait out the double-tap-zoom delay.
+  - The track itself needs to be keyboard-scrollable, not just
+    button-scrollable — a native `overflow-x: auto` div is already
+    arrow-key-scrollable once it's a focusable element (`tabIndex={0}`
+    if it isn't focusable by default); don't build a carousel that only
+    a mouse/touch user can move.
+  - Scroll-position tracking (`scrollLeft`) hides the left fade/button
+    at the very start and the right fade/button at the very end — this
+    must be correct from initial render, not just after the user
+    scrolls; a `Carousel.Track` that never mounted inside a
+    `Carousel.Provider` should fail loudly (throw if `use(CarouselContext)`
+    is null) rather than silently show a fade with nothing to reveal —
+    that exact bug happened once already in the mock.
+  - One passive scroll listener per carousel instance
+    (`client-passive-event-listeners` — `{ passive: true }`), not one
+    per card.
+  - Respect `prefers-reduced-motion` on the `scrollBy({ behavior:
+    'smooth' })` call the buttons trigger (fall back to instant jump).
+- **Dark-band section wrapper** — a small utility (`bg-coverage-bg
+  text-paper-raised` or similar) for Covered By. Fixed dark in *both*
+  themes — don't build it from the `ink` token, `ink` inverts between
+  light/dark mode and this band should not.
+- **Duotone placeholder graphic** — Covered By has no real photography
+  yet. Build a small deterministic component that takes a stable key
+  (e.g. the coverage row's id) and renders an abstract SVG (simple
+  shapes — circles/rings/polygons, not hand-authored path data) in a
+  blue-or-pink gradient plus a faint halftone-dot overlay
+  (`mix-blend-mode: multiply`), so the "no photo yet" state looks
+  designed rather than empty. Swap for real images later without
+  changing the card layout.
+
+All new client components (`Carousel`, the FAQ/Q&A accordions, vote/
+endorse buttons) target React 19 (this app is on Next.js 16): no
+`forwardRef` — `ref` is a regular prop — and `use(SomeContext)` instead of
+`useContext(SomeContext)` wherever a component reads a provider
+(`composition-patterns`' `react19-no-forwardref` rule).
+
+### 1.4 Accessibility and interface conventions (apply across every part)
+
+Curated from `web-design-guidelines`' Web Interface Guidelines checklist —
+not the full 100+-rule list, just the ones that are either easy to miss or
+specific to what this plan actually builds. Re-run the full checklist via
+that skill once real component code exists; don't treat this subset as
+exhaustive.
+
+- **Focus states**: every interactive element (`Carousel` buttons,
+  accordion triggers, vote/endorse buttons, chip-styled toggles, the CTA/
+  Coverage "propose" buttons) needs a visible `focus-visible` ring — never
+  a bare `outline: none`. Use `:focus-visible`, not `:focus` (don't ring
+  on mouse click).
+- **`aria-live="polite"`** on anything that updates a count in place
+  without navigation: the reviewed/endorsed badge after the toggle in
+  §2's mechanism, Q&A vote/endorsement counts (Part 5). The carousel's
+  at-start/at-end button visibility doesn't need this — it's affordance,
+  not content — but a submitted CTA/Coverage row moving from "submitted"
+  to "pending review" in the UI does.
+- **Semantic elements, not `<div onClick>`**: accordion triggers are real
+  `<button>` (already true in the mock); CTA/Coverage outbound links are
+  real `<a>`, not button-styled onClick handlers.
+- **Forms** (Parts 5-7's "Ask a question" / "Suggest a call to action" /
+  "Add coverage" flows — new submission surfaces this plan adds, unlike
+  the mostly-read-only sections in Parts 1-4): every input needs a
+  `<label>`, correct `type`/`autocomplete`, must not block paste, submit
+  button stays enabled until the request starts (spinner during, not
+  disabled-then-nothing), and validation errors render inline next to the
+  field with focus moved to the first error on a failed submit — follow
+  `ProposeCorrectionModal`'s existing form conventions, which already do
+  most of this, rather than inventing a new pattern per part.
+- **User-generated content needs container handling**: CTA descriptions,
+  coverage titles, and Q&A question/answer text are the first genuinely
+  unpredictable-length author-facing content in this plan (existing
+  sections are all admin-authored, so their length is implicitly
+  controlled). Give these `line-clamp-*`/`truncate`/`break-words` as
+  appropriate and `min-w-0` on any flex ancestor, and design for the
+  empty state (zero CTAs, zero coverage, zero questions) explicitly
+  rather than letting an empty array render broken UI — the existing
+  Quotes/Media near-empty-state handling is the pattern to copy.
+- **`touch-action: manipulation`** on anything tappable that isn't
+  already a native `<button>`/`<a>` with browser defaults, and
+  `-webkit-tap-highlight-color` set intentionally rather than left at
+  the (frequently ugly) browser default.
+- **`color-scheme`**: set `color-scheme: light dark` (or the per-theme
+  equivalent) on `<html>` once Part 0's dark tokens exist, so native form
+  controls (any new CTA/Coverage form `<select>`, the existing role
+  `<select>` if one still exists) don't render a light-on-light or
+  dark-on-dark mismatch against the surrounding theme.
+- **Reduced motion**: every animation this plan adds (carousel smooth-
+  scroll, accordion expand/collapse, the entrance animations already in
+  `BriefView.tsx`) must respect `prefers-reduced-motion` — the mock's CSS
+  already does this pattern consistently, carry it into real components
+  rather than dropping it during the port.
+- **Numbers**: keep `font-variant-numeric: tabular-nums` wherever digits
+  sit in a fixed-width context (vote counts, read-time, section numbers —
+  already used via the existing `.num` class, extend it rather than
+  reintroducing ad hoc number styling).
+
+### Prompt for next session — Part 0
+
+```
+Read docs/design/brief-feature/two-ink-bold-plan.md in full before doing
+anything else — this is the first part, so there's no prior part's work to
+orient against yet, but §0's context (what's superseded, what stays) still
+matters before you touch anything.
+
+Build the Two-Ink Bold design system foundation for the Brief page
+(docs/design/brief-feature/two-ink-bold-plan.md §1). This replaces the
+current "Punchy Media Brand" theme in app/globals.css entirely.
+
+1. Replace the @theme inline block in app/globals.css with the tokens in
+   §1.1 (light + dark via prefers-color-scheme; check whether the app has
+   a manual theme toggle before also wiring [data-theme] selectors).
+2. In app/layout.tsx, swap the next/font/google imports from
+   Anton/Source_Serif_4/DM_Mono to IBM_Plex_Sans (weights 400/500/600/
+   700/800) and IBM_Plex_Mono (weights 400/500/600), matching the
+   existing variable: pattern.
+3. Restyle (don't rewrite) SectionHeader and HeaderChip in
+   app/briefs/[slug]/section-content.tsx per §1.1's semantic color
+   mapping and §1.3.
+4. Build the shared Carousel as a compound component per §1.3's exact
+   shape (Provider/Track/PrevButton/NextButton via context, not a single
+   component with a pile of config props — see the composition-patterns
+   skill if the reasoning isn't obvious from the spec). Hidden scrollbar,
+   discreet inset prev/next buttons with aria-label and focus-visible
+   rings, edge-color-matched fade masks, correct at-start/at-end tracking
+   from initial render, keyboard-scrollable track, touch-action:
+   manipulation, reduced-motion-safe smooth scroll.
+5. Build the dark-band wrapper and the duotone placeholder graphic
+   component per §1.3, even though nothing consumes them yet (Part 7
+   will).
+6. Use `blue`/`pink` vs. `blue-ink`/`pink-ink` per §1.1's contrast rule
+   everywhere you reach for an accent as a text color in this part's
+   restyle of SectionHeader/HeaderChip — don't just copy colors from the
+   artifact's CSS verbatim, it has at least one instance of this exact
+   mistake (the CTA link color).
+
+This part touches shared CSS/fonts/components only — no section content
+changes yet, so the existing page will look broken/half-migrated until
+Parts 1+ land. That's expected. Verify: bunx tsc --noEmit && bun run lint
+clean; spot-check in the browser that the token swap didn't produce
+invisible-text bugs (check both a light-background and the future
+dark-band area); run the web-design-guidelines skill against the new
+Carousel/Chip/SectionHeader components specifically (small enough surface
+area to review as code at this stage, before it's buried in five
+sections' worth of usage). If the AccessLint MCP server (`accessibility-
+scan`) gets installed before this part starts, run it against a throwaway
+page rendering the new components — the static accessibility skills
+installed so far are methodology references, not a substitute for an
+actual scan. Get the user's sign-off on the raw token/type feel before
+starting Part 1 — this is the one part where a wrong call is expensive to
+unwind later.
+```
+
+---
+
+## 2. Content sections and where their data comes from
+
+| # | Section | Ink | Data source | New schema? |
+|---|---|---|---|---|
+| — | Masthead + hero + header chips | neutral | existing (`briefs`, `brief_contributions` via `getEndorsementBarCounts`) | No |
+| 1 | TL;DR | neutral | existing `brief_sections` (`type='tldr'`) — **content format changes**, see Part 1 | No |
+| 2 | Quotes | blue | existing (`content_posts` by `topic_tag`) | No |
+| 3 | Explainer (+ Sources) | blue | existing `brief_sections` (`type='explainer'`, multiple rows) + reused `brief_contributions` for reviewed/endorsed badges | `brief_sections.title` column |
+| 4 | FAQ | blue | existing `brief_sections` (`type='faq'`, `Q:`/`A:` parsed) | No |
+| 5 | Community Q&A | pink asks / blue answers | existing `questions` table, extended | Yes — votes + endorsements |
+| 6 | Calls to Action | pink | new | Yes — `brief_ctas` |
+| 7 | Covered By | pink, dark band | new | Yes — `brief_coverage` (+ likes) |
+| 8 | Related Briefs | neutral | existing (`briefs.topic_tag`) | No |
+
+Dropped from the old IA entirely, per the decision in §0: Use This,
+Featured News, Where Experts Stand, Going Deeper (its *sources*-parsing
+logic is kept — see Part 3). The `brief_section_type` enum in Postgres
+still contains `use_this` / `featured_news` / `where_experts_stand` /
+`going_deeper` values (enums can't drop values without a full type swap,
+same reason migration 017 didn't do it additively) — leave them, just stop
+authoring new rows of those types and retire their bespoke renderers in
+Part 10's cleanup pass.
+
+### Reusing `brief_contributions` for reviewed/endorsed badges
+
+Both the hero's "Reviewed by N experts" chip (already built, currently
+dead — nothing writes to `brief_contributions` because the review-pass
+screen was never built) and the new per-Explainer-subsection "✓ Reviewed ·
+N" badge should read the **same** signal. Rather than inventing a second
+mechanism, Part 1 and Part 3 add a minimal write path:
+
+- A simple two-button control (`Mark as reviewed` / `Endorse`, endorse
+  disabled until reviewed — same labels as the old design doc's §11
+  decision, still good advice even though the doc is otherwise
+  superseded: don't rename "Looks right"-style casual language to
+  something formal) visible to `expert`/`organisation` users, per
+  Explainer subsection and once at brief level for the hero chip.
+- On click, upsert a row into the existing `brief_contributions` table:
+  `type='review'` or `'endorsement'`, `section_id` (or null for
+  brief-level), `section_version` = the section's current
+  `content_version`, `status='published'` immediately (binary trust
+  signals don't need moderation — this part of the old design doc's §5.4
+  logic still holds even though the rest of that flow doesn't exist).
+  The existing partial unique indexes already enforce one row per
+  (user, target) — this is an `upsert`, not a plain insert.
+- Do **not** build: the checklist screen, the note/comment field, the
+  brief-level "confirm as a whole" as a separate flow, staleness display,
+  or the reconfirmation email. Since nothing in this plan ever bumps
+  `content_version` (the "substantive change" toggle from the old plan
+  isn't being built either), every row stays current forever — the
+  existing `getEndorsementBarCounts` staleness comparison in
+  `lib/data/contributions.ts` still runs but will always evaluate to
+  "current," which is exactly the simplification we want. **Do not
+  refactor that function** — it already does the right thing for this
+  reduced scope.
+
+---
+
+## 3. Part-by-part build order
+
+### Part 1 — Masthead, hero, and TL;DR
+
+Restyle the existing masthead/hero (`BriefView.tsx`) with the tokens from
+Part 0. Add the reviewed/endorsed toggle at brief level (see §2) so the
+header chip has real data to show. Split TL;DR out of the hero into its
+own numbered section, and change its authored format: instead of one
+paragraph, the admin authors 3–5 short bullet lines, each optionally
+starting with a **bold lead term** followed by an em-dash (e.g. `**Compute
+race** — governments vs. governments...`). Parse this the same way
+`parseFAQ`/`parseSources` already parse structured text out of a single
+`content` field — don't move to a JSON content model for this, it doesn't
+match the rest of the codebase's conventions.
+
+#### Prompt for next session — Part 1
+
+```
+Read docs/design/brief-feature/two-ink-bold-plan.md in full before doing
+anything else — §0 for context, §1 for the design system Part 0 already
+built (tokens, semantic color rules, the accessibility checklist in §1.4),
+§2 for the brief_contributions reuse mechanism this part implements, §4
+for engineering conventions. Don't skip straight to the numbered steps
+below.
+
+Build Part 1 of the Two-Ink Bold Brief page rebuild
+(docs/design/brief-feature/two-ink-bold-plan.md §3, Part 1). Requires
+Part 0 done first (design tokens/fonts/shared components).
+
+1. Restyle the masthead and hero in app/briefs/[slug]/BriefView.tsx with
+   the new tokens — neutral ink, no blue/pink tint (§1.1). Bump the hero
+   h1 to the larger scale in §1.2.
+2. Split TL;DR out of the hero into its own section with a SectionHeader
+   (num "02", label "TL;DR"). Change the authoring format to short bullet
+   lines with an optional **bold lead term** — write a small parser
+   (pattern-match app/briefs/[slug]/section-content.tsx's parseFAQ) and
+   update app/admin/briefs/[id]/EditBriefScreen.tsx's TLDR field with
+   helper text telling authors to write one bullet per line.
+3. Add the brief-level "Mark as reviewed" / "Endorse" control per §2's
+   "Reusing brief_contributions" section — visible to expert/organisation
+   users only, upserts into brief_contributions (type review/endorsement,
+   section_id null, section_version = max content_version across the
+   brief's sections, status published immediately). The header chip's
+   count needs `aria-live="polite"` on the element that changes, since it
+   updates in place without navigation (§1.4) — this is the first place
+   this pattern appears in the rebuild; Part 3 repeats it at section
+   scope and can point back here instead of re-deriving it. Verify the existing
+   header chip (already built, in BriefView.tsx) now shows a real count
+   after you use the control as a logged-in expert.
+
+Do not touch content_version, staleness comparison logic, or
+getEndorsementBarCounts — they already do the right thing for this scope,
+see §2. Verify: bunx tsc --noEmit && bun run lint clean, browser-check as
+both a logged-out visitor and a logged-in expert (use
+playwright/.auth/expert.json cookie injection per past sessions' pattern).
+```
+
+### Part 2 — Quotes
+
+Restyle the existing Quotes band. Convert from the current static grid to
+the shared Carousel (Part 0), with the `paper-sunken-blue` background
+tint. Existing data source (`content_posts` by `topic_tag`) is unchanged.
+
+#### Prompt for next session — Part 2
+
+```
+Read docs/design/brief-feature/two-ink-bold-plan.md in full before doing
+anything else — §0 for context, §1 for the design system (especially the
+Carousel spec in §1.3 this part consumes and the checklist in §1.4), §4
+for engineering conventions. Don't skip straight to the numbered steps
+below.
+
+Build Part 2 (docs/design/brief-feature/two-ink-bold-plan.md §3, Part 2).
+Requires Part 0.
+
+Restyle the Quotes band in app/briefs/[slug]/BriefView.tsx /
+section-content.tsx: apply the paper-sunken-blue section background,
+restyle QuoteCard per the artifact's blue-accented quote card (blue top
+border or equivalent, blue avatar), and replace the current static grid
+with the shared Carousel component from Part 0. No data-layer changes —
+lib/data/posts.ts's getQuotesByTopicTag stays as-is.
+
+Verify: bunx tsc --noEmit && bun run lint clean, browser-check the
+carousel's edge-fade/button behavior specifically (this is the section
+most likely to have few enough quotes that the carousel never actually
+needs to scroll — check the near-empty-state design doc note still
+applies and looks right with 1-2 quotes, not just with a full carousel).
+```
+
+### Part 3 — Explainer (+ Sources)
+
+The biggest content-model change. Each Explainer subsection becomes its
+own titled `brief_sections` row (`type='explainer'`) with a "✓ Reviewed ·
+N" badge (reusing the mechanism from §2/Part 1 — same control, scoped to
+`section_id`). Add inline keyterm tooltips using a lightweight authoring
+convention (e.g. `{{term|definition}}` in the content field, parsed like
+`parseFAQ`). Fold the existing `going_deeper`/Sources rendering
+(`sources.tsx` — `parseSources`/`SourcesGrid`) into the end of the
+Explainer section as its final subsection, since its existing look is
+already close to the artifact's Sources treatment — restyle it, don't
+rebuild it.
+
+#### Prompt for next session — Part 3
+
+```
+Read docs/design/brief-feature/two-ink-bold-plan.md in full before doing
+anything else — §0 for context, §1 for the design system, §2 for the
+brief_contributions reuse mechanism (you're copying Part 1's brief-level
+pattern to section scope), §4 for engineering conventions. Don't skip
+straight to the numbered steps below.
+
+Build Part 3 (docs/design/brief-feature/two-ink-bold-plan.md §3, Part 3).
+Requires Parts 0-1 (needs the reviewed/endorsed control pattern from
+Part 1 to copy at section scope).
+
+1. Add a nullable `title` column to brief_sections (new migration,
+   018_brief_sections_title.sql, following the numbering/RLS conventions
+   in supabase/017_brief_feature_schema.sql). Update
+   lib/database.types.ts (bunx supabase gen types...) and
+   lib/admin/brief-actions.ts's BriefSection type.
+2. Update app/admin/briefs/[id]/EditBriefScreen.tsx to let the author add/
+   reorder/title multiple explainer subsections (the existing "multiple
+   rows per section_type" support in BriefView.tsx already renders every
+   matching row — reuse that, don't add new looping logic).
+3. Add the "✓ Reviewed · N" / "★ Endorsed · N" badge per subsection,
+   reusing Part 1's brief_contributions upsert control scoped to that
+   section_id instead of brief-level.
+4. Add inline keyterm tooltips: parse `{{term|definition}}` out of
+   explainer content (pattern-match parseFAQ in section-content.tsx),
+   render as a blue-underlined span with a hover/focus tooltip (see the
+   artifact's .keyterm/.tip CSS for the exact interaction). The artifact's
+   CSS-only hover/focus reveal is keyboard-reachable (`:focus` as well as
+   `:hover`) but the tooltip text itself needs to be exposed to
+   assistive tech too, not just visually — use `aria-describedby`
+   pointing at the tooltip's id (or an accessible-name pattern of your
+   choice), don't rely on the visual reveal alone.
+5. Move going_deeper's existing Sources rendering (app/briefs/[slug]/
+   sources.tsx) to render as the last subsection of Explainer instead of
+   its own top-level section. Restyle its existing source-card look with
+   the blue accent per the artifact, don't rewrite parseSources/
+   SourcesGrid's logic.
+
+Verify: bunx tsc --noEmit && bun run lint clean, browser-check as a
+logged-in expert that per-section review/endorse writes a row scoped to
+the right section_id (check brief_contributions in the Supabase dashboard
+if the UI count doesn't update as expected — a wrong section_id there is
+an easy silent bug). Get the user's sign-off on the keyterm-tooltip
+authoring convention specifically before considering this done — it's a
+new pattern content authors will need to learn.
+```
+
+### Part 4 — FAQ
+
+Restyle the existing `Q:`/`A:`-parsed FAQ into an accordion (currently
+renders both question and answer always-expanded as stacked blocks). Blue
+accent. The artifact's "more answers" nested-reveal (additional expert
+answers per FAQ item) has **no existing data representation** — skip it
+for v1 rather than inventing a new content shape for it; flag it as a
+stretch item if the user wants it back later.
+
+#### Prompt for next session — Part 4
+
+```
+Read docs/design/brief-feature/two-ink-bold-plan.md in full before doing
+anything else — §0 for context, §1 for the design system and §1.4's
+accessibility checklist (accordions are explicitly called out there), §4
+for engineering conventions. Don't skip straight to the numbered steps
+below.
+
+Build Part 4 (docs/design/brief-feature/two-ink-bold-plan.md §3, Part 4).
+Requires Part 0.
+
+Convert the existing FAQ rendering (FAQBlock / parseFAQ in
+app/briefs/[slug]/section-content.tsx) from always-expanded stacked Q/A
+blocks to an accordion — collapsed by default, click to expand, blue
+accent (chevron/plus icon color, left-border accent on the expanded
+panel). Reuse parseFAQ's existing Q:/A: parsing unchanged.
+
+Do not build the "more answers" nested-reveal from the artifact — there's
+no data source for multiple expert answers per FAQ item in this schema.
+Confirm with the user whether that's wanted before inventing one; treat it
+as out of scope for this part either way.
+
+Verify: bunx tsc --noEmit && bun run lint clean, browser-check keyboard
+accessibility of the accordion (focus-visible state, Enter/Space to
+toggle) per the web-design-guidelines skill.
+```
+
+### Part 5 — Community Q&A
+
+Restyle to the artifact's asked/answered visual separation (pink "asked
+by" line, blue-bordered answer card) and add votes + expert endorsement.
+Needs schema: the existing `questions` table gets extended.
+
+#### Prompt for next session — Part 5
+
+```
+Read docs/design/brief-feature/two-ink-bold-plan.md in full before doing
+anything else — §0 for context, §1 for the design system, §1.4's forms
+and aria-live conventions (this part adds real submission surfaces), §4
+for engineering conventions. Don't skip straight to the numbered steps
+below.
+
+Build Part 5 (docs/design/brief-feature/two-ink-bold-plan.md §3, Part 5).
+Requires Part 0.
+
+1. New migration (019_question_votes_endorsements.sql, check Part 3
+   didn't already claim 018): add `answered_by uuid references users(id)`
+   to questions if not already present (check migration 011 first — it
+   may already cover this), plus two new small tables:
+   question_votes (question_id, user_id, unique(question_id, user_id))
+   and question_endorsements (question_id, user_id, unique(question_id,
+   user_id), insert restricted by RLS to expert/organisation role — same
+   pattern as brief_contributions' insert policy in migration 017).
+2. Convert app/briefs/[slug]/qa.tsx's QuestionCard to an accordion:
+   trigger = the question (as today), expanded panel = a pink-accented
+   "Asked by" line followed by a blue-left-bordered answer block
+   containing the answer text and an "Answered by" line, then a vote
+   button (any logged-in member) and an "Endorse" button (expert/org
+   only, disabled if no answer yet).
+3. Wire vote/endorse buttons to server actions that upsert into the new
+   tables and re-render the counts. Mark the count text
+   `aria-live="polite"` (§1.4) — same pattern as Part 1's header chip.
+   The answer/question text is user-submitted and unpredictable in
+   length (§1.4's content-handling note) — give it `line-clamp-*` inside
+   the collapsed trigger and `break-words` in the expanded panel, and
+   verify the accordion still looks right with both a one-line and a
+   several-paragraph answer.
+
+Verify: bunx tsc --noEmit && bun run lint clean, browser-check the vote/
+endorse buttons as both a regular member and an expert (endorse should be
+hidden or disabled for non-experts, matching the existing role-gating
+pattern already used elsewhere in this app, e.g. canContribute in
+BriefView.tsx).
+```
+
+### Part 6 — Calls to Action (new feature)
+
+New pink section. Follow the existing `brief_correction_proposals`
+propose/moderate pattern (`ProposeCorrectionModal`, admin moderation tab)
+rather than inventing a new submission flow.
+
+#### Prompt for next session — Part 6
+
+```
+Read docs/design/brief-feature/two-ink-bold-plan.md in full before doing
+anything else — §0 for context, §1 for the design system, §1.4's forms
+and content-length conventions (this is a new feature with real user
+submissions), §4 for engineering conventions. Don't skip straight to the
+numbered steps below.
+
+Build Part 6 (docs/design/brief-feature/two-ink-bold-plan.md §3, Part 6).
+Requires Part 0.
+
+1. New migration: brief_ctas (id, brief_id, author_user_id nullable —
+   null when authored by Tell The World editorially rather than a
+   specific expert/org, title, description, link_url, link_label e.g.
+   "Read"/"Watch"/"Download", status pending/published, created_at).
+   RLS: public/members read split on status='published' (same shape as
+   brief_contributions in migration 017), expert/org insert their own
+   pending rows, admin publishes via service role.
+2. A "Suggest a call to action" flow for expert/organisation users,
+   following ProposeCorrectionModal's existing pattern exactly (same
+   modal-form-then-pending-row shape) — that pattern already covers most
+   of §1.4's forms checklist (labels, submit-disabled-until-request,
+   inline errors), confirm it still does rather than assuming. This is
+   also the first genuinely unpredictable-length author-facing content in
+   the plan (title/description), so give the rendered card
+   `line-clamp-*`/`break-words` per §1.4, and design the zero-CTAs empty
+   state explicitly (don't render an empty carousel shell).
+3. Admin moderation: extend the existing admin moderation screen
+   (app/admin/AdminScreen.tsx + lib/admin/actions.ts) with an approve/
+   dismiss tab for brief_ctas pending rows, following the
+   brief_correction_proposals moderation pattern already in that file.
+4. Render the CTA carousel in BriefView.tsx (pink accent, shared Carousel
+   component from Part 0) — only published rows, for the brief's
+   own id.
+
+Verify: bunx tsc --noEmit && bun run lint clean, browser-check the full
+loop (expert submits → shows nowhere yet → admin approves → appears on
+the brief).
+```
+
+### Part 7 — Covered By (new feature, dark band)
+
+New pink section, but rendered on the fixed dark band from Part 0. No real
+photography yet — use the duotone placeholder graphic.
+
+#### Prompt for next session — Part 7
+
+```
+Read docs/design/brief-feature/two-ink-bold-plan.md in full before doing
+anything else — §0 for context, §1 for the design system (specifically
+§1.3's dark-band wrapper and duotone placeholder graphic), §1.4 for forms/
+content-length conventions, §4 for engineering conventions. Don't skip
+straight to the numbered steps below.
+
+Build Part 7 (docs/design/brief-feature/two-ink-bold-plan.md §3, Part 7).
+Requires Part 0 (specifically the dark-band wrapper and duotone
+placeholder graphic component) and Part 6 (reuses its moderation pattern).
+
+1. New migration: brief_coverage (id, brief_id, outlet_name, title, url,
+   published_date, submitted_by uuid references users(id), score numeric
+   nullable — set by admin at approval time, not a separate UI, status
+   pending/published, created_at), plus brief_coverage_likes
+   (coverage_id, user_id, unique) for de-duplicated liking. Same RLS
+   shape as Part 6's brief_ctas.
+2. A "+ Add coverage" flow, same propose/moderate pattern as Part 6 (any
+   logged-in member can submit — this one isn't expert/org-gated, per the
+   artifact's design; confirm that's still right with the user since it's
+   a deliberate change from Part 6's gating, not an oversight). Same
+   forms-checklist and content-length caveats as Part 6 apply here too
+   (outlet name and article title are external, arbitrary-length text).
+3. Render on the dark band (§1.3's wrapper), cards using the duotone
+   placeholder graphic (keyed by the coverage row's id) unless a future
+   image_url field is added — leave room for that column but don't build
+   image upload now. Include the like button (any member, toggles
+   brief_coverage_likes) and the score badge (blue, only shown if an
+   admin set one).
+4. Make sure the "+ Add coverage" button is visibly styled against the
+   dark background by default, not just on hover — this exact bug (button
+   inheriting a light background against light text, invisible until
+   hover) happened once already during the mockup phase, double check it
+   doesn't happen here too.
+
+Verify: bunx tsc --noEmit && bun run lint clean, browser-check both
+themes specifically for the dark band (§1.1's coverage-bg token is fixed
+across themes on purpose — confirm it doesn't accidentally invert).
+```
+
+### Part 8 — Related Briefs
+
+No new schema. Query briefs sharing the same `topic_tag`, excluding the
+current brief.
+
+#### Prompt for next session — Part 8
+
+```
+Read docs/design/brief-feature/two-ink-bold-plan.md in full before doing
+anything else — §0 for context, §1 for the design system, §4 for
+engineering conventions. Don't skip straight to the steps below.
+
+Build Part 8 (docs/design/brief-feature/two-ink-bold-plan.md §3, Part 8).
+Requires Part 0.
+
+Add a getRelatedBriefs query to lib/data/briefs.ts: briefs sharing the
+current brief's topic_tag (excluding itself), most recent first, limit 3,
+respecting the same public/members visibility rules as the rest of that
+file. Render as a neutral-ink carousel (shared Carousel component) at the
+bottom of BriefView.tsx. Handle the null-topic_tag case (no related
+briefs) by simply not rendering the section, same convention as the
+existing Quotes/Media near-empty-state handling.
+
+Verify: bunx tsc --noEmit && bun run lint clean, browser-check with a
+brief that has no topic_tag set (section should not render, not render
+empty).
+```
+
+### Part 9 — Admin editor + seed script updates
+
+Sweep pass: make sure `EditBriefScreen.tsx` can author everything the new
+sections need (explainer subsection titles from Part 3, TLDR bullets from
+Part 1, CTA/Coverage moderation from Parts 6-7 if not already folded into
+their own parts). Update `scripts/seed-test-brief.ts` to cover the new
+section shapes — per the existing seed-content policy (memory:
+`[[brief_feature_v2_progress]]`), keep it to bare-minimum
+`[Placeholder ...]`-prefixed content, one row per new field, never
+elaborate fabricated-sounding copy.
+
+#### Prompt for next session — Part 9
+
+```
+Read docs/design/brief-feature/two-ink-bold-plan.md in full before doing
+anything else — §0 for context, §2's section table for what every part
+authors, §4 for the seed-script content policy and engineering
+conventions. Don't skip straight to the steps below.
+
+Build Part 9 (docs/design/brief-feature/two-ink-bold-plan.md §3, Part 9).
+Requires Parts 1, 3 done (needs their new fields to exist).
+
+Audit app/admin/briefs/[id]/EditBriefScreen.tsx against every new
+authored field introduced in Parts 1-7 (TLDR bullet format, explainer
+subsection titles, keyterm authoring convention) and add UI for anything
+missing. Update scripts/seed-test-brief.ts to seed at least one row
+exercising each new shape (a titled explainer subsection, a TLDR with
+2-3 bullet lines) — follow the existing bare-minimum
+"[Placeholder ...]"-prefixed content policy, don't write elaborate
+fabricated copy. Do not touch scripts/seed-test-briefs.ts (plural) —
+that's a separate fixture used by tests/briefs.spec.ts and
+tests/security.spec.ts.
+
+Verify: bunx tsc --noEmit && bun run lint clean, run the full seed script
+against a local/dev DB and confirm every new field round-trips through
+the admin editor.
+```
+
+### Part 10 — Cleanup and final verification
+
+Retire the dead `use_this` / `featured_news` / `where_experts_stand` /
+`going_deeper` (now folded into Explainer) renderers from
+`section-content.tsx` and `BriefView.tsx`'s `SECTION_ORDER`/`SECTION_META`
+if nothing still references them. Full regression pass.
+
+#### Prompt for next session — Part 10
+
+```
+Read docs/design/brief-feature/two-ink-bold-plan.md in full before doing
+anything else — §0 for context (specifically "What happens to the old
+schema," which this part verifies), §4 for the full verification checklist.
+Don't skip straight to the steps below.
+
+Build Part 10 (docs/design/brief-feature/two-ink-bold-plan.md §3, Part
+10) — final cleanup, do this last.
+
+1. Confirm nothing still renders use_this/featured_news/
+   where_experts_stand as top-level sections (going_deeper's rendering
+   should already have moved into Explainer in Part 3). If any admin UI
+   still offers creating rows of those types, decide with the user
+   whether to remove that option or leave it as a harmless no-op in the
+   public page.
+2. Confirm contested_points and brief_contributions' take/comment types
+   are genuinely untouched (git diff against the state before this
+   plan started, on those specific tables/files) — this plan's explicit
+   decision was to leave them alone, not delete or repurpose them beyond
+   what Parts 1/3 already do with review/endorsement.
+3. Full verification pass: bunx tsc --noEmit, bun run lint, and the full
+   Playwright suite (bunx playwright test). Browser-check the whole brief
+   page top to bottom in both light and dark, as a logged-out visitor, a
+   logged-in creator/journalist, and a logged-in expert/org.
+4. Get the user's final sign-off across the whole page, not just
+   part-by-part — check that section-to-section transitions (background
+   color changes, the numbered divider sequence) read coherently as one
+   page, not nine independently-shipped fragments.
+```
+
+---
+
+## 4. Engineering conventions (apply throughout, not just once)
+
+### General
+
+- **Bun only** — `bun run lint`, `bunx tsc --noEmit`, `bunx playwright
+  test`, never npm/npx/node (project CLAUDE.md).
+- **RLS conventions**: match migration 017's shape exactly for every new
+  table — public/members read split, service-role bypass for admin
+  moderation, `updated_at` trigger via the existing `update_updated_at()`
+  function, partial unique indexes where "one row per user per target"
+  matters.
+- **Migration numbering**: next is `018`. Check `supabase/`'s
+  highest-numbered file before assuming a number — a parallel session may
+  have already claimed it.
+- **Regenerate `lib/database.types.ts`** after every migration:
+  `bunx supabase gen types typescript --project-id kofimpjhjpgjotjanglq
+  --schema public > lib/database.types.ts`.
+- **Verify in-browser before calling any part done** — dev server via the
+  `run` skill or `preview_start`. If a second session's dev server is
+  already running against this repo directory, see the dev-server
+  port-lock workaround in memory (`[[build_plan_dev_server_lock]]`)
+  rather than assuming the feature is broken.
+- **Every part needs the user's explicit sign-off, not just green
+  CI** — this was an explicit process change requested mid-build on the
+  original v2 rebuild and still applies here.
+
+### react-best-practices (Vercel)
+
+- **Parallelize independent queries** with `Promise.all` (already the
+  pattern in `app/briefs/[slug]/page.tsx` — keep it that way as Parts
+  2-8 add more queries; don't let a new per-section or per-part query
+  turn into a sequential `await` chain — `async-parallel`).
+- **`React.cache()` for repeated server-side lookups within one
+  request** (`server-cache-react`) — this plan specifically creates a
+  case for it: Part 1's brief-level review/endorse toggle and Part 3's
+  per-section review/endorse toggle both need a section's current
+  `content_version` to pin at write time, and the page render already
+  fetched that same section data. Wrap the lookup (not the whole page
+  query) in `cache()` so a toggle's server action doesn't re-query data
+  the render already has, and be careful not to pass a fresh object
+  literal as the cache key (shallow-equality gotcha — pass the section id
+  as a primitive, not `{ sectionId }`).
+- **Server components by default**; only mark a file `'use client'` when
+  it genuinely needs interactivity (`Carousel`, the accordions, vote/
+  endorse buttons, the CTA/Coverage submission forms — not the page shell
+  around them).
+- **Don't define components inside components**
+  (`rerender-no-inline-components`) — worth calling out because the
+  Carousel/accordion compound-component pattern in §1.3-§1.4 involves
+  several small subcomponents; define `CarouselTrack`,
+  `CarouselPrevButton`, etc. as top-level module exports, never as
+  closures inside `CarouselProvider` to "access" its state (that's what
+  the context is for).
+- **Passive scroll listeners** on the Carousel
+  (`client-passive-event-listeners`); one listener per carousel instance,
+  not one per card.
+
+### composition-patterns (Vercel)
+
+- **Compound components over config-prop monoliths** — this is §1.3's
+  Carousel spec, and applies again to the FAQ/Q&A accordion (Part 4-5)
+  and any multi-piece CTA/Coverage card (Parts 6-7): if a component
+  starts accumulating boolean or mode props to handle different contexts
+  (`showVotes`/`showEndorse`/`isDark` etc.), that's the signal to split
+  into explicit composed pieces instead, not add another prop.
+- **Explicit variants over a growing prop surface** on any component that
+  ends up needing genuinely different rendering per context (e.g. if the
+  FAQ accordion and Q&A accordion turn out not to share enough to be one
+  component with a `variant` prop) — prefer two small, clearly-named
+  components over one component with several interacting props.
+- **A single closed-set variant prop is fine for leaf/presentational
+  components** — `Chip`'s `tone: 'blue' | 'pink' | 'default'` (§1.3) is
+  not the anti-pattern the above two bullets warn about; that rule is
+  about composite components accumulating *combinatorial* boolean state,
+  not a simple one-of-three style switch on a presentational leaf.
+- **Lift shared state into a provider**, not into the top of a component
+  tree via prop-drilling or a ref passed down for children to read from
+  — this is why the Carousel spec uses `CarouselProvider` +
+  `use(CarouselContext)` rather than a `carouselRef` prop threaded
+  through Prev/Next buttons.
+- **React 19: no `forwardRef`, `use()` not `useContext()`** — see the
+  note at the end of §1.3.
+
+### Accessibility (AccessLint skills + web-design-guidelines)
+
+- §1.4 above is the curated checklist — apply it as you build, not as a
+  retrofit at the end.
+- The AccessLint skills installed so far (`accessibility-audit`,
+  `-scan`, `-inspect`, `-fix`, `-diff`) are the **static methodology and
+  checkpoint references only** — the MCP server that actually drives a
+  live rule engine and a real Chrome instance (`@accesslint/mcp`) is
+  **not installed**. Don't reference `accessibility-scan`/`-inspect` as
+  something a session can just run; check first whether the MCP server
+  has been added since this doc was written (ask the user), and if not,
+  do a manual pass against §1.4 and the `web-design-guidelines` skill
+  instead.
+- The contrast fix in §1.1 (`ink-faint`, and the `blue`/`pink` vs.
+  `-ink` text-color rule) was computed by hand against the WCAG 2.1
+  contrast formula specifically because the live tool wasn't available —
+  re-verify it with `accessibility-scan` once that server exists, rather
+  than trusting hand-computed numbers indefinitely.
+
+### frontend-design (Anthropic) — a guardrail, not new work
+
+This skill already did its job in the mock (avoiding generic-AI-default
+aesthetics — no Inter, no purple gradients, no rounded-lg-everywhere).
+Its relevance to *this* plan is narrower: don't let individual parts
+regress toward those defaults while porting the mock into real
+components — e.g. don't fall back to a system sans-serif stack if
+`IBM_Plex_Sans` fails to load correctly in Part 0, fix the font loading
+instead; don't "simplify" the Carousel's edge-fade/duotone-placeholder
+treatment away because it's more code than a plain grid, that
+distinctiveness was a deliberate, reviewed decision.

@@ -1,5 +1,12 @@
 # Brief feature — design document
 
+> **Superseded for the Brief page's content structure and visual design**
+> by [`two-ink-bold-plan.md`](two-ink-bold-plan.md) — this doc's §2 section
+> order, §6 annotation layer, §7 review-pass screen, and §9 palette/type no
+> longer reflect the current plan. §3's schema is **not** superseded — the
+> tables it describes stay in the database (see the new doc's §0). Kept
+> here for history.
+
 **Tell The World · v1 · July 2026**
 Addendum to the Project Brief. Covers the Brief page structure, the expert contribution system (reviews, endorsements, takes, notes), the versioning and staleness model, and the interaction rules for the two new UI surfaces (review-pass screen and contested-point cards).
 

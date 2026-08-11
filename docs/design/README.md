@@ -10,7 +10,7 @@ in each feature's folder before assuming a spec is live.
 
 | Feature | Status | Docs |
 | --- | --- | --- |
-| Brief page — expert contributions (reviews, endorsements, takes, comments) | Designed, not implemented | [`brief-feature/`](brief-feature/) |
+| Brief page — expert contributions (reviews, endorsements, takes, comments) | In progress — see [`brief-feature/build-plan.md`](brief-feature/build-plan.md) | [`brief-feature/`](brief-feature/) |
 
 ## Adding a new design doc
 
