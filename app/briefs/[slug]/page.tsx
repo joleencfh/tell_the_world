@@ -2,7 +2,8 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import type { BriefVisibility, BriefSectionType, UserRole } from '@/lib/types'
 import { getBriefWithSectionsBySlug } from '@/lib/data/briefs'
-import { getRecentQuotes } from '@/lib/data/posts'
+import { getQuotesByTopicTag, getMediaSection, type MediaPost } from '@/lib/data/posts'
+import { getEndorsementBarCounts, type EndorsementBarCounts } from '@/lib/data/contributions'
 import { getApprovedQuestions } from '@/lib/data/questions'
 import { getUserBasic } from '@/lib/data/users'
 import BriefView from './BriefView'
@@ -11,12 +12,13 @@ import BriefView from './BriefView'
 // Types (re-exported so BriefView can import them from here)
 // ---------------------------------------------------------------------------
 
-export type { BriefVisibility, BriefSectionType, UserRole }
+export type { BriefVisibility, BriefSectionType, UserRole, MediaPost, EndorsementBarCounts }
 
 export interface BriefSection {
   id: string
   section_type: BriefSectionType
   content: string
+  content_version: number
   display_order: number
 }
 
@@ -24,6 +26,10 @@ export interface Brief {
   id: string
   title: string
   slug: string
+  subtitle: string | null
+  topic_tag: string | null
+  pinned_media_post_id: string | null
+  last_reviewed_at: string | null
   visibility: BriefVisibility
   brief_sections: BriefSection[]
 }
@@ -95,12 +101,14 @@ export default async function BriefPage({
   // visibility: logged-out visitors get brief metadata (title/tldr for the
   // locked preview) but no members-only sections, quotes, or questions
   // (policies in 008 and 013). The lock UI in BriefView is presentation only.
-  const [brief, quotes] = await Promise.all([
-    getBriefWithSectionsBySlug(supabase, slug),
-    getRecentQuotes(supabase, 4),
-  ])
-
+  const brief = await getBriefWithSectionsBySlug(supabase, slug)
   if (!brief) notFound()
+
+  const [quotes, media, endorsementBar] = await Promise.all([
+    getQuotesByTopicTag(supabase, brief.topic_tag, 4),
+    getMediaSection(supabase, brief.topic_tag, brief.pinned_media_post_id, 6),
+    getEndorsementBarCounts(supabase, brief.id, brief.brief_sections),
+  ])
 
   let questions: Question[] = []
   let currentUser: CurrentUser | null = null
@@ -115,6 +123,13 @@ export default async function BriefPage({
   }
 
   return (
-    <BriefView brief={brief} quotes={quotes} questions={questions} currentUser={currentUser} />
+    <BriefView
+      brief={brief}
+      quotes={quotes}
+      media={media}
+      endorsementBar={endorsementBar}
+      questions={questions}
+      currentUser={currentUser}
+    />
   )
 }
