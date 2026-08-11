@@ -1,26 +1,23 @@
 import type { Metadata } from "next";
-import { Anton, Source_Serif_4, DM_Mono } from "next/font/google";
+import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
-const anton = Anton({
-  variable: "--font-anton",
+// IBM Plex Sans tops out at weight 700 via next/font/google (no 800 cut
+// exists for this family) — the design plan's §1.1 spec of 800 for
+// hero/section headings isn't achievable here; 700 (font-bold) is the
+// heaviest available and is what those headings use instead.
+const plexSans = IBM_Plex_Sans({
+  variable: "--font-plex-sans",
   subsets: ["latin"],
-  weight: ["400"],
-  display: "swap",
-});
-
-const sourceSerif = Source_Serif_4({
-  variable: "--font-source-serif",
-  subsets: ["latin"],
-  weight: ["400", "600", "700"],
+  weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"],
   display: "swap",
 });
 
-const dmMono = DM_Mono({
-  variable: "--font-dm-mono",
+const plexMono = IBM_Plex_Mono({
+  variable: "--font-plex-mono",
   subsets: ["latin"],
-  weight: ["400"],
+  weight: ["400", "500", "600"],
   display: "swap",
 });
 
@@ -37,7 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${anton.variable} ${sourceSerif.variable} ${dmMono.variable} antialiased`}
+        className={`${plexSans.variable} ${plexMono.variable} font-body antialiased`}
       >
         {children}
       </body>

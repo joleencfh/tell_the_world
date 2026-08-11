@@ -224,19 +224,22 @@ export function MediaCard({ post, isPinned }: { post: MediaPost; isPinned?: bool
 // Header chip — endorsement bar / last-reviewed / read-time pills
 // ---------------------------------------------------------------------------
 
+const CHIP_TONE_CLASSES: Record<'blue' | 'pink' | 'default', string> = {
+  blue: 'bg-blue-soft text-blue-ink border-blue/30',
+  pink: 'bg-pink-soft text-pink-ink border-pink/30',
+  default: 'bg-paper-raised text-ink-soft border-line',
+}
+
 export function HeaderChip({
   children,
   tone = 'default',
 }: {
   children: ReactNode
-  tone?: 'live' | 'default'
+  tone?: 'blue' | 'pink' | 'default'
 }) {
   return (
     <span
-      className={[
-        'inline-flex items-center rounded-full font-mono text-[9px] tracking-[0.1em] uppercase px-3 py-1 border',
-        tone === 'live' ? 'bg-live/10 text-live border-live/30' : 'bg-card text-soft border-edge',
-      ].join(' ')}
+      className={`inline-flex items-center rounded-full font-mono text-[9px] tracking-[0.1em] uppercase px-3 py-1 border ${CHIP_TONE_CLASSES[tone]}`}
     >
       {children}
     </span>
@@ -244,7 +247,7 @@ export function HeaderChip({
 }
 
 // ---------------------------------------------------------------------------
-// Section header — amber rule, bigger number
+// Section header — numbered divider, ink (neutral) by default
 // ---------------------------------------------------------------------------
 
 export function SectionHeader({
@@ -259,15 +262,18 @@ export function SectionHeader({
   return (
     <div className="mb-12">
       <div className="flex items-center gap-4 mb-4">
-        <span className="font-mono text-sm tracking-[0.2em] text-live font-bold tabular-nums">
+        <span className="font-mono text-sm tracking-[0.2em] text-ink font-bold tabular-nums">
           {num}
         </span>
-        <div className="h-px flex-1 bg-live/20" />
+        <div className="h-px flex-1 bg-line" />
       </div>
-      <h2 className="font-display uppercase text-dark leading-[1] text-[2rem] sm:text-[2.75rem]">
+      <h2
+        className="font-display uppercase text-ink font-bold leading-[1]"
+        style={{ fontSize: 'clamp(1.7rem, 3.2vw, 2.5rem)', letterSpacing: '0.01em' }}
+      >
         {label}
       </h2>
-      <p className="font-serif text-sm text-soft/75 italic mt-2">{description}</p>
+      <p className="font-body text-sm text-ink-soft italic mt-2">{description}</p>
     </div>
   )
 }
