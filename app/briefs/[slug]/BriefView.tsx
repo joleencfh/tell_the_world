@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Fragment } from 'react'
 import Link from 'next/link'
 import ProposeBriefModal from '@/components/ProposeBriefModal'
 import {
@@ -11,10 +11,13 @@ import {
   SectionContent,
   LockedPlaceholder,
   QuoteCard,
+  MediaCard,
+  HeaderChip,
 } from './section-content'
 import { QuestionCard, QuestionForm, ProposeCorrectionModal } from './qa'
 import { MOCK_QUESTIONS } from './mock-questions'
-import type { Brief, CurrentUser, Question, Quote } from './page'
+import { formatDate, computeReadTimeMinutes } from './helpers'
+import type { Brief, CurrentUser, Question, Quote, MediaPost, EndorsementBarCounts } from './page'
 
 // ---------------------------------------------------------------------------
 // Main component
@@ -23,11 +26,13 @@ import type { Brief, CurrentUser, Question, Quote } from './page'
 interface BriefViewProps {
   brief: Brief
   quotes: Quote[]
+  media: MediaPost[]
+  endorsementBar: EndorsementBarCounts
   questions: Question[]
   currentUser: CurrentUser | null
 }
 
-export default function BriefView({ brief, quotes, questions, currentUser }: BriefViewProps) {
+export default function BriefView({ brief, quotes, media, endorsementBar, questions, currentUser }: BriefViewProps) {
   const isLoggedIn = !!currentUser
   const showSections = isLoggedIn || brief.visibility === 'public'
   const canContribute = currentUser?.role === 'expert' || currentUser?.role === 'organisation'
@@ -37,6 +42,8 @@ export default function BriefView({ brief, quotes, questions, currentUser }: Bri
     (a, b) => a.display_order - b.display_order,
   )
   const tldr = sortedSections.find((s) => s.section_type === 'tldr')?.content ?? ''
+  const readTimeMinutes = computeReadTimeMinutes(sortedSections)
+  const { reviewedCount, endorsedCount, orgCount } = endorsementBar
 
   return (
     <div className="min-h-screen bg-base text-text">
@@ -82,7 +89,7 @@ export default function BriefView({ brief, quotes, questions, currentUser }: Bri
 
             {/* Title — large, dominant */}
             <h1
-              className="font-display uppercase text-dark mb-10 anim-rise"
+              className="font-display uppercase text-dark anim-rise"
               style={{
                 fontSize: 'clamp(2.75rem, 7vw, 6rem)',
                 lineHeight: '0.93',
@@ -91,6 +98,35 @@ export default function BriefView({ brief, quotes, questions, currentUser }: Bri
             >
               {brief.title}
             </h1>
+
+            {/* Subtitle — one sentence, allowed a point of view */}
+            {brief.subtitle && (
+              <p
+                className="font-serif text-base sm:text-lg text-dark/60 italic mt-4 max-w-2xl anim-rise"
+                style={{ animationDelay: '120ms' }}
+              >
+                {brief.subtitle}
+              </p>
+            )}
+
+            {/* Header chip bar — endorsement bar, last reviewed, read time */}
+            <div className="flex flex-wrap items-center gap-2 mt-6 mb-10 anim-rise" style={{ animationDelay: '160ms' }}>
+              {reviewedCount > 0 && (
+                <HeaderChip tone="live">
+                  ✓ Reviewed by {reviewedCount} expert{reviewedCount === 1 ? '' : 's'}
+                  {orgCount > 0 && ` · ${orgCount} org${orgCount === 1 ? '' : 's'}`}
+                </HeaderChip>
+              )}
+              {endorsedCount > 0 && (
+                <HeaderChip tone="live">
+                  ★ Endorsed by {endorsedCount}
+                </HeaderChip>
+              )}
+              {brief.last_reviewed_at && (
+                <HeaderChip>Last reviewed {formatDate(brief.last_reviewed_at)}</HeaderChip>
+              )}
+              <HeaderChip>{readTimeMinutes} min read</HeaderChip>
+            </div>
 
             {/* TLDR — editorial standfirst */}
             <div className="anim-rise" style={{ animationDelay: '200ms' }}>
@@ -102,35 +138,6 @@ export default function BriefView({ brief, quotes, questions, currentUser }: Bri
           </div>
         </div>
 
-        {/* ── Quotes band ──────────────────────────────────────────────── */}
-        {quotes.length > 0 && (
-          <div className="bg-dark px-6 py-16">
-            <div className="mx-auto max-w-4xl">
-              {/* Band header */}
-              <div className="mb-10 anim-rise" style={{ animationDelay: '0ms' }}>
-                <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-live/70 mb-3">
-                  Expert voices
-                </p>
-                <h2
-                  className="font-display uppercase text-white leading-[0.95]"
-                  style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}
-                >
-                  What the experts say
-                </h2>
-              </div>
-
-              {/* Quote grid */}
-              <div className={`grid gap-4 ${quotes.length === 1 ? 'sm:grid-cols-1 max-w-xl' : 'sm:grid-cols-2'}`}>
-                {quotes.map((q, i) => (
-                  <div key={q.id} className="anim-rise" style={{ animationDelay: `${i * 120}ms` }}>
-                    <QuoteCard quote={q} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* ── Sections or lock ─────────────────────────────────────────── */}
         {showSections ? (
           <>
@@ -140,24 +147,74 @@ export default function BriefView({ brief, quotes, questions, currentUser }: Bri
               // going_deeper) — render every matching row, not just the
               // first, so migrated content isn't silently dropped.
               const sections = sortedSections.filter((s) => s.section_type === type)
-              if (sections.length === 0) return null
-              const meta = SECTION_META[type]
-              const bgClass = SECTION_BG[i] ?? 'bg-base'
 
               return (
-                <div key={type} className={`${bgClass} px-6 py-16`}>
-                  <div
-                    className="mx-auto max-w-4xl anim-rise"
-                    style={{ animationDelay: '100ms' }}
-                  >
-                    <SectionHeader num={meta.num} label={meta.label} description={meta.description} />
-                    <div className="space-y-10">
-                      {sections.map((section) => (
-                        <SectionContent key={section.id} type={type} content={section.content} />
-                      ))}
+                <Fragment key={type}>
+                  {sections.length > 0 && (() => {
+                    const meta = SECTION_META[type]
+                    const bgClass = SECTION_BG[i] ?? 'bg-base'
+                    return (
+                      <div className={`${bgClass} px-6 py-16`}>
+                        <div className="mx-auto max-w-4xl anim-rise" style={{ animationDelay: '100ms' }}>
+                          <SectionHeader num={meta.num} label={meta.label} description={meta.description} />
+                          <div className="space-y-10">
+                            {sections.map((section) => (
+                              <SectionContent key={section.id} type={type} content={section.content} />
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })()}
+
+                  {/* Quotes + Media — auto sections, query-driven off the brief's
+                      topic_tag (design doc §2 rows 7-8), placed right after
+                      "Where experts stand" per the wireframe's section order. */}
+                  {type === 'where_experts_stand' && (quotes.length > 0 || media.length > 0) && (
+                    <div className="bg-dark px-6 py-16">
+                      <div className="mx-auto max-w-4xl">
+                        <div className="mb-10 anim-rise" style={{ animationDelay: '0ms' }}>
+                          <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-live/70 mb-3">
+                            Expert voices
+                          </p>
+                          <h2
+                            className="font-display uppercase text-white leading-[0.95]"
+                            style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}
+                          >
+                            What the experts say
+                          </h2>
+                        </div>
+
+                        <div className="grid gap-8 lg:grid-cols-2">
+                          {quotes.length > 0 && (
+                            <div>
+                              <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-white/40 mb-4">Quotes</p>
+                              <div className={`grid gap-4 ${quotes.length === 1 ? 'max-w-xl' : 'sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2'}`}>
+                                {quotes.map((q, i) => (
+                                  <div key={q.id} className="anim-rise" style={{ animationDelay: `${i * 120}ms` }}>
+                                    <QuoteCard quote={q} />
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {media.length > 0 && (
+                            <div>
+                              <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-white/40 mb-4">Media</p>
+                              <div className={`grid gap-4 ${media.length === 1 ? 'max-w-xl' : 'sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2'}`}>
+                                {media.map((post, i) => (
+                                  <div key={post.id} className="anim-rise" style={{ animationDelay: `${i * 120}ms` }}>
+                                    <MediaCard post={post} isPinned={post.id === brief.pinned_media_post_id} />
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
+                  )}
+                </Fragment>
               )
             })}
           </>

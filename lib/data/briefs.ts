@@ -13,6 +13,7 @@ export interface BriefSection {
   id: string
   section_type: BriefSectionType
   content: string
+  content_version: number
   display_order: number
 }
 
@@ -20,6 +21,10 @@ export interface BriefWithSections {
   id: string
   title: string
   slug: string
+  subtitle: string | null
+  topic_tag: string | null
+  pinned_media_post_id: string | null
+  last_reviewed_at: string | null
   visibility: BriefVisibility
   brief_sections: BriefSection[]
 }
@@ -52,7 +57,7 @@ export async function getBriefWithSectionsBySlug(
   const { data, error } = await db
     .from('briefs')
     .select(
-      'id, title, slug, visibility, brief_sections(id, section_type, content, display_order)',
+      'id, title, slug, subtitle, topic_tag, pinned_media_post_id, last_reviewed_at, visibility, brief_sections(id, section_type, content, content_version, display_order)',
     )
     .eq('slug', slug)
     .single()

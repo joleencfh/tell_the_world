@@ -1,6 +1,6 @@
 import { redirect, notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { getBrief } from '@/lib/admin/brief-actions'
+import { getBrief, getMediaPickerOptions } from '@/lib/admin/brief-actions'
 import EditBriefScreen from './EditBriefScreen'
 
 interface Props {
@@ -18,7 +18,10 @@ export default async function EditBriefPage({ params }: Props) {
     redirect('/login')
   }
 
-  const { brief, sections, error } = await getBrief(id)
+  const [{ brief, sections, error }, mediaOptions] = await Promise.all([
+    getBrief(id),
+    getMediaPickerOptions(),
+  ])
 
   if (error || !brief) notFound()
 
@@ -27,6 +30,7 @@ export default async function EditBriefPage({ params }: Props) {
       adminEmail={user.email!}
       brief={brief}
       sections={sections}
+      mediaOptions={mediaOptions}
     />
   )
 }

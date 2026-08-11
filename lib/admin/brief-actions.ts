@@ -14,9 +14,19 @@ export interface Brief {
   id: string
   title: string
   slug: string
+  subtitle: string | null
+  topic_tag: string | null
+  pinned_media_post_id: string | null
+  last_reviewed_at: string | null
   visibility: 'public' | 'members_only'
   created_at: string
   updated_at: string
+}
+
+export interface MediaPickerOption {
+  id: string
+  title: string
+  post_type: 'video' | 'article' | 'paper' | 'resource'
 }
 
 export type BriefSectionType =
@@ -91,6 +101,21 @@ export async function getBrief(id: string): Promise<{
   }
 }
 
+// Non-quote posts, for the "pinned media" picker in the brief editor
+// (design doc §2 row 8 — the pin must be a media item, not a quote).
+export async function getMediaPickerOptions(): Promise<MediaPickerOption[]> {
+  await requireAdmin()
+
+  const { data } = await getAdminClient()
+    .from('content_posts')
+    .select('id, title, post_type')
+    .neq('post_type', 'quote')
+    .order('created_at', { ascending: false })
+    .limit(200)
+
+  return (data ?? []) as MediaPickerOption[]
+}
+
 // ---------------------------------------------------------------------------
 // Slug helpers
 // ---------------------------------------------------------------------------
@@ -131,6 +156,9 @@ export async function saveBrief(
   briefId: string,
   data: {
     title: string
+    subtitle: string
+    topicTag: string
+    pinnedMediaPostId: string | null
     visibility: 'public' | 'members_only'
     sections: Array<{ id: string; content: string; display_order: number }>
   }
@@ -139,6 +167,9 @@ export async function saveBrief(
 
   const updates: Record<string, unknown> = {
     title: data.title,
+    subtitle: data.subtitle.trim() || null,
+    topic_tag: data.topicTag.trim() || null,
+    pinned_media_post_id: data.pinnedMediaPostId,
     visibility: data.visibility,
   }
 

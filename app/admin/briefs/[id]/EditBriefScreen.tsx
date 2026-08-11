@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { saveBrief, deleteBrief } from '@/lib/admin/brief-actions'
-import type { Brief, BriefSection } from '@/lib/admin/brief-actions'
+import type { Brief, BriefSection, MediaPickerOption } from '@/lib/admin/brief-actions'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -130,10 +130,14 @@ interface Props {
   adminEmail: string
   brief: Brief
   sections: BriefSection[]
+  mediaOptions: MediaPickerOption[]
 }
 
-export default function EditBriefScreen({ adminEmail, brief, sections: initialSections }: Props) {
+export default function EditBriefScreen({ adminEmail, brief, sections: initialSections, mediaOptions }: Props) {
   const [title, setTitle]           = useState(brief.title)
+  const [subtitle, setSubtitle]     = useState(brief.subtitle ?? '')
+  const [topicTag, setTopicTag]     = useState(brief.topic_tag ?? '')
+  const [pinnedMediaPostId, setPinnedMediaPostId] = useState(brief.pinned_media_post_id ?? '')
   const [visibility, setVisibility] = useState<Brief['visibility']>(brief.visibility)
   const [sections, setSections]     = useState<BriefSection[]>(
     [...initialSections].sort((a, b) => a.display_order - b.display_order)
@@ -167,6 +171,9 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
 
     const result = await saveBrief(brief.id, {
       title,
+      subtitle,
+      topicTag,
+      pinnedMediaPostId: pinnedMediaPostId || null,
       visibility,
       sections: sections.map(s => ({ id: s.id, content: s.content, display_order: s.display_order })),
     })
@@ -252,6 +259,56 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
               className="w-full border border-edge bg-card px-4 py-3 font-serif text-lg text-dark focus:outline-none focus:border-text"
               placeholder="Brief title"
             />
+          </div>
+
+          {/* Subtitle */}
+          <div className="space-y-1.5">
+            <label className="font-mono text-[9px] tracking-[0.18em] uppercase text-soft">
+              Subtitle
+            </label>
+            <input
+              type="text"
+              value={subtitle}
+              onChange={e => setSubtitle(e.target.value)}
+              className="w-full border border-edge bg-card px-4 py-3 font-serif text-sm text-dark focus:outline-none focus:border-text"
+              placeholder="One sentence, allowed a point of view"
+            />
+          </div>
+
+          {/* Topic tag + pinned media (drive the auto Quotes/Media sections) */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <label className="font-mono text-[9px] tracking-[0.18em] uppercase text-soft">
+                Topic tag
+              </label>
+              <input
+                type="text"
+                value={topicTag}
+                onChange={e => setTopicTag(e.target.value)}
+                className="w-full border border-edge bg-card px-4 py-3 font-mono text-sm text-dark focus:outline-none focus:border-text"
+                placeholder="e.g. ai-safety"
+              />
+              <p className="font-serif text-xs text-soft/70">
+                Drives the auto Quotes and Media sections — must match the tag used on content_posts.
+              </p>
+            </div>
+            <div className="space-y-1.5">
+              <label className="font-mono text-[9px] tracking-[0.18em] uppercase text-soft">
+                Pinned media (&quot;Start here&quot;)
+              </label>
+              <select
+                value={pinnedMediaPostId}
+                onChange={e => setPinnedMediaPostId(e.target.value)}
+                className="w-full border border-edge bg-card px-4 py-3 font-serif text-sm text-dark focus:outline-none focus:border-text"
+              >
+                <option value="">None</option>
+                {mediaOptions.map(option => (
+                  <option key={option.id} value={option.id}>
+                    [{option.post_type}] {option.title}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           {/* Visibility */}
