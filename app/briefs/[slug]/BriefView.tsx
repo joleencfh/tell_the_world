@@ -112,13 +112,13 @@ export default function BriefView({ brief, quotes, media, endorsementBar, questi
             {/* Header chip bar — endorsement bar, last reviewed, read time */}
             <div className="flex flex-wrap items-center gap-2 mt-6 mb-10 anim-rise" style={{ animationDelay: '160ms' }}>
               {reviewedCount > 0 && (
-                <HeaderChip tone="live">
+                <HeaderChip tone="blue">
                   ✓ Reviewed by {reviewedCount} expert{reviewedCount === 1 ? '' : 's'}
                   {orgCount > 0 && ` · ${orgCount} org${orgCount === 1 ? '' : 's'}`}
                 </HeaderChip>
               )}
               {endorsedCount > 0 && (
-                <HeaderChip tone="live">
+                <HeaderChip tone="blue">
                   ★ Endorsed by {endorsedCount}
                 </HeaderChip>
               )}
