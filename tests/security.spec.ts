@@ -7,7 +7,8 @@ import { test, expect } from '@playwright/test'
 //   1. Seed the test briefs:  bun scripts/seed-test-briefs.ts
 //      (creates test-public-brief / test-members-brief with known section
 //       content — see the seed script for the exact strings asserted below)
-//   2. Apply supabase/013_public_brief_read.sql in the Supabase SQL Editor.
+//   2. Apply supabase/013_public_brief_read.sql and
+//      supabase/018_anon_tldr_read.sql in the Supabase SQL Editor.
 //
 // All tests run as a logged-out visitor.
 // ---------------------------------------------------------------------------
@@ -18,6 +19,7 @@ const PUBLIC_URL = '/briefs/test-public-brief'
 // Known section content from scripts/seed-test-briefs.ts
 const SECTION_CONTENT = 'Test content for featured news.'
 const SECTION_SOURCE = 'A basic source for testing'
+const TLDR_CONTENT = 'This is a test brief used for end-to-end testing. It is safe to ignore.'
 
 // ---------------------------------------------------------------------------
 // Members-only content must not be served to logged-out visitors at all —
@@ -39,6 +41,10 @@ test.describe('Members-only brief — logged-out visitor', () => {
     const response = await request.get(MEMBERS_URL)
     const body = await response.text()
     expect(body).toContain('Test Members Brief')
+    // 018_anon_tldr_read.sql: the tldr brief_section is readable regardless
+    // of brief visibility, distinct from other section types which stay
+    // gated to public briefs (asserted absent above).
+    expect(body).toContain(TLDR_CONTENT)
   })
 })
 
