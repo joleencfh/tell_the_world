@@ -1,6 +1,13 @@
 # Brief feature v2 — build plan & session prompts
 
-**Status: in progress.** Step 1 done, step 2 partial, steps 3–7 not started.
+> **Superseded by [`two-ink-bold-plan.md`](two-ink-bold-plan.md).** Steps
+> 1–2 below (schema + page restructure) are done and stay done — the new
+> plan builds on top of that work rather than redoing it. Steps 3–7 below
+> (annotation layer, review-pass screen, contested-point cards,
+> reconfirmation email, moderation of takes/comments) are **not** being
+> built — see the new doc's §0 for why. Kept here for history.
+
+**Status: in progress.** Steps 1–2 done, steps 3–7 not started.
 Companion to [`brief-feature-design.md`](brief-feature-design.md) (the spec)
 and the two wireframe files. This doc tracks build-order (§10) progress across
 sessions and gives a ready-to-paste prompt for each remaining step.
@@ -37,35 +44,43 @@ schema gap.
 
 ---
 
-## Step 2 — Brief page restructure ⚠️ PARTIAL
+## Step 2 — Brief page restructure ✅ DONE
 
 **Done:** section rendering (`app/briefs/[slug]/section-content.tsx`,
 `BriefView.tsx`) moved to the new 7-type order; the admin editor
 (`lib/admin/brief-actions.ts`, `EditBriefScreen.tsx`) authors all 7 section
 types; TLDR sources from its own section instead of the retired
 `briefs.tldr` column; a content-loss bug (multiple rows sharing one section
-type only rendering the first) was fixed.
+type only rendering the first) was fixed. Quotes section now filters
+`content_posts` by the brief's `topic_tag` (`getQuotesByTopicTag` in
+`lib/data/posts.ts`) instead of pulling globally-recent quotes. Media section
+added (`getMediaSection`), auto-pulled by the same topic tag with the
+author's `pinned_media_post_id` surfaced first as "Start here"; both sit
+right after "Where experts stand" per the wireframe's section order, and
+render independent of whether a `where_experts_stand` section row exists.
+Header chip bar added to the hero: read time (`computeReadTimeMinutes` in
+`helpers.ts`, authored-section-text only per §11), a "Last reviewed" chip
+from `briefs.last_reviewed_at`, and a live endorsement bar
+(`getEndorsementBarCounts` in the new `lib/data/contributions.ts`) split into
+separate "Reviewed by N experts · M orgs" / "Endorsed by N" chips per the
+wireframe note ("endorsers shown separately when > 0") — correctly reads
+zero until step 4 exists. Subtitle field added to `EditBriefScreen.tsx` and
+rendered in the hero next to the title.
 
-**Not done — what design doc §2 still calls for:**
-- Quotes section still pulls globally-recent quotes (`lib/data/posts.ts
-  getRecentQuotes`), not filtered by the brief's `topic_tag` against
-  `content_posts.topic_tags`.
-- No Media section exists at all (auto-pulled + one `pinned_media_post_id`
-  pick, per §2 row 8).
-- `use_this`, `featured_news`, `explainer`, `where_experts_stand` sections
-  render as plain paragraphs — none of the wireframe's bespoke layouts
-  (three-column "Use This", dated featured-news items, numbered explainer
-  subsections) exist. This may be an acceptable v2-MVP fallback; it's a
-  design judgment call, not a bug.
-- Header has no endorsement bar, read time, or "last reviewed" chip (§2 row 1,
-  §8). Read time and last-reviewed-date don't depend on contributions data
-  and can be built now; the endorsement bar's *counts* will legitimately read
-  zero until step 4 (review-pass) produces real review/endorsement rows —
-  that's fine, build it to read live from `brief_contributions` regardless.
-- `subtitle`, `topic_tag`, `pinned_media_post_id` columns exist but have no
-  admin UI to set them.
+**Remaining, deferred as a judgment call (not a gap in this step's scope):**
+`use_this`, `featured_news`, `explainer`, `where_experts_stand` sections
+still render as plain paragraphs — none of the wireframe's bespoke layouts
+(three-column "Use This", dated featured-news items, numbered explainer
+subsections) exist. Acceptable v2-MVP fallback per the original step-2 note.
 
-### Prompt for next session
+Verified against the seeded "AI Alignment" brief (seed script extended with
+`subtitle`/`topic_tag`/a pinned media post) as a logged-in expert — quotes,
+media (with "Start here" pin), subtitle, and read-time chip all render;
+`content_posts` RLS (authenticated-only, migration 008) means quotes/media
+are members-only, same as the pre-existing quotes band. `bunx tsc --noEmit`
+and `bun run lint` both clean.
+
+### Prompt for next session (superseded — kept for history)
 
 ```
 Continue the brief feature v2 build (design doc: docs/design/brief-feature/brief-feature-design.md,
