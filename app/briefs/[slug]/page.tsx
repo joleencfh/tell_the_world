@@ -3,7 +3,12 @@ import { createClient } from '@/lib/supabase/server'
 import type { BriefVisibility, BriefSectionType, UserRole } from '@/lib/types'
 import { getBriefWithSectionsBySlug } from '@/lib/data/briefs'
 import { getQuotesByTopicTag, getMediaSection, type MediaPost } from '@/lib/data/posts'
-import { getEndorsementBarCounts, type EndorsementBarCounts } from '@/lib/data/contributions'
+import {
+  getEndorsementBarCounts,
+  getMyContributionStatus,
+  type EndorsementBarCounts,
+  type ContributionStatus,
+} from '@/lib/data/contributions'
 import { getApprovedQuestions } from '@/lib/data/questions'
 import { getUserBasic } from '@/lib/data/users'
 import BriefView from './BriefView'
@@ -12,7 +17,7 @@ import BriefView from './BriefView'
 // Types (re-exported so BriefView can import them from here)
 // ---------------------------------------------------------------------------
 
-export type { BriefVisibility, BriefSectionType, UserRole, MediaPost, EndorsementBarCounts }
+export type { BriefVisibility, BriefSectionType, UserRole, MediaPost, EndorsementBarCounts, ContributionStatus }
 
 export interface BriefSection {
   id: string
@@ -104,10 +109,13 @@ export default async function BriefPage({
   const brief = await getBriefWithSectionsBySlug(supabase, slug)
   if (!brief) notFound()
 
-  const [quotes, media, endorsementBar] = await Promise.all([
+  const [quotes, media, endorsementBar, myReviewStatus] = await Promise.all([
     getQuotesByTopicTag(supabase, brief.topic_tag, 4),
     getMediaSection(supabase, brief.topic_tag, brief.pinned_media_post_id, 6),
     getEndorsementBarCounts(supabase, brief.id, brief.brief_sections),
+    user
+      ? getMyContributionStatus(supabase, brief.id, null, user.id)
+      : Promise.resolve<ContributionStatus>('none'),
   ])
 
   let questions: Question[] = []
@@ -130,6 +138,7 @@ export default async function BriefPage({
       endorsementBar={endorsementBar}
       questions={questions}
       currentUser={currentUser}
+      myReviewStatus={myReviewStatus}
     />
   )
 }

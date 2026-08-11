@@ -31,10 +31,10 @@ test.describe('Public brief — logged-out visitor', () => {
     )
   })
 
-  test('shows the TLDR below the title', async ({ page }) => {
-    // The amber rule divider is rendered immediately before the TLDR paragraph
-    const tldrDivider = page.locator('.bg-live.mb-5')
-    await expect(tldrDivider).toBeVisible()
+  test('shows the TLDR below the title as its own numbered section', async ({ page }) => {
+    // TL;DR is split out of the hero into its own SectionHeader'd section
+    // (two-ink-bold-plan.md §3 Part 1) — no longer an inline hero paragraph.
+    await expect(page.getByRole('heading', { name: 'TL;DR' })).toBeVisible()
   })
 
   test('shows the full brief sections without a lock', async ({ page }) => {
@@ -72,9 +72,8 @@ test.describe('Members-only brief — logged-out visitor', () => {
     )
   })
 
-  test('shows the TLDR divider below the title', async ({ page }) => {
-    const tldrDivider = page.locator('.bg-live.mb-5')
-    await expect(tldrDivider).toBeVisible()
+  test('does not show a TL;DR section — RLS withholds all brief_sections content from logged-out visitors on members-only briefs', async ({ page }) => {
+    await expect(page.getByRole('heading', { name: 'TL;DR' })).not.toBeVisible()
   })
 
   test('does not show section content headings', async ({ page }) => {

@@ -70,6 +70,58 @@ interface SectionEditorProps {
   onMoveDown: (id: string) => void
 }
 
+// TLDR is a plain textarea, not the TipTap rich editor other sections use —
+// its content is short bullet lines (one per \n), each optionally starting
+// with **a bold lead term** — a plain-text format the public brief page
+// parses (parseTLDR in section-content.tsx), not rich HTML.
+function TLDRSectionEditor({ section, isFirst, isLast, onContentChange, onMoveUp, onMoveDown }: SectionEditorProps) {
+  return (
+    <div className="border border-edge bg-card">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-edge">
+        <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-dark">
+          {SECTION_LABELS[section.section_type]}
+        </span>
+        <div className="flex gap-1">
+          <button
+            type="button"
+            onClick={() => onMoveUp(section.id)}
+            disabled={isFirst}
+            title="Move up"
+            className="px-2 py-1 font-mono text-[10px] border border-edge text-soft hover:border-text hover:text-text transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
+          >
+            ↑
+          </button>
+          <button
+            type="button"
+            onClick={() => onMoveDown(section.id)}
+            disabled={isLast}
+            title="Move down"
+            className="px-2 py-1 font-mono text-[10px] border border-edge text-soft hover:border-text hover:text-text transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
+          >
+            ↓
+          </button>
+        </div>
+      </div>
+
+      <div className="px-4 py-3 border-b border-edge bg-base/60">
+        <p className="font-serif text-xs text-soft leading-relaxed">
+          One bullet per line, 3–5 lines. Optionally start a line with{' '}
+          <strong className="text-dark">**a bold lead term**</strong> followed by an em dash — e.g.{' '}
+          <code className="font-mono text-[11px]">**Compute race** — governments vs. governments, companies vs. companies.</code>
+        </p>
+      </div>
+
+      <textarea
+        value={section.content}
+        onChange={(e) => onContentChange(section.id, e.target.value)}
+        rows={6}
+        className="w-full px-3 py-3 font-mono text-sm text-text leading-relaxed focus:outline-none resize-y"
+        placeholder={'**Compute race** — governments vs. governments, companies vs. companies.\nA second bullet line goes here.'}
+      />
+    </div>
+  )
+}
+
 function SectionEditor({ section, isFirst, isLast, onContentChange, onMoveUp, onMoveDown }: SectionEditorProps) {
   const editor = useEditor({
     extensions: [StarterKit],
@@ -347,17 +399,20 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
           {/* Sections */}
           <div className="space-y-3">
             <h2 className="font-mono text-[9px] tracking-[0.18em] uppercase text-soft">Sections</h2>
-            {sections.map((section, i) => (
-              <SectionEditor
-                key={section.id}
-                section={section}
-                isFirst={i === 0}
-                isLast={i === sections.length - 1}
-                onContentChange={handleContentChange}
-                onMoveUp={(id) => moveSection(id, 'up')}
-                onMoveDown={(id) => moveSection(id, 'down')}
-              />
-            ))}
+            {sections.map((section, i) => {
+              const Editor = section.section_type === 'tldr' ? TLDRSectionEditor : SectionEditor
+              return (
+                <Editor
+                  key={section.id}
+                  section={section}
+                  isFirst={i === 0}
+                  isLast={i === sections.length - 1}
+                  onContentChange={handleContentChange}
+                  onMoveUp={(id) => moveSection(id, 'up')}
+                  onMoveDown={(id) => moveSection(id, 'down')}
+                />
+              )
+            })}
           </div>
 
           {/* Bottom save */}

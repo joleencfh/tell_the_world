@@ -3,6 +3,9 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { sendBriefProposalEmail } from '@/lib/email/send-brief-proposal'
+import { getMaxContentVersion } from '@/lib/data/contributions'
+
+const CONTRIBUTOR_ROLES = ['expert', 'organisation']
 
 export async function submitCorrectionProposal(
   briefId: string,
@@ -115,5 +118,85 @@ export async function proposeBrief(
     from_brief_title: fromBriefTitle ?? null,
   }).catch((err) => console.error('Brief proposal email failed:', err))
 
+  return { success: true }
+}
+
+// Reused brief_contributions self-serve mechanism (design plan §2): a simple
+// "Mark as reviewed" / "Endorse" toggle for experts/organisations, brief-level
+// (sectionId null, Part 1) or section-level (Part 3). One row per (user,
+// target) — the review→endorsement transition upgrades the existing row in
+// place rather than inserting a second one, matching the DB's partial unique
+// indexes (migration 017).
+export async function setReviewStatus(
+  briefId: string,
+  briefSlug: string,
+  sectionId: string | null,
+  targetType: 'review' | 'endorsement',
+): Promise<{ error?: string; success?: boolean }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return { error: 'You must be logged in to review or endorse briefs.' }
+
+  const { data: userData } = await supabase.from('users').select('role').eq('id', user.id).single()
+  if (!userData || !CONTRIBUTOR_ROLES.includes(userData.role)) {
+    return { error: 'Only experts and organisations can review or endorse briefs.' }
+  }
+
+  const existingBase = supabase
+    .from('brief_contributions')
+    .select('id')
+    .eq('brief_id', briefId)
+    .eq('user_id', user.id)
+    .in('type', ['review', 'endorsement'])
+    .limit(1)
+  const { data: existingRows } = await (sectionId
+    ? existingBase.eq('section_id', sectionId)
+    : existingBase.is('section_id', null))
+  const existing = existingRows?.[0] ?? null
+
+  if (targetType === 'endorsement' && !existing) {
+    return { error: 'Mark as reviewed before endorsing.' }
+  }
+
+  // Pin the current content_version so a later substantive edit can mark
+  // this contribution stale — getEndorsementBarCounts already handles that
+  // comparison, untouched by this plan (§2).
+  let sectionVersion: number
+  if (sectionId) {
+    const { data: section } = await supabase
+      .from('brief_sections')
+      .select('content_version')
+      .eq('id', sectionId)
+      .single()
+    if (!section) return { error: 'Section not found.' }
+    sectionVersion = section.content_version
+  } else {
+    const { data: sections } = await supabase
+      .from('brief_sections')
+      .select('content_version')
+      .eq('brief_id', briefId)
+    sectionVersion = getMaxContentVersion(sections ?? [])
+  }
+
+  const { error } = existing
+    ? await supabase
+        .from('brief_contributions')
+        .update({ type: targetType, section_version: sectionVersion, status: 'published' })
+        .eq('id', existing.id)
+    : await supabase.from('brief_contributions').insert({
+        brief_id: briefId,
+        section_id: sectionId,
+        user_id: user.id,
+        type: targetType,
+        section_version: sectionVersion,
+        status: 'published',
+      })
+
+  if (error) return { error: 'Failed to save. Please try again.' }
+
+  revalidatePath(`/briefs/${briefSlug}`)
   return { success: true }
 }
