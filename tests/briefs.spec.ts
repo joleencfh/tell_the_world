@@ -72,11 +72,11 @@ test.describe('Members-only brief — logged-out visitor', () => {
     )
   })
 
-  test('does not show a TL;DR section — RLS withholds all brief_sections content from logged-out visitors on members-only briefs', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: 'TL;DR' })).not.toBeVisible()
+  test('shows the TL;DR section — 018 grants anon read on tldr sections regardless of brief visibility', async ({ page }) => {
+    await expect(page.getByRole('heading', { name: 'TL;DR' })).toBeVisible()
   })
 
-  test('does not show section content headings', async ({ page }) => {
+  test('does not show other section content headings', async ({ page }) => {
     // These h2s are only rendered when sections are unlocked
     await expect(
       page.getByRole('heading', { name: 'Featured News' }),
