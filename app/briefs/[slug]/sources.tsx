@@ -111,32 +111,32 @@ function SourceCard({
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClick() }}
-      className={`group bg-card rounded-r-2xl rounded-l-none p-5 flex flex-col gap-3 transition-all cursor-pointer select-none
-        border border-edge border-l-[3px]
+      style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+      className={`group flex cursor-pointer select-none flex-col gap-3 border border-line border-l-[3px] bg-paper p-5 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-blue
         ${isSelected
-          ? 'border-l-live shadow-md ring-1 ring-live/20'
+          ? 'border-l-blue ring-1 ring-blue/20'
           : isOtherSelected
-            ? 'border-l-live/20 opacity-50'
-            : 'border-l-live/50 hover:border-l-live hover:shadow-md'
+            ? 'border-l-blue/20 opacity-50'
+            : 'border-l-blue/50 hover:border-l-blue'
         }`}
     >
       <div className="flex items-start gap-3">
-        <span className="font-mono text-xs tracking-[0.15em] text-live font-bold tabular-nums mt-0.5 shrink-0">
+        <span className="mt-0.5 shrink-0 font-mono text-xs font-bold tabular-nums tracking-[0.15em] text-blue-ink">
           {String(index + 1).padStart(2, '0')}
         </span>
-        <p className={`font-serif text-[0.9rem] font-bold leading-snug transition-colors flex-1 ${isSelected ? 'text-live' : 'text-dark group-hover:text-live'}`}>
+        <p className={`flex-1 font-body text-[0.9rem] font-bold leading-snug transition-colors ${isSelected ? 'text-blue-ink' : 'text-ink group-hover:text-blue-ink'}`}>
           {item.title}
         </p>
         {/* Expand indicator */}
         <span
-          className={`shrink-0 text-live/50 text-xs transition-transform duration-300 mt-0.5 ${isSelected ? 'rotate-180' : ''}`}
+          className={`mt-0.5 shrink-0 text-xs text-blue/50 transition-transform duration-300 motion-reduce:transition-none ${isSelected ? 'rotate-180' : ''}`}
           aria-hidden
         >
           ↓
         </span>
       </div>
       {item.description && (
-        <p className="font-serif text-sm text-soft leading-relaxed pl-8">{item.description}</p>
+        <p className="pl-8 font-body text-sm leading-relaxed text-ink-soft">{item.description}</p>
       )}
       {item.url && (
         <a
@@ -144,10 +144,11 @@ function SourceCard({
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`Visit source: ${item.title}`}
-          className="ml-auto mt-auto w-8 h-8 rounded-full bg-live/10 hover:bg-live flex items-center justify-center text-live hover:text-white transition-all group/link shrink-0"
+          style={{ touchAction: 'manipulation' }}
+          className="group/link ml-auto mt-auto flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-soft text-blue-ink transition-all hover:bg-blue hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue"
           onClick={(e) => e.stopPropagation()}
         >
-          <span className="text-sm group-hover/link:translate-x-0.5 transition-transform" aria-hidden>→</span>
+          <span className="text-sm transition-transform group-hover/link:translate-x-0.5" aria-hidden>→</span>
         </a>
       )}
     </div>
@@ -180,52 +181,51 @@ function SourceDrawer({
   const isPlaceholder = !item.summary
 
   return (
-    <div
-      className="mt-3 bg-dark rounded-2xl overflow-hidden anim-drawer"
-      style={{ borderTop: '3px solid var(--color-live)' }}
-    >
+    <div className="anim-drawer mt-3 overflow-hidden border border-t-[3px] border-line border-t-blue bg-paper-raised">
       <div className="px-7 py-8">
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 mb-7">
+        <div className="mb-7 flex items-start justify-between gap-4">
           <div>
-            <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-live/60 mb-1.5">
+            <p className="mb-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-blue-ink">
               Source {String(index + 1).padStart(2, '0')} — Summary
             </p>
-            <h3 className="font-display uppercase text-white text-xl leading-tight">
+            <h3 className="font-display text-xl uppercase leading-tight text-ink">
               {item.title}
             </h3>
           </div>
           <button
+            type="button"
             onClick={onClose}
             aria-label="Close summary"
-            className="shrink-0 w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/40 hover:text-white/80 transition-all text-lg leading-none"
+            style={{ touchAction: 'manipulation' }}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-soft text-lg leading-none text-blue-ink transition-all hover:bg-blue hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue"
           >
             ×
           </button>
         </div>
 
         {/* Body — summary + takeaways */}
-        <div className="grid sm:grid-cols-[1fr_220px] gap-6 sm:gap-10">
+        <div className="grid gap-6 sm:grid-cols-[1fr_220px] sm:gap-10">
           {/* Summary */}
           <div>
-            <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-live/50 mb-3">
+            <p className="mb-3 font-mono text-[9px] uppercase tracking-[0.2em] text-ink-faint">
               Overview
             </p>
-            <p className={`font-serif text-[0.95rem] leading-relaxed ${isPlaceholder ? 'text-white/35 italic' : 'text-white/75'}`}>
+            <p className={`font-body text-[0.95rem] leading-relaxed ${isPlaceholder ? 'italic text-ink-faint' : 'text-ink-soft'}`}>
               {summary}
             </p>
           </div>
 
           {/* Takeaways */}
-          <div className="sm:border-l sm:border-white/[0.08] sm:pl-8">
-            <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-live/50 mb-3">
+          <div className="sm:border-l sm:border-line sm:pl-8">
+            <p className="mb-3 font-mono text-[9px] uppercase tracking-[0.2em] text-ink-faint">
               Key takeaways
             </p>
             <ul className="space-y-2.5">
               {takeaways.map((point, i) => (
                 <li key={i} className="flex items-start gap-2.5">
-                  <span className="text-live shrink-0 text-[10px] mt-[3px]" aria-hidden>▸</span>
-                  <span className={`font-serif text-sm leading-snug ${isPlaceholder ? 'text-white/30 italic' : 'text-white/65'}`}>
+                  <span className="mt-[3px] shrink-0 text-[10px] text-blue" aria-hidden>▸</span>
+                  <span className={`font-body text-sm leading-snug ${isPlaceholder ? 'italic text-ink-faint' : 'text-ink-soft'}`}>
                     {point}
                   </span>
                 </li>
@@ -236,15 +236,16 @@ function SourceDrawer({
 
         {/* Footer CTA */}
         {item.url && (
-          <div className="mt-8 pt-6 border-t border-white/[0.08] flex items-center justify-between gap-4 flex-wrap">
-            <p className="font-mono text-[9px] tracking-[0.12em] uppercase text-white/25">
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6">
+            <p className="font-mono text-[9px] uppercase tracking-[0.12em] text-ink-faint">
               Ready to go deeper?
             </p>
             <a
               href={item.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-display uppercase tracking-widest text-xs bg-live text-white px-5 py-2.5 hover:bg-live/90 transition-colors inline-flex items-center gap-2"
+              style={{ touchAction: 'manipulation' }}
+              className="inline-flex items-center gap-2 bg-blue px-5 py-2.5 font-display text-xs uppercase tracking-widest text-white transition-colors hover:bg-blue-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue"
             >
               Visit source <span aria-hidden>→</span>
             </a>

@@ -17,9 +17,19 @@ import {
 } from './section-content'
 import { QuestionCard, QuestionForm, ProposeCorrectionModal } from './qa'
 import { ReviewEndorseControl } from './review-endorse'
+import { ExplainerSections } from './explainer'
 import { MOCK_QUESTIONS } from './mock-questions'
 import { formatDate, computeReadTimeMinutes } from './helpers'
-import type { Brief, CurrentUser, Question, Quote, MediaPost, EndorsementBarCounts, ContributionStatus } from './page'
+import type {
+  Brief,
+  CurrentUser,
+  Question,
+  Quote,
+  MediaPost,
+  EndorsementBarCounts,
+  ContributionStatus,
+  ExplainerContributionInfo,
+} from './page'
 
 // ---------------------------------------------------------------------------
 // Main component
@@ -33,9 +43,10 @@ interface BriefViewProps {
   questions: Question[]
   currentUser: CurrentUser | null
   myReviewStatus: ContributionStatus
+  explainerContributions: ExplainerContributionInfo[]
 }
 
-export default function BriefView({ brief, quotes, media, endorsementBar, questions, currentUser, myReviewStatus }: BriefViewProps) {
+export default function BriefView({ brief, quotes, media, endorsementBar, questions, currentUser, myReviewStatus, explainerContributions }: BriefViewProps) {
   const isLoggedIn = !!currentUser
   const showSections = isLoggedIn || brief.visibility === 'public'
   const canContribute = currentUser?.role === 'expert' || currentUser?.role === 'organisation'
@@ -47,6 +58,10 @@ export default function BriefView({ brief, quotes, media, endorsementBar, questi
   const tldr = sortedSections.find((s) => s.section_type === 'tldr')?.content ?? ''
   const readTimeMinutes = computeReadTimeMinutes(sortedSections)
   const { reviewedCount, endorsedCount, orgCount } = endorsementBar
+  // going_deeper's own top-level section is retired — its Sources rendering
+  // now folds into Explainer as its final subsection (two-ink-bold-plan.md
+  // §3 Part 3 step 5).
+  const goingDeeperSections = sortedSections.filter((s) => s.section_type === 'going_deeper')
 
   return (
     <div className="min-h-screen bg-paper text-ink">
@@ -173,10 +188,14 @@ export default function BriefView({ brief, quotes, media, endorsementBar, questi
         {showSections ? (
           <>
             {SECTION_ORDER.map((type, i) => {
-              // A section type can have more than one row (e.g. the old
-              // sources_basic/sources_advanced both remapped to
-              // going_deeper) — render every matching row, not just the
-              // first, so migrated content isn't silently dropped.
+              // going_deeper no longer renders as its own top-level section
+              // (folded into Explainer below) — skip it here entirely.
+              if (type === 'going_deeper') return null
+
+              // A section type can have more than one row (e.g. multiple
+              // titled Explainer subsections, Part 3) — render every
+              // matching row, not just the first, so content isn't silently
+              // dropped.
               const sections = sortedSections.filter((s) => s.section_type === type)
 
               return (
@@ -188,11 +207,22 @@ export default function BriefView({ brief, quotes, media, endorsementBar, questi
                       <div className={`${bgClass} px-6 py-16`}>
                         <div className="mx-auto max-w-4xl anim-rise" style={{ animationDelay: '100ms' }}>
                           <SectionHeader num={meta.num} label={meta.label} description={meta.description} />
-                          <div className="space-y-10">
-                            {sections.map((section) => (
-                              <SectionContent key={section.id} type={type} content={section.content} />
-                            ))}
-                          </div>
+                          {type === 'explainer' ? (
+                            <ExplainerSections
+                              sections={sections}
+                              sourceSections={goingDeeperSections}
+                              briefId={brief.id}
+                              briefSlug={brief.slug}
+                              canContribute={canContribute}
+                              contributions={explainerContributions}
+                            />
+                          ) : (
+                            <div className="space-y-10">
+                              {sections.map((section) => (
+                                <SectionContent key={section.id} type={type} content={section.content} />
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
                     )

@@ -21,6 +21,15 @@ const SECTION_LABELS: Record<BriefSection['section_type'], string> = {
   faq:                  'FAQ',
 }
 
+// Client-side section state. `id` is null for a subsection added in this
+// session and not yet saved — saveBrief (lib/admin/brief-actions.ts) treats
+// a null id as an insert. `clientKey` is the stable React key / handler
+// identity independent of `id`, since `id` doesn't exist yet for new rows;
+// it's the row's real id for anything loaded from the DB, or a generated
+// placeholder for a new row, and gets reconciled to the real id once
+// saveBrief returns the persisted rows.
+type EditableSection = Omit<BriefSection, 'id'> & { id: string | null; clientKey: string }
+
 // ---------------------------------------------------------------------------
 // TipTap toolbar
 // ---------------------------------------------------------------------------
@@ -62,12 +71,16 @@ function EditorToolbar({ editor }: { editor: ReturnType<typeof useEditor> }) {
 // ---------------------------------------------------------------------------
 
 interface SectionEditorProps {
-  section: BriefSection
+  section: EditableSection
   isFirst: boolean
   isLast: boolean
-  onContentChange: (id: string, content: string) => void
-  onMoveUp: (id: string) => void
-  onMoveDown: (id: string) => void
+  onContentChange: (key: string, content: string) => void
+  onMoveUp: (key: string) => void
+  onMoveDown: (key: string) => void
+  // Only meaningful for explainer subsections (Part 3) — the only type this
+  // editor lets the author title or remove.
+  onTitleChange?: (key: string, title: string) => void
+  onRemove?: (key: string) => void
 }
 
 // TLDR is a plain textarea, not the TipTap rich editor other sections use —
@@ -84,7 +97,7 @@ function TLDRSectionEditor({ section, isFirst, isLast, onContentChange, onMoveUp
         <div className="flex gap-1">
           <button
             type="button"
-            onClick={() => onMoveUp(section.id)}
+            onClick={() => onMoveUp(section.clientKey)}
             disabled={isFirst}
             title="Move up"
             className="px-2 py-1 font-mono text-[10px] border border-edge text-soft hover:border-text hover:text-text transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
@@ -93,7 +106,7 @@ function TLDRSectionEditor({ section, isFirst, isLast, onContentChange, onMoveUp
           </button>
           <button
             type="button"
-            onClick={() => onMoveDown(section.id)}
+            onClick={() => onMoveDown(section.clientKey)}
             disabled={isLast}
             title="Move down"
             className="px-2 py-1 font-mono text-[10px] border border-edge text-soft hover:border-text hover:text-text transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
@@ -113,7 +126,7 @@ function TLDRSectionEditor({ section, isFirst, isLast, onContentChange, onMoveUp
 
       <textarea
         value={section.content}
-        onChange={(e) => onContentChange(section.id, e.target.value)}
+        onChange={(e) => onContentChange(section.clientKey, e.target.value)}
         rows={6}
         className="w-full px-3 py-3 font-mono text-sm text-text leading-relaxed focus:outline-none resize-y"
         placeholder={'**Compute race** — governments vs. governments, companies vs. companies.\nA second bullet line goes here.'}
@@ -122,12 +135,13 @@ function TLDRSectionEditor({ section, isFirst, isLast, onContentChange, onMoveUp
   )
 }
 
-function SectionEditor({ section, isFirst, isLast, onContentChange, onMoveUp, onMoveDown }: SectionEditorProps) {
+function SectionEditor({ section, isFirst, isLast, onContentChange, onMoveUp, onMoveDown, onTitleChange, onRemove }: SectionEditorProps) {
+  const isExplainer = section.section_type === 'explainer'
   const editor = useEditor({
     extensions: [StarterKit],
     content: section.content || '',
     onUpdate: ({ editor }) => {
-      onContentChange(section.id, editor.getHTML())
+      onContentChange(section.clientKey, editor.getHTML())
     },
     editorProps: {
       attributes: {
@@ -146,7 +160,7 @@ function SectionEditor({ section, isFirst, isLast, onContentChange, onMoveUp, on
         <div className="flex gap-1">
           <button
             type="button"
-            onClick={() => onMoveUp(section.id)}
+            onClick={() => onMoveUp(section.clientKey)}
             disabled={isFirst}
             title="Move up"
             className="px-2 py-1 font-mono text-[10px] border border-edge text-soft hover:border-text hover:text-text transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
@@ -155,15 +169,42 @@ function SectionEditor({ section, isFirst, isLast, onContentChange, onMoveUp, on
           </button>
           <button
             type="button"
-            onClick={() => onMoveDown(section.id)}
+            onClick={() => onMoveDown(section.clientKey)}
             disabled={isLast}
             title="Move down"
             className="px-2 py-1 font-mono text-[10px] border border-edge text-soft hover:border-text hover:text-text transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
           >
             ↓
           </button>
+          {isExplainer && onRemove && (
+            <button
+              type="button"
+              onClick={() => onRemove(section.clientKey)}
+              title="Remove this subsection"
+              className="px-2 py-1 font-mono text-[10px] border border-edge text-soft hover:border-red-600 hover:text-red-600 transition-colors"
+            >
+              Remove
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Subsection title — Explainer only (Part 3): multiple explainer rows
+          per brief are rendered as titled subsections on the public page. */}
+      {isExplainer && onTitleChange && (
+        <div className="px-4 py-3 border-b border-edge bg-base/60">
+          <label className="block font-mono text-[9px] tracking-[0.18em] uppercase text-soft mb-1.5">
+            Subsection title (optional)
+          </label>
+          <input
+            type="text"
+            value={section.title ?? ''}
+            onChange={(e) => onTitleChange(section.clientKey, e.target.value)}
+            className="w-full border border-edge bg-card px-3 py-2 font-serif text-sm text-dark focus:outline-none focus:border-text"
+            placeholder="e.g. How the training process works"
+          />
+        </div>
+      )}
 
       {/* Toolbar */}
       <EditorToolbar editor={editor} />
@@ -191,8 +232,10 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
   const [topicTag, setTopicTag]     = useState(brief.topic_tag ?? '')
   const [pinnedMediaPostId, setPinnedMediaPostId] = useState(brief.pinned_media_post_id ?? '')
   const [visibility, setVisibility] = useState<Brief['visibility']>(brief.visibility)
-  const [sections, setSections]     = useState<BriefSection[]>(
-    [...initialSections].sort((a, b) => a.display_order - b.display_order)
+  const [sections, setSections]     = useState<EditableSection[]>(
+    [...initialSections]
+      .sort((a, b) => a.display_order - b.display_order)
+      .map(s => ({ ...s, clientKey: s.id }))
   )
   const [saving, setSaving]         = useState(false)
   const [saveError, setSaveError]   = useState<string | null>(null)
@@ -200,13 +243,17 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting]     = useState(false)
 
-  const handleContentChange = useCallback((id: string, content: string) => {
-    setSections(prev => prev.map(s => s.id === id ? { ...s, content } : s))
+  const handleContentChange = useCallback((key: string, content: string) => {
+    setSections(prev => prev.map(s => s.clientKey === key ? { ...s, content } : s))
   }, [])
 
-  function moveSection(id: string, dir: 'up' | 'down') {
+  const handleTitleChange = useCallback((key: string, title: string) => {
+    setSections(prev => prev.map(s => s.clientKey === key ? { ...s, title } : s))
+  }, [])
+
+  function moveSection(key: string, dir: 'up' | 'down') {
     setSections(prev => {
-      const idx = prev.findIndex(s => s.id === id)
+      const idx = prev.findIndex(s => s.clientKey === key)
       if (dir === 'up' && idx === 0) return prev
       if (dir === 'down' && idx === prev.length - 1) return prev
       const next = [...prev]
@@ -214,6 +261,30 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
       ;[next[idx], next[swap]] = [next[swap], next[idx]]
       return next.map((s, i) => ({ ...s, display_order: i + 1 }))
     })
+  }
+
+  // "Add explainer subsection" (Part 3) — appended at the end; the author
+  // uses the existing move-up control to place it where it belongs, same as
+  // every other section-ordering interaction in this screen.
+  function addExplainerSection() {
+    setSections(prev => [
+      ...prev,
+      {
+        clientKey: crypto.randomUUID(),
+        id: null,
+        brief_id: brief.id,
+        section_type: 'explainer',
+        title: '',
+        content: '',
+        display_order: prev.length + 1,
+      },
+    ])
+  }
+
+  function removeSection(key: string) {
+    setSections(prev =>
+      prev.filter(s => s.clientKey !== key).map((s, i) => ({ ...s, display_order: i + 1 })),
+    )
   }
 
   async function handleSave() {
@@ -227,13 +298,29 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
       topicTag,
       pinnedMediaPostId: pinnedMediaPostId || null,
       visibility,
-      sections: sections.map(s => ({ id: s.id, content: s.content, display_order: s.display_order })),
+      sections: sections.map(s => ({
+        id: s.id,
+        section_type: s.section_type,
+        title: s.title,
+        content: s.content,
+        display_order: s.display_order,
+      })),
     })
 
     setSaving(false)
     if (result.error) {
       setSaveError(result.error)
     } else {
+      // Reconcile client state with the persisted rows — newly-added
+      // subsections had no real id until now (saveBrief inserted them and
+      // returned the fresh set with ids assigned).
+      if (result.sections) {
+        setSections(
+          [...result.sections]
+            .sort((a, b) => a.display_order - b.display_order)
+            .map(s => ({ ...s, clientKey: s.id })),
+        )
+      }
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
     }
@@ -403,16 +490,25 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
               const Editor = section.section_type === 'tldr' ? TLDRSectionEditor : SectionEditor
               return (
                 <Editor
-                  key={section.id}
+                  key={section.clientKey}
                   section={section}
                   isFirst={i === 0}
                   isLast={i === sections.length - 1}
                   onContentChange={handleContentChange}
-                  onMoveUp={(id) => moveSection(id, 'up')}
-                  onMoveDown={(id) => moveSection(id, 'down')}
+                  onMoveUp={(key) => moveSection(key, 'up')}
+                  onMoveDown={(key) => moveSection(key, 'down')}
+                  onTitleChange={handleTitleChange}
+                  onRemove={removeSection}
                 />
               )
             })}
+            <button
+              type="button"
+              onClick={addExplainerSection}
+              className="w-full border border-dashed border-edge px-4 py-3 font-mono text-[10px] tracking-[0.18em] uppercase text-soft hover:border-text hover:text-text transition-colors"
+            >
+              + Add explainer subsection
+            </button>
           </div>
 
           {/* Bottom save */}
