@@ -381,10 +381,12 @@ export function SectionHeader({
 
 // ---------------------------------------------------------------------------
 // FAQ accordion — collapsed by default, click (or Enter/Space, native
-// <button> behavior) to expand. Blue accent: chevron + left-border on the
-// expanded panel. Mirrors sources.tsx's SourceCard expand affordance
-// (rotating arrow indicator) for interaction consistency within this file
-// group.
+// <button> behavior) to expand. Matches the reference artifact's
+// .acc-item/.acc-trigger/.acc-panel exactly: a flat divider list (no
+// per-item card/box), bold display-font question, mono "+" that rotates
+// 45deg into "×" on open, no left-border accent (the artifact doesn't use
+// one here — that's reserved for the "more answers" nested-reveal cards,
+// which this plan explicitly doesn't build, see parseFAQ's call site).
 // ---------------------------------------------------------------------------
 
 function FAQBlock({ item, index }: { item: FAQItem; index: number }) {
@@ -393,11 +395,7 @@ function FAQBlock({ item, index }: { item: FAQItem; index: number }) {
   const panelId = `faq-panel-${index}`
 
   return (
-    <div
-      className={`border border-line border-l-[3px] bg-paper transition-colors ${
-        isOpen ? 'border-l-blue' : 'border-l-transparent'
-      }`}
-    >
+    <div className="border-b border-line first:border-t">
       <h3 className="m-0">
         <button
           type="button"
@@ -406,24 +404,27 @@ function FAQBlock({ item, index }: { item: FAQItem; index: number }) {
           aria-controls={panelId}
           onClick={() => setIsOpen((v) => !v)}
           style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-          className="flex w-full items-center justify-between gap-5 px-6 py-5 text-left outline-none focus-visible:ring-2 focus-visible:ring-blue"
+          className="flex w-full items-center justify-between gap-4 py-[1.15rem] text-left outline-none focus-visible:ring-2 focus-visible:ring-blue"
         >
-          <span className="font-body text-[0.95rem] font-semibold leading-snug text-ink">
+          <span
+            className="font-display font-extrabold text-ink"
+            style={{ fontSize: '1.04rem', letterSpacing: '-0.005em' }}
+          >
             {item.question}
           </span>
           <span
             aria-hidden
-            className={`mt-0.5 shrink-0 text-sm text-blue transition-transform duration-300 motion-reduce:transition-none ${
-              isOpen ? 'rotate-180' : ''
+            className={`shrink-0 font-mono text-[1.1rem] font-bold text-blue transition-transform duration-300 motion-reduce:transition-none ${
+              isOpen ? 'rotate-45' : ''
             }`}
           >
-            ↓
+            +
           </span>
         </button>
       </h3>
       <div id={panelId} role="region" aria-labelledby={triggerId} hidden={!isOpen}>
         {isOpen && (
-          <p className="anim-drawer px-6 pb-6 pl-6 font-body text-sm leading-relaxed text-ink-soft">
+          <p className="anim-drawer max-w-[68ch] pb-[1.3rem] font-body text-[0.96rem] leading-[1.68] text-ink">
             {item.answer}
           </p>
         )}
@@ -465,7 +466,7 @@ export function SectionContent({ type, content }: { type: BriefSectionType; cont
     const items = parseFAQ(content)
     if (items) {
       return (
-        <div className="space-y-3">
+        <div>
           {items.map((item, i) => (
             <FAQBlock key={i} item={item} index={i} />
           ))}

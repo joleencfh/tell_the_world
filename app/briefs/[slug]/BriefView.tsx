@@ -209,7 +209,12 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, cu
                     return (
                       <div className={`${bgClass} px-6 py-16`}>
                         <div className="mx-auto max-w-4xl anim-rise" style={{ animationDelay: '100ms' }}>
-                          <SectionHeader num={meta.num} label={meta.label} description={meta.description} />
+                          <SectionHeader
+                            num={meta.num}
+                            label={meta.label}
+                            description={meta.description}
+                            numTone={type === 'faq' ? 'blue' : 'ink'}
+                          />
                           {type === 'explainer' ? (
                             <ExplainerSections
                               sections={sections}
