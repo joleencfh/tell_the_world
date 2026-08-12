@@ -65,14 +65,14 @@ export const SECTION_META: Record<BriefSectionType, { label: string; num: string
     },
   }
 
-// Section background: alternates between base (with texture) and warm amber cream
+// Section background: alternates between paper (with texture) and paper-raised
 export const SECTION_BG: Record<number, string> = {
-  0: 'bg-base grid-texture',
-  1: 'bg-warm',
-  2: 'bg-base grid-texture',
-  3: 'bg-warm',
-  4: 'bg-base grid-texture',
-  5: 'bg-warm',
+  0: 'bg-paper grid-texture',
+  1: 'bg-paper-raised',
+  2: 'bg-paper grid-texture',
+  3: 'bg-paper-raised',
+  4: 'bg-paper grid-texture',
+  5: 'bg-paper-raised',
 }
 
 // ---------------------------------------------------------------------------
