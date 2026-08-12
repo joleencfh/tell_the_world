@@ -17,6 +17,7 @@ import {
 import { QuestionCard, QuestionForm, ProposeCorrectionModal } from './qa'
 import { ReviewEndorseControl } from './review-endorse'
 import { ExplainerSections } from './explainer'
+import { FAQSection } from './faq'
 import { MOCK_QUESTIONS } from './mock-questions'
 import { formatDate, computeReadTimeMinutes } from './helpers'
 import type {
@@ -28,6 +29,7 @@ import type {
   EndorsementBarCounts,
   ContributionStatus,
   ExplainerContributionInfo,
+  FaqAnswer,
 } from './page'
 
 // ---------------------------------------------------------------------------
@@ -43,13 +45,14 @@ interface BriefViewProps {
   currentUser: CurrentUser | null
   myReviewStatus: ContributionStatus
   explainerContributions: ExplainerContributionInfo[]
+  faqAnswersByQuestion: Record<string, FaqAnswer[]>
 }
 
 // `media` stays in BriefViewProps (page.tsx still fetches and passes it —
 // dropping Media from the page was a deliberate call, but the data query
 // itself is out of scope for this change) but isn't destructured here since
 // nothing renders it anymore.
-export default function BriefView({ brief, quotes, endorsementBar, questions, currentUser, myReviewStatus, explainerContributions }: BriefViewProps) {
+export default function BriefView({ brief, quotes, endorsementBar, questions, currentUser, myReviewStatus, explainerContributions, faqAnswersByQuestion }: BriefViewProps) {
   const isLoggedIn = !!currentUser
   const showSections = isLoggedIn || brief.visibility === 'public'
   const canContribute = currentUser?.role === 'expert' || currentUser?.role === 'organisation'
@@ -209,7 +212,12 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, cu
                     return (
                       <div className={`${bgClass} px-6 py-16`}>
                         <div className="mx-auto max-w-4xl anim-rise" style={{ animationDelay: '100ms' }}>
-                          <SectionHeader num={meta.num} label={meta.label} description={meta.description} />
+                          <SectionHeader
+                            num={meta.num}
+                            label={meta.label}
+                            description={meta.description}
+                            numTone={type === 'faq' ? 'blue' : 'ink'}
+                          />
                           {type === 'explainer' ? (
                             <ExplainerSections
                               sections={sections}
@@ -218,6 +226,14 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, cu
                               briefSlug={brief.slug}
                               canContribute={canContribute}
                               contributions={explainerContributions}
+                            />
+                          ) : type === 'faq' ? (
+                            <FAQSection
+                              sections={sections}
+                              briefId={brief.id}
+                              briefSlug={brief.slug}
+                              canSubmit={canContribute}
+                              answersByQuestion={faqAnswersByQuestion}
                             />
                           ) : (
                             <div className="space-y-10">

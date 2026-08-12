@@ -3,16 +3,17 @@
 import { useState } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { createBrief } from '@/lib/admin/brief-actions'
-import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal } from '@/lib/admin/actions'
+import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer } from '@/lib/admin/actions'
 import { ADMIN_PAGE_SIZE } from '@/lib/data/admin'
 import Pagination from '@/components/ui/Pagination'
 import { ApplicationCard, QuestionCard, CorrectionProposalCard, BriefProposalCard, ApprovedRow } from './cards'
+import { FaqAnswerCard } from './faq-answer-card'
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-type Tab = 'pending' | 'questions' | 'correctionProposals' | 'proposals' | 'approved'
+type Tab = 'pending' | 'questions' | 'correctionProposals' | 'faqAnswers' | 'proposals' | 'approved'
 
 interface Props {
   adminEmail: string
@@ -28,6 +29,9 @@ interface Props {
   pendingCorrectionProposals: PendingCorrectionProposal[]
   pendingCorrectionProposalsCount: number
   correctionProposalsPage: number
+  pendingFaqAnswers: PendingFaqAnswer[]
+  pendingFaqAnswersCount: number
+  faqAnswersPage: number
   briefProposals: BriefProposal[]
   briefProposalsCount: number
   proposalsPage: number
@@ -51,6 +55,9 @@ export default function AdminScreen({
   pendingCorrectionProposals,
   pendingCorrectionProposalsCount,
   correctionProposalsPage,
+  pendingFaqAnswers,
+  pendingFaqAnswersCount,
+  faqAnswersPage,
   briefProposals,
   briefProposalsCount,
   proposalsPage,
@@ -124,6 +131,14 @@ export default function AdminScreen({
               {pendingCorrectionProposalsCount > 0 && (
                 <span className="ml-2 font-mono text-[9px] bg-live text-white px-1.5 py-0.5">
                   {pendingCorrectionProposalsCount}
+                </span>
+              )}
+            </TabButton>
+            <TabButton active={tab === 'faqAnswers'} onClick={() => setTab('faqAnswers')}>
+              FAQ answers
+              {pendingFaqAnswersCount > 0 && (
+                <span className="ml-2 font-mono text-[9px] bg-live text-white px-1.5 py-0.5">
+                  {pendingFaqAnswersCount}
                 </span>
               )}
             </TabButton>
@@ -205,6 +220,29 @@ export default function AdminScreen({
                 pageSize={ADMIN_PAGE_SIZE}
                 total={pendingCorrectionProposalsCount}
                 buildHref={(p) => buildPageHref('correctionProposalsPage', p)}
+              />
+            </>
+          )}
+
+          {/* Pending FAQ answers tab */}
+          {tab === 'faqAnswers' && (
+            <>
+              {pendingFaqAnswers.length === 0 ? (
+                <p className="font-serif text-sm text-soft italic py-8 text-center">
+                  No pending FAQ answers.
+                </p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {pendingFaqAnswers.map(a => (
+                    <FaqAnswerCard key={a.id} answer={a} />
+                  ))}
+                </div>
+              )}
+              <Pagination
+                page={faqAnswersPage}
+                pageSize={ADMIN_PAGE_SIZE}
+                total={pendingFaqAnswersCount}
+                buildHref={(p) => buildPageHref('faqAnswersPage', p)}
               />
             </>
           )}

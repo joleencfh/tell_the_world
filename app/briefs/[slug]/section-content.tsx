@@ -76,30 +76,6 @@ export const SECTION_BG: Record<number, string> = {
 }
 
 // ---------------------------------------------------------------------------
-// FAQ parser
-// ---------------------------------------------------------------------------
-
-interface FAQItem {
-  question: string
-  answer: string
-}
-
-function parseFAQ(content: string): FAQItem[] | null {
-  const items: FAQItem[] = []
-  const blocks = content.split(/\n(?=Q:)/g)
-  for (const block of blocks) {
-    const qMatch = block.match(/Q:\s*(.+?)(?:\n|\r\n?)([\s\S]*)/)
-    if (!qMatch) continue
-    const question = qMatch[1].trim()
-    const rest = qMatch[2].trim()
-    const aMatch = rest.match(/^A:\s*([\s\S]+)/)
-    const answer = aMatch ? aMatch[1].trim() : rest
-    if (question) items.push({ question, answer })
-  }
-  return items.length >= 1 ? items : null
-}
-
-// ---------------------------------------------------------------------------
 // TL;DR bullets — short lines, optional "**lead term** — rest" shape
 // ---------------------------------------------------------------------------
 
@@ -380,33 +356,6 @@ export function SectionHeader({
 }
 
 // ---------------------------------------------------------------------------
-// FAQ block — larger Q/A labels, more padding
-// ---------------------------------------------------------------------------
-
-function FAQBlock({ item }: { item: FAQItem }) {
-  return (
-    <div className="rounded-2xl overflow-hidden shadow-sm">
-      {/* Question */}
-      <div className="bg-dark px-6 py-5 flex items-start gap-5">
-        <span className="font-display text-live text-2xl leading-none shrink-0 mt-0.5 select-none">
-          Q
-        </span>
-        <p className="font-serif text-[0.95rem] font-semibold text-white leading-relaxed">
-          {item.question}
-        </p>
-      </div>
-      {/* Answer */}
-      <div className="bg-card border border-edge border-t-0 px-6 py-5 flex items-start gap-5">
-        <span className="font-display text-soft/50 text-2xl leading-none shrink-0 mt-0.5 select-none">
-          A
-        </span>
-        <p className="font-serif text-sm text-text leading-relaxed">{item.answer}</p>
-      </div>
-    </div>
-  )
-}
-
-// ---------------------------------------------------------------------------
 // Paragraph content — lead paragraph treatment
 // ---------------------------------------------------------------------------
 
@@ -434,20 +383,10 @@ function ParagraphContent({ content }: { content: string }) {
 // Smart section content renderer
 // ---------------------------------------------------------------------------
 
+// 'faq' is not handled here — BriefView calls FAQSection directly (above)
+// since FAQBlock needs Part 4b's extra props (briefId, answers, etc.) that
+// don't fit this generic { type, content } shape.
 export function SectionContent({ type, content }: { type: BriefSectionType; content: string }) {
-  if (type === 'faq') {
-    const items = parseFAQ(content)
-    if (items) {
-      return (
-        <div className="space-y-3">
-          {items.map((item, i) => (
-            <FAQBlock key={i} item={item} />
-          ))}
-        </div>
-      )
-    }
-  }
-
   if (type === 'going_deeper') {
     const items = parseSources(content)
     if (items) {

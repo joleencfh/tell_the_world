@@ -56,6 +56,10 @@ const SECTION_HELP: Record<BriefSection['section_type'], { instructions: ReactNo
       <>
         One question per block: a line starting with <code className="font-mono text-[11px]">Q:</code>, then a line
         starting with <code className="font-mono text-[11px]">A:</code>. Separate blocks with a blank line.
+        {' '}
+        <strong className="text-dark">Renaming a question detaches its expert answers</strong> — additional expert
+        answers are matched against the question&apos;s exact wording, so editing it here orphans anything already
+        submitted under the old text.
       </>
     ),
     placeholder: 'Q: What is the compute race?\nA: It is the competition to build ever-larger models.\n\nQ: Why does this matter?\nA: Because compute access increasingly determines who leads.',
