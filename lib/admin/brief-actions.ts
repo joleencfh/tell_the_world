@@ -42,6 +42,7 @@ export interface BriefSection {
   id: string
   brief_id: string
   section_type: BriefSectionType
+  title: string | null
   content: string
   display_order: number
 }
@@ -152,6 +153,13 @@ async function uniqueSlug(base: string, briefId: string): Promise<string> {
 // Save
 // ---------------------------------------------------------------------------
 
+// A null `id` means the row doesn't exist in brief_sections yet (added
+// client-side via EditBriefScreen's "Add explainer subsection" button, Part
+// 3) — inserted rather than updated. Any pre-existing row whose id isn't in
+// this list gets deleted, scoped to section_type='explainer' only: that's
+// currently the only type this editor lets the author add/remove, so
+// restricting the diff-delete to it guards the other (fixed, one-per-brief)
+// section types against being wiped by an unrelated client-state bug.
 export async function saveBrief(
   briefId: string,
   data: {
@@ -160,9 +168,15 @@ export async function saveBrief(
     topicTag: string
     pinnedMediaPostId: string | null
     visibility: 'public' | 'members_only'
-    sections: Array<{ id: string; content: string; display_order: number }>
+    sections: Array<{
+      id: string | null
+      section_type: BriefSectionType
+      title: string | null
+      content: string
+      display_order: number
+    }>
   }
-): Promise<{ success?: boolean; error?: string }> {
+): Promise<{ success?: boolean; error?: string; sections?: BriefSection[] }> {
   await requireAdmin()
 
   const updates: Record<string, unknown> = {
@@ -193,18 +207,53 @@ export async function saveBrief(
 
   if (briefError) return { error: briefError.message }
 
-  for (const section of data.sections) {
+  const { data: existingSections } = await getAdminClient()
+    .from('brief_sections')
+    .select('id, section_type')
+    .eq('brief_id', briefId)
+
+  const incomingIds = new Set(data.sections.filter((s) => s.id).map((s) => s.id))
+  const toDelete = (existingSections ?? []).filter(
+    (s) => s.section_type === 'explainer' && !incomingIds.has(s.id),
+  )
+  if (toDelete.length > 0) {
     const { error } = await getAdminClient()
       .from('brief_sections')
-      .update({ content: section.content, display_order: section.display_order })
-      .eq('id', section.id)
-
+      .delete()
+      .in('id', toDelete.map((s) => s.id))
     if (error) return { error: error.message }
+  }
+
+  for (const section of data.sections) {
+    const titleValue = section.title?.trim() || null
+    if (section.id) {
+      const { error } = await getAdminClient()
+        .from('brief_sections')
+        .update({ content: section.content, display_order: section.display_order, title: titleValue })
+        .eq('id', section.id)
+      if (error) return { error: error.message }
+    } else {
+      const { error } = await getAdminClient().from('brief_sections').insert({
+        brief_id: briefId,
+        section_type: section.section_type,
+        title: titleValue,
+        content: section.content,
+        display_order: section.display_order,
+      })
+      if (error) return { error: error.message }
+    }
   }
 
   revalidatePath('/admin')
   revalidatePath(`/admin/briefs/${briefId}`)
-  return { success: true }
+
+  const { data: freshSections } = await getAdminClient()
+    .from('brief_sections')
+    .select('*')
+    .eq('brief_id', briefId)
+    .order('display_order')
+
+  return { success: true, sections: (freshSections ?? []) as BriefSection[] }
 }
 
 // ---------------------------------------------------------------------------

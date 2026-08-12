@@ -275,6 +275,7 @@ export type Database = {
           display_order: number
           id: string
           section_type: Database["public"]["Enums"]["brief_section_type"]
+          title: string | null
           updated_at: string
         }
         Insert: {
@@ -284,6 +285,7 @@ export type Database = {
           display_order: number
           id?: string
           section_type: Database["public"]["Enums"]["brief_section_type"]
+          title?: string | null
           updated_at?: string
         }
         Update: {
@@ -293,6 +295,7 @@ export type Database = {
           display_order?: number
           id?: string
           section_type?: Database["public"]["Enums"]["brief_section_type"]
+          title?: string | null
           updated_at?: string
         }
         Relationships: [
