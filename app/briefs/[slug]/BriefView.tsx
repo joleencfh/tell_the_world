@@ -205,7 +205,7 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, cu
                 <Fragment key={type}>
                   {sections.length > 0 && (() => {
                     const meta = SECTION_META[type]
-                    const bgClass = SECTION_BG[i] ?? 'bg-base'
+                    const bgClass = SECTION_BG[i] ?? 'bg-paper'
                     return (
                       <div className={`${bgClass} px-6 py-16`}>
                         <div className="mx-auto max-w-4xl anim-rise" style={{ animationDelay: '100ms' }}>
@@ -280,7 +280,7 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, cu
 
         {/* ── Q&A — members only ───────────────────────────────────────── */}
         {isLoggedIn && (
-          <div className="bg-warm px-6 py-16">
+          <div className="bg-paper-sunken px-6 py-16">
             <div className="mx-auto max-w-4xl">
               <SectionHeader
                 num="05"
