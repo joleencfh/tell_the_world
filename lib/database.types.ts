@@ -223,6 +223,51 @@ export type Database = {
           },
         ]
       }
+      brief_faq_answers: {
+        Row: {
+          author_user_id: string
+          body: string
+          brief_id: string
+          created_at: string
+          id: string
+          question: string
+          status: string
+        }
+        Insert: {
+          author_user_id: string
+          body: string
+          brief_id: string
+          created_at?: string
+          id?: string
+          question: string
+          status?: string
+        }
+        Update: {
+          author_user_id?: string
+          body?: string
+          brief_id?: string
+          created_at?: string
+          id?: string
+          question?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brief_faq_answers_author_user_id_fkey"
+            columns: ["author_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brief_faq_answers_brief_id_fkey"
+            columns: ["brief_id"]
+            isOneToOne: false
+            referencedRelation: "briefs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       brief_proposals: {
         Row: {
           created_at: string

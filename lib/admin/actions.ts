@@ -279,6 +279,59 @@ export async function dismissCorrectionProposal(proposalId: string): Promise<{ s
 }
 
 // ---------------------------------------------------------------------------
+// FAQ answers moderation (two-ink-bold-plan.md Part 4b) — free-text
+// answers, so pending → published via admin approval, unlike the binary
+// review/endorsement trust signal in lib/briefs/actions.ts's
+// setReviewStatus (published immediately, no moderation).
+// ---------------------------------------------------------------------------
+
+export interface PendingFaqAnswer {
+  id: string
+  question: string
+  body: string
+  created_at: string
+  brief_id: string
+  briefs: { title: string; slug: string }
+  users: { id: string; display_name: string | null; email: string; role: string }
+}
+
+export async function getPendingFaqAnswers(page = 1): Promise<PagedResult<PendingFaqAnswer>> {
+  await requireAdmin()
+  return adminData.getPendingFaqAnswers(getAdminClient(), page)
+}
+
+export async function approveFaqAnswer(answerId: string): Promise<{ success?: boolean; error?: string }> {
+  await requireAdmin()
+
+  const { error } = await getAdminClient()
+    .from('brief_faq_answers')
+    .update({ status: 'published' })
+    .eq('id', answerId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/admin')
+  return { success: true }
+}
+
+// No 'dismissed' status exists for this table (only pending/published, see
+// migration 021) — dismissal just deletes the row, same as questions'
+// dismissQuestion above.
+export async function dismissFaqAnswer(answerId: string): Promise<{ success?: boolean; error?: string }> {
+  await requireAdmin()
+
+  const { error } = await getAdminClient()
+    .from('brief_faq_answers')
+    .delete()
+    .eq('id', answerId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/admin')
+  return { success: true }
+}
+
+// ---------------------------------------------------------------------------
 // Brief proposals
 // ---------------------------------------------------------------------------
 

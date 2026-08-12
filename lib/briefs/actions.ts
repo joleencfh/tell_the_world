@@ -70,6 +70,46 @@ export async function submitQuestion(
   return { success: true }
 }
 
+// Part 4b: an expert/organisation's additional answer to an existing FAQ
+// item, submitted pending admin approval (unlike setReviewStatus below —
+// this is free text, not a binary trust signal, so it follows the
+// propose/moderate pattern instead of publishing immediately).
+export async function submitFaqAnswer(
+  briefId: string,
+  briefSlug: string,
+  question: string,
+  body: string,
+): Promise<{ error?: string; success?: boolean }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return { error: 'You must be logged in to add an answer.' }
+
+  const { data: userData } = await supabase.from('users').select('role').eq('id', user.id).single()
+  if (!userData || !CONTRIBUTOR_ROLES.includes(userData.role)) {
+    return { error: 'Only experts and organisations can add FAQ answers.' }
+  }
+
+  const trimmed = body.trim()
+  if (!trimmed) return { error: 'Answer cannot be empty.' }
+  if (trimmed.length > 2000) return { error: 'Answer must be under 2000 characters.' }
+
+  const { error } = await supabase.from('brief_faq_answers').insert({
+    brief_id: briefId,
+    question,
+    author_user_id: user.id,
+    body: trimmed,
+    status: 'pending',
+  })
+
+  if (error) return { error: 'Failed to submit answer. Please try again.' }
+
+  revalidatePath(`/briefs/${briefSlug}`)
+  return { success: true }
+}
+
 export async function proposeBrief(
   topicTitle: string,
   whyItMatters: string,

@@ -13,13 +13,14 @@ import {
 } from '@/lib/data/contributions'
 import { getApprovedQuestions } from '@/lib/data/questions'
 import { getUserBasic } from '@/lib/data/users'
+import { getPublishedFaqAnswers, type FaqAnswer } from '@/lib/data/faq-answers'
 import BriefView from './BriefView'
 
 // ---------------------------------------------------------------------------
 // Types (re-exported so BriefView can import them from here)
 // ---------------------------------------------------------------------------
 
-export type { BriefVisibility, BriefSectionType, UserRole, MediaPost, EndorsementBarCounts, ContributionStatus }
+export type { BriefVisibility, BriefSectionType, UserRole, MediaPost, EndorsementBarCounts, ContributionStatus, FaqAnswer }
 
 export interface BriefSection {
   id: string
@@ -126,7 +127,7 @@ export default async function BriefPage({
     .filter((s) => s.section_type === 'explainer')
     .map((s) => s.id)
 
-  const [quotes, media, endorsementBar, myReviewStatus, sectionCounts, myExplainerStatuses] = await Promise.all([
+  const [quotes, media, endorsementBar, myReviewStatus, sectionCounts, myExplainerStatuses, faqAnswersMap] = await Promise.all([
     getQuotesByTopicTag(supabase, brief.topic_tag, 4),
     getMediaSection(supabase, brief.topic_tag, brief.pinned_media_post_id, 6),
     getEndorsementBarCounts(supabase, brief.id, brief.brief_sections),
@@ -137,7 +138,13 @@ export default async function BriefPage({
     user
       ? getMyContributionStatuses(supabase, brief.id, explainerSectionIds, user.id)
       : Promise.resolve(new Map<string, ContributionStatus>()),
+    getPublishedFaqAnswers(supabase, brief.id),
   ])
+
+  // Converted from a Map to a plain object — Map doesn't round-trip cleanly
+  // across the server/client boundary into 'use client' BriefView, matching
+  // how ExplainerContributionInfo below is a plain array for the same reason.
+  const faqAnswersByQuestion: Record<string, FaqAnswer[]> = Object.fromEntries(faqAnswersMap)
 
   const explainerContributions: ExplainerContributionInfo[] = explainerSectionIds.map((sectionId) => {
     const counts = sectionCounts.get(sectionId)
@@ -171,6 +178,7 @@ export default async function BriefPage({
       currentUser={currentUser}
       myReviewStatus={myReviewStatus}
       explainerContributions={explainerContributions}
+      faqAnswersByQuestion={faqAnswersByQuestion}
     />
   )
 }
