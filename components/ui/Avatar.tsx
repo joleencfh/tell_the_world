@@ -6,7 +6,8 @@
 // maps to which screen.
 
 export type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'
-export type AvatarPalette = 'gray' | 'colored'
+export type AvatarPalette = 'gray' | 'colored' | 'blue'
+export type AvatarShape = 'circle' | 'square'
 
 // (width/height, initials text size) per token — every distinct combination
 // found across the app, named by ascending pixel size.
@@ -39,6 +40,10 @@ export interface AvatarProps {
   avatarUrl: string | null
   size?: AvatarSize
   palette?: AvatarPalette
+  // 'square' is only meaningful with palette="blue" — the Two-Ink Bold
+  // convention for distinguishing an organisation avatar (square, blue-ink)
+  // from an individual's (circle, blue). Other palettes ignore it.
+  shape?: AvatarShape
   // Ring classes applied only to real avatar images (matches prior behavior —
   // none of the source screens ringed the colored-initials fallback).
   ringClassName?: string
@@ -49,17 +54,30 @@ export default function Avatar({
   avatarUrl,
   size = 'md',
   palette = 'gray',
+  shape = 'circle',
   ringClassName,
 }: AvatarProps) {
   const sizeClasses = SIZE_CLASSES[size]
+  const shapeClass = shape === 'square' ? 'rounded' : 'rounded-full'
 
   if (avatarUrl) {
     return (
       <img
         src={avatarUrl}
         alt={name}
-        className={`${sizeClasses} rounded-full object-cover shrink-0 ${ringClassName ?? ''}`}
+        className={`${sizeClasses} ${shapeClass} object-cover shrink-0 ${ringClassName ?? ''}`}
       />
+    )
+  }
+
+  if (palette === 'blue') {
+    const bg = shape === 'square' ? 'bg-blue-ink' : 'bg-blue'
+    return (
+      <div
+        className={`${sizeClasses} ${shapeClass} ${bg} flex items-center justify-center shrink-0 select-none`}
+      >
+        <span className="text-white font-bold">{initials(name)}</span>
+      </div>
     )
   }
 

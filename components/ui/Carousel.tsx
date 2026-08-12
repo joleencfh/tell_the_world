@@ -101,7 +101,7 @@ function CarouselTrack({
         tabIndex={0}
         role="group"
         aria-label={ariaLabel}
-        className="carousel-track flex gap-4 overflow-x-auto"
+        className="carousel-track flex snap-x snap-proximity gap-4 overflow-x-auto"
         style={{ touchAction: 'pan-x' }}
       >
         {children}
@@ -110,8 +110,10 @@ function CarouselTrack({
   )
 }
 
+// Hidden below sm (640px) — small viewports rely on native touch-scroll,
+// matching the reference artifact's .car-btn treatment.
 const buttonBaseClasses =
-  'absolute top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-line-strong bg-paper/90 text-ink shadow-sm backdrop-blur-sm transition-opacity duration-200 motion-reduce:transition-none hover:bg-paper-raised focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue disabled:pointer-events-none disabled:opacity-0'
+  'absolute top-1/2 z-10 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-line-strong bg-paper/90 text-ink-soft shadow-sm backdrop-blur-sm transition-opacity duration-200 motion-reduce:transition-none hover:border-blue hover:bg-paper hover:text-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue disabled:pointer-events-none disabled:opacity-0 sm:flex'
 
 function ChevronIcon({ direction }: { direction: 'left' | 'right' }) {
   const d = direction === 'left' ? 'M8 3 3 8l5 5' : 'M4 3l5 5-5 5'
