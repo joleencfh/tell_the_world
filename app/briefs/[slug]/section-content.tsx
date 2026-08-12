@@ -1,6 +1,9 @@
+'use client'
+
 import Link from 'next/link'
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import Avatar from '@/components/ui/Avatar'
+import { Carousel } from '@/components/ui/Carousel'
 import type { PostType } from '@/lib/types'
 import { getDisplayName } from './helpers'
 import { parseSources, SourcesGrid } from './sources'
@@ -139,63 +142,102 @@ export function TLDRList({ content }: { content: string }) {
 }
 
 // ---------------------------------------------------------------------------
-// Quote card — watermark quote mark
+// Quote card — matches the Two-Ink Bold reference artifact's .qcard: flat
+// (no radius/shadow), 1px line border + 3px blue top border, blue avatar
+// (square for organisation authors), no decorative watermark.
 // ---------------------------------------------------------------------------
 
 export function QuoteCard({ quote }: { quote: Quote }) {
   const authorName = getDisplayName(quote.users)
   const credential = quote.users.affiliation || quote.users.org_name
+  const isOrg = quote.users.role === 'organisation'
 
   return (
-    <div className="flex flex-col bg-warm rounded-2xl overflow-hidden h-full" style={{ boxShadow: '0 0 0 1px rgba(200,129,10,0.15), 0 8px 32px rgba(0,0,0,0.35)' }}>
-      {/* Quote body — quote mark is an architectural watermark */}
-      <div className="p-7 flex-1 relative overflow-hidden">
-        <span
-          className="absolute -top-10 -right-3 font-serif leading-none text-live/[0.18] select-none pointer-events-none"
-          style={{ fontSize: '11rem' }}
-          aria-hidden
-        >
-          &ldquo;
-        </span>
-        <p className="font-serif text-[1rem] text-dark/85 leading-[1.75] relative z-10">
-          {quote.body || quote.title}
-        </p>
-      </div>
-
-      {/* Author strip */}
-      <div className="px-7 pb-6 pt-2 flex items-center gap-3 border-t border-live/10">
+    <div className="flex w-[300px] shrink-0 snap-start flex-col gap-[0.9rem] border border-line border-t-[3px] border-t-blue bg-paper p-5">
+      <p className="flex-1 font-body text-base font-medium leading-[1.5] text-ink">
+        &ldquo;{quote.body || quote.title}&rdquo;
+      </p>
+      <div className="flex items-center gap-[0.65rem] border-t border-line pt-[0.85rem]">
         <Avatar
           name={authorName}
           avatarUrl={quote.users.avatar_url}
-          palette="colored"
-          size="lg"
-          ringClassName="ring-2 ring-white/10"
+          palette="blue"
+          shape={isOrg ? 'square' : 'circle'}
+          size="sm"
         />
         <div className="min-w-0 flex-1">
           <Link
             href={`/profile/${quote.users.id}`}
-            className="font-serif text-[0.8rem] font-semibold text-dark hover:text-live transition-colors block truncate"
+            className="block truncate font-display text-[0.85rem] font-extrabold text-ink hover:text-blue transition-colors"
           >
             {authorName}
           </Link>
           {credential && (
-            <p className="font-mono text-[9px] tracking-[0.08em] text-soft/70 truncate mt-0.5">
-              {credential}
-            </p>
+            <p className="mt-0.5 truncate font-mono text-[0.62rem] text-ink-soft">{credential}</p>
           )}
         </div>
-        {quote.url && (
-          <a
-            href={quote.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="shrink-0 font-mono text-[9px] tracking-[0.12em] uppercase text-live/60 hover:text-live transition-colors"
-          >
-            source →
-          </a>
-        )}
       </div>
     </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Quotes carousel — SectionHeader + role filter + shared Carousel, matching
+// the reference artifact's #quotes section (filter-select in the sec-head,
+// blue-toned section number, blue top rule on the section itself)
+// ---------------------------------------------------------------------------
+
+const QUOTE_FILTERS: { value: 'all' | 'expert' | 'organisation'; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'expert', label: 'Experts only' },
+  { value: 'organisation', label: 'Orgs only' },
+]
+
+export function QuotesCarousel({ quotes }: { quotes: Quote[] }) {
+  const [filter, setFilter] = useState<'all' | 'expert' | 'organisation'>('all')
+  const filtered = filter === 'all' ? quotes : quotes.filter((q) => q.users.role === filter)
+
+  return (
+    <>
+      <SectionHeader
+        num="03"
+        label="Quotes"
+        description="Pulled from the platform & source documents on this topic"
+        numTone="blue"
+        action={
+          <>
+            <label htmlFor="quote-filter" className="sr-only">
+              Filter quotes
+            </label>
+            <select
+              id="quote-filter"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value as typeof filter)}
+              className="border-[1.5px] border-line-strong bg-paper px-3 py-2 font-mono text-[0.68rem] uppercase tracking-[0.04em] text-ink"
+            >
+              {QUOTE_FILTERS.map((f) => (
+                <option key={f.value} value={f.value}>
+                  {f.label}
+                </option>
+              ))}
+            </select>
+          </>
+        }
+      />
+      {filtered.length > 0 ? (
+        <Carousel.Provider>
+          <Carousel.PrevButton />
+          <Carousel.NextButton />
+          <Carousel.Track fadeColor="var(--color-paper-sunken-blue)" ariaLabel="Expert quotes">
+            {filtered.map((q) => (
+              <QuoteCard key={q.id} quote={q} />
+            ))}
+          </Carousel.Track>
+        </Carousel.Provider>
+      ) : (
+        <p className="font-mono text-xs text-ink-faint">No quotes match this filter.</p>
+      )}
+    </>
   )
 }
 
@@ -293,30 +335,46 @@ export function HeaderChip({
 // Section header — numbered divider, ink (neutral) by default
 // ---------------------------------------------------------------------------
 
+const NUM_TONE_CLASSES: Record<'ink' | 'blue' | 'pink', string> = {
+  ink: 'text-ink',
+  blue: 'text-blue',
+  pink: 'text-pink',
+}
+
 export function SectionHeader({
   num,
   label,
   description,
+  numTone = 'ink',
+  action,
 }: {
   num: string
   label: string
   description: string
+  numTone?: 'ink' | 'blue' | 'pink'
+  // Optional trailing control (e.g. Quotes' role filter) — mirrors the
+  // reference artifact's .sec-head, which is a flex row with the numbered
+  // divider block on the left and one optional control on the right.
+  action?: ReactNode
 }) {
   return (
-    <div className="mb-12">
-      <div className="flex items-center gap-4 mb-4">
-        <span className="font-mono text-sm tracking-[0.2em] text-ink font-bold tabular-nums">
-          {num}
-        </span>
-        <div className="h-px flex-1 bg-line" />
+    <div className="mb-12 flex flex-wrap items-end justify-between gap-4">
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-4 mb-4">
+          <span className={`font-mono text-sm tracking-[0.2em] font-bold tabular-nums ${NUM_TONE_CLASSES[numTone]}`}>
+            {num}
+          </span>
+          <div className="h-px flex-1 bg-line" />
+        </div>
+        <h2
+          className="font-display uppercase text-ink font-bold leading-[1]"
+          style={{ fontSize: 'clamp(1.7rem, 3.2vw, 2.5rem)', letterSpacing: '0.01em' }}
+        >
+          {label}
+        </h2>
+        <p className="font-body text-sm text-ink-soft italic mt-2">{description}</p>
       </div>
-      <h2
-        className="font-display uppercase text-ink font-bold leading-[1]"
-        style={{ fontSize: 'clamp(1.7rem, 3.2vw, 2.5rem)', letterSpacing: '0.01em' }}
-      >
-        {label}
-      </h2>
-      <p className="font-body text-sm text-ink-soft italic mt-2">{description}</p>
+      {action && <div className="shrink-0 pb-1">{action}</div>}
     </div>
   )
 }

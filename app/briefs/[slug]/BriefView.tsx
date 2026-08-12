@@ -10,8 +10,7 @@ import {
   SectionHeader,
   SectionContent,
   LockedPlaceholder,
-  QuoteCard,
-  MediaCard,
+  QuotesCarousel,
   HeaderChip,
   TLDRList,
 } from './section-content'
@@ -46,7 +45,11 @@ interface BriefViewProps {
   explainerContributions: ExplainerContributionInfo[]
 }
 
-export default function BriefView({ brief, quotes, media, endorsementBar, questions, currentUser, myReviewStatus, explainerContributions }: BriefViewProps) {
+// `media` stays in BriefViewProps (page.tsx still fetches and passes it —
+// dropping Media from the page was a deliberate call, but the data query
+// itself is out of scope for this change) but isn't destructured here since
+// nothing renders it anymore.
+export default function BriefView({ brief, quotes, endorsementBar, questions, currentUser, myReviewStatus, explainerContributions }: BriefViewProps) {
   const isLoggedIn = !!currentUser
   const showSections = isLoggedIn || brief.visibility === 'public'
   const canContribute = currentUser?.role === 'expert' || currentUser?.role === 'organisation'
@@ -228,50 +231,14 @@ export default function BriefView({ brief, quotes, media, endorsementBar, questi
                     )
                   })()}
 
-                  {/* Quotes + Media — auto sections, query-driven off the brief's
-                      topic_tag (design doc §2 rows 7-8), placed right after
-                      "Where experts stand" per the wireframe's section order. */}
-                  {type === 'where_experts_stand' && (quotes.length > 0 || media.length > 0) && (
-                    <div className="bg-dark px-6 py-16">
-                      <div className="mx-auto max-w-4xl">
-                        <div className="mb-10 anim-rise" style={{ animationDelay: '0ms' }}>
-                          <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-live/70 mb-3">
-                            Expert voices
-                          </p>
-                          <h2
-                            className="font-display uppercase text-white leading-[0.95]"
-                            style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}
-                          >
-                            What the experts say
-                          </h2>
-                        </div>
-
-                        <div className="grid gap-8 lg:grid-cols-2">
-                          {quotes.length > 0 && (
-                            <div>
-                              <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-white/40 mb-4">Quotes</p>
-                              <div className={`grid gap-4 ${quotes.length === 1 ? 'max-w-xl' : 'sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2'}`}>
-                                {quotes.map((q, i) => (
-                                  <div key={q.id} className="anim-rise" style={{ animationDelay: `${i * 120}ms` }}>
-                                    <QuoteCard quote={q} />
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                          {media.length > 0 && (
-                            <div>
-                              <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-white/40 mb-4">Media</p>
-                              <div className={`grid gap-4 ${media.length === 1 ? 'max-w-xl' : 'sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2'}`}>
-                                {media.map((post, i) => (
-                                  <div key={post.id} className="anim-rise" style={{ animationDelay: `${i * 120}ms` }}>
-                                    <MediaCard post={post} isPinned={post.id === brief.pinned_media_post_id} />
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
+                  {/* Quotes — auto section, query-driven off the brief's topic_tag
+                      (design doc §2 row 2). Anchored at the old "where experts
+                      stand" position in the loop pending Part 10's cleanup pass,
+                      which is expected to retire that section type entirely. */}
+                  {type === 'where_experts_stand' && quotes.length > 0 && (
+                    <div className="border-t-4 border-blue bg-paper-sunken-blue px-6 py-16">
+                      <div className="mx-auto max-w-4xl anim-rise" style={{ animationDelay: '0ms' }}>
+                        <QuotesCarousel quotes={quotes} />
                       </div>
                     </div>
                   )}
