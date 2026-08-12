@@ -58,6 +58,97 @@ export async function getTestUser(email: string): Promise<TestUser> {
 }
 
 // ---------------------------------------------------------------------------
+// Brief helpers
+// ---------------------------------------------------------------------------
+
+export interface TestBrief {
+  id: string
+  slug: string
+  title: string
+}
+
+export async function getTestBrief(slug: string): Promise<TestBrief> {
+  const client = getTestAdminClient()
+  const { data, error } = await client
+    .from('briefs')
+    .select('id, slug, title')
+    .eq('slug', slug)
+    .single()
+
+  if (error || !data) {
+    throw new Error(`Test brief not found for slug "${slug}": ${error?.message}`)
+  }
+
+  return data as TestBrief
+}
+
+// ---------------------------------------------------------------------------
+// FAQ answer helpers (brief_faq_answers — two-ink-bold-plan.md Part 4b)
+// ---------------------------------------------------------------------------
+
+export interface FaqAnswerRecord {
+  id: string
+  brief_id: string
+  question: string
+  author_user_id: string
+  body: string
+  status: string
+  created_at: string
+}
+
+/** All brief_faq_answers rows for a given (brief, question) pair, any status. */
+export async function findFaqAnswers(briefId: string, question: string): Promise<FaqAnswerRecord[]> {
+  const client = getTestAdminClient()
+  const { data, error } = await client
+    .from('brief_faq_answers')
+    .select('id, brief_id, question, author_user_id, body, status, created_at')
+    .eq('brief_id', briefId)
+    .eq('question', question)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    throw new Error(`Failed to query brief_faq_answers: ${error.message}`)
+  }
+
+  return (data as FaqAnswerRecord[]) ?? []
+}
+
+/** Seed an already-published answer directly (bypasses the admin-approval UI). */
+export async function insertPublishedFaqAnswer(
+  briefId: string,
+  question: string,
+  authorId: string,
+  body: string,
+): Promise<FaqAnswerRecord> {
+  const client = getTestAdminClient()
+  const { data, error } = await client
+    .from('brief_faq_answers')
+    .insert({ brief_id: briefId, question, author_user_id: authorId, body, status: 'published' })
+    .select('id, brief_id, question, author_user_id, body, status, created_at')
+    .single()
+
+  if (error || !data) {
+    throw new Error(`Failed to insert brief_faq_answers row: ${error?.message}`)
+  }
+
+  return data as FaqAnswerRecord
+}
+
+/** Delete all brief_faq_answers rows for a (brief, question) pair. Call in afterEach/afterAll. */
+export async function deleteFaqAnswers(briefId: string, question: string): Promise<void> {
+  const client = getTestAdminClient()
+  const { error } = await client
+    .from('brief_faq_answers')
+    .delete()
+    .eq('brief_id', briefId)
+    .eq('question', question)
+
+  if (error) {
+    console.warn(`Failed to clean up test brief_faq_answers: ${error.message}`)
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Message helpers
 // ---------------------------------------------------------------------------
 

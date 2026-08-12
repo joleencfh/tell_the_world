@@ -58,6 +58,15 @@ async function main() {
           content: '• Test Source — A basic source for testing.\nhttps://example.com',
           display_order: 3,
         },
+        {
+          brief_id: brief.id,
+          section_type: 'faq',
+          // Exact question text is asserted against in tests/faq-answers.spec.ts
+          // and used as the brief_faq_answers.question match key — don't
+          // change the wording without updating that test file too.
+          content: 'Q: What is this test brief for?\nA: It exists purely for automated end-to-end testing. Safe to ignore.',
+          display_order: 4,
+        },
       ])
 
     if (sectionError) {

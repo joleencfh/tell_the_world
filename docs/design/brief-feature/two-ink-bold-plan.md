@@ -988,6 +988,82 @@ against a local/dev DB and confirm every new field round-trips through
 the admin editor.
 ```
 
+### Part 9b — Playwright admin auth fixture (testing infrastructure, stretch)
+
+**Status: requested by the user 2026-08-12, alongside Part 4b's E2E tests.**
+This isn't a page feature — it's the recurring test-infrastructure gap
+that's shown up at every admin-adjacent checkpoint in this plan so far:
+pt.3 and pt.4's shared-component work couldn't be interactively verified
+as an admin (memory: `[[brief_two_ink_bold_plan]]`), pt.5's admin
+pagination shipped without a browser-verified admin session, and Part 4b's
+new admin FAQ-answers moderation tab was only tested via `expert.json` +
+direct service-role seeding (`tests/faq-answers.spec.ts`) rather than
+clicking the actual Approve/Dismiss buttons — because no `admin.json`
+Playwright fixture exists. Parts 6 and 7 (Calls to Action, Covered By)
+will hit the exact same wall when they add their own admin moderation
+tabs. Building the fixture once here unblocks all of them retroactively
+and for whatever comes after.
+
+**Mechanism — this is a small, well-understood addition, not a redesign:**
+`tests/global-setup.ts` already does everything needed for `creator.json`/
+`expert.json` (admin `generateLink()` → `verifyOtp()` → cookie injection —
+no email delivery involved, see the file's own doc comment). Admin auth in
+this app is a single email-equality check, not a role column
+(`app/admin/page.tsx` and `lib/auth/require.ts` both do
+`user.email !== process.env.ADMIN_EMAIL`) — simpler than the expert/
+creator role check in one sense, but it means the *value* of `ADMIN_EMAIL`
+in whatever environment the tests run against has to actually match the
+fixture account's email for the check to pass.
+
+**The one real decision this part has to make:** don't reuse the real
+`ADMIN_EMAIL` (presumably a real person's actual account) as the
+Playwright fixture identity — that's the same reasoning that led to
+dedicated `TEST_CREATOR_EMAIL`/`TEST_EXPERT_EMAIL` accounts instead of
+authenticating as real users. Introduce a `TEST_ADMIN_EMAIL` env var
+pointing at a dedicated pre-approved test account, and set `ADMIN_EMAIL`
+to that same value in whatever environment runs this suite (local
+`.env.local` for local runs; the CI secret for the GitHub Actions run).
+Since this project has one Supabase project shared across dev and CI
+(no separate staging), flag this env-value decision to the user rather
+than silently repointing `ADMIN_EMAIL` — that variable also gates the
+real `/admin` route in whatever environment it's set in.
+
+#### Prompt for next session — Part 9b
+
+```
+Read docs/design/brief-feature/two-ink-bold-plan.md in full before doing
+anything else — this section (Part 9b) has the full mechanism and the one
+real decision point already worked out, §4 for engineering conventions.
+Don't skip straight to the steps below.
+
+Build Part 9b (docs/design/brief-feature/two-ink-bold-plan.md, the
+"Part 9b" section between Part 9 and Part 10). No dependency on other
+parts — this is test infrastructure, buildable any time.
+
+1. Confirm with the user what TEST_ADMIN_EMAIL should be and whether
+   ADMIN_EMAIL needs to be (re)pointed at it in .env.local / CI secrets —
+   don't assume, this is the one real decision in this part (see the
+   section above for why).
+2. Add a third authenticateUser() call in tests/global-setup.ts, mirroring
+   the existing creator/expert calls exactly, writing
+   playwright/.auth/admin.json.
+3. Add an admin-authenticated smoke check to tests/security.spec.ts (or a
+   new tests/admin.spec.ts) confirming /admin loads instead of redirecting
+   to /login when using the admin fixture — the inverse of the existing
+   "Admin routes — logged-out visitor" describe block there.
+4. Go back and actually exercise Part 4b's admin FAQ-answers moderation
+   tab end-to-end with this fixture (tests/faq-answers.spec.ts currently
+   stops short of clicking the real Approve/Dismiss buttons — see that
+   file's own doc comment) — submit as expert, approve as admin, confirm
+   it appears under "More answers" as a logged-out visitor. This is the
+   fixture's first real payoff, not optional polish.
+
+Verify: bunx tsc --noEmit && bun run lint clean, bunx playwright test runs
+the new admin-authenticated tests green, confirm admin.json doesn't leak
+into git (playwright/.auth/ should already be gitignored — verify it, don't
+assume).
+```
+
 ### Part 10 — Cleanup and final verification
 
 Retire the dead `use_this` / `featured_news` / `where_experts_stand` /
