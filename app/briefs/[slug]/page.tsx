@@ -6,6 +6,8 @@ import { getQuotesByTopicTag, getMediaSection, type MediaPost } from '@/lib/data
 import {
   getEndorsementBarCounts,
   getMyContributionStatus,
+  getMyContributionStatuses,
+  getSectionContributionCounts,
   type EndorsementBarCounts,
   type ContributionStatus,
 } from '@/lib/data/contributions'
@@ -22,9 +24,20 @@ export type { BriefVisibility, BriefSectionType, UserRole, MediaPost, Endorsemen
 export interface BriefSection {
   id: string
   section_type: BriefSectionType
+  title: string | null
   content: string
   content_version: number
   display_order: number
+}
+
+// Per-Explainer-subsection reviewed/endorsed state (Part 3) — a plain array
+// of plain objects rather than a Map, since this crosses the server/client
+// boundary into BriefView ('use client').
+export interface ExplainerContributionInfo {
+  sectionId: string
+  status: ContributionStatus
+  reviewedCount: number
+  endorsedCount: number
 }
 
 export interface Brief {
@@ -109,14 +122,32 @@ export default async function BriefPage({
   const brief = await getBriefWithSectionsBySlug(supabase, slug)
   if (!brief) notFound()
 
-  const [quotes, media, endorsementBar, myReviewStatus] = await Promise.all([
+  const explainerSectionIds = brief.brief_sections
+    .filter((s) => s.section_type === 'explainer')
+    .map((s) => s.id)
+
+  const [quotes, media, endorsementBar, myReviewStatus, sectionCounts, myExplainerStatuses] = await Promise.all([
     getQuotesByTopicTag(supabase, brief.topic_tag, 4),
     getMediaSection(supabase, brief.topic_tag, brief.pinned_media_post_id, 6),
     getEndorsementBarCounts(supabase, brief.id, brief.brief_sections),
     user
       ? getMyContributionStatus(supabase, brief.id, null, user.id)
       : Promise.resolve<ContributionStatus>('none'),
+    getSectionContributionCounts(supabase, brief.id, brief.brief_sections),
+    user
+      ? getMyContributionStatuses(supabase, brief.id, explainerSectionIds, user.id)
+      : Promise.resolve(new Map<string, ContributionStatus>()),
   ])
+
+  const explainerContributions: ExplainerContributionInfo[] = explainerSectionIds.map((sectionId) => {
+    const counts = sectionCounts.get(sectionId)
+    return {
+      sectionId,
+      status: myExplainerStatuses.get(sectionId) ?? 'none',
+      reviewedCount: counts?.reviewedCount ?? 0,
+      endorsedCount: counts?.endorsedCount ?? 0,
+    }
+  })
 
   let questions: Question[] = []
   let currentUser: CurrentUser | null = null
@@ -139,6 +170,7 @@ export default async function BriefPage({
       questions={questions}
       currentUser={currentUser}
       myReviewStatus={myReviewStatus}
+      explainerContributions={explainerContributions}
     />
   )
 }

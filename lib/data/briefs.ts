@@ -12,6 +12,7 @@ type DB = SupabaseClient<Database>
 export interface BriefSection {
   id: string
   section_type: BriefSectionType
+  title: string | null
   content: string
   content_version: number
   display_order: number
@@ -57,7 +58,7 @@ export async function getBriefWithSectionsBySlug(
   const { data, error } = await db
     .from('briefs')
     .select(
-      'id, title, slug, subtitle, topic_tag, pinned_media_post_id, last_reviewed_at, visibility, brief_sections(id, section_type, content, content_version, display_order)',
+      'id, title, slug, subtitle, topic_tag, pinned_media_post_id, last_reviewed_at, visibility, brief_sections(id, section_type, title, content, content_version, display_order)',
     )
     .eq('slug', slug)
     .single()
