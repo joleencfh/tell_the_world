@@ -24,10 +24,13 @@ export interface FeedPost {
   users: PostAuthor
 }
 
+// No email: this type also backs the Quotes/Media sections on the brief
+// page, which anon visitors can read (019_anon_content_posts_read.sql) —
+// anon's column grant on users excludes email, so selecting it here would
+// fail for logged-out requests.
 export interface QuoteAuthor {
   id: string
   display_name: string | null
-  email: string
   avatar_url: string | null
   role: UserRole
   affiliation: string | null
@@ -66,7 +69,7 @@ export interface MediaPost {
 }
 
 const MEDIA_SELECT =
-  'id, post_type, title, body, url, user_id, created_at, users(id, display_name, email, avatar_url, role, affiliation, org_name)'
+  'id, post_type, title, body, url, user_id, created_at, users(id, display_name, avatar_url, role, affiliation, org_name)'
 
 // Recent posts by the given authors (experts/orgs), for the home feed.
 export async function getPostsByAuthors(
@@ -101,7 +104,7 @@ export async function getQuotesByTopicTag(
   const { data } = await db
     .from('content_posts')
     .select(
-      'id, title, body, url, user_id, users(id, display_name, email, avatar_url, role, affiliation, org_name)',
+      'id, title, body, url, user_id, users(id, display_name, avatar_url, role, affiliation, org_name)',
     )
     .eq('post_type', 'quote')
     .contains('topic_tags', [topicTag])

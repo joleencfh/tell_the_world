@@ -39,10 +39,10 @@ export interface Brief {
   brief_sections: BriefSection[]
 }
 
+// No email — see the comment on lib/data/posts.ts's QuoteAuthor.
 export interface QuoteAuthor {
   id: string
   display_name: string | null
-  email: string
   avatar_url: string | null
   role: UserRole
   affiliation: string | null

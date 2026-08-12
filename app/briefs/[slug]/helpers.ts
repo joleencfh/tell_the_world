@@ -1,5 +1,5 @@
-export function getDisplayName(user: { display_name: string | null; email: string }) {
-  return user.display_name?.trim() || user.email.split('@')[0]
+export function getDisplayName(user: { display_name: string | null; email?: string }) {
+  return user.display_name?.trim() || user.email?.split('@')[0] || 'Member'
 }
 
 export function formatDate(iso: string) {
