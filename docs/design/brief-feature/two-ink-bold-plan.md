@@ -639,6 +639,147 @@ accessibility of the accordion (focus-visible state, Enter/Space to
 toggle) per the web-design-guidelines skill.
 ```
 
+### Part 4b — FAQ: multiple expert answers (stretch, deferred)
+
+**Status: requested by the user 2026-08-12, explicitly deferred to its own
+part rather than folded into Part 4.** Part 4 built the FAQ accordion but
+intentionally left out the artifact's "more answers" nested-reveal —
+where a FAQ item shows one primary answer, plus an optional expandable
+list of additional expert answers underneath. At the time Part 4 shipped
+there was no data source for this; this part adds one.
+
+**Ground truth from the artifact** (fetched 2026-08-12 — the artifact
+builds this section client-side into an empty `<div id="faqList">`, not
+as static markup, so read the JS, not just the CSS in §1). The exact data
+shape and render logic:
+
+```js
+var FAQ = [
+  {
+    q: 'Is the U.S. actually losing the AI race?',
+    a: 'Depends which race. On installed compute capacity, no. ...',
+    answers: [
+      {name:'Amara Voss', role:'Meridian AI Lab', when:'3 Aug 2026', text:'The metric that matters for capability is usable compute per training run...'},
+      {name:'Delft Public Policy Lab', role:'Organisation', when:'1 Aug 2026', text:'We track this quarterly. The gap narrowed through 2026 but has not closed.'}
+    ]
+  },
+  // ...one item has answers: [] — the "More answers" link/panel simply
+  // doesn't render for that item. Not every FAQ item needs extra answers.
+];
+```
+
+Render logic (`toggleMore`/`toggleAcc` in the artifact, adapted to React
+state rather than class-toggling in the real build):
+- If `item.answers.length > 0`, render a `.more-answers-link` button below
+  the primary answer: `More answers (N) ▾` (▾ becomes ▴ when open — in
+  the real build this is just the chevron/rotation treatment already used
+  elsewhere, not literal glyph-swapping text).
+- Clicking it reveals a `.more-answers-panel` — a `grid gap-[0.7rem]` of
+  `.answer-card` elements, each: `background:var(--paper-raised);
+  border:1px solid var(--line); border-left:3px solid var(--blue);
+  padding:0.9rem 1rem;` containing an avatar-initials circle, the
+  answerer's name (font-display, weight 800, 0.82rem) + role/date meta
+  line (font-mono, 0.6rem, ink-faint), then the answer paragraph
+  (0.88rem). Blue accent throughout — this is FAQ (blue ink), not Q&A
+  (which reuses the identical `.answer-card`/`.more-answers-link` pattern
+  but in pink — that's Part 5's territory, don't touch it here).
+
+**The schema problem this part actually solves:** FAQ items aren't rows —
+they're `Q:`/`A:` pairs parsed out of one `brief_sections.content` text
+blob (`parseFAQ` in `section-content.tsx`), so there's no stable id to
+hang a "many additional answers" foreign key off. Recommended approach,
+consistent with this codebase's established preference for text-parsing
+over new JSON/structured content models (see Part 1's TL;DR rationale):
+**don't** turn FAQ items into their own `brief_sections` rows (that's a
+bigger, unrequested restructuring) — instead add a new table keyed by
+`(brief_id, question)`:
+
+```sql
+create table brief_faq_answers (
+  id uuid primary key default gen_random_uuid(),
+  brief_id uuid not null references briefs(id) on delete cascade,
+  question text not null,  -- exact match against the parsed Q: line
+  author_user_id uuid not null references users(id),
+  body text not null,
+  status text not null default 'pending',  -- pending/published, same as brief_ctas
+  created_at timestamptz not null default now()
+);
+```
+
+This is deliberately fragile in one specific way: if an admin edits the
+question's wording in the FAQ section's free text, previously-submitted
+answers under the old wording become orphaned (no longer match). That's
+an accepted tradeoff for this part, not a bug to solve — flag it in the
+admin editor's FAQ field helper text ("renaming a question detaches its
+expert answers") rather than building reconciliation UI for it. If a
+future session decides this fragility is unacceptable, promoting FAQ
+items to real rows (title-column style, like Part 3 did for Explainer
+subsections) is the alternative — that's a bigger call than this part
+should make unilaterally.
+
+**Moderation:** unlike Part 1/3's review/endorse toggle (binary trust
+signal, publishes immediately), these are free-text answers — follow
+Part 6/7's propose/moderate pattern (`status` pending → admin approves via
+the existing admin moderation screen) instead of publishing immediately.
+
+#### Prompt for next session — Part 4b
+
+```
+Read docs/design/brief-feature/two-ink-bold-plan.md in full before doing
+anything else — §0 for context, §1 for the design system, Part 4b's own
+section above for the artifact's exact FAQ-answers data shape/render
+logic and the recommended schema (already researched, don't re-fetch the
+artifact for this unless something here is ambiguous), §4 for engineering
+conventions. Don't skip straight to the numbered steps below.
+
+Build Part 4b (docs/design/brief-feature/two-ink-bold-plan.md, the
+"Part 4b" section between Part 4 and Part 5). Requires Part 4 (FAQ
+accordion) done first — this extends FAQBlock, it doesn't replace it.
+
+1. New migration: brief_faq_answers (brief_id, question text,
+   author_user_id, body, status pending/published, created_at) — check
+   supabase/'s highest-numbered file first, don't assume a number (this
+   plan has already hit one accidental collision at 019, see
+   [[brief_two_ink_bold_plan]] memory for the unresolved
+   fix/renumber-019-collision branch — confirm that's merged before
+   picking your number). RLS: public/members read split on
+   status='published' (same shape as brief_ctas in the Part 6 migration),
+   expert/organisation insert their own pending rows, admin publishes via
+   service role.
+2. Extend FAQBlock (app/briefs/[slug]/section-content.tsx) to fetch and
+   render each question's published brief_faq_answers rows as a
+   "More answers (N)" toggle beneath the primary A: text, matching the
+   artifact's .answer-card treatment (blue-left-border card, avatar +
+   name/role/date meta, answer text) — reuse this app's existing
+   Avatar/RoleBadge components (components/ui/) rather than hand-rolling
+   initials circles like the artifact's static HTML does. Independent
+   toggle state from the parent accordion item's open/closed state (the
+   artifact keeps these as two separate toggles, not one).
+3. An "Add an answer" flow for expert/organisation users on FAQ items
+   they're viewing (expanded accordion item only), following
+   ProposeCorrectionModal's existing propose-then-pending pattern per
+   §1.4's forms checklist (labels, submit-disabled-until-request, inline
+   errors). Submits question text (verbatim, to match against) + body.
+4. Admin moderation: extend the existing admin moderation screen
+   (app/admin/AdminScreen.tsx + lib/admin/actions.ts) with an approve/
+   dismiss tab for brief_faq_answers pending rows, following the
+   brief_ctas moderation pattern from Part 6.
+5. Seed mock data for the demo brief (ai-alignment-core-problem) — at
+   least one FAQ question with 2+ published answers and at least one FAQ
+   question with zero (to confirm the "More answers" link correctly does
+   not render at all when there are none, matching the artifact's 4th
+   item). Bare-minimum "[Placeholder]"-prefixed content per this plan's
+   seed policy — don't write elaborate fabricated-sounding expert answers.
+
+Verify: bunx tsc --noEmit && bun run lint clean, browser-check the full
+loop (expert adds an answer → doesn't show yet → admin approves → appears
+under "More answers" with correct count), confirm the "More answers"
+toggle's expand/collapse is independent of the parent FAQ item's own
+open/closed state (collapsing the parent should also visually hide it,
+but opening the parent shouldn't auto-open it), and confirm keyboard/
+focus-visible behavior on both toggle levels per §1.4.
+```
+
 ### Part 5 — Community Q&A
 
 Restyle to the artifact's asked/answered visual separation (pink "asked
