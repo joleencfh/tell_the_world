@@ -380,27 +380,53 @@ export function SectionHeader({
 }
 
 // ---------------------------------------------------------------------------
-// FAQ block — larger Q/A labels, more padding
+// FAQ accordion — collapsed by default, click (or Enter/Space, native
+// <button> behavior) to expand. Blue accent: chevron + left-border on the
+// expanded panel. Mirrors sources.tsx's SourceCard expand affordance
+// (rotating arrow indicator) for interaction consistency within this file
+// group.
 // ---------------------------------------------------------------------------
 
-function FAQBlock({ item }: { item: FAQItem }) {
+function FAQBlock({ item, index }: { item: FAQItem; index: number }) {
+  const [isOpen, setIsOpen] = useState(false)
+  const triggerId = `faq-trigger-${index}`
+  const panelId = `faq-panel-${index}`
+
   return (
-    <div className="rounded-2xl overflow-hidden shadow-sm">
-      {/* Question */}
-      <div className="bg-dark px-6 py-5 flex items-start gap-5">
-        <span className="font-display text-live text-2xl leading-none shrink-0 mt-0.5 select-none">
-          Q
-        </span>
-        <p className="font-serif text-[0.95rem] font-semibold text-white leading-relaxed">
-          {item.question}
-        </p>
-      </div>
-      {/* Answer */}
-      <div className="bg-card border border-edge border-t-0 px-6 py-5 flex items-start gap-5">
-        <span className="font-display text-soft/50 text-2xl leading-none shrink-0 mt-0.5 select-none">
-          A
-        </span>
-        <p className="font-serif text-sm text-text leading-relaxed">{item.answer}</p>
+    <div
+      className={`border border-line border-l-[3px] bg-paper transition-colors ${
+        isOpen ? 'border-l-blue' : 'border-l-transparent'
+      }`}
+    >
+      <h3 className="m-0">
+        <button
+          type="button"
+          id={triggerId}
+          aria-expanded={isOpen}
+          aria-controls={panelId}
+          onClick={() => setIsOpen((v) => !v)}
+          style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+          className="flex w-full items-center justify-between gap-5 px-6 py-5 text-left outline-none focus-visible:ring-2 focus-visible:ring-blue"
+        >
+          <span className="font-body text-[0.95rem] font-semibold leading-snug text-ink">
+            {item.question}
+          </span>
+          <span
+            aria-hidden
+            className={`mt-0.5 shrink-0 text-sm text-blue transition-transform duration-300 motion-reduce:transition-none ${
+              isOpen ? 'rotate-180' : ''
+            }`}
+          >
+            ↓
+          </span>
+        </button>
+      </h3>
+      <div id={panelId} role="region" aria-labelledby={triggerId} hidden={!isOpen}>
+        {isOpen && (
+          <p className="anim-drawer px-6 pb-6 pl-6 font-body text-sm leading-relaxed text-ink-soft">
+            {item.answer}
+          </p>
+        )}
       </div>
     </div>
   )
@@ -441,7 +467,7 @@ export function SectionContent({ type, content }: { type: BriefSectionType; cont
       return (
         <div className="space-y-3">
           {items.map((item, i) => (
-            <FAQBlock key={i} item={item} />
+            <FAQBlock key={i} item={item} index={i} />
           ))}
         </div>
       )
