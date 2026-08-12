@@ -1,9 +1,7 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, type ReactNode } from 'react'
 import Link from 'next/link'
-import { useEditor, EditorContent } from '@tiptap/react'
-import StarterKit from '@tiptap/starter-kit'
 import { saveBrief, deleteBrief } from '@/lib/admin/brief-actions'
 import type { Brief, BriefSection, MediaPickerOption } from '@/lib/admin/brief-actions'
 
@@ -21,40 +19,57 @@ const SECTION_LABELS: Record<BriefSection['section_type'], string> = {
   faq:                  'FAQ',
 }
 
-// ---------------------------------------------------------------------------
-// TipTap toolbar
-// ---------------------------------------------------------------------------
+// Every section is authored as plain text in a convention the public brief
+// page's parsers understand (parseFAQ/parseSources/ParagraphContent in
+// app/briefs/[slug]/section-content.tsx and sources.tsx) — there is no rich
+// HTML rendering path on the public page, so the editor must not produce HTML.
+const PARAGRAPH_HELP: { instructions: ReactNode; placeholder: string; rows: number } = {
+  instructions: 'Plain paragraphs, separated by a blank line.',
+  placeholder: 'First paragraph goes here.\n\nA second paragraph goes here.',
+  rows: 8,
+}
 
-function EditorToolbar({ editor }: { editor: ReturnType<typeof useEditor> }) {
-  if (!editor) return null
-
-  const btn = (active: boolean, action: () => void, label: string) => (
-    <button
-      type="button"
-      onMouseDown={(e) => { e.preventDefault(); action() }}
-      className={[
-        'px-2 py-1 font-mono text-[9px] tracking-[0.1em] uppercase border transition-colors',
-        active
-          ? 'border-dark bg-dark text-white'
-          : 'border-edge text-soft hover:border-text hover:text-text',
-      ].join(' ')}
-    >
-      {label}
-    </button>
-  )
-
-  return (
-    <div className="flex flex-wrap gap-1 px-3 py-2 border-b border-edge bg-base/60">
-      {btn(editor.isActive('bold'),        () => editor.chain().focus().toggleBold().run(),        'B')}
-      {btn(editor.isActive('italic'),      () => editor.chain().focus().toggleItalic().run(),      'I')}
-      {btn(editor.isActive('heading', { level: 2 }), () => editor.chain().focus().toggleHeading({ level: 2 }).run(), 'H2')}
-      {btn(editor.isActive('heading', { level: 3 }), () => editor.chain().focus().toggleHeading({ level: 3 }).run(), 'H3')}
-      {btn(editor.isActive('bulletList'),  () => editor.chain().focus().toggleBulletList().run(),  'UL')}
-      {btn(editor.isActive('orderedList'), () => editor.chain().focus().toggleOrderedList().run(), 'OL')}
-      {btn(editor.isActive('blockquote'),  () => editor.chain().focus().toggleBlockquote().run(),  'BQ')}
-      {btn(editor.isActive('code'),        () => editor.chain().focus().toggleCode().run(),        'Code')}
-    </div>
-  )
+const SECTION_HELP: Record<BriefSection['section_type'], { instructions: ReactNode; placeholder: string; rows: number }> = {
+  tldr: {
+    instructions: (
+      <>
+        One bullet per line, 3–5 lines. Optionally start a line with{' '}
+        <strong className="text-dark">**a bold lead term**</strong> followed by an em dash — e.g.{' '}
+        <code className="font-mono text-[11px]">**Compute race** — governments vs. governments, companies vs. companies.</code>
+      </>
+    ),
+    placeholder: '**Compute race** — governments vs. governments, companies vs. companies.\nA second bullet line goes here.',
+    rows: 6,
+  },
+  faq: {
+    instructions: (
+      <>
+        One question per block: a line starting with <code className="font-mono text-[11px]">Q:</code>, then a line
+        starting with <code className="font-mono text-[11px]">A:</code>. Separate blocks with a blank line.
+      </>
+    ),
+    placeholder: 'Q: What is the compute race?\nA: It is the competition to build ever-larger models.\n\nQ: Why does this matter?\nA: Because compute access increasingly determines who leads.',
+    rows: 10,
+  },
+  going_deeper: {
+    instructions: (
+      <>
+        One source per block, starting with a line beginning{' '}
+        <code className="font-mono text-[11px]">•</code>. Optionally followed by a URL line, a{' '}
+        <code className="font-mono text-[11px]">Summary:</code> line, and a{' '}
+        <code className="font-mono text-[11px]">Key takeaways:</code> line with{' '}
+        <code className="font-mono text-[11px]">- </code> bullets below it. Separate sources with a blank line —
+        needs at least 2 sources to render.
+      </>
+    ),
+    placeholder:
+      '• "Quoted title" — a short description of the source\nhttps://example.com/article\nSummary: A longer summary of the source.\nKey takeaways:\n- First takeaway\n- Second takeaway\n\n• Another source — description',
+    rows: 12,
+  },
+  use_this: PARAGRAPH_HELP,
+  featured_news: PARAGRAPH_HELP,
+  explainer: PARAGRAPH_HELP,
+  where_experts_stand: PARAGRAPH_HELP,
 }
 
 // ---------------------------------------------------------------------------
@@ -70,11 +85,9 @@ interface SectionEditorProps {
   onMoveDown: (id: string) => void
 }
 
-// TLDR is a plain textarea, not the TipTap rich editor other sections use —
-// its content is short bullet lines (one per \n), each optionally starting
-// with **a bold lead term** — a plain-text format the public brief page
-// parses (parseTLDR in section-content.tsx), not rich HTML.
-function TLDRSectionEditor({ section, isFirst, isLast, onContentChange, onMoveUp, onMoveDown }: SectionEditorProps) {
+function SectionEditor({ section, isFirst, isLast, onContentChange, onMoveUp, onMoveDown }: SectionEditorProps) {
+  const help = SECTION_HELP[section.section_type]
+
   return (
     <div className="border border-edge bg-card">
       <div className="flex items-center justify-between px-4 py-3 border-b border-edge">
@@ -104,72 +117,16 @@ function TLDRSectionEditor({ section, isFirst, isLast, onContentChange, onMoveUp
       </div>
 
       <div className="px-4 py-3 border-b border-edge bg-base/60">
-        <p className="font-serif text-xs text-soft leading-relaxed">
-          One bullet per line, 3–5 lines. Optionally start a line with{' '}
-          <strong className="text-dark">**a bold lead term**</strong> followed by an em dash — e.g.{' '}
-          <code className="font-mono text-[11px]">**Compute race** — governments vs. governments, companies vs. companies.</code>
-        </p>
+        <p className="font-serif text-xs text-soft leading-relaxed">{help.instructions}</p>
       </div>
 
       <textarea
         value={section.content}
         onChange={(e) => onContentChange(section.id, e.target.value)}
-        rows={6}
+        rows={help.rows}
         className="w-full px-3 py-3 font-mono text-sm text-text leading-relaxed focus:outline-none resize-y"
-        placeholder={'**Compute race** — governments vs. governments, companies vs. companies.\nA second bullet line goes here.'}
+        placeholder={help.placeholder}
       />
-    </div>
-  )
-}
-
-function SectionEditor({ section, isFirst, isLast, onContentChange, onMoveUp, onMoveDown }: SectionEditorProps) {
-  const editor = useEditor({
-    extensions: [StarterKit],
-    content: section.content || '',
-    onUpdate: ({ editor }) => {
-      onContentChange(section.id, editor.getHTML())
-    },
-    editorProps: {
-      attributes: {
-        class: 'prose prose-sm max-w-none px-3 py-3 min-h-[120px] focus:outline-none font-serif text-sm text-text leading-relaxed',
-      },
-    },
-  })
-
-  return (
-    <div className="border border-edge bg-card">
-      {/* Section header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-edge">
-        <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-dark">
-          {SECTION_LABELS[section.section_type]}
-        </span>
-        <div className="flex gap-1">
-          <button
-            type="button"
-            onClick={() => onMoveUp(section.id)}
-            disabled={isFirst}
-            title="Move up"
-            className="px-2 py-1 font-mono text-[10px] border border-edge text-soft hover:border-text hover:text-text transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
-          >
-            ↑
-          </button>
-          <button
-            type="button"
-            onClick={() => onMoveDown(section.id)}
-            disabled={isLast}
-            title="Move down"
-            className="px-2 py-1 font-mono text-[10px] border border-edge text-soft hover:border-text hover:text-text transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
-          >
-            ↓
-          </button>
-        </div>
-      </div>
-
-      {/* Toolbar */}
-      <EditorToolbar editor={editor} />
-
-      {/* Editor */}
-      <EditorContent editor={editor} />
     </div>
   )
 }
@@ -400,9 +357,8 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
           <div className="space-y-3">
             <h2 className="font-mono text-[9px] tracking-[0.18em] uppercase text-soft">Sections</h2>
             {sections.map((section, i) => {
-              const Editor = section.section_type === 'tldr' ? TLDRSectionEditor : SectionEditor
               return (
-                <Editor
+                <SectionEditor
                   key={section.id}
                   section={section}
                   isFirst={i === 0}
