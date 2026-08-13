@@ -923,6 +923,15 @@ this part's build). Follow the existing `brief_correction_proposals`
 propose/moderate pattern (`ProposeCorrectionModal`, admin moderation tab)
 rather than inventing a new submission flow.
 
+**Deviation from the schema below, decided post-launch (2026-08-13):** the
+`link_label` column (the prompt's step 1 has the original "Read"/"Watch"/
+"Download" rationale) was dropped in migration 027. The card's link
+button was changed to an icon-only arrow, so the author-chosen label was
+never actually displayed — it was removed from the submission form, the
+row shape, and the schema rather than left as unused dead weight. The
+arrow's accessible name (`aria-label`) now comes from the CTA's own
+`title` instead.
+
 #### Prompt for next session — Part 6
 
 ```

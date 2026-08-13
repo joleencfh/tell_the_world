@@ -220,7 +220,6 @@ export interface CtaRecord {
   title: string
   description: string | null
   link_url: string
-  link_label: string
   status: string
   created_at: string
 }
@@ -230,7 +229,7 @@ export async function findCtas(briefId: string): Promise<CtaRecord[]> {
   const client = getTestAdminClient()
   const { data, error } = await client
     .from('brief_ctas')
-    .select('id, brief_id, author_user_id, title, description, link_url, link_label, status, created_at')
+    .select('id, brief_id, author_user_id, title, description, link_url, status, created_at')
     .eq('brief_id', briefId)
     .order('created_at', { ascending: false })
 
@@ -245,7 +244,7 @@ export async function findCtas(briefId: string): Promise<CtaRecord[]> {
 export async function insertPublishedCta(
   briefId: string,
   authorId: string,
-  fields: { title: string; description?: string | null; linkUrl: string; linkLabel: string },
+  fields: { title: string; description?: string | null; linkUrl: string },
 ): Promise<CtaRecord> {
   const client = getTestAdminClient()
   const { data, error } = await client
@@ -256,10 +255,9 @@ export async function insertPublishedCta(
       title: fields.title,
       description: fields.description ?? null,
       link_url: fields.linkUrl,
-      link_label: fields.linkLabel,
       status: 'published',
     })
-    .select('id, brief_id, author_user_id, title, description, link_url, link_label, status, created_at')
+    .select('id, brief_id, author_user_id, title, description, link_url, status, created_at')
     .single()
 
   if (error || !data) {

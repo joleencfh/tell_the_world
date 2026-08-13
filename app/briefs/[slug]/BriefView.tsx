@@ -60,6 +60,16 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
   const isLoggedIn = !!currentUser
   const showSections = isLoggedIn || brief.visibility === 'public'
   const canContribute = currentUser?.role === 'expert' || currentUser?.role === 'organisation'
+  // CTA-specific: admin also gets the "+ New CTA" trigger, as a preview/
+  // convenience path (2026-08-13) so they don't need a separate expert/org
+  // test account just to see the flow — submitCta routes an admin
+  // submission through a different, immediate-publish branch (see its own
+  // comment in lib/briefs/actions.ts). Deliberately not folded into the
+  // broader canContribute above, which also gates review/endorse controls,
+  // correction proposals, and FAQ answers — those still reject admin
+  // server-side (CONTRIBUTOR_ROLES doesn't include it), so widening
+  // canContribute itself would just show more buttons that error on click.
+  const canSuggestCta = canContribute || currentUser?.role === 'admin'
   // A voter's own role decides which color their Community Q&A vote lands
   // in (qa.tsx's VoteControl) — expert/org votes count blue, creator/
   // journalist votes count pink, anything else (just 'admin' today) counts
@@ -341,14 +351,14 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
                 description="What experts & orgs want you to do with this"
                 numTone="blue"
                 action={
-                  canContribute ? (
+                  canSuggestCta ? (
                     <button
                       type="button"
                       onClick={() => setSuggestCtaOpen(true)}
                       style={{ touchAction: 'manipulation' }}
-                      className="border border-line-strong px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.08em] text-ink-soft outline-none transition-colors hover:border-blue hover:text-blue-ink focus-visible:ring-2 focus-visible:ring-blue"
+                      className="border-2 border-blue bg-blue px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.08em] text-white outline-none transition-colors hover:bg-paper hover:text-blue focus-visible:ring-2 focus-visible:ring-blue"
                     >
-                      + Suggest a CTA
+                      + New CTA
                     </button>
                   ) : undefined
                 }

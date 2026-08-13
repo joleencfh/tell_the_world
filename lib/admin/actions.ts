@@ -342,7 +342,6 @@ export interface PendingCta {
   title: string
   description: string | null
   link_url: string
-  link_label: string
   created_at: string
   brief_id: string
   briefs: { title: string; slug: string }

@@ -45,9 +45,13 @@ import type { Cta } from '@/lib/data/ctas'
 // grows/nudges right on hover — raw `blue` is fine here (not `blue-ink`)
 // since it's an aria-hidden icon graphic, not text, so §1.1's text-
 // contrast rule doesn't apply (and raw blue clears AA at any size anyway,
-// per §1.1). The arrow alone isn't a sufficient accessible name, so the
-// button-label text (e.g. "Read"/"Watch"/"Download") moves to aria-label
-// instead of being dropped.
+// per §1.1). The arrow alone isn't a sufficient accessible name; it used
+// to come from an author-chosen "button text" field (e.g. "Read"/"Watch"/
+// "Download"), but that field was never actually displayed once the
+// button went icon-only, so it was dropped from the form, the row, and
+// the migration (027) rather than left as unused dead schema — the
+// link's accessible name now comes from the CTA's own title instead,
+// which was already sitting right above it on the card anyway.
 // ---------------------------------------------------------------------------
 
 const EDITORIAL_NAME = 'Tell The World'
@@ -99,7 +103,7 @@ function CtaCard({ cta }: { cta: Cta }) {
             href={cta.link_url}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={cta.link_label}
+            aria-label={cta.title}
             style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
             className="group/link flex h-8 w-8 shrink-0 items-center justify-center rounded-sm text-blue-ink outline-none transition-colors hover:text-blue focus-visible:ring-2 focus-visible:ring-blue"
           >
@@ -143,15 +147,19 @@ export function CtaCarousel({ ctas }: { ctas: Cta[] }) {
 }
 
 // ---------------------------------------------------------------------------
-// Suggest a call to action — expert/organisation only, propose-then-pending
-// pattern (ProposeCorrectionModal's modal-form-then-pending-row shape, §1.4
-// forms checklist), restyled with the current Two-Ink Bold tokens rather
-// than ProposeCorrectionModal's own (that component still carries the
-// retired base/dark/edge/live/serif tokens from before Part 0 — not copied
-// here, see two-ink-bold-plan.md §3 Part 6's "confirm it still does" note).
+// Suggest a call to action — expert/organisation self-service, propose-
+// then-pending pattern (ProposeCorrectionModal's modal-form-then-pending-
+// row shape, §1.4 forms checklist), restyled with the current Two-Ink Bold
+// tokens rather than ProposeCorrectionModal's own (that component still
+// carries the retired base/dark/edge/live/serif tokens from before Part 0
+// — not copied here, see two-ink-bold-plan.md §3 Part 6's "confirm it
+// still does" note). Also reachable by admin (BriefView gates the trigger
+// button on canContribute || role==='admin') as a preview/convenience
+// path — submitCta in lib/briefs/actions.ts routes an admin submission
+// through a different, immediate-publish branch rather than this
+// pending-review one; the form itself doesn't need to know which path ran,
+// it just reflects back whichever feedback message the action returns.
 // ---------------------------------------------------------------------------
-
-const LINK_LABEL_SUGGESTIONS = ['Read', 'Watch', 'Download']
 
 export function SuggestCtaModal({
   briefId,
@@ -167,23 +175,21 @@ export function SuggestCtaModal({
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [linkUrl, setLinkUrl] = useState('')
-  const [linkLabel, setLinkLabel] = useState('Read')
   const [isPending, startTransition] = useTransition()
   const [feedback, setFeedback] = useState<{ type: 'error' | 'success'; message: string } | null>(null)
   const titleRef = useRef<HTMLInputElement>(null)
   const titleId = useId()
   const descId = useId()
   const linkUrlId = useId()
-  const linkLabelId = useId()
 
   const isSubmitted = feedback?.type === 'success'
-  const canSubmit = title.trim() && linkUrl.trim() && linkLabel.trim()
+  const canSubmit = title.trim() && linkUrl.trim()
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setFeedback(null)
     startTransition(async () => {
-      const result = await submitCta(briefId, briefSlug, title, description, linkUrl, linkLabel)
+      const result = await submitCta(briefId, briefSlug, title, description, linkUrl)
       if (result.error) {
         setFeedback({ type: 'error', message: result.error })
         titleRef.current?.focus()
@@ -191,10 +197,11 @@ export function SuggestCtaModal({
         setTitle('')
         setDescription('')
         setLinkUrl('')
-        setLinkLabel('Read')
         setFeedback({
           type: 'success',
-          message: 'Call to action submitted for review — it will appear here once approved.',
+          message: result.published
+            ? 'Call to action published.'
+            : 'Call to action submitted for review — it will appear here once approved.',
         })
       }
     })
@@ -270,44 +277,22 @@ export function SuggestCtaModal({
             />
           </div>
 
-          <div className="grid grid-cols-[1fr_140px] gap-3">
-            <div>
-              <label htmlFor={linkUrlId} className="mb-2 block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
-                Link URL
-              </label>
-              <input
-                id={linkUrlId}
-                type="url"
-                inputMode="url"
-                autoComplete="url"
-                value={linkUrl}
-                onChange={(e) => setLinkUrl(e.target.value)}
-                maxLength={500}
-                placeholder="https://…"
-                disabled={isPending || isSubmitted}
-                className="w-full border border-line bg-paper px-4 py-2.5 font-body text-sm text-ink placeholder:text-ink-faint/70 transition focus:outline-none focus:ring-2 focus:ring-blue disabled:opacity-50"
-              />
-            </div>
-            <div>
-              <label htmlFor={linkLabelId} className="mb-2 block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
-                Button text
-              </label>
-              <input
-                id={linkLabelId}
-                type="text"
-                list={`${linkLabelId}-options`}
-                value={linkLabel}
-                onChange={(e) => setLinkLabel(e.target.value)}
-                maxLength={30}
-                disabled={isPending || isSubmitted}
-                className="w-full border border-line bg-paper px-4 py-2.5 font-body text-sm text-ink placeholder:text-ink-faint/70 transition focus:outline-none focus:ring-2 focus:ring-blue disabled:opacity-50"
-              />
-              <datalist id={`${linkLabelId}-options`}>
-                {LINK_LABEL_SUGGESTIONS.map((s) => (
-                  <option key={s} value={s} />
-                ))}
-              </datalist>
-            </div>
+          <div>
+            <label htmlFor={linkUrlId} className="mb-2 block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
+              Link URL
+            </label>
+            <input
+              id={linkUrlId}
+              type="url"
+              inputMode="url"
+              autoComplete="url"
+              value={linkUrl}
+              onChange={(e) => setLinkUrl(e.target.value)}
+              maxLength={500}
+              placeholder="https://…"
+              disabled={isPending || isSubmitted}
+              className="w-full border border-line bg-paper px-4 py-2.5 font-body text-sm text-ink placeholder:text-ink-faint/70 transition focus:outline-none focus:ring-2 focus:ring-blue disabled:opacity-50"
+            />
           </div>
 
           {feedback && (

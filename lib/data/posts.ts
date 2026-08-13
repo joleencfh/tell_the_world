@@ -43,6 +43,7 @@ export interface Quote {
   body: string | null
   url: string | null
   user_id: string
+  created_at: string
   users: QuoteAuthor
 }
 
@@ -104,7 +105,7 @@ export async function getQuotesByTopicTag(
   const { data } = await db
     .from('content_posts')
     .select(
-      'id, title, body, url, user_id, users(id, display_name, avatar_url, role, affiliation, org_name)',
+      'id, title, body, url, user_id, created_at, users(id, display_name, avatar_url, role, affiliation, org_name)',
     )
     .eq('post_type', 'quote')
     .contains('topic_tags', [topicTag])

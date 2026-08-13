@@ -66,7 +66,7 @@ export function CtaCard({ cta }: { cta: PendingCta }) {
           rel="noopener noreferrer"
           className="font-serif text-sm text-live hover:underline break-all"
         >
-          {cta.link_label}: {cta.link_url}
+          {cta.link_url}
         </a>
       </div>
       {error && <p className="font-mono text-[10px] text-red-600">{error}</p>}

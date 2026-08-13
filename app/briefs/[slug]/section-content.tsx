@@ -5,7 +5,7 @@ import { useState, type ReactNode } from 'react'
 import Avatar from '@/components/ui/Avatar'
 import { Carousel } from '@/components/ui/Carousel'
 import type { PostType } from '@/lib/types'
-import { getDisplayName } from './helpers'
+import { getDisplayName, formatDate } from './helpers'
 import { parseSources, SourcesGrid } from './sources'
 import type { BriefSectionType, Quote, MediaPost } from './page'
 
@@ -129,28 +129,33 @@ export function QuoteCard({ quote }: { quote: Quote }) {
   const isOrg = quote.users.role === 'organisation'
 
   return (
-    <div className="flex w-[300px] shrink-0 snap-start flex-col gap-[0.9rem] border border-line border-t-[3px] border-t-blue bg-paper p-5">
-      <p className="flex-1 font-body text-base font-medium leading-[1.5] text-ink">
-        &ldquo;{quote.body || quote.title}&rdquo;
-      </p>
-      <div className="flex items-center gap-[0.65rem] border-t border-line pt-[0.85rem]">
-        <Avatar
-          name={authorName}
-          avatarUrl={quote.users.avatar_url}
-          palette="blue"
-          shape={isOrg ? 'square' : 'circle'}
-          size="sm"
-        />
-        <div className="min-w-0 flex-1">
-          <Link
-            href={`/profile/${quote.users.id}`}
-            className="block truncate font-display text-[0.85rem] font-extrabold text-ink hover:text-blue transition-colors"
-          >
-            {authorName}
-          </Link>
-          {credential && (
-            <p className="mt-0.5 truncate font-mono text-[0.62rem] text-ink-soft">{credential}</p>
-          )}
+    <div className="w-[300px] shrink-0 snap-start pt-1 first:pl-1">
+      <div className="flex h-full flex-col gap-[0.9rem] border border-line border-t-[3px] border-t-blue bg-paper p-5 transition-all duration-150 motion-reduce:transition-none hover:-translate-x-0.5 hover:-translate-y-0.5 hover:border-blue hover:shadow-[4px_4px_0_0_var(--color-blue)]">
+        <span className="font-mono text-[0.62rem] tracking-[0.06em] text-ink-faint tabular-nums">
+          {formatDate(quote.created_at)}
+        </span>
+        <p className="flex-1 font-body text-base font-medium leading-[1.5] text-ink">
+          &ldquo;{quote.body || quote.title}&rdquo;
+        </p>
+        <div className="flex items-center gap-[0.65rem] border-t border-line pt-[0.85rem]">
+          <Avatar
+            name={authorName}
+            avatarUrl={quote.users.avatar_url}
+            palette="blue"
+            shape={isOrg ? 'square' : 'circle'}
+            size="sm"
+          />
+          <div className="min-w-0 flex-1">
+            <Link
+              href={`/profile/${quote.users.id}`}
+              className="block truncate font-display text-[0.85rem] font-extrabold text-ink hover:text-blue transition-colors"
+            >
+              {authorName}
+            </Link>
+            {credential && (
+              <p className="mt-0.5 truncate font-mono text-[0.62rem] text-ink-soft">{credential}</p>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -328,29 +333,38 @@ export function SectionHeader({
   label: string
   description: string
   numTone?: 'ink' | 'blue' | 'pink'
-  // Optional trailing control (e.g. Quotes' role filter) — mirrors the
-  // reference artifact's .sec-head, which is a flex row with the numbered
-  // divider block on the left and one optional control on the right.
+  // Optional trailing control (e.g. Quotes' role filter, CTA's "+ New CTA")
+  // — mirrors the reference artifact's .sec-head, which is a flex row with
+  // the title block on the left and one optional control on the right.
   action?: ReactNode
 }) {
   return (
-    <div className="mb-12 flex flex-wrap items-end justify-between gap-4">
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-4 mb-4">
-          <span className={`font-mono text-sm tracking-[0.2em] font-bold tabular-nums ${NUM_TONE_CLASSES[numTone]}`}>
-            {num}
-          </span>
-          <div className="h-px flex-1 bg-line" />
-        </div>
-        <h2
-          className="font-display uppercase text-ink font-bold leading-[1]"
-          style={{ fontSize: 'clamp(1.7rem, 3.2vw, 2.5rem)', letterSpacing: '0.01em' }}
-        >
-          {label}
-        </h2>
-        <p className="font-body text-sm text-ink-soft italic mt-2">{description}</p>
+    <div className="mb-12">
+      {/* Numbered divider — its own full-width row, independent of the
+          label/description/action row below. It used to live nested inside
+          that row's left column, sharing width with the action slot — a
+          wide action (e.g. the solid "+ New CTA" button) squeezed the
+          column enough that the rule visibly stopped short of the section's
+          edge, reading as truncated rather than as a deliberate short rule.
+          Full width here regardless of whether an action exists. */}
+      <div className="flex items-center gap-4 mb-4">
+        <span className={`font-mono text-sm tracking-[0.2em] font-bold tabular-nums ${NUM_TONE_CLASSES[numTone]}`}>
+          {num}
+        </span>
+        <div className="h-px flex-1 bg-line" />
       </div>
-      {action && <div className="shrink-0 pb-1">{action}</div>}
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <h2
+            className="font-display uppercase text-ink font-bold leading-[1]"
+            style={{ fontSize: 'clamp(1.7rem, 3.2vw, 2.5rem)', letterSpacing: '0.01em' }}
+          >
+            {label}
+          </h2>
+          <p className="font-body text-sm text-ink-soft italic mt-2">{description}</p>
+        </div>
+        {action && <div className="shrink-0">{action}</div>}
+      </div>
     </div>
   )
 }

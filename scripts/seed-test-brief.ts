@@ -142,7 +142,6 @@ async function seed() {
       title: '[Placeholder] Read the full report',
       description: '[Placeholder] The complete write-up this brief was distilled from.',
       link_url: 'https://example.com/placeholder-report',
-      link_label: 'Read',
       status: 'published' as const,
     },
     {
@@ -151,7 +150,6 @@ async function seed() {
       title: '[Placeholder] Watch our explainer video',
       description: null,
       link_url: 'https://example.com/placeholder-video',
-      link_label: 'Watch',
       status: 'published' as const,
     },
     {
@@ -160,7 +158,6 @@ async function seed() {
       title: '[Placeholder] Download the technical appendix',
       description: '[Placeholder] Methodology, data sources, and supporting figures.',
       link_url: 'https://example.com/placeholder-appendix',
-      link_label: 'Download',
       status: 'published' as const,
     },
     {
@@ -169,7 +166,6 @@ async function seed() {
       title: '[Placeholder] Subscribe to our policy briefing',
       description: '[Placeholder] A short recurring newsletter covering developments on this topic.',
       link_url: 'https://example.com/placeholder-subscribe',
-      link_label: 'Read',
       status: 'published' as const,
     },
     {
@@ -179,7 +175,6 @@ async function seed() {
       description:
         '[Placeholder] This description is deliberately long to demonstrate the card\'s line-clamp truncation once it runs past four wrapped lines inside the fixed-width carousel card, so the overflow behavior is visible rather than assumed.',
       link_url: 'https://example.com/placeholder-long',
-      link_label: 'Read',
       status: 'published' as const,
     },
     {
@@ -188,7 +183,6 @@ async function seed() {
       title: '[Placeholder] Explore the interactive model',
       description: '[Placeholder] A hands-on tool for exploring the scenarios discussed above.',
       link_url: 'https://example.com/placeholder-explore',
-      link_label: 'Explore',
       status: 'published' as const,
     },
   ]

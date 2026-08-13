@@ -230,7 +230,6 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
-          link_label: string
           link_url: string
           status: string
           title: string
@@ -241,7 +240,6 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
-          link_label?: string
           link_url: string
           status?: string
           title: string
@@ -252,7 +250,6 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
-          link_label?: string
           link_url?: string
           status?: string
           title?: string

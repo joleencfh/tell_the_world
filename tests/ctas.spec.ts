@@ -61,13 +61,12 @@ test.describe('Calls to Action "Suggest a call to action" — authenticated expe
   test('submitting a CTA creates a pending brief_ctas row', async ({ page }) => {
     await page.goto(`/briefs/${BRIEF_SLUG}`)
 
-    await page.getByRole('button', { name: '+ Suggest a CTA' }).click()
+    await page.getByRole('button', { name: '+ New CTA' }).click()
     await expect(page.getByRole('dialog', { name: 'Suggest a call to action' })).toBeVisible()
 
     await page.getByLabel('Title').fill('Playwright test CTA')
     await page.getByLabel('Description (optional)').fill('A Playwright-submitted description.')
     await page.getByLabel('Link URL').fill('https://example.com/playwright-cta')
-    await page.getByLabel('Button text').fill('Watch')
     await page.getByRole('button', { name: 'Submit for review' }).click()
 
     await expect(page.getByText(/submitted for review/i)).toBeVisible({ timeout: 10000 })
@@ -77,16 +76,14 @@ test.describe('Calls to Action "Suggest a call to action" — authenticated expe
     expect(row).toBeTruthy()
     expect(row!.author_user_id).toBe(expert.id)
     expect(row!.link_url).toBe('https://example.com/playwright-cta')
-    expect(row!.link_label).toBe('Watch')
     expect(row!.status).toBe('pending')
   })
 
   test('a pending CTA does not appear in the carousel', async ({ page }) => {
     await page.goto(`/briefs/${BRIEF_SLUG}`)
-    await page.getByRole('button', { name: '+ Suggest a CTA' }).click()
+    await page.getByRole('button', { name: '+ New CTA' }).click()
     await page.getByLabel('Title').fill('Playwright test CTA')
     await page.getByLabel('Link URL').fill('https://example.com/playwright-cta')
-    await page.getByLabel('Button text').fill('Read')
     await page.getByRole('button', { name: 'Submit for review' }).click()
     await expect(page.getByText(/submitted for review/i)).toBeVisible({ timeout: 10000 })
 
@@ -94,12 +91,11 @@ test.describe('Calls to Action "Suggest a call to action" — authenticated expe
     await expect(page.getByText('Playwright test CTA')).not.toBeVisible()
   })
 
-  test('the submit button is disabled until title, link URL, and button text are filled', async ({ page }) => {
+  test('the submit button is disabled until title and link URL are filled', async ({ page }) => {
     await page.goto(`/briefs/${BRIEF_SLUG}`)
-    await page.getByRole('button', { name: '+ Suggest a CTA' }).click()
+    await page.getByRole('button', { name: '+ New CTA' }).click()
 
     const submit = page.getByRole('button', { name: 'Submit for review' })
-    // Button text defaults to "Read", so only title + link URL are missing.
     await expect(submit).toBeDisabled()
 
     await page.getByLabel('Title').fill('x')
@@ -136,14 +132,15 @@ test.describe('Calls to Action carousel — published CTAs, logged-out visitor',
       title: 'Playwright published CTA',
       description: 'Read the full report for more detail.',
       linkUrl: 'https://example.com/published-cta',
-      linkLabel: 'Download',
     })
 
     await page.goto(`/briefs/${BRIEF_SLUG}`)
 
     await expect(page.getByText('Playwright published CTA')).toBeVisible()
     await expect(page.getByText('Read the full report for more detail.')).toBeVisible()
-    const link = page.getByRole('link', { name: /Download/ })
+    // The arrow link's accessible name comes from the CTA's own title now
+    // (no more author-chosen button label — see ctas.tsx's own comment).
+    const link = page.getByRole('link', { name: 'Playwright published CTA' })
     await expect(link).toHaveAttribute('href', 'https://example.com/published-cta')
 
     const authorName = expert.display_name ?? expertEmail.split('@')[0]

@@ -78,7 +78,7 @@ export async function getPendingFaqAnswers(db: DB, page = 1): Promise<PagedResul
 export async function getPendingCtas(db: DB, page = 1): Promise<PagedResult<PendingCta>> {
   const { data, error, count } = await db
     .from('brief_ctas')
-    .select('id, title, description, link_url, link_label, created_at, brief_id, briefs(title, slug), users(id, display_name, email, role)', { count: 'exact' })
+    .select('id, title, description, link_url, created_at, brief_id, briefs(title, slug), users(id, display_name, email, role)', { count: 'exact' })
     .eq('status', 'pending')
     .order('created_at', { ascending: true })
     .range(...range(page))

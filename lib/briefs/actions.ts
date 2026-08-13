@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { getAdminClient } from '@/lib/supabase/admin'
 import { sendBriefProposalEmail } from '@/lib/email/send-brief-proposal'
 import { getMaxContentVersion } from '@/lib/data/contributions'
 import type { UserRole } from '@/lib/types'
@@ -115,14 +116,25 @@ export async function submitFaqAnswer(
 // pending admin approval — free text + a link, so it follows the same
 // propose/moderate pattern as submitFaqAnswer above rather than publishing
 // immediately.
+//
+// Admin gets a second path (added 2026-08-13, admin-preview request): the
+// "+ New CTA" button is also shown to admin so they don't need a separate
+// expert/org test account just to see the flow, but admin isn't in
+// CONTRIBUTOR_ROLES and brief_ctas' insert RLS policy only allows expert/
+// organisation — an admin-authenticated insert through the normal RLS
+// client would be rejected. Rather than widen that policy (a real
+// capability change), an admin submission here is routed through the
+// service-role client and saved as an editorial "Tell The World" CTA
+// (author_user_id null, status published immediately) — the same shape
+// migration 026's header comment already describes for editorial CTAs,
+// just reachable from this form instead of only the Supabase dashboard.
 export async function submitCta(
   briefId: string,
   briefSlug: string,
   title: string,
   description: string,
   linkUrl: string,
-  linkLabel: string,
-): Promise<{ error?: string; success?: boolean }> {
+): Promise<{ error?: string; success?: boolean; published?: boolean }> {
   const supabase = await createClient()
   const {
     data: { user },
@@ -131,14 +143,15 @@ export async function submitCta(
   if (!user) return { error: 'You must be logged in to suggest a call to action.' }
 
   const { data: userData } = await supabase.from('users').select('role').eq('id', user.id).single()
-  if (!userData || !CONTRIBUTOR_ROLES.includes(userData.role)) {
+  const isContributor = !!userData && CONTRIBUTOR_ROLES.includes(userData.role)
+  const isAdmin = userData?.role === 'admin'
+  if (!isContributor && !isAdmin) {
     return { error: 'Only experts and organisations can suggest calls to action.' }
   }
 
   const trimmedTitle = title.trim()
   const trimmedDescription = description.trim()
   const trimmedUrl = linkUrl.trim()
-  const trimmedLabel = linkLabel.trim()
 
   if (!trimmedTitle) return { error: 'Title cannot be empty.' }
   if (trimmedTitle.length > 120) return { error: 'Title must be under 120 characters.' }
@@ -146,23 +159,26 @@ export async function submitCta(
   if (!trimmedUrl) return { error: 'Link URL cannot be empty.' }
   if (trimmedUrl.length > 500) return { error: 'Link URL must be under 500 characters.' }
   if (!/^https?:\/\//i.test(trimmedUrl)) return { error: 'Link URL must start with http:// or https://.' }
-  if (!trimmedLabel) return { error: 'Button text cannot be empty.' }
-  if (trimmedLabel.length > 30) return { error: 'Button text must be under 30 characters.' }
 
-  const { error } = await supabase.from('brief_ctas').insert({
+  const row = {
     brief_id: briefId,
-    author_user_id: user.id,
     title: trimmedTitle,
     description: trimmedDescription || null,
     link_url: trimmedUrl,
-    link_label: trimmedLabel,
-    status: 'pending',
-  })
+  }
+
+  const { error } = isAdmin
+    ? await getAdminClient()
+        .from('brief_ctas')
+        .insert({ ...row, author_user_id: null, status: 'published' })
+    : await supabase
+        .from('brief_ctas')
+        .insert({ ...row, author_user_id: user.id, status: 'pending' })
 
   if (error) return { error: 'Failed to submit call to action. Please try again.' }
 
   revalidatePath(`/briefs/${briefSlug}`)
-  return { success: true }
+  return { success: true, published: isAdmin }
 }
 
 // Part 5: a member's vote on a Community Q&A question — one row per

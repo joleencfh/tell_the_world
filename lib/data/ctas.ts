@@ -24,13 +24,12 @@ export interface Cta {
   title: string
   description: string | null
   link_url: string
-  link_label: string
   created_at: string
   users: CtaAuthor | null
 }
 
 const CTA_SELECT =
-  'id, title, description, link_url, link_label, created_at, users(id, display_name, avatar_url, role, affiliation, org_name)'
+  'id, title, description, link_url, created_at, users(id, display_name, avatar_url, role, affiliation, org_name)'
 
 // Published CTAs for a brief, most recent first — this is a small "what's
 // new/featured" carousel, not an evergreen reference list like FAQ answers,
