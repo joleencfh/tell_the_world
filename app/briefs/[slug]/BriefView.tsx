@@ -18,6 +18,7 @@ import { QuestionsList, QuestionForm, ProposeCorrectionModal } from './qa'
 import { ReviewEndorseControl } from './review-endorse'
 import { ExplainerSections } from './explainer'
 import { FAQSection } from './faq'
+import { CtaCarousel, SuggestCtaModal } from './ctas'
 import { formatDate, computeReadTimeMinutes } from './helpers'
 import type {
   Brief,
@@ -30,6 +31,7 @@ import type {
   ContributionStatus,
   ExplainerContributionInfo,
   FaqAnswer,
+  Cta,
 } from './page'
 
 // ---------------------------------------------------------------------------
@@ -47,16 +49,27 @@ interface BriefViewProps {
   myReviewStatus: ContributionStatus
   explainerContributions: ExplainerContributionInfo[]
   faqAnswersByQuestion: Record<string, FaqAnswer[]>
+  ctas: Cta[]
 }
 
 // `media` stays in BriefViewProps (page.tsx still fetches and passes it —
 // dropping Media from the page was a deliberate call, but the data query
 // itself is out of scope for this change) but isn't destructured here since
 // nothing renders it anymore.
-export default function BriefView({ brief, quotes, endorsementBar, questions, answersByQuestion, currentUser, myReviewStatus, explainerContributions, faqAnswersByQuestion }: BriefViewProps) {
+export default function BriefView({ brief, quotes, endorsementBar, questions, answersByQuestion, currentUser, myReviewStatus, explainerContributions, faqAnswersByQuestion, ctas }: BriefViewProps) {
   const isLoggedIn = !!currentUser
   const showSections = isLoggedIn || brief.visibility === 'public'
   const canContribute = currentUser?.role === 'expert' || currentUser?.role === 'organisation'
+  // CTA-specific: admin also gets the "+ New CTA" trigger, as a preview/
+  // convenience path (2026-08-13) so they don't need a separate expert/org
+  // test account just to see the flow — submitCta routes an admin
+  // submission through a different, immediate-publish branch (see its own
+  // comment in lib/briefs/actions.ts). Deliberately not folded into the
+  // broader canContribute above, which also gates review/endorse controls,
+  // correction proposals, and FAQ answers — those still reject admin
+  // server-side (CONTRIBUTOR_ROLES doesn't include it), so widening
+  // canContribute itself would just show more buttons that error on click.
+  const canSuggestCta = canContribute || currentUser?.role === 'admin'
   // A voter's own role decides which color their Community Q&A vote lands
   // in (qa.tsx's VoteControl) — expert/org votes count blue, creator/
   // journalist votes count pink, anything else (just 'admin' today) counts
@@ -69,6 +82,7 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
         : null
   const [proposeCorrectionOpen, setProposeCorrectionOpen] = useState(false)
   const [proposeBriefOpen, setProposeBriefOpen] = useState(false)
+  const [suggestCtaOpen, setSuggestCtaOpen] = useState(false)
   const sortedSections = [...brief.brief_sections].sort(
     (a, b) => a.display_order - b.display_order,
   )
@@ -327,6 +341,33 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
           </div>
         )}
 
+        {/* ── Calls to Action ──────────────────────────────────────────── */}
+        {showSections && (
+          <div className="bg-paper px-6 py-16">
+            <div className="mx-auto max-w-4xl">
+              <SectionHeader
+                num="07"
+                label="Calls to Action"
+                description="What experts & orgs want you to do with this"
+                numTone="blue"
+                action={
+                  canSuggestCta ? (
+                    <button
+                      type="button"
+                      onClick={() => setSuggestCtaOpen(true)}
+                      style={{ touchAction: 'manipulation' }}
+                      className="border-2 border-blue bg-blue px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.08em] text-white outline-none transition-colors hover:bg-paper hover:text-blue focus-visible:ring-2 focus-visible:ring-blue"
+                    >
+                      + New CTA
+                    </button>
+                  ) : undefined
+                }
+              />
+              <CtaCarousel ctas={ctas} />
+            </div>
+          </div>
+        )}
+
         {/* ── Footer actions — logged-in members ───────────────────────── */}
         {isLoggedIn && (
           <div className="px-6 py-6 border-t border-edge">
@@ -368,6 +409,16 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
             submitterEmail={currentUser.email}
             fromBriefTitle={brief.title}
             onClose={() => setProposeBriefOpen(false)}
+          />
+        )}
+
+        {/* ── Suggest a call to action modal ───────────────────────────── */}
+        {suggestCtaOpen && currentUser && (
+          <SuggestCtaModal
+            briefId={brief.id}
+            briefSlug={brief.slug}
+            briefTitle={brief.title}
+            onClose={() => setSuggestCtaOpen(false)}
           />
         )}
 

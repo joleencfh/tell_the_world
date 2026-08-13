@@ -3,17 +3,18 @@
 import { useState } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { createBrief } from '@/lib/admin/brief-actions'
-import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer } from '@/lib/admin/actions'
+import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingCta } from '@/lib/admin/actions'
 import { ADMIN_PAGE_SIZE } from '@/lib/data/admin'
 import Pagination from '@/components/ui/Pagination'
 import { ApplicationCard, QuestionCard, CorrectionProposalCard, BriefProposalCard, ApprovedRow } from './cards'
 import { FaqAnswerCard } from './faq-answer-card'
+import { CtaCard } from './cta-card'
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-type Tab = 'pending' | 'questions' | 'correctionProposals' | 'faqAnswers' | 'proposals' | 'approved'
+type Tab = 'pending' | 'questions' | 'correctionProposals' | 'faqAnswers' | 'ctas' | 'proposals' | 'approved'
 
 interface Props {
   adminEmail: string
@@ -32,6 +33,9 @@ interface Props {
   pendingFaqAnswers: PendingFaqAnswer[]
   pendingFaqAnswersCount: number
   faqAnswersPage: number
+  pendingCtas: PendingCta[]
+  pendingCtasCount: number
+  ctasPage: number
   briefProposals: BriefProposal[]
   briefProposalsCount: number
   proposalsPage: number
@@ -58,6 +62,9 @@ export default function AdminScreen({
   pendingFaqAnswers,
   pendingFaqAnswersCount,
   faqAnswersPage,
+  pendingCtas,
+  pendingCtasCount,
+  ctasPage,
   briefProposals,
   briefProposalsCount,
   proposalsPage,
@@ -139,6 +146,14 @@ export default function AdminScreen({
               {pendingFaqAnswersCount > 0 && (
                 <span className="ml-2 font-mono text-[9px] bg-live text-white px-1.5 py-0.5">
                   {pendingFaqAnswersCount}
+                </span>
+              )}
+            </TabButton>
+            <TabButton active={tab === 'ctas'} onClick={() => setTab('ctas')}>
+              Calls to action
+              {pendingCtasCount > 0 && (
+                <span className="ml-2 font-mono text-[9px] bg-live text-white px-1.5 py-0.5">
+                  {pendingCtasCount}
                 </span>
               )}
             </TabButton>
@@ -243,6 +258,29 @@ export default function AdminScreen({
                 pageSize={ADMIN_PAGE_SIZE}
                 total={pendingFaqAnswersCount}
                 buildHref={(p) => buildPageHref('faqAnswersPage', p)}
+              />
+            </>
+          )}
+
+          {/* Pending calls to action tab */}
+          {tab === 'ctas' && (
+            <>
+              {pendingCtas.length === 0 ? (
+                <p className="font-serif text-sm text-soft italic py-8 text-center">
+                  No pending calls to action.
+                </p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {pendingCtas.map(c => (
+                    <CtaCard key={c.id} cta={c} />
+                  ))}
+                </div>
+              )}
+              <Pagination
+                page={ctasPage}
+                pageSize={ADMIN_PAGE_SIZE}
+                total={pendingCtasCount}
+                buildHref={(p) => buildPageHref('ctasPage', p)}
               />
             </>
           )}

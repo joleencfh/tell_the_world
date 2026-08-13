@@ -328,29 +328,38 @@ export function SectionHeader({
   label: string
   description: string
   numTone?: 'ink' | 'blue' | 'pink'
-  // Optional trailing control (e.g. Quotes' role filter) — mirrors the
-  // reference artifact's .sec-head, which is a flex row with the numbered
-  // divider block on the left and one optional control on the right.
+  // Optional trailing control (e.g. Quotes' role filter, CTA's "+ New CTA")
+  // — mirrors the reference artifact's .sec-head, which is a flex row with
+  // the title block on the left and one optional control on the right.
   action?: ReactNode
 }) {
   return (
-    <div className="mb-12 flex flex-wrap items-end justify-between gap-4">
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-4 mb-4">
-          <span className={`font-mono text-sm tracking-[0.2em] font-bold tabular-nums ${NUM_TONE_CLASSES[numTone]}`}>
-            {num}
-          </span>
-          <div className="h-px flex-1 bg-line" />
-        </div>
-        <h2
-          className="font-display uppercase text-ink font-bold leading-[1]"
-          style={{ fontSize: 'clamp(1.7rem, 3.2vw, 2.5rem)', letterSpacing: '0.01em' }}
-        >
-          {label}
-        </h2>
-        <p className="font-body text-sm text-ink-soft italic mt-2">{description}</p>
+    <div className="mb-12">
+      {/* Numbered divider — its own full-width row, independent of the
+          label/description/action row below. It used to live nested inside
+          that row's left column, sharing width with the action slot — a
+          wide action (e.g. the solid "+ New CTA" button) squeezed the
+          column enough that the rule visibly stopped short of the section's
+          edge, reading as truncated rather than as a deliberate short rule.
+          Full width here regardless of whether an action exists. */}
+      <div className="flex items-center gap-4 mb-4">
+        <span className={`font-mono text-sm tracking-[0.2em] font-bold tabular-nums ${NUM_TONE_CLASSES[numTone]}`}>
+          {num}
+        </span>
+        <div className="h-px flex-1 bg-line" />
       </div>
-      {action && <div className="shrink-0 pb-1">{action}</div>}
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <h2
+            className="font-display uppercase text-ink font-bold leading-[1]"
+            style={{ fontSize: 'clamp(1.7rem, 3.2vw, 2.5rem)', letterSpacing: '0.01em' }}
+          >
+            {label}
+          </h2>
+          <p className="font-body text-sm text-ink-soft italic mt-2">{description}</p>
+        </div>
+        {action && <div className="shrink-0">{action}</div>}
+      </div>
     </div>
   )
 }

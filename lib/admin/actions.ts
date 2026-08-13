@@ -332,6 +332,59 @@ export async function dismissFaqAnswer(answerId: string): Promise<{ success?: bo
 }
 
 // ---------------------------------------------------------------------------
+// Calls to action moderation (two-ink-bold-plan.md Part 6) — free-text
+// suggestion + a link, so pending → published via admin approval, same
+// shape as FAQ answers moderation above.
+// ---------------------------------------------------------------------------
+
+export interface PendingCta {
+  id: string
+  title: string
+  description: string | null
+  link_url: string
+  created_at: string
+  brief_id: string
+  briefs: { title: string; slug: string }
+  users: { id: string; display_name: string | null; email: string; role: string }
+}
+
+export async function getPendingCtas(page = 1): Promise<PagedResult<PendingCta>> {
+  await requireAdmin()
+  return adminData.getPendingCtas(getAdminClient(), page)
+}
+
+export async function approveCta(ctaId: string): Promise<{ success?: boolean; error?: string }> {
+  await requireAdmin()
+
+  const { error } = await getAdminClient()
+    .from('brief_ctas')
+    .update({ status: 'published' })
+    .eq('id', ctaId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/admin')
+  return { success: true }
+}
+
+// No 'dismissed' status exists for this table (only pending/published, see
+// migration 026) — dismissal just deletes the row, same as FAQ answers'
+// dismissFaqAnswer above.
+export async function dismissCta(ctaId: string): Promise<{ success?: boolean; error?: string }> {
+  await requireAdmin()
+
+  const { error } = await getAdminClient()
+    .from('brief_ctas')
+    .delete()
+    .eq('id', ctaId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/admin')
+  return { success: true }
+}
+
+// ---------------------------------------------------------------------------
 // Brief proposals
 // ---------------------------------------------------------------------------
 

@@ -223,6 +223,54 @@ export type Database = {
           },
         ]
       }
+      brief_ctas: {
+        Row: {
+          author_user_id: string | null
+          brief_id: string
+          created_at: string
+          description: string | null
+          id: string
+          link_url: string
+          status: string
+          title: string
+        }
+        Insert: {
+          author_user_id?: string | null
+          brief_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          link_url: string
+          status?: string
+          title: string
+        }
+        Update: {
+          author_user_id?: string | null
+          brief_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          link_url?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brief_ctas_author_user_id_fkey"
+            columns: ["author_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brief_ctas_brief_id_fkey"
+            columns: ["brief_id"]
+            isOneToOne: false
+            referencedRelation: "briefs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       brief_faq_answers: {
         Row: {
           author_user_id: string

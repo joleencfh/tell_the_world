@@ -6,6 +6,7 @@ import {
   getPendingQuestions,
   getPendingCorrectionProposals,
   getPendingFaqAnswers,
+  getPendingCtas,
   getBriefProposals,
 } from '@/lib/admin/actions'
 import AdminScreen from './AdminScreen'
@@ -33,16 +34,18 @@ export default async function AdminPage({
   const questionsPage = toPage(raw.questionsPage)
   const correctionProposalsPage = toPage(raw.correctionProposalsPage)
   const faqAnswersPage = toPage(raw.faqAnswersPage)
+  const ctasPage = toPage(raw.ctasPage)
   const proposalsPage = toPage(raw.proposalsPage)
   const approvedPage = toPage(raw.approvedPage)
 
   // Fetch data with the service-role client (bypasses RLS)
-  const [pendingResult, approvedResult, questionsResult, correctionProposalsResult, faqAnswersResult, proposalsResult] = await Promise.all([
+  const [pendingResult, approvedResult, questionsResult, correctionProposalsResult, faqAnswersResult, ctasResult, proposalsResult] = await Promise.all([
     getPendingApplications(pendingPage),
     getRecentlyApproved(approvedPage),
     getPendingQuestions(questionsPage),
     getPendingCorrectionProposals(correctionProposalsPage),
     getPendingFaqAnswers(faqAnswersPage),
+    getPendingCtas(ctasPage),
     getBriefProposals(proposalsPage),
   ])
 
@@ -64,6 +67,9 @@ export default async function AdminPage({
       pendingFaqAnswers={faqAnswersResult.data}
       pendingFaqAnswersCount={faqAnswersResult.count}
       faqAnswersPage={faqAnswersPage}
+      pendingCtas={ctasResult.data}
+      pendingCtasCount={ctasResult.count}
+      ctasPage={ctasPage}
       briefProposals={proposalsResult.data}
       briefProposalsCount={proposalsResult.count}
       proposalsPage={proposalsPage}
