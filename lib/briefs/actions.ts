@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { sendBriefProposalEmail } from '@/lib/email/send-brief-proposal'
 import { getMaxContentVersion } from '@/lib/data/contributions'
+import type { UserRole } from '@/lib/types'
 
 const CONTRIBUTOR_ROLES = ['expert', 'organisation']
 
@@ -108,6 +109,143 @@ export async function submitFaqAnswer(
 
   revalidatePath(`/briefs/${briefSlug}`)
   return { success: true }
+}
+
+// Part 5: a member's vote on a Community Q&A question — one row per
+// (question, user), a true toggle (insert if absent, delete if present —
+// migration 025 added the delete RLS policy this needs; a repeat click
+// used to upsert-with-ignoreDuplicates, which meant a vote could never be
+// undone, reported 2026-08-13). Any logged-in member can vote. Displayed
+// split by voter segment (pink creator/journalist vs. blue expert/
+// organisation, lib/data/questions.ts's VoteSplit) rather than as two
+// separate vote buttons, since a voter's own role already decides which
+// bucket their single vote lands in.
+export async function voteQuestion(questionId: string, briefSlug: string): Promise<{ error?: string; voted?: boolean }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return { error: 'You must be logged in to vote.' }
+
+  const { data: existing } = await supabase
+    .from('question_votes')
+    .select('id')
+    .eq('question_id', questionId)
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  const { error } = existing
+    ? await supabase.from('question_votes').delete().eq('id', existing.id)
+    : await supabase.from('question_votes').insert({ question_id: questionId, user_id: user.id })
+
+  if (error) return { error: 'Failed to record your vote. Please try again.' }
+
+  revalidatePath(`/briefs/${briefSlug}`)
+  return { voted: !existing }
+}
+
+// Part 5 follow-up (2026-08-13): a member's vote on a specific answer —
+// "this was helpful", distinct from endorseAnswer below ("an expert
+// vouches this is accurate"). Answers are now their own rows
+// (question_answers, a flat list, no threading), so this targets an
+// answer_id rather than the question. Toggles the same way voteQuestion
+// does, above.
+export async function voteAnswer(answerId: string, briefSlug: string): Promise<{ error?: string; voted?: boolean }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return { error: 'You must be logged in to vote.' }
+
+  const { data: existing } = await supabase
+    .from('question_answer_votes')
+    .select('id')
+    .eq('answer_id', answerId)
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  const { error } = existing
+    ? await supabase.from('question_answer_votes').delete().eq('id', existing.id)
+    : await supabase.from('question_answer_votes').insert({ answer_id: answerId, user_id: user.id })
+
+  if (error) return { error: 'Failed to record your vote. Please try again.' }
+
+  revalidatePath(`/briefs/${briefSlug}`)
+  return { voted: !existing }
+}
+
+// An expert/organisation's endorsement of a specific answer — role-gated
+// (belt-and-suspenders, RLS also enforces this). No "has an answer" check
+// needed anymore since an answer_id only ever exists once the answer row
+// itself does.
+export async function endorseAnswer(answerId: string, briefSlug: string): Promise<{ error?: string; success?: boolean }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return { error: 'You must be logged in to endorse an answer.' }
+
+  const { data: userData } = await supabase.from('users').select('role').eq('id', user.id).single()
+  if (!userData || !CONTRIBUTOR_ROLES.includes(userData.role)) {
+    return { error: 'Only experts and organisations can endorse answers.' }
+  }
+
+  const { error } = await supabase
+    .from('question_answer_endorsements')
+    .upsert({ answer_id: answerId, user_id: user.id }, { onConflict: 'answer_id,user_id', ignoreDuplicates: true })
+
+  if (error) return { error: 'Failed to endorse. Please try again.' }
+
+  revalidatePath(`/briefs/${briefSlug}`)
+  return { success: true }
+}
+
+// ---------------------------------------------------------------------------
+// Voter list — the "who voted/endorsed this" modal (requested 2026-08-13).
+// Read-only, fetched on demand (only when a viewer opens the modal) rather
+// than bundled into the page's initial data, since most viewers never open
+// it and a popular question/answer could have a long voter list.
+// ---------------------------------------------------------------------------
+
+export interface Voter {
+  id: string
+  display_name: string | null
+  email: string
+  avatar_url: string | null
+  role: UserRole | null
+  affiliation: string | null
+  org_name: string | null
+}
+
+const VOTER_TABLES = {
+  question_votes: { table: 'question_votes', idColumn: 'question_id' },
+  answer_votes: { table: 'question_answer_votes', idColumn: 'answer_id' },
+  answer_endorsements: { table: 'question_answer_endorsements', idColumn: 'answer_id' },
+} as const
+
+export async function getVoters(
+  kind: keyof typeof VOTER_TABLES,
+  id: string,
+): Promise<{ voters: Voter[]; error?: string }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return { voters: [], error: 'You must be logged in to see who voted.' }
+
+  const { table, idColumn } = VOTER_TABLES[kind]
+  const { data, error } = await supabase
+    .from(table)
+    .select(`users(id, display_name, email, avatar_url, role, affiliation, org_name)`)
+    .eq(idColumn, id)
+
+  if (error) return { voters: [], error: 'Failed to load voters. Please try again.' }
+
+  return { voters: (data ?? []).map((row) => (row as unknown as { users: Voter }).users).filter(Boolean) }
 }
 
 export async function proposeBrief(

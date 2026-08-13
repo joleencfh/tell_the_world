@@ -14,16 +14,16 @@ import {
   HeaderChip,
   TLDRList,
 } from './section-content'
-import { QuestionCard, QuestionForm, ProposeCorrectionModal } from './qa'
+import { QuestionsList, QuestionForm, ProposeCorrectionModal } from './qa'
 import { ReviewEndorseControl } from './review-endorse'
 import { ExplainerSections } from './explainer'
 import { FAQSection } from './faq'
-import { MOCK_QUESTIONS } from './mock-questions'
 import { formatDate, computeReadTimeMinutes } from './helpers'
 import type {
   Brief,
   CurrentUser,
   Question,
+  QuestionAnswer,
   Quote,
   MediaPost,
   EndorsementBarCounts,
@@ -42,6 +42,7 @@ interface BriefViewProps {
   media: MediaPost[]
   endorsementBar: EndorsementBarCounts
   questions: Question[]
+  answersByQuestion: Record<string, QuestionAnswer[]>
   currentUser: CurrentUser | null
   myReviewStatus: ContributionStatus
   explainerContributions: ExplainerContributionInfo[]
@@ -52,10 +53,20 @@ interface BriefViewProps {
 // dropping Media from the page was a deliberate call, but the data query
 // itself is out of scope for this change) but isn't destructured here since
 // nothing renders it anymore.
-export default function BriefView({ brief, quotes, endorsementBar, questions, currentUser, myReviewStatus, explainerContributions, faqAnswersByQuestion }: BriefViewProps) {
+export default function BriefView({ brief, quotes, endorsementBar, questions, answersByQuestion, currentUser, myReviewStatus, explainerContributions, faqAnswersByQuestion }: BriefViewProps) {
   const isLoggedIn = !!currentUser
   const showSections = isLoggedIn || brief.visibility === 'public'
   const canContribute = currentUser?.role === 'expert' || currentUser?.role === 'organisation'
+  // A voter's own role decides which color their Community Q&A vote lands
+  // in (qa.tsx's VoteControl) — expert/org votes count blue, creator/
+  // journalist votes count pink, anything else (just 'admin' today) counts
+  // toward neither displayed bucket.
+  const voterTone =
+    currentUser?.role === 'expert' || currentUser?.role === 'organisation'
+      ? 'blue'
+      : currentUser?.role === 'creator' || currentUser?.role === 'journalist'
+        ? 'pink'
+        : null
   const [proposeCorrectionOpen, setProposeCorrectionOpen] = useState(false)
   const [proposeBriefOpen, setProposeBriefOpen] = useState(false)
   const sortedSections = [...brief.brief_sections].sort(
@@ -302,17 +313,15 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, cu
                 num="05"
                 label="Community Q&A"
                 description="Questions from members, answered by experts"
+                numTone="pink"
               />
-              {(() => {
-                const displayed = questions.length > 0 ? questions : MOCK_QUESTIONS
-                return (
-                  <div className="space-y-4 mb-6">
-                    {displayed.map((q) => (
-                      <QuestionCard key={q.id} question={q} />
-                    ))}
-                  </div>
-                )
-              })()}
+              <QuestionsList
+                questions={questions}
+                answersByQuestion={answersByQuestion}
+                briefSlug={brief.slug}
+                canEndorse={canContribute}
+                voterTone={voterTone}
+              />
               <QuestionForm briefId={brief.id} briefSlug={brief.slug} />
             </div>
           </div>

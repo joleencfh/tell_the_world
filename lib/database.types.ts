@@ -527,9 +527,155 @@ export type Database = {
           },
         ]
       }
+      question_answer_endorsements: {
+        Row: {
+          answer_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          answer_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          answer_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_answer_endorsements_answer_id_fkey"
+            columns: ["answer_id"]
+            isOneToOne: false
+            referencedRelation: "question_answers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "question_answer_endorsements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      question_answer_votes: {
+        Row: {
+          answer_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          answer_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          answer_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_answer_votes_answer_id_fkey"
+            columns: ["answer_id"]
+            isOneToOne: false
+            referencedRelation: "question_answers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "question_answer_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      question_answers: {
+        Row: {
+          author_user_id: string
+          body: string
+          created_at: string
+          id: string
+          question_id: string
+        }
+        Insert: {
+          author_user_id: string
+          body: string
+          created_at?: string
+          id?: string
+          question_id: string
+        }
+        Update: {
+          author_user_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          question_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_answers_author_user_id_fkey"
+            columns: ["author_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "question_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      question_votes: {
+        Row: {
+          created_at: string
+          id: string
+          question_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          question_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          question_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_votes_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "question_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       questions: {
         Row: {
-          answer_text: string | null
           brief_id: string
           created_at: string
           id: string
@@ -538,7 +684,6 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          answer_text?: string | null
           brief_id: string
           created_at?: string
           id?: string
@@ -547,7 +692,6 @@ export type Database = {
           user_id: string
         }
         Update: {
-          answer_text?: string | null
           brief_id?: string
           created_at?: string
           id?: string
