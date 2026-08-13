@@ -18,6 +18,7 @@ import { QuestionsList, QuestionForm, ProposeCorrectionModal } from './qa'
 import { ReviewEndorseControl } from './review-endorse'
 import { ExplainerSections } from './explainer'
 import { FAQSection } from './faq'
+import { CtaCarousel, SuggestCtaModal } from './ctas'
 import { formatDate, computeReadTimeMinutes } from './helpers'
 import type {
   Brief,
@@ -30,6 +31,7 @@ import type {
   ContributionStatus,
   ExplainerContributionInfo,
   FaqAnswer,
+  Cta,
 } from './page'
 
 // ---------------------------------------------------------------------------
@@ -47,13 +49,14 @@ interface BriefViewProps {
   myReviewStatus: ContributionStatus
   explainerContributions: ExplainerContributionInfo[]
   faqAnswersByQuestion: Record<string, FaqAnswer[]>
+  ctas: Cta[]
 }
 
 // `media` stays in BriefViewProps (page.tsx still fetches and passes it —
 // dropping Media from the page was a deliberate call, but the data query
 // itself is out of scope for this change) but isn't destructured here since
 // nothing renders it anymore.
-export default function BriefView({ brief, quotes, endorsementBar, questions, answersByQuestion, currentUser, myReviewStatus, explainerContributions, faqAnswersByQuestion }: BriefViewProps) {
+export default function BriefView({ brief, quotes, endorsementBar, questions, answersByQuestion, currentUser, myReviewStatus, explainerContributions, faqAnswersByQuestion, ctas }: BriefViewProps) {
   const isLoggedIn = !!currentUser
   const showSections = isLoggedIn || brief.visibility === 'public'
   const canContribute = currentUser?.role === 'expert' || currentUser?.role === 'organisation'
@@ -69,6 +72,7 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
         : null
   const [proposeCorrectionOpen, setProposeCorrectionOpen] = useState(false)
   const [proposeBriefOpen, setProposeBriefOpen] = useState(false)
+  const [suggestCtaOpen, setSuggestCtaOpen] = useState(false)
   const sortedSections = [...brief.brief_sections].sort(
     (a, b) => a.display_order - b.display_order,
   )
@@ -327,6 +331,33 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
           </div>
         )}
 
+        {/* ── Calls to Action ──────────────────────────────────────────── */}
+        {showSections && (
+          <div className="bg-paper px-6 py-16">
+            <div className="mx-auto max-w-4xl">
+              <SectionHeader
+                num="07"
+                label="Calls to Action"
+                description="What experts & orgs want you to do with this"
+                numTone="blue"
+                action={
+                  canContribute ? (
+                    <button
+                      type="button"
+                      onClick={() => setSuggestCtaOpen(true)}
+                      style={{ touchAction: 'manipulation' }}
+                      className="border border-line-strong px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.08em] text-ink-soft outline-none transition-colors hover:border-blue hover:text-blue-ink focus-visible:ring-2 focus-visible:ring-blue"
+                    >
+                      + Suggest a CTA
+                    </button>
+                  ) : undefined
+                }
+              />
+              <CtaCarousel ctas={ctas} />
+            </div>
+          </div>
+        )}
+
         {/* ── Footer actions — logged-in members ───────────────────────── */}
         {isLoggedIn && (
           <div className="px-6 py-6 border-t border-edge">
@@ -368,6 +399,16 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
             submitterEmail={currentUser.email}
             fromBriefTitle={brief.title}
             onClose={() => setProposeBriefOpen(false)}
+          />
+        )}
+
+        {/* ── Suggest a call to action modal ───────────────────────────── */}
+        {suggestCtaOpen && currentUser && (
+          <SuggestCtaModal
+            briefId={brief.id}
+            briefSlug={brief.slug}
+            briefTitle={brief.title}
+            onClose={() => setSuggestCtaOpen(false)}
           />
         )}
 

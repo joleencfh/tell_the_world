@@ -111,6 +111,60 @@ export async function submitFaqAnswer(
   return { success: true }
 }
 
+// Part 6: an expert/organisation's suggested call to action, submitted
+// pending admin approval — free text + a link, so it follows the same
+// propose/moderate pattern as submitFaqAnswer above rather than publishing
+// immediately.
+export async function submitCta(
+  briefId: string,
+  briefSlug: string,
+  title: string,
+  description: string,
+  linkUrl: string,
+  linkLabel: string,
+): Promise<{ error?: string; success?: boolean }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return { error: 'You must be logged in to suggest a call to action.' }
+
+  const { data: userData } = await supabase.from('users').select('role').eq('id', user.id).single()
+  if (!userData || !CONTRIBUTOR_ROLES.includes(userData.role)) {
+    return { error: 'Only experts and organisations can suggest calls to action.' }
+  }
+
+  const trimmedTitle = title.trim()
+  const trimmedDescription = description.trim()
+  const trimmedUrl = linkUrl.trim()
+  const trimmedLabel = linkLabel.trim()
+
+  if (!trimmedTitle) return { error: 'Title cannot be empty.' }
+  if (trimmedTitle.length > 120) return { error: 'Title must be under 120 characters.' }
+  if (trimmedDescription.length > 600) return { error: 'Description must be under 600 characters.' }
+  if (!trimmedUrl) return { error: 'Link URL cannot be empty.' }
+  if (trimmedUrl.length > 500) return { error: 'Link URL must be under 500 characters.' }
+  if (!/^https?:\/\//i.test(trimmedUrl)) return { error: 'Link URL must start with http:// or https://.' }
+  if (!trimmedLabel) return { error: 'Button text cannot be empty.' }
+  if (trimmedLabel.length > 30) return { error: 'Button text must be under 30 characters.' }
+
+  const { error } = await supabase.from('brief_ctas').insert({
+    brief_id: briefId,
+    author_user_id: user.id,
+    title: trimmedTitle,
+    description: trimmedDescription || null,
+    link_url: trimmedUrl,
+    link_label: trimmedLabel,
+    status: 'pending',
+  })
+
+  if (error) return { error: 'Failed to submit call to action. Please try again.' }
+
+  revalidatePath(`/briefs/${briefSlug}`)
+  return { success: true }
+}
+
 // Part 5: a member's vote on a Community Q&A question — one row per
 // (question, user), a true toggle (insert if absent, delete if present —
 // migration 025 added the delete RLS policy this needs; a repeat click

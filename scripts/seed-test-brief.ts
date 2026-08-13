@@ -125,6 +125,81 @@ async function seed() {
     }
   }
 
+  // Seed published brief_ctas rows — enough to overflow the carousel (Part 6)
+  // so its scroll/fade/prev-next behavior is actually exercisable, not just
+  // a single static card. Mixes editorial (author_user_id null) and expert/
+  // org-authored rows, and includes one long description to exercise the
+  // card's line-clamp truncation.
+  await supabase.from('brief_ctas').delete().eq('brief_id', brief.id)
+
+  const ctaAuthors = answerAuthors && answerAuthors.length > 0 ? answerAuthors : []
+  const authorFor = (i: number) => (ctaAuthors.length > 0 ? ctaAuthors[i % ctaAuthors.length].id : null)
+
+  const ctas = [
+    {
+      brief_id: brief.id,
+      author_user_id: null,
+      title: '[Placeholder] Read the full report',
+      description: '[Placeholder] The complete write-up this brief was distilled from.',
+      link_url: 'https://example.com/placeholder-report',
+      link_label: 'Read',
+      status: 'published' as const,
+    },
+    {
+      brief_id: brief.id,
+      author_user_id: null,
+      title: '[Placeholder] Watch our explainer video',
+      description: null,
+      link_url: 'https://example.com/placeholder-video',
+      link_label: 'Watch',
+      status: 'published' as const,
+    },
+    {
+      brief_id: brief.id,
+      author_user_id: authorFor(0),
+      title: '[Placeholder] Download the technical appendix',
+      description: '[Placeholder] Methodology, data sources, and supporting figures.',
+      link_url: 'https://example.com/placeholder-appendix',
+      link_label: 'Download',
+      status: 'published' as const,
+    },
+    {
+      brief_id: brief.id,
+      author_user_id: authorFor(1),
+      title: '[Placeholder] Subscribe to our policy briefing',
+      description: '[Placeholder] A short recurring newsletter covering developments on this topic.',
+      link_url: 'https://example.com/placeholder-subscribe',
+      link_label: 'Read',
+      status: 'published' as const,
+    },
+    {
+      brief_id: brief.id,
+      author_user_id: authorFor(0),
+      title: '[Placeholder] Long description example',
+      description:
+        '[Placeholder] This description is deliberately long to demonstrate the card\'s line-clamp truncation once it runs past four wrapped lines inside the fixed-width carousel card, so the overflow behavior is visible rather than assumed.',
+      link_url: 'https://example.com/placeholder-long',
+      link_label: 'Read',
+      status: 'published' as const,
+    },
+    {
+      brief_id: brief.id,
+      author_user_id: null,
+      title: '[Placeholder] Explore the interactive model',
+      description: '[Placeholder] A hands-on tool for exploring the scenarios discussed above.',
+      link_url: 'https://example.com/placeholder-explore',
+      link_label: 'Explore',
+      status: 'published' as const,
+    },
+  ]
+
+  const { error: ctasError } = await supabase.from('brief_ctas').insert(ctas)
+  if (ctasError) {
+    console.error('brief_ctas insert failed:', ctasError)
+  } else {
+    console.log('✓ brief_ctas seeded:', ctas.length)
+  }
+
   console.log('\nNavigate to: http://localhost:3000/briefs/ai-alignment-core-problem')
 }
 

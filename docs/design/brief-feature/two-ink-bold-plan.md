@@ -155,11 +155,20 @@ recommendation — this app can and should self-host via `next/font`).
 styling anything):
 
 - **Blue = expert/org verification.** Reviewed/endorsed badges, keyterm
-  tooltips, sources, expert quote avatars, FAQ.
-- **Pink = creator/journalist engagement.** Q&A asks, Calls to Action,
-  Covered By.
+  tooltips, sources, expert quote avatars, FAQ, Calls to Action (see note
+  below — this section was blue in the actual build, not pink as
+  originally planned here).
+- **Pink = creator/journalist engagement.** Q&A asks, Covered By.
 - **Ink (neutral) = the editorial spine.** Masthead, hero, TL;DR,
   Explainer body prose, Related Briefs. Never tinted blue or pink.
+
+**Deviation from this table, decided during Part 6's build (2026-08-13):**
+Calls to Action shipped blue, not pink. Only experts/organisations can ever
+author a CTA (migration 026's insert RLS), so pink's "creator/journalist
+engagement" meaning didn't fit — blue's "expert/org verification" meaning
+does. The artifact itself still shows pink for this section; treat the
+artifact as superseded on this one point, same as any other place this doc
+says to prefer written decisions over the artifact once they diverge.
 
 **Contrast rule for the accent colors — apply everywhere `blue`/`pink` get
 used as text color, not just where the plan calls it out explicitly:**
@@ -403,7 +412,7 @@ unwind later.
 | 3 | Explainer (+ Sources) | blue | existing `brief_sections` (`type='explainer'`, multiple rows) + reused `brief_contributions` for reviewed/endorsed badges | `brief_sections.title` column |
 | 4 | FAQ | blue | existing `brief_sections` (`type='faq'`, `Q:`/`A:` parsed) | No |
 | 5 | Community Q&A | pink asks / blue answers | existing `questions` table, extended | Yes — votes + endorsements |
-| 6 | Calls to Action | pink | new | Yes — `brief_ctas` |
+| 6 | Calls to Action | blue (changed from pink, see §1.1's deviation note) | new | Yes — `brief_ctas` |
 | 7 | Covered By | pink, dark band | new | Yes — `brief_coverage` (+ likes) |
 | 8 | Related Briefs | neutral | existing (`briefs.topic_tag`) | No |
 
@@ -909,7 +918,8 @@ If built as a Part 5b, the mechanism is well-understood and mirrors Part
 
 ### Part 6 — Calls to Action (new feature)
 
-New pink section. Follow the existing `brief_correction_proposals`
+New section (blue, not pink — see §1.1's deviation note, decided during
+this part's build). Follow the existing `brief_correction_proposals`
 propose/moderate pattern (`ProposeCorrectionModal`, admin moderation tab)
 rather than inventing a new submission flow.
 

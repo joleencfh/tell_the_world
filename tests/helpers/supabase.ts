@@ -210,6 +210,80 @@ export async function hasQuestionVote(questionId: string, userId: string): Promi
 }
 
 // ---------------------------------------------------------------------------
+// Calls to action helpers (brief_ctas — two-ink-bold-plan.md Part 6)
+// ---------------------------------------------------------------------------
+
+export interface CtaRecord {
+  id: string
+  brief_id: string
+  author_user_id: string | null
+  title: string
+  description: string | null
+  link_url: string
+  link_label: string
+  status: string
+  created_at: string
+}
+
+/** All brief_ctas rows for a brief, any status. */
+export async function findCtas(briefId: string): Promise<CtaRecord[]> {
+  const client = getTestAdminClient()
+  const { data, error } = await client
+    .from('brief_ctas')
+    .select('id, brief_id, author_user_id, title, description, link_url, link_label, status, created_at')
+    .eq('brief_id', briefId)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    throw new Error(`Failed to query brief_ctas: ${error.message}`)
+  }
+
+  return (data as CtaRecord[]) ?? []
+}
+
+/** Seed an already-published CTA directly (bypasses the admin-approval UI). */
+export async function insertPublishedCta(
+  briefId: string,
+  authorId: string,
+  fields: { title: string; description?: string | null; linkUrl: string; linkLabel: string },
+): Promise<CtaRecord> {
+  const client = getTestAdminClient()
+  const { data, error } = await client
+    .from('brief_ctas')
+    .insert({
+      brief_id: briefId,
+      author_user_id: authorId,
+      title: fields.title,
+      description: fields.description ?? null,
+      link_url: fields.linkUrl,
+      link_label: fields.linkLabel,
+      status: 'published',
+    })
+    .select('id, brief_id, author_user_id, title, description, link_url, link_label, status, created_at')
+    .single()
+
+  if (error || !data) {
+    throw new Error(`Failed to insert brief_ctas row: ${error?.message}`)
+  }
+
+  return data as CtaRecord
+}
+
+/** Delete all brief_ctas rows for a brief with the given title. Call in afterEach/afterAll. */
+export async function deleteTestCtas(briefId: string, title: string): Promise<void> {
+  const client = getTestAdminClient()
+  const { error } = await client
+    .from('brief_ctas')
+    .delete()
+    .eq('brief_id', briefId)
+    .eq('title', title)
+
+  if (error) {
+    console.warn(`Failed to clean up test brief_ctas: ${error.message}`)
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Message helpers
 // ---------------------------------------------------------------------------
 
