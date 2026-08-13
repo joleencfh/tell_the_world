@@ -1251,54 +1251,365 @@ whether it should be neutral `ink` instead), not a find-and-replace.
 Apply §1.1's contrast rule (`blue`/`pink` vs. `-ink` suffixed variants)
 to each one as it's converted, same as Part 0 did for the Brief page.
 
-**Suggested approach for a future session:**
-1. Work file-by-file (or screen-by-screen), not token-by-token — each
-   screen's accent-color judgment calls need to be seen in context.
-2. Get the user's sign-off per screen or in a small batch, not all at
-   once — same process convention as every other part in this doc.
-3. Once every legacy call site is converted (re-run the grep from this
-   part's scope list to confirm zero remain), delete the compat shim
-   block from `app/globals.css` in the same PR that finishes the last
-   screen — don't delete it preemptively, and don't leave it in
-   indefinitely once nothing references it.
-4. This is a good candidate for its own tracking doc rather than more
-   parts bolted onto this one, given the file count — consider whether a
-   fresh plan doc makes sense once this actually kicks off, similar to
-   the open question already raised for Part 5b.
+**Status update (2026-08-13):** the file list above was confirmed stale,
+as predicted. A live re-grep this session (`bg|text|border|ring|from|to|
+via|divide|outline|decoration|fill|stroke|placeholder|caret|accent`
+combined with `-(base|warm|dark|text|soft|live|edge|card)` plus
+`font-serif`, across `app/` and `components/`) found the list above still
+holds, **plus**: `app/admin/cta-card.tsx` and `app/admin/faq-answer-card.tsx`
+(new admin moderation cards from Parts 4b/6, exactly the "new admin
+surfaces" the note above predicted), and four files not in the original
+scope at all — `components/ui/Avatar.tsx`, `components/ContactModal.tsx`,
+`components/ProposeBriefModal.tsx`, `components/PostModal.tsx`.
 
-#### Prompt for next session — Part 11
+It also surfaced something the doc didn't anticipate: **the Brief page
+itself still has legacy-token remnants**, even though Parts 0-6 were
+supposed to have fully migrated it — `app/briefs/[slug]/BriefView.tsx`'s
+logged-out "Members Only" gate banner and footer border, `app/briefs/
+[slug]/qa.tsx`'s "Ask a question" modal, and `app/briefs/[slug]/
+loading.tsx`'s skeleton. One more hit, `MediaCard` in `app/briefs/[slug]/
+section-content.tsx`, turned out to be dead code (not imported or
+rendered anywhere — a leftover from the dropped "Featured News"/"Use
+This" sections) — that belongs to Part 10's cleanup (delete it), not this
+part's (migrate it), so it's explicitly excluded from every subtask
+below.
+
+Given the size (12 files across 6 screens, plus 4 shared components, plus
+3 small Brief-page fixes), this part is split into lettered subtasks
+below — same convention as Part 4b/5b/9b, but nested here since each
+subtask is a slice of the same migration rather than a distinct feature.
+
+**Suggested order:** 11a (shared components) first, since every other
+screen embeds at least one of them and settling their color calls early
+avoids re-deciding the same question per screen. 11b-11g (the individual
+screens/areas) have no hard dependency on each other and can be done in
+any order, including out of session order or by different sessions in
+parallel. **11h (final sweep) must be last** — it re-greps for zero
+remaining legacy references and deletes the compat shim, which only
+makes sense once every other subtask has landed. Get the user's sign-off
+after each subtask, not just at the end — same process convention as
+every other part in this doc.
+
+#### Part 11a — Shared components
+
+Files: `components/ui/Avatar.tsx`, `components/ui/RoleBadge.tsx`,
+`components/ui/Pagination.tsx`, `components/ContactModal.tsx`,
+`components/ProposeBriefModal.tsx`, `components/PostModal.tsx`.
 
 ```
 Read docs/design/brief-feature/two-ink-bold-plan.md in full before doing
 anything else — §0 for why this was out of the original scope, §1.1 for
-the token/semantic-color rules this part applies retroactively, Part 11
-itself for the full file list and the text-live judgment-call warning.
-Don't skip straight to the steps below.
+the token/semantic-color rules and contrast rule this part applies
+retroactively, Part 11's intro for the text-live judgment-call warning
+and the 2026-08-13 status update, Part 11a itself for this subtask's file
+list. Don't skip straight to the steps below.
 
-Build Part 11 (docs/design/brief-feature/two-ink-bold-plan.md §3, Part
-11) on its own branch, separate from the Two-Ink Bold Brief-page work —
-this migrates the rest of the site (admin, landing, login, home,
-profile, directory, apply flow, shared RoleBadge/Pagination) onto the
-Two-Ink Bold tokens, replacing the compat shim in app/globals.css that
-currently keeps them rendering with the old amber/cream theme.
+Build Part 11a (docs/design/brief-feature/two-ink-bold-plan.md, the "Part
+11a" section) on its own branch, separate from the Two-Ink Bold Brief-page
+work — this migrates the shared components consumed by every other
+screen (Avatar, RoleBadge, Pagination, ContactModal, ProposeBriefModal,
+PostModal) from the legacy base/warm/dark/text/soft/live/edge/card tokens
+and font-serif onto the Two-Ink Bold tokens (§1.1).
 
-1. Re-run a grep for the legacy token classes (base/warm/dark/text/soft/
-   live/edge/card as bg-/text-/border-/ring-/etc, plus font-serif) across
-   the whole repo to get the current file list — Part 11's list may be
-   stale by the time this starts.
-2. Go screen by screen. Direct token swaps are mechanical (see Part 11's
-   mapping table). Every text-live/bg-live/border-live/ring-live site
-   needs a real decision: blue (expert/verification-flavored), pink
-   (creator/engagement-flavored), or neutral ink — don't default to one
-   without looking at what the element actually represents. Apply the
-   blue/pink vs. blue-ink/pink-ink contrast rule (§1.1) to each.
-3. Get the user's sign-off per screen (or small batches), not all at
-   once.
-4. Once the grep from step 1 comes back empty, delete the legacy
-   @theme block from app/globals.css in the same PR as the last screen.
+1. Grep each of the 6 files listed above for the legacy token classes
+   (bg-/text-/border-/ring-/etc + base/warm/dark/text/soft/live/edge/card,
+   plus font-serif) to get each file's exact call sites.
+2. Apply the direct mechanical swaps (bg-base→bg-paper, bg-warm→
+   bg-paper-raised, text-dark→text-ink, text-soft→text-ink-soft,
+   border-edge→border-line, bg-card→bg-paper-raised, font-serif→
+   font-body).
+3. For every text-live/bg-live/border-live/ring-live site, make a real
+   per-instance call: blue (expert/verification-flavored), pink
+   (creator/engagement-flavored), or neutral ink. RoleBadge in particular
+   already has per-role color logic elsewhere in the app (see how role
+   colors are handled on the Brief page's badges) — check whether that
+   logic should inform this component's colors rather than picking fresh.
+   Apply the blue/pink vs. blue-ink/pink-ink contrast rule (§1.1) to each.
+4. These are the most widely-reused components in the scope — check every
+   call site (grep each component's name) renders correctly after the
+   change, not just one usage.
 
 Verify: bunx tsc --noEmit && bun run lint clean, browser-check each
-converted screen in both light and dark as you go (not just at the end).
+component in a page that uses it (directory for UserCard/QuoteCard's
+Avatar+RoleBadge usage, admin for Pagination, a brief page for the three
+modals) in both light and dark.
+```
+
+#### Part 11b — Landing, login, and home
+
+Files: `app/page.tsx`, `app/login/page.tsx`, `app/home/page.tsx`.
+
+```
+Read docs/design/brief-feature/two-ink-bold-plan.md in full before doing
+anything else — §0, §1.1, Part 11's intro (status update + judgment-call
+warning), Part 11b itself for this subtask's file list. Don't skip
+straight to the steps below.
+
+Build Part 11b (docs/design/brief-feature/two-ink-bold-plan.md, the "Part
+11b" section) on its own branch. Migrates the three public entry screens
+(landing, login, home) from legacy tokens to Two-Ink Bold (§1.1). If Part
+11a already landed, these screens should already be picking up its
+updated Avatar/RoleBadge/Pagination — verify that's true rather than
+re-doing that work here.
+
+1. Grep the 3 files for legacy token classes (bg-/text-/border-/ring-/etc
+   + base/warm/dark/text/soft/live/edge/card, plus font-serif).
+2. Apply direct mechanical swaps per Part 11's mapping table.
+3. Every text-live/bg-live/border-live/ring-live site needs a real
+   per-instance call (blue/pink/neutral ink) — these screens are the
+   site's front door and have no admin/expert framing, so lean toward
+   neutral ink unless a specific element is clearly verification-flavored
+   (blue) or engagement-flavored (pink); don't force every accent into
+   one of the two brand colors.
+4. app/page.tsx's hero and CTA buttons currently use text-live/bg-live
+   heavily (brand accent) — this is the single highest-visibility
+   judgment call in this subtask, flag your reasoning to the user
+   explicitly rather than just shipping a choice.
+
+Verify: bunx tsc --noEmit && bun run lint clean, browser-check all three
+screens in both light and dark, logged-out and logged-in where relevant.
+```
+
+#### Part 11c — Apply flow
+
+Files: `app/apply/page.tsx`, `app/apply/form-fields.tsx`,
+`app/apply/rejected/page.tsx`, `app/apply/pending/page.tsx`.
+
+```
+Read docs/design/brief-feature/two-ink-bold-plan.md in full before doing
+anything else — §0, §1.1 (especially §1.4's forms checklist — this
+screen has real form inputs), Part 11's intro, Part 11c itself for this
+subtask's file list. Don't skip straight to the steps below.
+
+Build Part 11c (docs/design/brief-feature/two-ink-bold-plan.md, the "Part
+11c" section) on its own branch. Migrates the application flow (form +
+its two outcome pages) from legacy tokens to Two-Ink Bold (§1.1).
+
+1. Grep the 4 files for legacy token classes (bg-/text-/border-/ring-/etc
+   + base/warm/dark/text/soft/live/edge/card, plus font-serif).
+2. Apply direct mechanical swaps per Part 11's mapping table.
+   form-fields.tsx's focus-ring classes (focus:ring-live/30
+   focus:border-live/50) are the most-repeated pattern in this
+   subtask — convert once, confirm every input picks up the same
+   treatment rather than converting each occurrence independently and
+   risking drift.
+3. Every text-live/bg-live/border-live/ring-live site needs a real
+   per-instance call (blue/pink/neutral ink) — the submit button and any
+   "required" markers are the most visible ones here.
+4. Don't touch the form's validation logic, honeypot, or submission
+   behavior (lib/applications/actions.ts) — this is a pure styling pass.
+
+Verify: bunx tsc --noEmit && bun run lint clean, browser-check the form
+(including an error state and the required-field markers), the pending
+page, and the rejected page, in both light and dark.
+```
+
+#### Part 11d — Profile
+
+Files: `app/profile/[id]/ProfileView.tsx`, `RoleDetails.tsx`,
+`cards.tsx`.
+
+```
+Read docs/design/brief-feature/two-ink-bold-plan.md in full before doing
+anything else — §0, §1.1, Part 11's intro, Part 11d itself for this
+subtask's file list. Don't skip straight to the steps below.
+
+Build Part 11d (docs/design/brief-feature/two-ink-bold-plan.md, the "Part
+11d" section) on its own branch. Migrates the profile screen (view +
+role-specific detail sections + activity cards) from legacy tokens to
+Two-Ink Bold (§1.1). If Part 11a already landed, this screen's
+Avatar/RoleBadge usage should already reflect it — verify rather than
+re-converting.
+
+1. Grep the 3 files for legacy token classes (bg-/text-/border-/ring-/etc
+   + base/warm/dark/text/soft/live/edge/card, plus font-serif).
+2. Apply direct mechanical swaps per Part 11's mapping table.
+3. Every text-live/bg-live/border-live/ring-live site needs a real
+   per-instance call. RoleDetails.tsx renders different content per role
+   (creator/expert/organisation/journalist) — check whether any
+   role-specific section has an obvious blue (expert/org) or pink
+   (creator/journalist) framing before defaulting to neutral ink.
+4. This is the same MOCK_PROFILES hardcoded-data caveat noted elsewhere
+   in memory (mock-expert, mock-creator) — don't try to fix that as part
+   of this styling pass, out of scope here.
+
+Verify: bunx tsc --noEmit && bun run lint clean, browser-check a profile
+of each of the 4 roles (or as many as test fixtures allow) in both light
+and dark, plus the Edit Profile modal if it renders any of these files'
+classes.
+```
+
+#### Part 11e — Directory
+
+Files: `app/directory/DirectoryView.tsx`, `UserCard.tsx`, `QuoteCard.tsx`.
+
+```
+Read docs/design/brief-feature/two-ink-bold-plan.md in full before doing
+anything else — §0, §1.1, Part 11's intro, Part 11e itself for this
+subtask's file list. Don't skip straight to the steps below.
+
+Build Part 11e (docs/design/brief-feature/two-ink-bold-plan.md, the "Part
+11e" section) on its own branch. Migrates the directory (search/filter
+header, people band, quotes band, both card types) from legacy tokens to
+Two-Ink Bold (§1.1). If Part 11a already landed, UserCard/QuoteCard's
+Avatar/RoleBadge usage should already reflect it.
+
+1. Grep the 3 files for legacy token classes (bg-/text-/border-/ring-/etc
+   + base/warm/dark/text/soft/live/edge/card, plus font-serif).
+2. Apply direct mechanical swaps per Part 11's mapping table. Note
+   DirectoryView.tsx's own comment at the "People band" div
+   (`bg-warm` — update the comment text along with the class, it'll be
+   stale otherwise).
+3. Every text-live/bg-live/border-live/ring-live site needs a real
+   per-instance call. QuoteCard.tsx is functionally the same card as the
+   Brief page's already-migrated blue-accented quote card (Part 2) — check
+   that component/its styling first and match its blue treatment here
+   rather than inventing a new one, since these should look like the same
+   card in two contexts.
+4. The role-colored left border on UserCard (ROLE_BORDER) already exists
+   as per-role logic — leave that mechanism alone, just confirm its color
+   values are Two-Ink Bold tokens after the swap, not legacy ones.
+
+Verify: bunx tsc --noEmit && bun run lint clean, browser-check the
+directory with filters applied (both tabs: people and quotes) in both
+light and dark.
+```
+
+#### Part 11f — Admin
+
+Files: `app/admin/AdminScreen.tsx`, `app/admin/cards.tsx`,
+`app/admin/cta-card.tsx`, `app/admin/faq-answer-card.tsx`,
+`app/admin/briefs/[id]/EditBriefScreen.tsx`.
+
+```
+Read docs/design/brief-feature/two-ink-bold-plan.md in full before doing
+anything else — §0, §1.1, Part 11's intro (specifically the 2026-08-13
+status update noting cta-card.tsx and faq-answer-card.tsx are new since
+the doc's original scope), Part 11f itself for this subtask's file list.
+Don't skip straight to the steps below.
+
+Build Part 11f (docs/design/brief-feature/two-ink-bold-plan.md, the "Part
+11f" section) on its own branch. Migrates every admin screen (main
+dashboard + all moderation card types + the brief editor) from legacy
+tokens to Two-Ink Bold (§1.1). This is the largest subtask by file count —
+consider whether it needs its own sign-off checkpoints per tab rather
+than one at the end.
+
+1. Re-grep app/admin/ specifically first (not just the 5 files listed —
+   confirm no further admin surfaces were added since this subtask was
+   written) for legacy token classes (bg-/text-/border-/ring-/etc +
+   base/warm/dark/text/soft/live/edge/card, plus font-serif).
+2. Apply direct mechanical swaps per Part 11's mapping table. cards.tsx,
+   cta-card.tsx, and faq-answer-card.tsx share a near-identical card shell
+   (border border-edge bg-card px-5 py-4) — convert that shared shape
+   consistently across all three rather than three independent
+   conversions that could drift.
+3. Every text-live/bg-live/border-live/ring-live site needs a real
+   per-instance call — admin is entirely internal/staff-facing, so most
+   of these should probably land on blue (verification/moderation-
+   flavored) or neutral ink rather than pink; flag any you think should
+   be pink so the user can confirm that's intentional.
+4. EditBriefScreen.tsx is the brief authoring UI, not the public brief
+   page — its inputs/labels are admin chrome, style them accordingly
+   (don't try to make them look like the public Two-Ink Bold brief
+   sections).
+
+Verify: bunx tsc --noEmit && bun run lint clean, browser-check
+AdminScreen's every tab (applications, questions, contributions, brief
+proposals, CTAs, FAQ answers — whatever's present) and the brief editor,
+in both light and dark, using the admin test fixture if Part 9b has
+landed (playwright/.auth/admin.json) or manual admin login otherwise.
+```
+
+#### Part 11g — Brief-page leftover remnants
+
+Files: `app/briefs/[slug]/BriefView.tsx` (the logged-out "Members Only"
+gate banner and the footer border only — not the rest of the file, which
+is already Two-Ink Bold), `app/briefs/[slug]/qa.tsx` (the "Ask a
+question" modal only), `app/briefs/[slug]/loading.tsx` (the skeleton).
+**Explicitly excludes** `MediaCard` in `app/briefs/[slug]/
+section-content.tsx` — that's dead code slated for deletion in Part 10,
+not conversion here.
+
+```
+Read docs/design/brief-feature/two-ink-bold-plan.md in full before doing
+anything else — §0, §1.1, Part 11's intro (specifically the 2026-08-13
+status update explaining why the Brief page — supposedly already fully
+migrated by Parts 0-6 — still has legacy remnants, and why MediaCard is
+excluded), Part 11g itself for the exact scope. Don't skip straight to
+the steps below.
+
+Build Part 11g (docs/design/brief-feature/two-ink-bold-plan.md, the "Part
+11g" section) on its own branch. Unlike 11a-11f, this subtask touches the
+Brief page itself — three small, specific leftover spots that Parts 0-6
+missed, not a new screen.
+
+1. In app/briefs/[slug]/BriefView.tsx: convert the logged-out "Members
+   Only" gate banner (the bg-dark card with the "Apply to Join" button,
+   currently using text-live/bg-live) and the footer's border-edge to
+   Two-Ink Bold tokens. The gate banner already sits on a dark background
+   by design (bg-dark) — check whether that should become the Part 0
+   dark-band wrapper/coverage-bg token instead of staying a one-off
+   bg-dark, for consistency with Part 7's dark band if that's landed, or
+   flag the question if Part 7 hasn't landed yet.
+2. In app/briefs/[slug]/qa.tsx: convert the "Ask a question" modal
+   (bg-base container, border-edge divider, text-live labels, the
+   focus:ring-live/30 textarea, the bg-dark submit button) to Two-Ink
+   Bold tokens.
+3. In app/briefs/[slug]/loading.tsx: convert the skeleton's bg-edge
+   pulse blocks and border-edge header rule to Two-Ink Bold tokens
+   (paper-raised/line, matching whatever the loaded BriefView actually
+   renders in those positions).
+4. Do NOT touch MediaCard in section-content.tsx — leave it exactly as
+   is, it's Part 10's job to delete it, not this subtask's job to migrate
+   it.
+5. Confirm via grep that these three files have zero remaining legacy
+   token references when done (this subtask's scope is small enough to
+   fully clear, unlike the larger screen subtasks which just need to be
+   internally consistent).
+
+Verify: bunx tsc --noEmit && bun run lint clean, browser-check the
+Members Only gate as a logged-out visitor, the Ask a question modal as a
+logged-in member, and the loading skeleton (throttle network or add a
+temporary artificial delay to see it) — all in both light and dark.
+```
+
+#### Part 11h — Final sweep and shim removal
+
+No new files of its own — this closes out the whole Part 11 migration.
+
+```
+Read docs/design/brief-feature/two-ink-bold-plan.md in full before doing
+anything else — §0, §1.1, Part 11's intro and all of 11a-11g for what
+should already be done. Don't skip straight to the steps below.
+
+Build Part 11h (docs/design/brief-feature/two-ink-bold-plan.md, the "Part
+11h" section) on its own branch. Requires 11a-11g all merged first — this
+is the closing sweep, not parallelizable with the others.
+
+1. Re-run the full-repo grep for legacy token classes (bg-/text-/border-/
+   ring-/from-/to-/via-/divide-/outline-/decoration-/fill-/stroke-/
+   placeholder-/caret-/accent- + base/warm/dark/text/soft/live/edge/card,
+   plus font-serif) across app/ and components/. It should come back
+   empty except for MediaCard in app/briefs/[slug]/section-content.tsx
+   (dead code, Part 10's responsibility) — if MediaCard has already been
+   deleted by the time this runs, the grep should be fully empty. Any
+   other hit means a subtask missed something; fix it before proceeding,
+   don't ship the shim removal with known stragglers.
+2. Delete the compat shim block from app/globals.css (the base/warm/dark/
+   text/soft/live/edge/card color tokens and the font-serif entry
+   restored in PR #35) — confirm nothing outside app/ and components/
+   (e.g. tests, scripts) references these class names first.
+3. Full verification pass: bunx tsc --noEmit, bun run lint, and the full
+   Playwright suite (bunx playwright test).
+4. Browser-check the entire site — every screen touched across 11a-11g —
+   in both light and dark, confirming nothing regressed to invisible-text
+   territory (the original bug this whole part exists to fix).
+5. Get the user's final sign-off across the whole site, not just
+   part-by-part, same as Part 10 does for the Brief page.
+
+Verify: as above — this subtask's own verification steps ARE the final
+verification for all of Part 11.
 ```
 
 ---
