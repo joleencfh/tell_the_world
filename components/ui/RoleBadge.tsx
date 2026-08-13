@@ -43,6 +43,18 @@ const OUTLINE_LABELS: Record<UserRole, string> = {
   organisation: 'Advocacy Organisation',
 }
 
+// Two-Ink Bold semantic tone: blue = expert/org verification, pink =
+// creator/journalist engagement (same split as app/briefs/[slug]/BriefView.tsx's
+// voterTone), neutral ink for admin. text-pink-ink not raw text-pink — this
+// label renders at 8px, well under the large-text contrast exemption (§1.1).
+const OUTLINE_TONE_CLASSES: Record<UserRole, string> = {
+  creator: 'text-pink-ink border-pink/20',
+  journalist: 'text-pink-ink border-pink/20',
+  expert: 'text-blue border-blue/20',
+  organisation: 'text-blue border-blue/20',
+  admin: 'text-ink-soft border-line-strong',
+}
+
 export interface RoleBadgeProps {
   role: UserRole
   variant?: RoleBadgeVariant
@@ -52,7 +64,9 @@ export interface RoleBadgeProps {
 export default function RoleBadge({ role, variant = 'pill', size = 'md' }: RoleBadgeProps) {
   if (variant === 'outline') {
     return (
-      <span className="font-mono text-[8px] tracking-[0.1em] uppercase text-live/70 border border-live/20 rounded px-1.5 py-0.5 shrink-0">
+      <span
+        className={`font-mono text-[8px] tracking-[0.1em] uppercase border rounded px-1.5 py-0.5 shrink-0 ${OUTLINE_TONE_CLASSES[role]}`}
+      >
         {OUTLINE_LABELS[role]}
       </span>
     )
