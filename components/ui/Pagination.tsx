@@ -18,12 +18,12 @@ export default function Pagination({ page, pageSize, total, buildHref, dark = fa
   const hasPrev = page > 1
   const hasNext = page < totalPages
 
-  const borderCls = dark ? 'border-white/10' : 'border-edge'
-  const mutedCls = dark ? 'text-white/40' : 'text-soft/60'
+  const borderCls = dark ? 'border-white/10' : 'border-line'
+  const mutedCls = dark ? 'text-white/40' : 'text-ink-soft/60'
   const linkCls = dark
     ? 'text-white/70 hover:text-white transition-colors'
-    : 'text-soft hover:text-text transition-colors'
-  const disabledCls = dark ? 'text-white/15' : 'text-soft/30'
+    : 'text-ink-soft hover:text-ink transition-colors'
+  const disabledCls = dark ? 'text-white/15' : 'text-ink-soft/30'
 
   return (
     <div className={`flex items-center justify-between gap-4 mt-8 pt-6 border-t ${borderCls}`}>
