@@ -5,13 +5,17 @@
 // those screens' exact prior appearance — see the callers for which token
 // maps to which screen.
 
-export type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'
+export type AvatarSize = '2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'
 export type AvatarPalette = 'gray' | 'colored' | 'blue'
 export type AvatarShape = 'circle' | 'square'
 
 // (width/height, initials text size) per token — every distinct combination
-// found across the app, named by ascending pixel size.
+// found across the app, named by ascending pixel size. '2xs' is for the
+// Community Q&A card's thin metadata bar (two-ink-bold-plan.md Part 5
+// redesign, 2026-08-13) — every other token was already spoken for by an
+// existing screen and too big for that context.
 const SIZE_CLASSES: Record<AvatarSize, string> = {
+  '2xs': 'w-[18px] h-[18px] text-[7px]',
   xs: 'w-8 h-8 text-xs',
   sm: 'w-9 h-9 text-xs',
   md: 'w-10 h-10 text-sm',

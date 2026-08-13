@@ -828,6 +828,85 @@ pattern already used elsewhere in this app, e.g. canContribute in
 BriefView.tsx).
 ```
 
+**Status: built 2026-08-13, then redesigned twice the same day against
+user feedback** — first against the reference artifact directly (a pink
+left border on "Asked by", not just tinted text — the artifact's
+`.qa-attrib.asked` rule), then again against a LinkedIn-comments-inspired
+layout the user asked for instead. The final shape differs substantially
+from the prompt above, which is kept only for history:
+
+- Votes are split by voter segment — pink (creator/journalist) vs. blue
+  (expert/organisation) counts, not one number. A single "▲" button casts
+  the vote (no separate pink/blue buttons — the voter's own role decides
+  which bucket it lands in); hovering the count reveals the pink/blue
+  breakdown as a tooltip; clicking it opens a "who voted" modal (avatar +
+  name + affiliation + role per person, fetched on demand). All of this
+  lives in `app/briefs/[slug]/qa-votes.tsx` (`VoteButton`, `EndorseButton`,
+  `VoteCountBadge`, the voter modal) and the `getVoters` action in
+  `lib/briefs/actions.ts`.
+- A question now has a **flat list of answers** (`question_answers` table,
+  migration 024), not a single `answer_text`/`answered_by` pair — no
+  threading, an answer can't itself be replied to. Each answer gets its
+  own vote ("helpful", any member) and endorsement ("accurate", expert/org
+  only) — see `app/briefs/[slug]/qa-answers.tsx`.
+- The question card itself is **always fully visible** — question text,
+  vote count, answer count (👬 icon, click to expand/collapse), date, and
+  who asked it (avatar + name + role + affiliation) all render without
+  interaction. Only the answers list collapses/expands, not the whole
+  card — this is not an accordion the way FAQ (Part 4) is.
+- `questions.answer_text` / `questions.answered_by` (migration 022) were
+  dropped in migration 024 — they never had a real write path (see Part
+  5b below), so there was no data to preserve.
+
+### Part 5b — Community Q&A: answer submission + moderation (deferred)
+
+**Status: explicitly deferred by the user 2026-08-13.** Every part of Part
+5 above assumes questions and answers already exist — but there has never
+been a way for anyone to actually attach an answer to a question through
+this app's UI. (`approveQuestion` in `lib/admin/actions.ts` only flips a
+question's own `status` to `approved`; it doesn't touch answers.) All
+verification of Part 5's UI so far has used answers seeded directly via a
+service-role script, not a real submission path.
+
+The user's own framing, worth carrying forward rather than re-deciding:
+*"since a great part of the Brief gets built by submissions, all of this
+work should be done with a completely different development plan"* — i.e.
+this may not belong as a small follow-up part bolted onto this doc. A
+future session should treat that as an open question, not a settled one:
+either (a) build it as a small Part 5b exactly like Part 4b was (the
+mechanism below is already the right shape for that), or (b) treat it as
+the seed of a broader "how do submissions get moderated across this whole
+app" plan that would also touch questions, FAQ answers, correction
+proposals, CTAs, and coverage — several of which already independently
+reinvent the same pending → admin-approves shape. Don't assume (a) just
+because it's the smaller diff.
+
+If built as a Part 5b, the mechanism is well-understood and mirrors Part
+4b's `brief_faq_answers` pattern closely:
+
+1. Migration: add a `status text not null default 'pending' check (status
+   in ('pending', 'published'))` column to `question_answers` (next
+   migration number — check `supabase/`'s highest file first). Update the
+   table's read policy to gate on `status = 'published'` for the general
+   member-read case, plus an "authors can read their own pending rows"
+   policy and an expert/organisation-only insert policy restricted to
+   `status = 'pending'` — same three-policy shape as
+   `brief_faq_answers` in migration 021.
+2. A submission form for expert/organisation users, following
+   `AddAnswerForm` in `app/briefs/[slug]/faq-answers.tsx` almost exactly
+   (propose-then-pending, §1.4's forms checklist) — the one difference is
+   it submits against a real `question_id`, not FAQ's text-matched
+   question line, so no "renaming detaches answers" fragility applies
+   here.
+3. Admin moderation: a new pending-answers tab, following
+   `FaqAnswerCard/getPendingFaqAnswers/approveFaqAnswer/dismissFaqAnswer`
+   in `app/admin/faq-answer-card.tsx` and `lib/admin/actions.ts` almost
+   exactly.
+4. `lib/data/question-answers.ts`'s `getQuestionAnswers` already filters
+   nothing by status today (the table has no such column yet) — once (1)
+   ships, add `.eq('status', 'published')` there, mirroring
+   `getPublishedFaqAnswers`.
+
 ### Part 6 — Calls to Action (new feature)
 
 New pink section. Follow the existing `brief_correction_proposals`

@@ -11,7 +11,8 @@ import {
   type EndorsementBarCounts,
   type ContributionStatus,
 } from '@/lib/data/contributions'
-import { getApprovedQuestions } from '@/lib/data/questions'
+import { getApprovedQuestions, type Question, type QuestionAuthor, type VoteSplit } from '@/lib/data/questions'
+import { getQuestionAnswers, type QuestionAnswer } from '@/lib/data/question-answers'
 import { getUserBasic } from '@/lib/data/users'
 import { getPublishedFaqAnswers, type FaqAnswer } from '@/lib/data/faq-answers'
 import BriefView from './BriefView'
@@ -20,7 +21,19 @@ import BriefView from './BriefView'
 // Types (re-exported so BriefView can import them from here)
 // ---------------------------------------------------------------------------
 
-export type { BriefVisibility, BriefSectionType, UserRole, MediaPost, EndorsementBarCounts, ContributionStatus, FaqAnswer }
+export type {
+  BriefVisibility,
+  BriefSectionType,
+  UserRole,
+  MediaPost,
+  EndorsementBarCounts,
+  ContributionStatus,
+  FaqAnswer,
+  Question,
+  QuestionAuthor,
+  VoteSplit,
+  QuestionAnswer,
+}
 
 export interface BriefSection {
   id: string
@@ -70,25 +83,6 @@ export interface Quote {
   url: string | null
   user_id: string
   users: QuoteAuthor
-}
-
-export interface QuestionAuthor {
-  id: string
-  display_name: string | null
-  email: string
-  avatar_url: string | null
-  role?: UserRole | null
-  expert_category?: string | null
-  creator_platforms?: string[] | null
-}
-
-export interface Question {
-  id: string
-  question_text: string
-  answer_text: string | null
-  created_at: string
-  users: QuestionAuthor
-  answered_by?: QuestionAuthor | null
 }
 
 export interface CurrentUser {
@@ -157,15 +151,20 @@ export default async function BriefPage({
   })
 
   let questions: Question[] = []
+  let answersByQuestion: Record<string, QuestionAnswer[]> = {}
   let currentUser: CurrentUser | null = null
 
   if (user) {
     const [briefQuestions, viewer] = await Promise.all([
-      getApprovedQuestions(supabase, brief.id),
+      getApprovedQuestions(supabase, brief.id, user.id),
       getUserBasic(supabase, user.id),
     ])
     questions = briefQuestions
     currentUser = viewer
+    // Needs the question ids from the fetch above, so this can't join the
+    // Promise.all — same dependent-fetch shape as explainerSectionIds.
+    const answersMap = await getQuestionAnswers(supabase, questions.map((q) => q.id), user.id)
+    answersByQuestion = Object.fromEntries(answersMap)
   }
 
   return (
@@ -175,6 +174,7 @@ export default async function BriefPage({
       media={media}
       endorsementBar={endorsementBar}
       questions={questions}
+      answersByQuestion={answersByQuestion}
       currentUser={currentUser}
       myReviewStatus={myReviewStatus}
       explainerContributions={explainerContributions}

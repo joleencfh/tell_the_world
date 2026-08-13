@@ -1,124 +1,195 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useId, useState, useTransition } from 'react'
 import Link from 'next/link'
 import { submitQuestion, submitCorrectionProposal } from '@/lib/briefs/actions'
 import Avatar from '@/components/ui/Avatar'
 import RoleBadge from '@/components/ui/RoleBadge'
+import { VoteButton, type VoterTone } from './qa-votes'
+import { AnswerCountIndicator, AnswersList } from './qa-answers'
 import { getDisplayName, formatDate } from './helpers'
-import type { Question, QuestionAuthor } from './page'
+import type { Question, QuestionAuthor } from '@/lib/data/questions'
+import type { QuestionAnswer } from '@/lib/data/question-answers'
 
 // ---------------------------------------------------------------------------
-// Category display helpers
+// Thin author bar — the question card's byline, deliberately quiet
+// (font-mono, muted color, tiny) so the question text below it reads as
+// the headline. avatar + name + role badge + affiliation + date, all on
+// one line, separated by "·" (Reddit-card redesign, 2026-08-13).
 // ---------------------------------------------------------------------------
 
-const EXPERT_CATEGORY_COLORS: Record<string, string> = {
-  'Technical AI Safety': 'bg-sky-900/60 text-sky-300 border-sky-700/40',
-  'AI Governance': 'bg-purple-900/60 text-purple-300 border-purple-700/40',
-  'Technical AI Governance': 'bg-indigo-900/60 text-indigo-300 border-indigo-700/40',
-}
-
-const PLATFORM_COLORS: Record<string, string> = {
-  YouTube: 'bg-red-900/50 text-red-300 border-red-700/40',
-  TikTok: 'bg-fuchsia-900/50 text-fuchsia-300 border-fuchsia-700/40',
-  Podcast: 'bg-orange-900/50 text-orange-300 border-orange-700/40',
-}
-
-function CategoryChips({ author }: { author: QuestionAuthor }) {
-  if (author.role === 'expert' && author.expert_category) {
-    const colorClass = EXPERT_CATEGORY_COLORS[author.expert_category] ?? 'bg-white/10 text-white/60 border-white/10'
-    return (
-      <span className={`font-mono text-[8px] tracking-[0.08em] uppercase border rounded px-1.5 py-0.5 ${colorClass}`}>
-        {author.expert_category}
-      </span>
-    )
-  }
-  if (author.role === 'creator' && author.creator_platforms?.length) {
-    return (
-      <>
-        {author.creator_platforms.map((p: string) => {
-          const colorClass = PLATFORM_COLORS[p] ?? 'bg-white/10 text-white/60 border-white/10'
-          return (
-            <span key={p} className={`font-mono text-[8px] tracking-[0.08em] uppercase border rounded px-1.5 py-0.5 ${colorClass}`}>
-              {p}
-            </span>
-          )
-        })}
-      </>
-    )
-  }
-  return null
-}
-
-// ---------------------------------------------------------------------------
-// Q&A components
-// ---------------------------------------------------------------------------
-
-function AuthorStrip({ author, date }: { author: QuestionAuthor; date?: string }) {
+function AuthorBar({ author, date }: { author: QuestionAuthor; date: string }) {
   const name = getDisplayName(author)
+  const credential = author.affiliation || author.org_name
+
   return (
-    <div className="flex items-center gap-2.5 flex-wrap">
+    <div data-qa-author-bar className="flex flex-wrap items-center gap-1.5 font-mono text-[9.5px] text-ink-soft">
       <Avatar
         name={name}
         avatarUrl={author.avatar_url}
         palette="colored"
-        size="xs"
-        ringClassName="ring-2 ring-white/10"
+        shape={author.role === 'organisation' ? 'square' : 'circle'}
+        size="2xs"
       />
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <Link
-            href={`/profile/${author.id}`}
-            className="font-serif text-xs font-semibold text-dark hover:text-live transition-colors truncate"
-          >
-            {name}
-          </Link>
-          {author.role && <RoleBadge role={author.role} variant="outline" />}
-          <CategoryChips author={author} />
-        </div>
-        {date && (
-          <p className="font-mono text-[9px] tracking-[0.1em] uppercase text-soft mt-0.5">
-            {formatDate(date)}
-          </p>
-        )}
+      <Link href={`/profile/${author.id}`} className="font-bold transition-colors hover:text-pink">
+        {name}
+      </Link>
+      {author.role && <RoleBadge role={author.role} variant="outline" />}
+      {credential && (
+        <>
+          <span className="text-ink-faint">·</span>
+          <span className="truncate text-ink-faint">{credential}</span>
+        </>
+      )}
+      <span className="text-ink-faint">·</span>
+      <span className="text-ink-faint">{formatDate(date)}</span>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Pink +/× toggle — two bars forming a "+" that rotate 45° into an "×"
+// when the answers panel is open. The only control that can collapse an
+// open card; also works to expand it (a full toggle), unlike the
+// click-anywhere zone below which is expand-only.
+// ---------------------------------------------------------------------------
+
+function ExpandToggle({ isOpen, onToggle, panelId }: { isOpen: boolean; onToggle: () => void; panelId: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-expanded={isOpen}
+      aria-controls={panelId}
+      aria-label={isOpen ? 'Collapse answers' : 'Expand answers'}
+      style={{ touchAction: 'manipulation' }}
+      className="relative h-5 w-5 shrink-0 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-pink"
+    >
+      <span
+        className={`absolute left-1/2 top-1/2 h-[2px] w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-pink transition-transform duration-200 motion-reduce:transition-none ${
+          isOpen ? 'rotate-45' : ''
+        }`}
+      />
+      <span
+        className={`absolute left-1/2 top-1/2 h-3.5 w-[2px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-pink transition-transform duration-200 motion-reduce:transition-none ${
+          isOpen ? 'rotate-45' : ''
+        }`}
+      />
+    </button>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Question card — Reddit-feed style (2026-08-13 redesign, replacing the
+// earlier LinkedIn-comment layout): thin author bar, then the question
+// text as the headline with the pink +/× pinned top-right, then a plain
+// stats row (vote widget, answer count). The whole card is a click-to-
+// expand zone (except the author bar / toggle / vote widget); hovering a
+// collapsed card — and an expanded card permanently — turns it into a
+// white, pink-outlined box that bleeds edge-to-edge with the section's
+// own bg-paper-sunken wash (cancelling that wrapper's px-6 via -mx-6/px-6
+// on this card, per two-ink-bold-plan.md's Part 5 redesign notes).
+// ---------------------------------------------------------------------------
+
+function QuestionCard({
+  question,
+  answers,
+  briefSlug,
+  canEndorse,
+  voterTone,
+}: {
+  question: Question
+  answers: QuestionAnswer[]
+  briefSlug: string
+  canEndorse: boolean
+  voterTone: VoterTone
+}) {
+  const [isOpen, setIsOpen] = useState(false)
+  const panelId = useId()
+
+  function handleCardClick(e: React.MouseEvent<HTMLDivElement>) {
+    if (isOpen) return
+    const target = e.target as HTMLElement
+    if (target.closest('button, a')) return
+    if (target.closest('[data-qa-author-bar]')) return
+    setIsOpen(true)
+  }
+
+  const cardClasses = `-mx-6 space-y-3 border-t border-line px-6 py-5 outline outline-2 first:border-t-0 ${
+    isOpen
+      ? 'bg-paper outline-pink'
+      : 'cursor-pointer outline-transparent transition-colors hover:bg-paper hover:outline-pink'
+  }`
+
+  return (
+    <div onClick={handleCardClick} className={cardClasses}>
+      <AuthorBar author={question.users} date={question.created_at} />
+
+      <div className="flex items-start gap-3">
+        <p className="min-w-0 flex-1 break-words font-display text-xl font-extrabold text-ink [text-wrap:balance]">
+          {question.question_text}
+        </p>
+        <ExpandToggle isOpen={isOpen} onToggle={() => setIsOpen((v) => !v)} panelId={panelId} />
+      </div>
+
+      <div className="flex flex-wrap items-center gap-4">
+        <VoteButton
+          target="question"
+          id={question.id}
+          briefSlug={briefSlug}
+          votes={question.questionVotes}
+          voterTone={voterTone}
+          voterKind="question_votes"
+          modalTitle="Voted up by"
+        />
+        <AnswerCountIndicator count={answers.length} />
+      </div>
+
+      <div id={panelId} hidden={!isOpen}>
+        {isOpen && <AnswersList answers={answers} briefSlug={briefSlug} canEndorse={canEndorse} voterTone={voterTone} />}
       </div>
     </div>
   )
 }
 
-export function QuestionCard({ question }: { question: Question }) {
-  return (
-    <div className="border border-edge rounded-2xl overflow-hidden bg-card">
-      {/* Question */}
-      <div className="p-5">
-        <AuthorStrip author={question.users} date={question.created_at} />
-        <p className="font-serif text-sm text-dark font-semibold leading-snug mt-3">
-          {question.question_text}
-        </p>
-      </div>
+// ---------------------------------------------------------------------------
+// Q&A section — BriefView's call site. Empty state instead of rendering
+// nothing (§1.4).
+// ---------------------------------------------------------------------------
 
-      {/* Answer */}
-      {question.answer_text ? (
-        <div className="border-t border-edge bg-base px-5 py-4">
-          <div className="flex items-start gap-3">
-            <div className="w-0.5 self-stretch bg-live/40 rounded-full shrink-0 mt-0.5 mb-0.5" />
-            <div className="min-w-0 flex-1 space-y-3">
-              {question.answered_by && (
-                <AuthorStrip author={question.answered_by} />
-              )}
-              <p className="font-serif text-sm text-text leading-relaxed">
-                {question.answer_text}
-              </p>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="border-t border-edge px-5 py-3">
-          <p className="font-mono text-[9px] tracking-[0.1em] uppercase text-soft/50">
-            Awaiting answer
-          </p>
-        </div>
-      )}
+export function QuestionsList({
+  questions,
+  answersByQuestion,
+  briefSlug,
+  canEndorse,
+  voterTone,
+}: {
+  questions: Question[]
+  answersByQuestion: Record<string, QuestionAnswer[]>
+  briefSlug: string
+  canEndorse: boolean
+  voterTone: VoterTone
+}) {
+  if (questions.length === 0) {
+    return (
+      <p className="font-mono text-xs text-ink-faint mb-6">
+        No questions yet — be the first to ask below.
+      </p>
+    )
+  }
+
+  return (
+    <div className="mb-6">
+      {questions.map((q) => (
+        <QuestionCard
+          key={q.id}
+          question={q}
+          answers={answersByQuestion[q.id] ?? []}
+          briefSlug={briefSlug}
+          canEndorse={canEndorse}
+          voterTone={voterTone}
+        />
+      ))}
     </div>
   )
 }
@@ -149,8 +220,8 @@ export function QuestionForm({ briefId, briefSlug }: { briefId: string; briefSlu
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-8 space-y-3">
-      <label className="font-mono text-[10px] tracking-[0.18em] uppercase text-soft block">
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <label className="block font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint">
         Ask a question
       </label>
       <textarea
@@ -160,12 +231,13 @@ export function QuestionForm({ briefId, briefSlug }: { briefId: string; briefSlu
         maxLength={1000}
         placeholder="Something you're curious about after reading this brief…"
         disabled={isPending}
-        className="w-full bg-base border border-edge rounded-xl px-4 py-3 font-serif text-sm text-text placeholder:text-soft/40 focus:outline-none focus:ring-2 focus:ring-live/30 focus:border-live/50 resize-none disabled:opacity-50 transition"
+        className="w-full resize-none border border-line bg-paper px-4 py-3 font-body text-sm text-ink placeholder:text-ink-faint/70 focus:outline-none focus:ring-2 focus:ring-pink disabled:opacity-50 transition"
       />
       {feedback && (
         <p
+          role={feedback.type === 'error' ? 'alert' : undefined}
           className={`font-mono text-[10px] tracking-[0.1em] ${
-            feedback.type === 'error' ? 'text-red-600' : 'text-green-700'
+            feedback.type === 'error' ? 'text-pink-ink' : 'text-blue-ink'
           }`}
         >
           {feedback.message}
@@ -174,7 +246,8 @@ export function QuestionForm({ briefId, briefSlug }: { briefId: string; briefSlu
       <button
         type="submit"
         disabled={isPending || !text.trim()}
-        className="font-display uppercase tracking-widest text-xs bg-dark text-base px-6 py-3 hover:bg-text transition-colors disabled:opacity-40"
+        style={{ touchAction: 'manipulation' }}
+        className="bg-ink px-6 py-3 font-mono text-xs uppercase tracking-widest text-paper transition-opacity hover:opacity-90 disabled:opacity-40"
       >
         {isPending ? 'Submitting…' : 'Submit Question'}
       </button>
@@ -183,7 +256,9 @@ export function QuestionForm({ briefId, briefSlug }: { briefId: string; briefSlu
 }
 
 // ---------------------------------------------------------------------------
-// Propose correction modal — experts and organisations only
+// Propose correction modal — experts and organisations only. Unrelated to
+// Q&A (Part 3's brief_contributions mechanism); left as-is, not part of
+// this redesign's scope.
 // ---------------------------------------------------------------------------
 
 export function ProposeCorrectionModal({

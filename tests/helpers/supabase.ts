@@ -149,6 +149,67 @@ export async function deleteFaqAnswers(briefId: string, question: string): Promi
 }
 
 // ---------------------------------------------------------------------------
+// Community Q&A vote helpers (question_votes — two-ink-bold-plan.md Part 5
+// upvote-toggle fix, 2026-08-13)
+// ---------------------------------------------------------------------------
+
+export interface QuestionRecord {
+  id: string
+  brief_id: string
+  user_id: string
+  question_text: string
+  status: string
+  created_at: string
+}
+
+/** Seed an already-approved question directly (bypasses the admin-approval UI). */
+export async function insertApprovedQuestion(
+  briefId: string,
+  userId: string,
+  questionText: string,
+): Promise<QuestionRecord> {
+  const client = getTestAdminClient()
+  const { data, error } = await client
+    .from('questions')
+    .insert({ brief_id: briefId, user_id: userId, question_text: questionText, status: 'approved' })
+    .select('id, brief_id, user_id, question_text, status, created_at')
+    .single()
+
+  if (error || !data) {
+    throw new Error(`Failed to insert questions row: ${error?.message}`)
+  }
+
+  return data as QuestionRecord
+}
+
+/** Delete a question row — question_votes rows cascade with it. Call in afterEach/afterAll. */
+export async function deleteTestQuestion(questionId: string): Promise<void> {
+  const client = getTestAdminClient()
+  const { error } = await client.from('questions').delete().eq('id', questionId)
+
+  if (error) {
+    console.warn(`Failed to clean up test question: ${error.message}`)
+  }
+}
+
+/** Whether a (question, user) question_votes row currently exists. */
+export async function hasQuestionVote(questionId: string, userId: string): Promise<boolean> {
+  const client = getTestAdminClient()
+  const { data, error } = await client
+    .from('question_votes')
+    .select('id')
+    .eq('question_id', questionId)
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  if (error) {
+    throw new Error(`Failed to query question_votes: ${error.message}`)
+  }
+
+  return data !== null
+}
+
+// ---------------------------------------------------------------------------
 // Message helpers
 // ---------------------------------------------------------------------------
 
