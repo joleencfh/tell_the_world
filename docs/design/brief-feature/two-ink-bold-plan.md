@@ -1203,6 +1203,106 @@ Build Part 10 (docs/design/brief-feature/two-ink-bold-plan.md §3, Part
 
 ---
 
+### Part 11 — Sitewide Two-Ink Bold migration (deferred, separate branch)
+
+**Status: explicitly deferred by the user 2026-08-13.** Not part of the
+original scope — §0 was explicit that Two-Ink Bold applies to the public
+Brief page only — but the user wants the rest of the site unified onto
+the same design system eventually, as its own dedicated piece of work
+rather than folded into whichever part happens to touch a given file.
+
+**Why this exists as a part at all:** while fixing an unrelated regression
+(Part 0's `@theme` replacement left every non-Brief-page screen — admin,
+landing, login, home, profile, directory, the apply flow, and the shared
+`RoleBadge`/`Pagination` components — referencing retired tokens with no
+CSS emitted for them, i.e. invisible text/backgrounds), the fix applied
+was a **compat shim**: the old `base`/`warm`/`dark`/`text`/`soft`/`live`/
+`edge`/`card` tokens and `font-serif` were restored in `app/globals.css`
+at their original pre-Part-0 values (the amber/cream "Punchy Media
+Brand" look). That shim un-breaks those screens but does **not** move
+them onto Two-Ink Bold — it just restores their old appearance. This part
+is the follow-up that actually does the migration and lets that shim be
+deleted.
+
+**Scope — every file still authoring against the legacy tokens:**
+`app/page.tsx` (landing), `app/login/page.tsx`, `app/home/page.tsx`,
+`app/apply/page.tsx` + `form-fields.tsx` + `rejected/page.tsx` +
+`pending/page.tsx`, `app/profile/[id]/ProfileView.tsx` + `RoleDetails.tsx`
++ `cards.tsx`, `app/directory/DirectoryView.tsx` + `UserCard.tsx` +
+`QuoteCard.tsx`, `app/admin/AdminScreen.tsx` + `cards.tsx` +
+`faq-answer-card.tsx` + (by then, presumably) `cta-card.tsx` +
+`briefs/[id]/EditBriefScreen.tsx`, and the shared `components/ui/
+RoleBadge.tsx` + `Pagination.tsx`. Re-grep before starting — this list is
+current as of Part 6 but new admin surfaces (Parts 6/7's moderation tabs)
+may add more call sites in the meantime.
+
+**Not a mechanical rename.** Most old→new token swaps are direct
+(`bg-base`→`bg-paper`, `bg-warm`→`bg-paper-raised`, `text-dark`→
+`text-ink`, `text-soft`→`text-ink-soft`, `border-edge`→`border-line`,
+`bg-card`→`bg-paper-raised`, `font-serif`→ likely `font-body`, since
+Two-Ink Bold uses one grotesk family rather than a serif/sans split, see
+§1.1). But `text-live` — the old theme's single amber accent, used for
+links, highlights, and brand marks everywhere — has **no 1:1 equivalent**:
+Two-Ink Bold splits accent color by meaning, not by "the brand color"
+(§1.1 — blue = expert/org verification, pink = creator/journalist
+engagement). Every `text-live`/`bg-live`/`border-live`/`ring-live` call
+site needs a real per-instance judgment call on which it becomes (or
+whether it should be neutral `ink` instead), not a find-and-replace.
+Apply §1.1's contrast rule (`blue`/`pink` vs. `-ink` suffixed variants)
+to each one as it's converted, same as Part 0 did for the Brief page.
+
+**Suggested approach for a future session:**
+1. Work file-by-file (or screen-by-screen), not token-by-token — each
+   screen's accent-color judgment calls need to be seen in context.
+2. Get the user's sign-off per screen or in a small batch, not all at
+   once — same process convention as every other part in this doc.
+3. Once every legacy call site is converted (re-run the grep from this
+   part's scope list to confirm zero remain), delete the compat shim
+   block from `app/globals.css` in the same PR that finishes the last
+   screen — don't delete it preemptively, and don't leave it in
+   indefinitely once nothing references it.
+4. This is a good candidate for its own tracking doc rather than more
+   parts bolted onto this one, given the file count — consider whether a
+   fresh plan doc makes sense once this actually kicks off, similar to
+   the open question already raised for Part 5b.
+
+#### Prompt for next session — Part 11
+
+```
+Read docs/design/brief-feature/two-ink-bold-plan.md in full before doing
+anything else — §0 for why this was out of the original scope, §1.1 for
+the token/semantic-color rules this part applies retroactively, Part 11
+itself for the full file list and the text-live judgment-call warning.
+Don't skip straight to the steps below.
+
+Build Part 11 (docs/design/brief-feature/two-ink-bold-plan.md §3, Part
+11) on its own branch, separate from the Two-Ink Bold Brief-page work —
+this migrates the rest of the site (admin, landing, login, home,
+profile, directory, apply flow, shared RoleBadge/Pagination) onto the
+Two-Ink Bold tokens, replacing the compat shim in app/globals.css that
+currently keeps them rendering with the old amber/cream theme.
+
+1. Re-run a grep for the legacy token classes (base/warm/dark/text/soft/
+   live/edge/card as bg-/text-/border-/ring-/etc, plus font-serif) across
+   the whole repo to get the current file list — Part 11's list may be
+   stale by the time this starts.
+2. Go screen by screen. Direct token swaps are mechanical (see Part 11's
+   mapping table). Every text-live/bg-live/border-live/ring-live site
+   needs a real decision: blue (expert/verification-flavored), pink
+   (creator/engagement-flavored), or neutral ink — don't default to one
+   without looking at what the element actually represents. Apply the
+   blue/pink vs. blue-ink/pink-ink contrast rule (§1.1) to each.
+3. Get the user's sign-off per screen (or small batches), not all at
+   once.
+4. Once the grep from step 1 comes back empty, delete the legacy
+   @theme block from app/globals.css in the same PR as the last screen.
+
+Verify: bunx tsc --noEmit && bun run lint clean, browser-check each
+converted screen in both light and dark as you go (not just at the end).
+```
+
+---
+
 ## 4. Engineering conventions (apply throughout, not just once)
 
 ### General
