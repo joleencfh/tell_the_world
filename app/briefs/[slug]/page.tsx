@@ -84,7 +84,6 @@ export interface Quote {
   body: string | null
   url: string | null
   user_id: string
-  created_at: string
   users: QuoteAuthor
 }
 

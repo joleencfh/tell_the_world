@@ -5,7 +5,7 @@ import { useState, type ReactNode } from 'react'
 import Avatar from '@/components/ui/Avatar'
 import { Carousel } from '@/components/ui/Carousel'
 import type { PostType } from '@/lib/types'
-import { getDisplayName, formatDate } from './helpers'
+import { getDisplayName } from './helpers'
 import { parseSources, SourcesGrid } from './sources'
 import type { BriefSectionType, Quote, MediaPost } from './page'
 
@@ -129,33 +129,28 @@ export function QuoteCard({ quote }: { quote: Quote }) {
   const isOrg = quote.users.role === 'organisation'
 
   return (
-    <div className="w-[300px] shrink-0 snap-start pt-1 first:pl-1">
-      <div className="flex h-full flex-col gap-[0.9rem] border border-line border-t-[3px] border-t-blue bg-paper p-5 transition-all duration-150 motion-reduce:transition-none hover:-translate-x-0.5 hover:-translate-y-0.5 hover:border-blue hover:shadow-[4px_4px_0_0_var(--color-blue)]">
-        <span className="font-mono text-[0.62rem] tracking-[0.06em] text-ink-faint tabular-nums">
-          {formatDate(quote.created_at)}
-        </span>
-        <p className="flex-1 font-body text-base font-medium leading-[1.5] text-ink">
-          &ldquo;{quote.body || quote.title}&rdquo;
-        </p>
-        <div className="flex items-center gap-[0.65rem] border-t border-line pt-[0.85rem]">
-          <Avatar
-            name={authorName}
-            avatarUrl={quote.users.avatar_url}
-            palette="blue"
-            shape={isOrg ? 'square' : 'circle'}
-            size="sm"
-          />
-          <div className="min-w-0 flex-1">
-            <Link
-              href={`/profile/${quote.users.id}`}
-              className="block truncate font-display text-[0.85rem] font-extrabold text-ink hover:text-blue transition-colors"
-            >
-              {authorName}
-            </Link>
-            {credential && (
-              <p className="mt-0.5 truncate font-mono text-[0.62rem] text-ink-soft">{credential}</p>
-            )}
-          </div>
+    <div className="flex w-[300px] shrink-0 snap-start flex-col gap-[0.9rem] border border-line border-t-[3px] border-t-blue bg-paper p-5">
+      <p className="flex-1 font-body text-base font-medium leading-[1.5] text-ink">
+        &ldquo;{quote.body || quote.title}&rdquo;
+      </p>
+      <div className="flex items-center gap-[0.65rem] border-t border-line pt-[0.85rem]">
+        <Avatar
+          name={authorName}
+          avatarUrl={quote.users.avatar_url}
+          palette="blue"
+          shape={isOrg ? 'square' : 'circle'}
+          size="sm"
+        />
+        <div className="min-w-0 flex-1">
+          <Link
+            href={`/profile/${quote.users.id}`}
+            className="block truncate font-display text-[0.85rem] font-extrabold text-ink hover:text-blue transition-colors"
+          >
+            {authorName}
+          </Link>
+          {credential && (
+            <p className="mt-0.5 truncate font-mono text-[0.62rem] text-ink-soft">{credential}</p>
+          )}
         </div>
       </div>
     </div>
