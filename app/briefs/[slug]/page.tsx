@@ -16,6 +16,7 @@ import { getQuestionAnswers, type QuestionAnswer } from '@/lib/data/question-ans
 import { getUserBasic } from '@/lib/data/users'
 import { getPublishedFaqAnswers, type FaqAnswer } from '@/lib/data/faq-answers'
 import { getPublishedCtas, type Cta } from '@/lib/data/ctas'
+import { getPublishedCoverage, type Coverage } from '@/lib/data/coverage'
 import BriefView from './BriefView'
 
 // ---------------------------------------------------------------------------
@@ -31,6 +32,7 @@ export type {
   ContributionStatus,
   FaqAnswer,
   Cta,
+  Coverage,
   Question,
   QuestionAuthor,
   VoteSplit,
@@ -124,7 +126,7 @@ export default async function BriefPage({
     .filter((s) => s.section_type === 'explainer')
     .map((s) => s.id)
 
-  const [quotes, media, endorsementBar, myReviewStatus, sectionCounts, myExplainerStatuses, faqAnswersMap, ctas] = await Promise.all([
+  const [quotes, media, endorsementBar, myReviewStatus, sectionCounts, myExplainerStatuses, faqAnswersMap, ctas, coverage] = await Promise.all([
     getQuotesByTopicTag(supabase, brief.topic_tag, 4),
     getMediaSection(supabase, brief.topic_tag, brief.pinned_media_post_id, 6),
     getEndorsementBarCounts(supabase, brief.id, brief.brief_sections),
@@ -137,6 +139,7 @@ export default async function BriefPage({
       : Promise.resolve(new Map<string, ContributionStatus>()),
     getPublishedFaqAnswers(supabase, brief.id),
     getPublishedCtas(supabase, brief.id),
+    getPublishedCoverage(supabase, brief.id, user?.id ?? null),
   ])
 
   // Converted from a Map to a plain object — Map doesn't round-trip cleanly
@@ -184,6 +187,7 @@ export default async function BriefPage({
       explainerContributions={explainerContributions}
       faqAnswersByQuestion={faqAnswersByQuestion}
       ctas={ctas}
+      coverage={coverage}
     />
   )
 }

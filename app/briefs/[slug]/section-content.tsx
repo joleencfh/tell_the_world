@@ -327,12 +327,23 @@ export function SectionHeader({
   label,
   description,
   numTone = 'ink',
+  onDark = false,
   action,
 }: {
   num: string
   label: string
   description: string
   numTone?: 'ink' | 'blue' | 'pink'
+  // Covered By (Part 7) is the only section on the fixed dark band
+  // (coverage-bg) — text-ink/bg-line assume a light-in-light-mode /
+  // dark-in-dark-mode paper background and invert with the theme, but
+  // coverage-bg stays dark in both, so in light mode text-ink (near-black)
+  // would sit on a near-black background and vanish. onDark swaps the
+  // label/description/rule to the fixed coverage-fg token instead; numTone
+  // is untouched since text-pink/text-blue already sit fine on coverage-bg
+  // (the Members Only gate banner in BriefView.tsx already proves this
+  // combination out).
+  onDark?: boolean
   // Optional trailing control (e.g. Quotes' role filter, CTA's "+ New CTA")
   // — mirrors the reference artifact's .sec-head, which is a flex row with
   // the title block on the left and one optional control on the right.
@@ -351,17 +362,17 @@ export function SectionHeader({
         <span className={`font-mono text-sm tracking-[0.2em] font-bold tabular-nums ${NUM_TONE_CLASSES[numTone]}`}>
           {num}
         </span>
-        <div className="h-px flex-1 bg-line" />
+        <div className={`h-px flex-1 ${onDark ? 'bg-coverage-fg/20' : 'bg-line'}`} />
       </div>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0 flex-1">
           <h2
-            className="font-display uppercase text-ink font-bold leading-[1]"
+            className={`font-display uppercase font-bold leading-[1] ${onDark ? 'text-coverage-fg' : 'text-ink'}`}
             style={{ fontSize: 'clamp(1.7rem, 3.2vw, 2.5rem)', letterSpacing: '0.01em' }}
           >
             {label}
           </h2>
-          <p className="font-body text-sm text-ink-soft italic mt-2">{description}</p>
+          <p className={`font-body text-sm italic mt-2 ${onDark ? 'text-coverage-fg/70' : 'text-ink-soft'}`}>{description}</p>
         </div>
         {action && <div className="shrink-0">{action}</div>}
       </div>
