@@ -254,32 +254,32 @@ function PublicBriefCard({ brief, index }: { brief: Brief; index: number }) {
   return (
     <div className="flex flex-col">
       {/* Number label */}
-      <p className="font-display text-5xl sm:text-6xl leading-none text-edge select-none mb-1" aria-hidden>
+      <p className="font-display text-5xl sm:text-6xl leading-none text-line-strong select-none mb-1" aria-hidden>
         #{num}
       </p>
-      <article className="border border-edge bg-card overflow-hidden flex flex-col flex-1">
+      <article className="border border-line bg-paper-raised overflow-hidden flex flex-col flex-1">
         <BriefIllustration id={brief.id} tall />
         <div className="p-7 sm:p-9 flex flex-col flex-1">
           {/* Badge */}
           <div className="mb-5 inline-flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-live shrink-0" aria-hidden />
-            <span className="font-mono text-[9px] tracking-[0.25em] uppercase text-live">Open brief</span>
+            <span className="h-1.5 w-1.5 rounded-full bg-pink shrink-0" aria-hidden />
+            <span className="font-mono text-[9px] tracking-[0.25em] uppercase text-pink-ink">Open brief</span>
           </div>
 
           {/* Title */}
-          <h3 className="font-serif text-2xl sm:text-3xl font-bold leading-[1.15] text-dark mb-4">
+          <h3 className="font-body text-2xl sm:text-3xl font-bold leading-[1.15] text-ink mb-4">
             {brief.title}
           </h3>
 
           {/* TLDR */}
-          <p className="font-serif text-base leading-[1.8] text-soft line-clamp-3 mb-7">
+          <p className="font-body text-base leading-[1.8] text-ink-soft line-clamp-3 mb-7">
             {brief.tldr}
           </p>
 
           {/* CTA */}
           <Link
             href="/apply"
-            className="mt-auto inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.22em] uppercase text-live hover:opacity-75 transition-opacity group"
+            className="mt-auto inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.22em] uppercase text-pink-ink hover:opacity-75 transition-opacity group"
           >
             Cover this story
             <span className="group-hover:translate-x-1 transition-transform duration-150" aria-hidden>→</span>
@@ -292,18 +292,18 @@ function PublicBriefCard({ brief, index }: { brief: Brief; index: number }) {
 
 function LockedBriefCard({ brief }: { brief: Brief }) {
   return (
-    <article className="border border-edge bg-card overflow-hidden flex flex-col">
+    <article className="border border-line bg-paper-raised overflow-hidden flex flex-col">
       <BriefIllustration id={brief.id} />
 
       <div className="p-5 flex flex-col flex-1">
         {/* Badge */}
-        <div className="mb-3 inline-flex items-center gap-1.5 text-soft">
+        <div className="mb-3 inline-flex items-center gap-1.5 text-ink-soft">
           <LockIcon />
           <span className="font-mono text-[9px] tracking-[0.2em] uppercase">Members only</span>
         </div>
 
         {/* Title */}
-        <h3 className="font-serif text-base font-bold leading-snug text-dark mb-3">
+        <h3 className="font-body text-base font-bold leading-snug text-ink mb-3">
           {brief.title}
         </h3>
 
@@ -313,20 +313,20 @@ function LockedBriefCard({ brief }: { brief: Brief }) {
             {[aria_hidden_lines[0], aria_hidden_lines[1]].map((widths, i) => (
               <div key={i} className="space-y-1">
                 {widths.map((w, j) => (
-                  <div key={j} className={`h-1.5 rounded-sm bg-edge ${w}`} />
+                  <div key={j} className={`h-1.5 rounded-sm bg-line ${w}`} />
                 ))}
               </div>
             ))}
           </div>
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-card" aria-hidden="true" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-paper-raised" aria-hidden="true" />
         </div>
 
         {/* Join prompt */}
-        <div className="mt-auto pt-3 border-t border-edge flex items-center justify-between">
-          <span className="font-mono text-[9px] text-soft">Full brief for members.</span>
+        <div className="mt-auto pt-3 border-t border-line flex items-center justify-between">
+          <span className="font-mono text-[9px] text-ink-soft">Full brief for members.</span>
           <Link
             href="/apply"
-            className="font-mono text-[9px] tracking-[0.15em] uppercase text-live hover:opacity-75 transition-opacity inline-flex items-center gap-1 group"
+            className="font-mono text-[9px] tracking-[0.15em] uppercase text-pink-ink hover:opacity-75 transition-opacity inline-flex items-center gap-1 group"
           >
             Apply to join
             <span className="group-hover:translate-x-0.5 transition-transform duration-150" aria-hidden>→</span>
@@ -348,19 +348,19 @@ export default function LandingPage() {
   const organisations = MEMBERS.filter((m) => m.role === "organisation");
 
   return (
-    <div className="min-h-screen bg-base text-text">
+    <div className="min-h-screen bg-paper text-ink">
 
       {/* ------------------------------------------------------------------ */}
       {/* Nav                                                                  */}
       {/* ------------------------------------------------------------------ */}
-      <header className="sticky top-0 z-10 bg-base/95 backdrop-blur-sm border-b border-edge px-6">
+      <header className="sticky top-0 z-10 bg-paper/95 backdrop-blur-sm border-b border-line px-6">
         <div className="mx-auto flex max-w-5xl items-center justify-between py-4">
-          <span className="font-serif text-base font-bold tracking-tight text-text">
-            Tell <em className="italic text-live">The</em> World
+          <span className="font-body text-base font-bold tracking-tight text-ink">
+            Tell <em className="italic">The</em> World
           </span>
           <Link
             href="/login"
-            className="font-mono text-[10px] tracking-[0.18em] uppercase text-soft hover:text-text transition-colors"
+            className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors"
           >
             Log in
           </Link>
@@ -372,26 +372,26 @@ export default function LandingPage() {
         {/* ---------------------------------------------------------------- */}
         {/* Hero                                                              */}
         {/* ---------------------------------------------------------------- */}
-        <section className="bg-base px-6 pt-20 pb-20 sm:pt-28 sm:pb-24 border-b border-edge">
+        <section className="bg-paper px-6 pt-20 pb-20 sm:pt-28 sm:pb-24 border-b border-line">
           <div className="mx-auto max-w-5xl">
             {/* Eyebrow */}
             <div className="mb-8 inline-flex items-center gap-2.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-live animate-pulse shrink-0" aria-hidden />
-              <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-soft">
+              <span className="h-1.5 w-1.5 rounded-full bg-ink-soft animate-pulse shrink-0" aria-hidden />
+              <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-ink-soft">
                 Now open: AI safety x independent media
               </span>
             </div>
 
             {/* Headline — Anton, full impact */}
             <h1 className="font-display uppercase leading-[0.96] tracking-tight mb-8 max-w-4xl">
-              <span className="block text-[3.5rem] sm:text-[5.5rem] text-dark">AI safety is</span>
-              <span className="block text-[3.5rem] sm:text-[5.5rem] text-dark">the story</span>
-              <span className="block text-[3.5rem] sm:text-[5.5rem] text-dark">your audience</span>
-              <span className="block text-[3.5rem] sm:text-[5.5rem] text-live">hasn&rsquo;t heard yet.</span>
+              <span className="block text-[3.5rem] sm:text-[5.5rem] text-ink">AI safety is</span>
+              <span className="block text-[3.5rem] sm:text-[5.5rem] text-ink">the story</span>
+              <span className="block text-[3.5rem] sm:text-[5.5rem] text-ink">your audience</span>
+              <span className="block text-[3.5rem] sm:text-[5.5rem] text-pink">hasn&rsquo;t heard yet.</span>
             </h1>
 
             {/* Subtext */}
-            <p className="font-serif text-lg leading-[1.8] text-soft max-w-xl mb-10">
+            <p className="font-body text-lg leading-[1.8] text-ink-soft max-w-xl mb-10">
               The people who understand AI safety best are looking for creators like you.
               Podcasters, writers, educators, video makers. No PhD. No jargon.
               Just good storytelling that reaches the audiences who need to hear it.
@@ -401,13 +401,13 @@ export default function LandingPage() {
             <div className="flex items-center gap-6 flex-wrap">
               <Link
                 href="/apply"
-                className="font-display uppercase tracking-widest text-sm bg-live text-white px-8 py-4 hover:bg-amber-700 transition-colors"
+                className="font-display uppercase tracking-widest text-sm bg-pink-ink text-white px-8 py-4 hover:opacity-90 transition-opacity"
               >
                 Apply to join
               </Link>
               <a
                 href="#briefs"
-                className="font-mono text-[10px] tracking-[0.2em] uppercase text-soft hover:text-text transition-colors inline-flex items-center gap-2"
+                className="font-mono text-[10px] tracking-[0.2em] uppercase text-ink-soft hover:text-ink transition-colors inline-flex items-center gap-2"
               >
                 See active briefs <span aria-hidden>↓</span>
               </a>
@@ -418,34 +418,34 @@ export default function LandingPage() {
         {/* ---------------------------------------------------------------- */}
         {/* Who's here — dark trust strip                                    */}
         {/* ---------------------------------------------------------------- */}
-        <section className="bg-dark px-6 py-10">
+        <section className="bg-coverage-bg px-6 py-10">
           <div className="mx-auto max-w-5xl">
-            <p className="font-mono text-[9px] tracking-[0.22em] uppercase text-white/25 mb-7">
+            <p className="font-mono text-[9px] tracking-[0.22em] uppercase text-coverage-fg/25 mb-7">
               Trusted by leading researchers and organisations
             </p>
             <div className="grid sm:grid-cols-2 gap-10">
               <div>
-                <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-white/40 border-b border-white/10 pb-2 mb-4">
+                <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-coverage-fg/40 border-b border-white/10 pb-2 mb-4">
                   Experts
                 </p>
                 <div className="flex flex-col gap-2.5">
                   {experts.map((m) => (
                     <div key={m.name} className="flex flex-col">
-                      <span className="font-serif text-sm text-white/75 leading-snug">{m.name}</span>
-                      <span className="font-mono text-[9px] text-white/30 mt-0.5">{m.affiliation}</span>
+                      <span className="font-body text-sm text-coverage-fg/75 leading-snug">{m.name}</span>
+                      <span className="font-mono text-[9px] text-coverage-fg/30 mt-0.5">{m.affiliation}</span>
                     </div>
                   ))}
                 </div>
               </div>
               <div>
-                <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-white/40 border-b border-white/10 pb-2 mb-4">
+                <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-coverage-fg/40 border-b border-white/10 pb-2 mb-4">
                   Organisations
                 </p>
                 <div className="flex flex-col gap-2.5">
                   {organisations.map((m) => (
                     <div key={m.name} className="flex flex-col">
-                      <span className="font-serif text-sm text-white/75 leading-snug">{m.name}</span>
-                      <span className="font-mono text-[9px] text-white/30 mt-0.5">{m.affiliation}</span>
+                      <span className="font-body text-sm text-coverage-fg/75 leading-snug">{m.name}</span>
+                      <span className="font-mono text-[9px] text-coverage-fg/30 mt-0.5">{m.affiliation}</span>
                     </div>
                   ))}
                 </div>
@@ -461,8 +461,8 @@ export default function LandingPage() {
           <div className="mx-auto max-w-5xl">
             {/* Section label */}
             <div className="flex items-center gap-5 mb-14">
-              <span className="font-display uppercase tracking-[0.18em] text-dark text-sm shrink-0">Active briefs</span>
-              <div className="flex-1 h-px bg-edge" />
+              <span className="font-display uppercase tracking-[0.18em] text-ink text-sm shrink-0">Active briefs</span>
+              <div className="flex-1 h-px bg-line" />
             </div>
 
             {/* Public briefs */}
@@ -476,8 +476,8 @@ export default function LandingPage() {
             {membersBriefs.length > 0 && (
               <>
                 <div className="flex items-center gap-5 mb-8">
-                  <span className="font-display uppercase tracking-[0.18em] text-soft text-sm shrink-0">More briefs: members only</span>
-                  <div className="flex-1 h-px bg-edge" />
+                  <span className="font-display uppercase tracking-[0.18em] text-ink-soft text-sm shrink-0">More briefs: members only</span>
+                  <div className="flex-1 h-px bg-line" />
                 </div>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
                   {membersBriefs.map((brief) => (
@@ -492,20 +492,20 @@ export default function LandingPage() {
         {/* ---------------------------------------------------------------- */}
         {/* Bottom CTA                                                        */}
         {/* ---------------------------------------------------------------- */}
-        <section className="bg-dark px-6 py-24 text-center">
+        <section className="bg-coverage-bg px-6 py-24 text-center">
           <div className="mx-auto max-w-xl">
             <h2 className="font-display uppercase leading-[0.88] tracking-tight mb-7">
-              <span className="block text-5xl sm:text-6xl text-white">Ready to tell</span>
-              <span className="block text-5xl sm:text-6xl text-live">the world?</span>
+              <span className="block text-5xl sm:text-6xl text-coverage-fg">Ready to tell</span>
+              <span className="block text-5xl sm:text-6xl text-pink">the world?</span>
             </h2>
-            <p className="font-serif text-base leading-[1.8] text-white/50 mb-9 max-w-md mx-auto">
+            <p className="font-body text-base leading-[1.8] text-coverage-fg/50 mb-9 max-w-md mx-auto">
               Whether you research AI safety, run an organisation working on it, or create content
               that reaches real people, Tell The World is where your work connects with the
               audiences that matter.
             </p>
             <Link
               href="/apply"
-              className="font-display uppercase tracking-widest text-sm bg-live text-white px-8 py-4 inline-block hover:bg-amber-700 transition-colors"
+              className="font-display uppercase tracking-widest text-sm bg-pink-ink text-white px-8 py-4 inline-block hover:opacity-90 transition-opacity"
             >
               Apply to join
             </Link>
@@ -517,14 +517,14 @@ export default function LandingPage() {
       {/* ------------------------------------------------------------------ */}
       {/* Footer                                                              */}
       {/* ------------------------------------------------------------------ */}
-      <footer className="bg-dark border-t border-white/10 px-6 py-6">
+      <footer className="bg-coverage-bg border-t border-white/10 px-6 py-6">
         <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <span className="font-serif text-sm font-bold text-white/40 tracking-tight">
+          <span className="font-body text-sm font-bold text-coverage-fg/40 tracking-tight">
             Tell <em className="italic">The</em> World
           </span>
           <Link
             href="/login"
-            className="font-mono text-[10px] tracking-[0.18em] uppercase text-white/40 hover:text-white/70 transition-colors"
+            className="font-mono text-[10px] tracking-[0.18em] uppercase text-coverage-fg/40 hover:text-coverage-fg/70 transition-colors"
           >
             Log in
           </Link>
