@@ -103,19 +103,19 @@ export default function ApplyPage() {
       : "A short introduction…";
 
   return (
-    <div className="min-h-screen bg-base text-text">
+    <div className="min-h-screen bg-paper text-ink">
       {/* Nav */}
-      <header className="sticky top-0 z-10 bg-base/95 backdrop-blur-sm border-b border-edge px-6">
+      <header className="sticky top-0 z-10 bg-paper/95 backdrop-blur-sm border-b border-line px-6">
         <div className="mx-auto flex max-w-2xl items-center justify-between py-4">
           <Link
             href="/"
-            className="font-serif text-base font-bold tracking-tight text-text"
+            className="font-body text-base font-bold tracking-tight text-ink"
           >
-            Tell <em className="italic text-live">The</em> World
+            Tell <em className="italic">The</em> World
           </Link>
           <Link
             href="/login"
-            className="font-mono text-[10px] tracking-[0.18em] uppercase text-soft hover:text-text transition-colors"
+            className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors"
           >
             Log in
           </Link>
@@ -128,15 +128,15 @@ export default function ApplyPage() {
           {/* Page heading */}
           <div className="mb-12">
             <div className="mb-5 inline-flex items-center gap-2.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-live shrink-0" aria-hidden />
-              <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-soft">
+              <span className="h-1.5 w-1.5 rounded-full bg-ink-soft shrink-0" aria-hidden />
+              <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-ink-soft">
                 Applications open
               </span>
             </div>
-            <h1 className="font-display uppercase leading-[0.96] tracking-tight text-[2.75rem] sm:text-[4rem] text-dark mb-5">
+            <h1 className="font-display uppercase leading-[0.96] tracking-tight text-[2.75rem] sm:text-[4rem] text-ink mb-5">
               Apply to join
             </h1>
-            <p className="font-serif text-base leading-[1.8] text-soft max-w-lg">
+            <p className="font-body text-base leading-[1.8] text-ink-soft max-w-lg">
               Tell us about yourself and what you want to do on the platform. We
               review every application personally and aim to get back to you
               within a few days.
@@ -290,9 +290,9 @@ export default function ApplyPage() {
 
             {/* ── Submit ───────────────────────────────────────────────────── */}
             {Object.keys(errors).length > 0 && (
-              <div className="mb-6 border border-edge bg-card p-5" role="alert" aria-live="polite">
-                <p className="font-mono text-[9px] tracking-[0.22em] uppercase text-soft mb-3 flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-live shrink-0" aria-hidden />
+              <div className="mb-6 border border-red-200 bg-red-50 p-5" role="alert" aria-live="polite">
+                <p className="font-mono text-[9px] tracking-[0.22em] uppercase text-red-700 mb-3 flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-red-500 shrink-0" aria-hidden />
                   A few fields need your attention
                 </p>
                 <ul className="flex flex-col gap-1.5">
@@ -307,7 +307,7 @@ export default function ApplyPage() {
                               .getElementById(key)
                               ?.scrollIntoView({ behavior: "smooth", block: "center" })
                           }
-                          className="font-serif text-sm text-live hover:underline text-left"
+                          className="font-body text-sm text-red-600 hover:underline text-left"
                         >
                           {ERROR_LABELS[key]}
                         </button>
@@ -323,15 +323,15 @@ export default function ApplyPage() {
               </p>
             )}
 
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-t border-edge pt-8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-t border-line pt-8">
               <button
                 type="submit"
                 disabled={submitting}
-                className="font-display uppercase tracking-widest text-sm bg-live text-white px-8 py-4 hover:bg-amber-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                className="font-display uppercase tracking-widest text-sm bg-ink text-paper px-8 py-4 hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {submitting ? "Submitting…" : "Submit application"}
               </button>
-              <p className="font-mono text-[10px] text-soft leading-relaxed max-w-xs">
+              <p className="font-mono text-[10px] text-ink-soft leading-relaxed max-w-xs">
                 We&rsquo;ll review your application and get back to you by email
                 within a few days.
               </p>

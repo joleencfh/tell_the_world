@@ -6,10 +6,10 @@
 
 export function inputClass(hasError: boolean) {
   return [
-    "w-full border bg-card px-4 py-3 font-serif text-sm text-text",
-    "focus:outline-none focus:ring-2 focus:ring-live/30 focus:border-live/50",
-    "transition-colors placeholder:text-soft/50",
-    hasError ? "border-red-400" : "border-edge",
+    "w-full border bg-paper-raised px-4 py-3 font-body text-sm text-ink",
+    "focus:outline-none focus:ring-2 focus:ring-blue/30 focus:border-blue/50",
+    "transition-colors placeholder:text-ink-soft/50",
+    hasError ? "border-red-400" : "border-line",
   ].join(" ");
 }
 
@@ -101,7 +101,7 @@ export function FormSection({
 }) {
   return (
     <fieldset className="mb-10">
-      <legend className="font-mono text-[9px] tracking-[0.22em] uppercase text-soft border-b border-edge pb-2 mb-6 w-full">
+      <legend className="font-mono text-[9px] tracking-[0.22em] uppercase text-ink-soft border-b border-line pb-2 mb-6 w-full">
         {legend}
       </legend>
       <div className="flex flex-col gap-5">{children}</div>
@@ -130,16 +130,16 @@ export function Field({
       className="flex flex-col gap-1.5"
       data-field-error={error ? true : undefined}
     >
-      <label className="font-mono text-[10px] tracking-[0.18em] uppercase text-soft">
+      <label className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft">
         {label}
         {required && (
-          <span className="text-live ml-1" aria-label="required">
+          <span className="text-red-500 ml-1" aria-label="required">
             *
           </span>
         )}
       </label>
       {hint && (
-        <p className="font-serif text-xs text-soft/80 leading-relaxed -mt-0.5 mb-0.5">
+        <p className="font-body text-xs text-ink-soft/80 leading-relaxed -mt-0.5 mb-0.5">
           {hint}
         </p>
       )}
