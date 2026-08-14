@@ -296,21 +296,21 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
             </div>
             {/* Members-only CTA */}
             <div className="mx-auto max-w-4xl mt-6">
-              <div className="bg-dark rounded-2xl p-10 text-center">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-white/5 mb-5">
-                  <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-live/70">
+              <div className="bg-coverage-bg rounded-2xl p-10 text-center">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-coverage-fg/5 mb-5">
+                  <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-pink">
                     <path fillRule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clipRule="evenodd" />
                   </svg>
                 </div>
-                <p className="font-display uppercase text-white text-2xl mb-3">Members Only</p>
-                <p className="font-serif text-sm text-white/50 mb-8 leading-relaxed max-w-sm mx-auto">
+                <p className="font-display uppercase text-coverage-fg text-2xl mb-3">Members Only</p>
+                <p className="font-body text-sm text-coverage-fg/50 mb-8 leading-relaxed max-w-sm mx-auto">
                   The full brief — sources, context, and expert guidance — is available to approved members of the Tell The World community.
                 </p>
                 <div className="flex items-center justify-center gap-6 flex-wrap">
-                  <Link href="/apply" className="font-display uppercase tracking-widest text-xs bg-live text-white px-8 py-3 hover:bg-live/90 transition-colors">
+                  <Link href="/apply" className="font-display uppercase tracking-widest text-xs bg-pink-ink text-white px-8 py-3 hover:opacity-90 transition-opacity">
                     Apply to Join
                   </Link>
-                  <Link href="/login" className="font-mono text-[9px] tracking-[0.15em] uppercase text-white/40 hover:text-white/80 transition-colors">
+                  <Link href="/login" className="font-mono text-[9px] tracking-[0.15em] uppercase text-coverage-fg/40 hover:text-coverage-fg/80 transition-colors">
                     Already a member? Login →
                   </Link>
                 </div>
@@ -370,13 +370,13 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
 
         {/* ── Footer actions — logged-in members ───────────────────────── */}
         {isLoggedIn && (
-          <div className="px-6 py-6 border-t border-edge">
+          <div className="px-6 py-6 border-t border-line">
             <div className="mx-auto max-w-4xl flex flex-wrap items-center gap-6">
               {canContribute && (
                 <button
                   type="button"
                   onClick={() => setProposeCorrectionOpen(true)}
-                  className="font-mono text-[10px] tracking-[0.15em] uppercase text-soft hover:text-text transition-colors inline-flex items-center gap-2"
+                  className="font-mono text-[10px] tracking-[0.15em] uppercase text-ink-soft hover:text-ink transition-colors inline-flex items-center gap-2"
                 >
                   <span aria-hidden>→</span> Propose a correction or addition
                 </button>
@@ -384,7 +384,7 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
               <button
                 type="button"
                 onClick={() => setProposeBriefOpen(true)}
-                className="font-mono text-[10px] tracking-[0.15em] uppercase text-soft hover:text-text transition-colors inline-flex items-center gap-2"
+                className="font-mono text-[10px] tracking-[0.15em] uppercase text-ink-soft hover:text-ink transition-colors inline-flex items-center gap-2"
               >
                 <span aria-hidden>→</span> Propose a new brief
               </button>
@@ -425,14 +425,14 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
       </main>
 
       {/* ── Footer ───────────────────────────────────────────────────── */}
-      <footer className="border-t border-edge px-6 py-6">
+      <footer className="border-t border-line px-6 py-6">
         <div className="mx-auto max-w-4xl flex items-center justify-between">
-          <span className="font-serif text-sm font-bold text-soft/60 tracking-tight">
+          <span className="font-body text-sm font-bold text-ink-soft/60 tracking-tight">
             Tell <em className="italic">The</em> World
           </span>
           <Link
             href={isLoggedIn ? '/home' : '/'}
-            className="font-mono text-[9px] tracking-[0.15em] uppercase text-soft/60 hover:text-soft transition-colors"
+            className="font-mono text-[9px] tracking-[0.15em] uppercase text-ink-soft/60 hover:text-ink-soft transition-colors"
           >
             ← Back to home
           </Link>
