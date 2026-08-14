@@ -282,6 +282,56 @@ export async function deleteTestCtas(briefId: string, title: string): Promise<vo
 }
 
 // ---------------------------------------------------------------------------
+// Application helpers (applications — two-ink-bold-plan.md Part 11f styling
+// checks: gives the admin dashboard a deterministic pending row to render)
+// ---------------------------------------------------------------------------
+
+export interface ApplicationRecord {
+  id: string
+  full_name: string
+  email: string
+  desired_role: string
+  bio: string
+  status: string
+  created_at: string
+}
+
+/** Seed a pending application directly (bypasses the public apply form). */
+export async function insertPendingApplication(
+  email: string,
+  fields: { fullName: string; desiredRole: string; bio: string },
+): Promise<ApplicationRecord> {
+  const client = getTestAdminClient()
+  const { data, error } = await client
+    .from('applications')
+    .insert({
+      email,
+      full_name: fields.fullName,
+      desired_role: fields.desiredRole,
+      bio: fields.bio,
+      status: 'pending',
+    })
+    .select('id, full_name, email, desired_role, bio, status, created_at')
+    .single()
+
+  if (error || !data) {
+    throw new Error(`Failed to insert applications row: ${error?.message}`)
+  }
+
+  return data as ApplicationRecord
+}
+
+/** Delete all applications rows with the given email. Call in afterEach/afterAll. */
+export async function deleteTestApplication(email: string): Promise<void> {
+  const client = getTestAdminClient()
+  const { error } = await client.from('applications').delete().eq('email', email)
+
+  if (error) {
+    console.warn(`Failed to clean up test application: ${error.message}`)
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Message helpers
 // ---------------------------------------------------------------------------
 
