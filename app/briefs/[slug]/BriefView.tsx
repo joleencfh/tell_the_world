@@ -21,6 +21,7 @@ import { ExplainerSections } from './explainer'
 import { FAQSection } from './faq'
 import { CtaCarousel, SuggestCtaModal } from './ctas'
 import { CoverageCarousel, AddCoverageModal } from './coverage'
+import { RelatedBriefsCarousel } from './related-briefs'
 import { formatDate, computeReadTimeMinutes } from './helpers'
 import type {
   Brief,
@@ -35,6 +36,7 @@ import type {
   FaqAnswer,
   Cta,
   Coverage,
+  RelatedBrief,
 } from './page'
 
 // ---------------------------------------------------------------------------
@@ -54,13 +56,14 @@ interface BriefViewProps {
   faqAnswersByQuestion: Record<string, FaqAnswer[]>
   ctas: Cta[]
   coverage: Coverage[]
+  relatedBriefs: RelatedBrief[]
 }
 
 // `media` stays in BriefViewProps (page.tsx still fetches and passes it —
 // dropping Media from the page was a deliberate call, but the data query
 // itself is out of scope for this change) but isn't destructured here since
 // nothing renders it anymore.
-export default function BriefView({ brief, quotes, endorsementBar, questions, answersByQuestion, currentUser, myReviewStatus, explainerContributions, faqAnswersByQuestion, ctas, coverage }: BriefViewProps) {
+export default function BriefView({ brief, quotes, endorsementBar, questions, answersByQuestion, currentUser, myReviewStatus, explainerContributions, faqAnswersByQuestion, ctas, coverage, relatedBriefs }: BriefViewProps) {
   const isLoggedIn = !!currentUser
   const showSections = isLoggedIn || brief.visibility === 'public'
   const canContribute = currentUser?.role === 'expert' || currentUser?.role === 'organisation'
@@ -399,6 +402,24 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
               <CoverageCarousel coverage={coverage} briefSlug={brief.slug} isLoggedIn={isLoggedIn} />
             </div>
           </DarkBand>
+        )}
+
+        {/* ── Related Briefs — neutral ink (§1.1: the editorial spine, never
+            blue/pink). Not rendered at all when there's nothing to relate
+            to (no topic_tag, or no other brief shares it) — same
+            near-empty-state convention as Quotes above, don't render an
+            empty section (§3 Part 8). ─────────────────────────────────── */}
+        {showSections && relatedBriefs.length > 0 && (
+          <div className="bg-paper-raised px-6 py-16">
+            <div className="mx-auto max-w-4xl">
+              <SectionHeader
+                num="09"
+                label="Related Briefs"
+                description="More on this topic"
+              />
+              <RelatedBriefsCarousel briefs={relatedBriefs} />
+            </div>
+          </div>
         )}
 
         {/* ── Footer actions — logged-in members ───────────────────────── */}

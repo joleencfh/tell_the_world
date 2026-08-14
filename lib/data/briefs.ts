@@ -40,6 +40,14 @@ export interface BriefListItem {
   created_at: string
 }
 
+export interface RelatedBrief {
+  id: string
+  title: string
+  slug: string
+  topic_tag: string | null
+  created_at: string
+}
+
 export interface UserCorrectionProposal {
   id: string
   contribution_text: string
@@ -82,6 +90,33 @@ export async function getRecentBriefs(db: DB, limit = 5): Promise<BriefListItem[
     created_at: b.created_at,
     tldr: b.brief_sections[0]?.content ?? '',
   }))
+}
+
+// Related briefs — other briefs sharing the current brief's topic_tag, most
+// recent first, excluding itself. Like the rest of this file, visibility is
+// left to RLS on the passed-in client rather than filtered here: briefs
+// metadata (title/slug/topic_tag) is world-readable (migration 013), so a
+// logged-out visitor sees the same related list as a member, same as
+// getRecentBriefs above. A null topic_tag means "nothing to relate this
+// brief to" — short-circuit before querying rather than returning every
+// brief with a null tag (they wouldn't share a real topic).
+export async function getRelatedBriefs(
+  db: DB,
+  briefId: string,
+  topicTag: string | null,
+  limit = 3,
+): Promise<RelatedBrief[]> {
+  if (!topicTag) return []
+
+  const { data } = await db
+    .from('briefs')
+    .select('id, title, slug, topic_tag, created_at')
+    .eq('topic_tag', topicTag)
+    .neq('id', briefId)
+    .order('created_at', { ascending: false })
+    .limit(limit)
+
+  return data ?? []
 }
 
 // Correction proposals authored by a user, for their profile. RLS returns
