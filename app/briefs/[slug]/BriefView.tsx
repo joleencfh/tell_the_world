@@ -9,7 +9,6 @@ import {
   SECTION_META,
   SECTION_BG,
   SectionHeader,
-  SectionContent,
   LockedPlaceholder,
   QuotesCarousel,
   HeaderChip,
@@ -106,11 +105,11 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
     <div className="min-h-screen bg-paper text-ink">
 
       {/* ── Nav ──────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-10 bg-paper/95 backdrop-blur-sm border-b border-line px-6">
+      <header className="sticky top-0 z-10 bg-paper/95 backdrop-blur-sm border-b-2 border-ink px-6">
         <div className="mx-auto flex max-w-4xl items-center justify-between py-4">
           <Link
             href={isLoggedIn ? '/home' : '/'}
-            className="font-display text-base font-bold tracking-tight text-ink"
+            className="font-display text-[1.02rem] font-extrabold tracking-[-0.01em] text-ink"
           >
             Tell <em className="italic text-ink-soft">The</em> World
           </Link>
@@ -134,7 +133,7 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
       <main>
 
         {/* ── Hero — neutral ink, no blue/pink tint (§1.1) ─────────────── */}
-        <div className="grid-texture relative overflow-hidden px-6 pt-16 pb-20">
+        <div className="grid-texture relative overflow-hidden border-b border-line px-6 pt-16 pb-20">
           {/* Bottom fade to next section */}
           <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent to-paper pointer-events-none" />
 
@@ -149,10 +148,10 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
 
             {/* Title — large, dominant */}
             <h1
-              className="font-display uppercase font-bold text-ink anim-rise"
+              className="font-display uppercase font-extrabold text-ink anim-rise"
               style={{
                 fontSize: 'clamp(3.1rem, 7.8vw, 6.6rem)',
-                lineHeight: '0.93',
+                lineHeight: '0.96',
                 letterSpacing: '-0.035em',
                 animationDelay: '80ms',
               }}
@@ -211,7 +210,7 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
 
         {/* ── TL;DR ─────────────────────────────────────────────────────── */}
         {tldr.trim() && (
-          <div className="bg-paper px-6 py-16">
+          <div className="border-t-4 border-line border-b border-line bg-paper px-6 py-16">
             <div className="mx-auto max-w-4xl anim-rise" style={{ animationDelay: '0ms' }}>
               <SectionHeader
                 num={SECTION_META.tldr.num}
@@ -228,7 +227,7 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
             block rather than threaded through the SECTION_ORDER loop below,
             same pattern as CTA/Covered By/Related Briefs further down. ─── */}
         {showSections && quotes.length > 0 && (
-          <div className="border-t-4 border-blue bg-paper-sunken-blue px-6 py-16">
+          <div className="border-t-4 border-t-blue border-b border-b-line bg-paper-sunken-blue px-6 py-16">
             <div className="mx-auto max-w-4xl anim-rise" style={{ animationDelay: '0ms' }}>
               <QuotesCarousel quotes={quotes} />
             </div>
@@ -251,7 +250,7 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
                     const meta = SECTION_META[type]
                     const bgClass = SECTION_BG[i] ?? 'bg-paper'
                     return (
-                      <div className={`${bgClass} px-6 py-16`}>
+                      <div className={`${bgClass} border-t-4 border-t-blue border-b border-b-line px-6 py-16`}>
                         <div className="mx-auto max-w-4xl anim-rise" style={{ animationDelay: '100ms' }}>
                           <SectionHeader
                             num={meta.num}
@@ -268,7 +267,7 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
                               canContribute={canContribute}
                               contributions={explainerContributions}
                             />
-                          ) : type === 'faq' ? (
+                          ) : (
                             <FAQSection
                               sections={sections}
                               briefId={brief.id}
@@ -276,12 +275,6 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
                               canSubmit={canContribute}
                               answersByQuestion={faqAnswersByQuestion}
                             />
-                          ) : (
-                            <div className="space-y-10">
-                              {sections.map((section) => (
-                                <SectionContent key={section.id} type={type} content={section.content} />
-                              ))}
-                            </div>
                           )}
                         </div>
                       </div>
@@ -325,7 +318,7 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
 
         {/* ── Q&A — members only ───────────────────────────────────────── */}
         {isLoggedIn && (
-          <div className="bg-paper-sunken px-6 py-16">
+          <div className="border-t-4 border-t-pink border-b border-b-line bg-paper-sunken px-6 py-16">
             <div className="mx-auto max-w-4xl">
               <SectionHeader
                 num="06"
@@ -347,7 +340,7 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
 
         {/* ── Calls to Action ──────────────────────────────────────────── */}
         {showSections && (
-          <div className="bg-paper px-6 py-16">
+          <div className="border-t-4 border-t-pink border-b border-b-line bg-paper px-6 py-16">
             <div className="mx-auto max-w-4xl">
               <SectionHeader
                 num="07"
@@ -374,7 +367,7 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
 
         {/* ── Covered By — fixed dark band in both themes (§1.3) ───────── */}
         {showSections && (
-          <DarkBand className="px-6 py-16">
+          <DarkBand className="border-t-4 border-t-pink border-b border-b-line px-6 py-16">
             <div className="mx-auto max-w-4xl">
               <SectionHeader
                 num="08"
@@ -406,7 +399,7 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
             near-empty-state convention as Quotes above, don't render an
             empty section (§3 Part 8). ─────────────────────────────────── */}
         {showSections && relatedBriefs.length > 0 && (
-          <div className="bg-paper-raised px-6 py-16">
+          <div className="border-t-4 border-line bg-paper-raised px-6 py-16">
             <div className="mx-auto max-w-4xl">
               <SectionHeader
                 num="09"
@@ -485,8 +478,8 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
       </main>
 
       {/* ── Footer ───────────────────────────────────────────────────── */}
-      <footer className="border-t border-line px-6 py-6">
-        <div className="mx-auto max-w-4xl flex items-center justify-between">
+      <footer className="px-6 pt-8 pb-12">
+        <div className="mx-auto flex max-w-4xl items-center justify-between border-t-2 border-ink pt-6">
           <span className="font-body text-sm font-bold text-ink-soft/60 tracking-tight">
             Tell <em className="italic">The</em> World
           </span>

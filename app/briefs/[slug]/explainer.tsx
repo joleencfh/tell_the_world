@@ -42,7 +42,7 @@ function Keyterm({ term, definition, id }: { term: string; definition: string; i
       <span
         tabIndex={0}
         aria-describedby={id}
-        className="cursor-help rounded-sm border-b border-dashed border-blue font-medium not-italic text-blue-ink outline-none focus-visible:ring-2 focus-visible:ring-blue"
+        className="cursor-help border-b-2 border-blue font-semibold not-italic text-blue-ink outline-none focus-visible:ring-2 focus-visible:ring-blue"
       >
         {term}
       </span>

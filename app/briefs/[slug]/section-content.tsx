@@ -4,10 +4,8 @@ import Link from 'next/link'
 import { useState, type ReactNode } from 'react'
 import Avatar from '@/components/ui/Avatar'
 import { Carousel } from '@/components/ui/Carousel'
-import type { PostType } from '@/lib/types'
 import { getDisplayName, formatDate } from './helpers'
-import { parseSources, SourcesGrid } from './sources'
-import type { BriefSectionType, Quote, MediaPost } from './page'
+import type { Quote } from './page'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -208,70 +206,6 @@ export function QuotesCarousel({ quotes }: { quotes: Quote[] }) {
 }
 
 // ---------------------------------------------------------------------------
-// Media card — the "Use this"-adjacent auto section, non-quote posts
-// ---------------------------------------------------------------------------
-
-const POST_TYPE_LABELS: Record<PostType, string> = {
-  video: 'Video',
-  article: 'Article',
-  paper: 'Paper',
-  resource: 'Resource',
-  quote: 'Quote',
-}
-
-export function MediaCard({ post, isPinned }: { post: MediaPost; isPinned?: boolean }) {
-  const authorName = getDisplayName(post.users)
-  const credential = post.users.affiliation || post.users.org_name
-
-  return (
-    <div className="flex flex-col bg-card border border-edge rounded-2xl overflow-hidden h-full">
-      <div className="p-6 flex-1">
-        {isPinned && (
-          <span className="inline-flex items-center gap-1 font-mono text-[9px] tracking-[0.1em] uppercase text-live mb-3">
-            📌 Start here
-          </span>
-        )}
-        <span className="font-mono text-[9px] tracking-[0.12em] uppercase text-soft/70">
-          {POST_TYPE_LABELS[post.post_type]}
-        </span>
-        <h3 className="font-serif text-[1.05rem] font-semibold text-dark leading-snug mt-1.5">
-          {post.title}
-        </h3>
-        {post.body && (
-          <p className="font-serif text-sm text-text/80 leading-relaxed mt-2 line-clamp-3">
-            {post.body}
-          </p>
-        )}
-      </div>
-      <div className="px-6 pb-5 pt-2 flex items-center gap-3 border-t border-edge">
-        <Avatar name={authorName} avatarUrl={post.users.avatar_url} palette="colored" size="sm" />
-        <div className="min-w-0 flex-1">
-          <Link
-            href={`/profile/${post.users.id}`}
-            className="font-serif text-[0.75rem] font-semibold text-dark hover:text-live transition-colors block truncate"
-          >
-            {authorName}
-          </Link>
-          {credential && (
-            <p className="font-mono text-[8px] tracking-[0.08em] text-soft/70 truncate">{credential}</p>
-          )}
-        </div>
-        {post.url && (
-          <a
-            href={post.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="shrink-0 font-mono text-[9px] tracking-[0.12em] uppercase text-live/60 hover:text-live transition-colors"
-          >
-            view →
-          </a>
-        )}
-      </div>
-    </div>
-  )
-}
-
-// ---------------------------------------------------------------------------
 // Header chip — endorsement bar / last-reviewed / read-time pills
 // ---------------------------------------------------------------------------
 
@@ -352,7 +286,7 @@ export function SectionHeader({
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0 flex-1">
           <h2
-            className={`font-display uppercase font-bold leading-[1] ${onDark ? 'text-coverage-fg' : 'text-ink'}`}
+            className={`font-display uppercase font-extrabold leading-[1] ${onDark ? 'text-coverage-fg' : 'text-ink'}`}
             style={{ fontSize: 'clamp(1.7rem, 3.2vw, 2.5rem)', letterSpacing: '0.01em' }}
           >
             {label}
@@ -363,48 +297,6 @@ export function SectionHeader({
       </div>
     </div>
   )
-}
-
-// ---------------------------------------------------------------------------
-// Paragraph content — lead paragraph treatment
-// ---------------------------------------------------------------------------
-
-function ParagraphContent({ content }: { content: string }) {
-  const paragraphs = content.split(/\n\n+/).filter(Boolean)
-  return (
-    <div className="space-y-5 max-w-2xl">
-      {paragraphs.map((p, i) => (
-        <p
-          key={i}
-          className={`font-serif leading-relaxed ${
-            i === 0
-              ? 'text-[1.1rem] text-dark font-medium'
-              : 'text-[0.95rem] text-text'
-          }`}
-        >
-          {p.trim()}
-        </p>
-      ))}
-    </div>
-  )
-}
-
-// ---------------------------------------------------------------------------
-// Smart section content renderer
-// ---------------------------------------------------------------------------
-
-// 'faq' is not handled here — BriefView calls FAQSection directly (above)
-// since FAQBlock needs Part 4b's extra props (briefId, answers, etc.) that
-// don't fit this generic { type, content } shape.
-export function SectionContent({ type, content }: { type: BriefSectionType; content: string }) {
-  if (type === 'going_deeper') {
-    const items = parseSources(content)
-    if (items) {
-      return <SourcesGrid items={items} />
-    }
-  }
-
-  return <ParagraphContent content={content} />
 }
 
 // ---------------------------------------------------------------------------
