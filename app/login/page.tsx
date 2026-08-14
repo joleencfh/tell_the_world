@@ -81,44 +81,31 @@ function LoginForm() {
   const isAnyLoading = loading !== null
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] flex flex-col items-center justify-center px-4 py-16">
+    <div className="min-h-screen bg-paper flex flex-col items-center justify-center px-4 py-16">
 
       {/* Wordmark */}
       <div className="mb-10 text-center">
-        <p
-          className="text-xs tracking-[0.2em] uppercase text-[#6B7A8D] font-mono mb-2"
-          style={{ fontFamily: 'var(--font-mono)' }}
-        >
+        <p className="font-mono text-xs tracking-[0.2em] uppercase text-ink-soft mb-2">
           Members
         </p>
-        <h1
-          className="text-3xl text-[#0D0D0D] leading-none tracking-tight"
-          style={{ fontFamily: 'var(--font-display)' }}
-        >
+        <h1 className="font-display text-3xl text-ink leading-none tracking-tight">
           TELL THE WORLD
         </h1>
       </div>
 
       {/* Card */}
-      <div className="w-full max-w-sm bg-white border border-[#E0DAD4] rounded-sm px-8 py-9">
+      <div className="w-full max-w-sm bg-paper border border-line rounded-sm px-8 py-9">
 
-        <h2
-          className="text-lg text-[#1C1C1C] mb-1"
-          style={{ fontFamily: 'var(--font-serif)' }}
-        >
+        <h2 className="font-body text-lg text-ink mb-1">
           Sign in to your account
         </h2>
-        <p
-          className="text-sm text-[#6B7A8D] mb-7"
-          style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic' }}
-        >
+        <p className="font-body italic text-sm text-ink-soft mb-7">
           Approved members only.
         </p>
 
         {/* Error banner */}
         {error && (
-          <div className="mb-5 px-4 py-3 bg-red-50 border border-red-200 rounded-sm text-sm text-red-700"
-            style={{ fontFamily: 'var(--font-serif)' }}>
+          <div className="font-body mb-5 px-4 py-3 bg-red-50 border border-red-200 rounded-sm text-sm text-red-700">
             {error}
           </div>
         )}
@@ -126,23 +113,22 @@ function LoginForm() {
         {/* Magic link sent state */}
         {magicLinkSent ? (
           <div className="text-center py-4">
-            <div className="w-10 h-10 rounded-full bg-[#C8810A]/10 flex items-center justify-center mx-auto mb-4">
+            <div className="w-10 h-10 rounded-full bg-ink/10 flex items-center justify-center mx-auto mb-4">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="M2.5 5.5L10 11L17.5 5.5" stroke="#C8810A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                <rect x="2.5" y="4" width="15" height="12" rx="1.5" stroke="#C8810A" strokeWidth="1.5"/>
+                <path d="M2.5 5.5L10 11L17.5 5.5" className="stroke-ink" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <rect x="2.5" y="4" width="15" height="12" rx="1.5" className="stroke-ink" strokeWidth="1.5"/>
               </svg>
             </div>
-            <p className="text-[#1C1C1C] mb-1" style={{ fontFamily: 'var(--font-serif)' }}>
+            <p className="font-body text-ink mb-1">
               Check your inbox
             </p>
-            <p className="text-sm text-[#6B7A8D]" style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic' }}>
+            <p className="font-body italic text-sm text-ink-soft">
               We sent a sign-in link to{' '}
-              <span className="not-italic text-[#1C1C1C]">{email}</span>
+              <span className="not-italic text-ink">{email}</span>
             </p>
             <button
               onClick={() => { setMagicLinkSent(false); setEmail('') }}
-              className="mt-5 text-xs text-[#6B7A8D] underline underline-offset-2 hover:text-[#1C1C1C] transition-colors"
-              style={{ fontFamily: 'var(--font-mono)' }}
+              className="font-mono mt-5 text-xs text-ink-soft underline underline-offset-2 hover:text-ink transition-colors"
             >
               Use a different email
             </button>
@@ -154,8 +140,7 @@ function LoginForm() {
               <button
                 onClick={handleGoogle}
                 disabled={isAnyLoading}
-                className="flex items-center justify-center gap-3 w-full h-11 border border-[#E0DAD4] rounded-sm bg-white text-sm text-[#1C1C1C] hover:bg-[#FAF9F6] hover:border-[#6B7A8D] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ fontFamily: 'var(--font-serif)' }}
+                className="font-body flex items-center justify-center gap-3 w-full h-11 border border-line rounded-sm bg-paper text-sm text-ink hover:bg-paper-raised hover:border-ink-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading === 'google' ? (
                   <Spinner />
@@ -168,8 +153,7 @@ function LoginForm() {
               <button
                 onClick={handleLinkedIn}
                 disabled={isAnyLoading}
-                className="flex items-center justify-center gap-3 w-full h-11 border border-[#E0DAD4] rounded-sm bg-white text-sm text-[#1C1C1C] hover:bg-[#FAF9F6] hover:border-[#6B7A8D] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ fontFamily: 'var(--font-serif)' }}
+                className="font-body flex items-center justify-center gap-3 w-full h-11 border border-line rounded-sm bg-paper text-sm text-ink hover:bg-paper-raised hover:border-ink-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading === 'linkedin' ? (
                   <Spinner />
@@ -182,14 +166,11 @@ function LoginForm() {
 
             {/* Divider */}
             <div className="flex items-center gap-3 mb-6">
-              <div className="flex-1 h-px bg-[#E0DAD4]" />
-              <span
-                className="text-xs text-[#6B7A8D] tracking-wider uppercase"
-                style={{ fontFamily: 'var(--font-mono)' }}
-              >
+              <div className="flex-1 h-px bg-line" />
+              <span className="font-mono text-xs text-ink-soft tracking-wider uppercase">
                 or
               </span>
-              <div className="flex-1 h-px bg-[#E0DAD4]" />
+              <div className="flex-1 h-px bg-line" />
             </div>
 
             {/* Magic link form */}
@@ -201,14 +182,12 @@ function LoginForm() {
                 placeholder="your@email.com"
                 required
                 disabled={isAnyLoading}
-                className="w-full h-11 px-3 border border-[#E0DAD4] rounded-sm bg-white text-sm text-[#1C1C1C] placeholder-[#6B7A8D] focus:outline-none focus:border-[#C8810A] transition-colors disabled:opacity-50"
-                style={{ fontFamily: 'var(--font-serif)' }}
+                className="font-body w-full h-11 px-3 border border-line rounded-sm bg-paper text-sm text-ink placeholder-ink-soft focus:outline-none focus:border-ink transition-colors disabled:opacity-50"
               />
               <button
                 type="submit"
                 disabled={isAnyLoading || !email.trim()}
-                className="flex items-center justify-center gap-2 w-full h-11 bg-[#C8810A] text-white text-sm rounded-sm hover:bg-[#b37209] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                style={{ fontFamily: 'var(--font-serif)' }}
+                className="font-body flex items-center justify-center gap-2 w-full h-11 bg-ink text-paper text-sm rounded-sm hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {loading === 'magic' ? <Spinner light /> : 'Send magic link'}
               </button>
@@ -218,12 +197,9 @@ function LoginForm() {
       </div>
 
       {/* Footer note */}
-      <p
-        className="mt-8 text-xs text-[#6B7A8D] text-center max-w-xs"
-        style={{ fontFamily: 'var(--font-mono)' }}
-      >
+      <p className="font-mono mt-8 text-xs text-ink-soft text-center max-w-xs">
         Not a member?{' '}
-        <a href="/apply" className="underline underline-offset-2 hover:text-[#1C1C1C] transition-colors">
+        <a href="/apply" className="underline underline-offset-2 hover:text-ink transition-colors">
           Apply to join
         </a>
       </p>
@@ -242,7 +218,7 @@ function Spinner({ light = false }: { light?: boolean }) {
       aria-hidden="true"
     >
       <circle cx="8" cy="8" r="6" stroke={light ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.1)'} strokeWidth="2"/>
-      <path d="M14 8a6 6 0 0 0-6-6" stroke={light ? 'white' : '#C8810A'} strokeWidth="2" strokeLinecap="round"/>
+      <path d="M14 8a6 6 0 0 0-6-6" stroke={light ? 'white' : 'var(--color-ink)'} strokeWidth="2" strokeLinecap="round"/>
     </svg>
   )
 }

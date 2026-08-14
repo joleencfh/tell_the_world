@@ -90,14 +90,14 @@ function SectionHeader({
 }) {
   return (
     <div className="flex items-center gap-5 mb-7">
-      <h2 className="font-display uppercase tracking-[0.18em] text-dark text-sm shrink-0">
+      <h2 className="font-display uppercase tracking-[0.18em] text-ink text-sm shrink-0">
         {title}
       </h2>
-      <div className="flex-1 h-px bg-edge" />
+      <div className="flex-1 h-px bg-line" />
       {href && linkLabel && (
         <Link
           href={href}
-          className="font-mono text-[9px] tracking-[0.15em] uppercase text-soft hover:text-text transition-colors shrink-0"
+          className="font-mono text-[9px] tracking-[0.15em] uppercase text-ink-soft hover:text-ink transition-colors shrink-0"
         >
           {linkLabel} →
         </Link>
@@ -108,22 +108,22 @@ function SectionHeader({
 
 function EmptyState({ message }: { message: string }) {
   return (
-    <p className="font-serif text-sm text-soft/60 italic py-4">{message}</p>
+    <p className="font-body text-sm text-ink-soft/60 italic py-4">{message}</p>
   )
 }
 
 function BriefCard({ brief }: { brief: Brief }) {
   return (
-    <article className="bg-card border border-edge rounded-xl p-5 flex flex-col gap-3">
-      <h3 className="font-serif text-sm font-bold text-dark leading-snug">
+    <article className="bg-paper-raised border border-line rounded-xl p-5 flex flex-col gap-3">
+      <h3 className="font-body text-sm font-bold text-ink leading-snug">
         {brief.title}
       </h3>
-      <p className="font-serif text-sm text-soft leading-relaxed flex-1">
+      <p className="font-body text-sm text-ink-soft leading-relaxed flex-1">
         {truncate(brief.tldr, 120)}
       </p>
       <Link
         href={`/briefs/${brief.slug}`}
-        className="font-mono text-[9px] tracking-[0.15em] uppercase text-live hover:opacity-75 transition-opacity inline-flex items-center gap-1 group mt-auto"
+        className="font-mono text-[9px] tracking-[0.15em] uppercase text-ink-soft hover:text-ink transition-colors inline-flex items-center gap-1 group mt-auto"
       >
         Read brief{' '}
         <span className="group-hover:translate-x-0.5 transition-transform" aria-hidden>
@@ -137,13 +137,13 @@ function BriefCard({ brief }: { brief: Brief }) {
 function PostCard({ post }: { post: ContentPost }) {
   const authorName = getDisplayName(post.users)
   return (
-    <article className="bg-card border border-edge rounded-xl p-5 flex flex-col gap-3">
+    <article className="bg-paper-raised border border-line rounded-xl p-5 flex flex-col gap-3">
       <div className="flex items-center gap-3">
         <Avatar name={authorName} avatarUrl={post.users.avatar_url} size="xs" />
         <div className="min-w-0 flex-1">
           <Link
             href={`/profile/${post.user_id}`}
-            className="font-serif text-xs font-semibold text-dark hover:text-live transition-colors block truncate"
+            className="font-body text-xs font-semibold text-ink hover:text-blue-ink transition-colors block truncate"
           >
             {authorName}
           </Link>
@@ -154,11 +154,11 @@ function PostCard({ post }: { post: ContentPost }) {
         <PostTypeBadge type={post.post_type} />
       </div>
       <div>
-        <p className="font-serif text-sm font-semibold text-dark leading-snug mb-1">
+        <p className="font-body text-sm font-semibold text-ink leading-snug mb-1">
           {post.title}
         </p>
         {post.body && (
-          <p className="font-serif text-sm text-soft leading-relaxed">
+          <p className="font-body text-sm text-ink-soft leading-relaxed">
             {truncate(post.body, 180)}
           </p>
         )}
@@ -168,7 +168,7 @@ function PostCard({ post }: { post: ContentPost }) {
           href={post.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="font-mono text-[9px] tracking-[0.15em] uppercase text-live hover:opacity-75 transition-opacity inline-flex items-center gap-1 group mt-auto"
+          className="font-mono text-[9px] tracking-[0.15em] uppercase text-blue-ink hover:opacity-75 transition-opacity inline-flex items-center gap-1 group mt-auto"
         >
           View source{' '}
           <span className="group-hover:translate-x-0.5 transition-transform" aria-hidden>
@@ -185,11 +185,11 @@ function UserChip({ user }: { user: RecentUser }) {
   return (
     <Link
       href={`/profile/${user.id}`}
-      className="flex items-center gap-2.5 bg-card border border-edge rounded-full px-3 py-2 hover:border-live/40 transition-colors shrink-0"
+      className="flex items-center gap-2.5 bg-paper-raised border border-line rounded-full px-3 py-2 hover:border-ink-soft transition-colors shrink-0"
     >
       <Avatar name={name} avatarUrl={user.avatar_url} size="xs" />
       <div className="min-w-0">
-        <p className="font-serif text-xs font-semibold text-dark truncate max-w-[100px]">
+        <p className="font-body text-xs font-semibold text-ink truncate max-w-[100px]">
           {name}
         </p>
         <RoleBadge role={user.role} size="sm" />
@@ -226,33 +226,33 @@ export default async function HomePage() {
     : user.email?.split('@')[0] ?? 'there'
 
   return (
-    <div className="min-h-screen bg-base text-text">
+    <div className="min-h-screen bg-paper text-ink">
       {/* Nav */}
-      <header className="sticky top-0 z-10 bg-base/95 backdrop-blur-sm border-b border-edge px-6">
+      <header className="sticky top-0 z-10 bg-paper/95 backdrop-blur-sm border-b border-line px-6">
         <div className="mx-auto flex max-w-5xl items-center justify-between py-4">
           <Link
             href="/home"
-            className="font-serif text-base font-bold tracking-tight text-text"
+            className="font-body text-base font-bold tracking-tight text-ink"
           >
-            Tell <em className="italic text-live">The</em> World
+            Tell <em className="italic">The</em> World
           </Link>
           <nav className="flex items-center gap-6">
             <Link
               href="/directory"
-              className="font-mono text-[10px] tracking-[0.18em] uppercase text-soft hover:text-text transition-colors hidden sm:block"
+              className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors hidden sm:block"
             >
               Directory
             </Link>
             <Link
               href="/briefs"
-              className="font-mono text-[10px] tracking-[0.18em] uppercase text-soft hover:text-text transition-colors hidden sm:block"
+              className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors hidden sm:block"
             >
               Briefs
             </Link>
             {currentUser && (
               <Link
                 href={`/profile/${currentUser.id}`}
-                className="font-mono text-[10px] tracking-[0.18em] uppercase text-soft hover:text-text transition-colors"
+                className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors"
               >
                 Profile
               </Link>
@@ -266,10 +266,10 @@ export default async function HomePage() {
 
           {/* Welcome */}
           <section>
-            <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-soft mb-3">
+            <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-ink-soft mb-3">
               Dashboard
             </p>
-            <h1 className="font-display uppercase leading-tight text-dark mb-6 text-[2.5rem] sm:text-[3.5rem]">
+            <h1 className="font-display uppercase leading-tight text-ink mb-6 text-[2.5rem] sm:text-[3.5rem]">
               Welcome back,
               <br />
               {welcomeName}
@@ -277,13 +277,13 @@ export default async function HomePage() {
             <div className="flex items-center gap-6 flex-wrap">
               <Link
                 href="/directory"
-                className="font-display uppercase tracking-widest text-xs bg-dark text-base px-6 py-3 hover:bg-text transition-colors"
+                className="font-display uppercase tracking-widest text-xs bg-ink text-paper px-6 py-3 hover:opacity-90 transition-opacity"
               >
                 Browse Directory
               </Link>
               <Link
                 href="/briefs"
-                className="font-mono text-[10px] tracking-[0.2em] uppercase text-soft hover:text-text transition-colors inline-flex items-center gap-2"
+                className="font-mono text-[10px] tracking-[0.2em] uppercase text-ink-soft hover:text-ink transition-colors inline-flex items-center gap-2"
               >
                 View Briefs <span aria-hidden>→</span>
               </Link>
@@ -293,7 +293,7 @@ export default async function HomePage() {
           {/* Profile not set up yet */}
           {!currentUser && (
             <div className="border border-amber-200 bg-amber-50 rounded-xl p-5">
-              <p className="font-serif text-sm text-amber-900">
+              <p className="font-body text-sm text-amber-900">
                 Your profile isn&rsquo;t set up yet. Contact the platform admin to
                 complete your onboarding.
               </p>
@@ -349,9 +349,9 @@ export default async function HomePage() {
         </div>
       </main>
 
-      <footer className="border-t border-edge px-6 py-6 mt-16">
+      <footer className="border-t border-line px-6 py-6 mt-16">
         <div className="mx-auto max-w-5xl flex items-center justify-between">
-          <span className="font-serif text-sm font-bold text-soft/60 tracking-tight">
+          <span className="font-body text-sm font-bold text-ink-soft/60 tracking-tight">
             Tell <em className="italic">The</em> World
           </span>
         </div>
