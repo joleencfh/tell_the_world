@@ -70,7 +70,7 @@ export default function UserCard({ user }: { user: UserResult }) {
 
   return (
     <article
-      className={`bg-card border border-edge border-l-[3px] ${ROLE_BORDER[user.role]} rounded-xl rounded-l-none flex flex-col overflow-hidden hover:shadow-md transition-shadow duration-200`}
+      className={`bg-paper-raised border border-line border-l-[3px] ${ROLE_BORDER[user.role]} rounded-xl rounded-l-none flex flex-col overflow-hidden hover:shadow-md transition-shadow duration-200`}
     >
       <div className="p-5 flex flex-col gap-3 flex-1">
 
@@ -81,17 +81,17 @@ export default function UserCard({ user }: { user: UserResult }) {
             avatarUrl={user.avatar_url}
             palette="colored"
             size="md"
-            ringClassName="ring-2 ring-edge"
+            ringClassName="ring-2 ring-line"
           />
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-2 mb-0.5">
-              <p className="font-display uppercase text-dark text-sm leading-tight">
+              <p className="font-display uppercase text-ink text-sm leading-tight">
                 {name}
               </p>
               <RoleBadge role={user.role} size="xs" />
             </div>
             {affiliation && (
-              <p className="font-mono text-[9px] tracking-[0.08em] text-soft/80 truncate">
+              <p className="font-mono text-[9px] tracking-[0.08em] text-ink-soft/80 truncate">
                 {affiliation}
               </p>
             )}
@@ -100,7 +100,7 @@ export default function UserCard({ user }: { user: UserResult }) {
 
         {/* Bio excerpt */}
         {bioExcerpt && (
-          <p className="font-serif text-[0.8rem] text-soft leading-relaxed">
+          <p className="font-body text-[0.8rem] text-ink-soft leading-relaxed">
             {bioExcerpt}
           </p>
         )}
@@ -117,7 +117,7 @@ export default function UserCard({ user }: { user: UserResult }) {
               </span>
             ))}
             {extraAreas > 0 && (
-              <span className="px-2 py-0.5 bg-edge text-soft rounded-full font-mono text-[8px] tracking-[0.08em]">
+              <span className="px-2 py-0.5 bg-line text-ink-soft rounded-full font-mono text-[8px] tracking-[0.08em]">
                 +{extraAreas}
               </span>
             )}
@@ -127,11 +127,11 @@ export default function UserCard({ user }: { user: UserResult }) {
       </div>
 
       {/* Footer: availability + profile link */}
-      <div className="px-5 py-3 border-t border-edge flex items-center justify-between gap-3">
+      <div className="px-5 py-3 border-t border-line flex items-center justify-between gap-3">
         <AvailabilityDot status={user.availability} />
         <Link
           href={`/profile/${user.id}`}
-          className="font-mono text-[9px] tracking-[0.15em] uppercase text-live hover:opacity-75 transition-opacity inline-flex items-center gap-1 group ml-auto"
+          className="font-mono text-[9px] tracking-[0.15em] uppercase text-ink-soft hover:text-ink transition-colors inline-flex items-center gap-1 group ml-auto"
         >
           View profile{' '}
           <span className="group-hover:translate-x-0.5 transition-transform" aria-hidden>
