@@ -38,25 +38,46 @@ async function seed() {
   await supabase.from('brief_sections').delete().eq('brief_id', brief.id)
 
   // TLDR text moved from the (now-retired) briefs.tldr column to its own
-  // tldr-type section — see migration 017_brief_feature_schema.sql.
+  // tldr-type section — see migration 017_brief_feature_schema.sql. Content
+  // format changed in Two-Ink Bold Part 1: one bullet per line, optionally
+  // starting with a **bold lead term** — em dash (parseTLDR in
+  // app/briefs/[slug]/section-content.tsx).
   const sections = [
     {
       brief_id: brief.id,
       section_type: 'tldr',
       display_order: 1,
-      content: '[Placeholder TLDR] A 3–5 sentence quotable summary of the brief goes here.',
+      // parseTLDR only recognizes a bold lead term when the line STARTS with
+      // "**" — the placeholder marker has to go inside the bold span, not
+      // before it, or the line falls back to unparsed plain text.
+      content:
+        '**[Placeholder] Compute race** — a short bullet line goes here.\n' +
+        '[Placeholder] A second bullet line without a bold lead term goes here.\n' +
+        '**[Placeholder] A third term** — a third bullet line goes here.',
     },
+    // Explainer subsection with a title and an inline keyterm — Two-Ink Bold
+    // Part 3: brief_sections.title (migration 018) + {{term|definition}}
+    // authoring convention (tokenizeKeyterms in app/briefs/[slug]/explainer.tsx).
     {
       brief_id: brief.id,
-      section_type: 'featured_news',
+      section_type: 'explainer',
       display_order: 2,
-      content: '[Placeholder] A dated, recent news item and why it matters goes here.',
+      title: '[Placeholder] A titled explainer subsection',
+      content:
+        '[Placeholder] A paragraph explaining the topic, with an inline {{keyterm|its placeholder definition}} to exercise the tooltip.\n\n' +
+        '[Placeholder] A second paragraph goes here.',
     },
     {
       brief_id: brief.id,
       section_type: 'going_deeper',
       display_order: 3,
-      content: '[Placeholder] A resource pointer goes here.',
+      // parseSources (app/briefs/[slug]/sources.tsx) needs at least 2 source
+      // blocks to render at all — one block alone renders nothing.
+      content:
+        '• "[Placeholder] First source title" — a short description of the source\n' +
+        'https://example.com/placeholder-source-1\n\n' +
+        '• "[Placeholder] Second source title" — a short description of the source\n' +
+        'https://example.com/placeholder-source-2',
     },
     {
       brief_id: brief.id,

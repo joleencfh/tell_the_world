@@ -52,14 +52,17 @@
   --color-card:   #FFFFFF;
 }
 
-/* @theme inline for fonts: these reference the next/font CSS variables
-   (--font-plex-sans/--font-plex-mono, set via a class on <body>), and inline
-   resolution is what next/font's Tailwind v4 integration requires for that
-   indirection to work at all — unlike colors, these are stable literals for
-   this app's lifetime, not something a runtime override needs to reach. */
+/* @theme inline for fonts: --font-mono references the next/font CSS variable
+   (--font-plex-mono, set via a class on <body>), and inline resolution is
+   what next/font's Tailwind v4 integration requires for that indirection to
+   work at all. --font-display/--font-body match the reference artifact's
+   own tokens exactly — it declares the system UI font stack, not a webfont,
+   so there's no next/font loader for those two; Segoe UI's real Black (900)
+   weight is what makes font-weight:800 read as genuinely bold on Windows,
+   vs. IBM Plex Sans (no cut above 700) which the app used previously. */
 @theme inline {
-  --font-display: var(--font-plex-sans), "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-  --font-body:    var(--font-plex-sans), "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-body:    "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   --font-mono:    var(--font-plex-mono), ui-monospace, "SF Mono", Consolas, monospace;
 
   /* Legacy token, same compat rationale as the --color-* block above.

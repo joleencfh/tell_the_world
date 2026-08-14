@@ -15,7 +15,7 @@ const SECTION_LABELS: Record<BriefSection['section_type'], string> = {
   featured_news:        'Featured News',
   explainer:            'Explainer',
   where_experts_stand:  'Where Experts Stand',
-  going_deeper:         'Going Deeper',
+  going_deeper:         'Sources',
   faq:                  'FAQ',
 }
 

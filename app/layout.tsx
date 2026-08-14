@@ -1,19 +1,10 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import { IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
-// IBM Plex Sans tops out at weight 700 via next/font/google (no 800 cut
-// exists for this family) — the design plan's §1.1 spec of 800 for
-// hero/section headings isn't achievable here; 700 (font-bold) is the
-// heaviest available and is what those headings use instead.
-const plexSans = IBM_Plex_Sans({
-  variable: "--font-plex-sans",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  style: ["normal", "italic"],
-  display: "swap",
-});
-
+// The reference artifact's --font-display/--font-body both resolve to the
+// system UI font stack ("Segoe UI" > Helvetica Neue > Arial), not a webfont
+// — see globals.css. Only the mono face is an actual loaded font.
 const plexMono = IBM_Plex_Mono({
   variable: "--font-plex-mono",
   subsets: ["latin"],
@@ -34,7 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${plexSans.variable} ${plexMono.variable} font-body antialiased`}
+        className={`${plexMono.variable} font-body antialiased`}
       >
         {children}
       </body>

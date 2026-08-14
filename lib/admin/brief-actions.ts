@@ -64,14 +64,16 @@ export async function createBrief(): Promise<never> {
 
   if (error || !brief) throw new Error(error?.message ?? 'Failed to create brief')
 
+  // use_this/featured_news/where_experts_stand are old-IA section types
+  // dropped by the Two-Ink Bold rebuild (two-ink-bold-plan.md §2) — the enum
+  // values and their renderers still exist (full removal is Part 10's job),
+  // but new briefs must stop being seeded with them per that section's
+  // explicit "stop authoring new rows of those types" instruction.
   await getAdminClient().from('brief_sections').insert([
     { brief_id: brief.id, section_type: 'tldr',                 content: '', display_order: 1 },
-    { brief_id: brief.id, section_type: 'use_this',              content: '', display_order: 2 },
-    { brief_id: brief.id, section_type: 'featured_news',         content: '', display_order: 3 },
-    { brief_id: brief.id, section_type: 'explainer',             content: '', display_order: 4 },
-    { brief_id: brief.id, section_type: 'where_experts_stand',   content: '', display_order: 5 },
-    { brief_id: brief.id, section_type: 'going_deeper',          content: '', display_order: 6 },
-    { brief_id: brief.id, section_type: 'faq',                   content: '', display_order: 7 },
+    { brief_id: brief.id, section_type: 'explainer',             content: '', display_order: 2 },
+    { brief_id: brief.id, section_type: 'going_deeper',          content: '', display_order: 3 },
+    { brief_id: brief.id, section_type: 'faq',                   content: '', display_order: 4 },
   ])
 
   redirect(`/admin/briefs/${brief.id}`)
