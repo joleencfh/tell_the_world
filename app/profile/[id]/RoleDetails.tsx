@@ -19,10 +19,10 @@ export function extractDomain(url: string): string {
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="font-mono text-[9px] tracking-[0.15em] uppercase text-soft">
+      <span className="font-mono text-[9px] tracking-[0.15em] uppercase text-ink-soft">
         {label}
       </span>
-      <span className="font-serif text-sm text-text">{value}</span>
+      <span className="font-body text-sm text-ink">{value}</span>
     </div>
   )
 }
@@ -40,8 +40,8 @@ export function RoleDetails({ user }: { user: ProfileUser }) {
       return null
     }
     return (
-      <section className="border-t border-edge pt-8">
-        <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-soft mb-5">
+      <section className="border-t border-line pt-8">
+        <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-ink-soft mb-5">
           Expert details
         </p>
         <div className="grid sm:grid-cols-2 gap-5">
@@ -49,14 +49,14 @@ export function RoleDetails({ user }: { user: ProfileUser }) {
           {user.affiliation && <DetailRow label="Affiliation" value={user.affiliation} />}
           {user.credibility_url && (
             <div className="flex flex-col gap-0.5">
-              <span className="font-mono text-[9px] tracking-[0.15em] uppercase text-soft">
+              <span className="font-mono text-[9px] tracking-[0.15em] uppercase text-ink-soft">
                 Credibility
               </span>
               <a
                 href={user.credibility_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-serif text-sm text-live hover:opacity-75 transition-opacity truncate"
+                className="font-body text-sm text-blue-ink hover:opacity-75 transition-opacity truncate"
               >
                 {extractDomain(user.credibility_url)}
               </a>
@@ -64,7 +64,7 @@ export function RoleDetails({ user }: { user: ProfileUser }) {
           )}
           {user.areas_of_focus && user.areas_of_focus.length > 0 && (
             <div className="flex flex-col gap-2 sm:col-span-2">
-              <span className="font-mono text-[9px] tracking-[0.15em] uppercase text-soft">
+              <span className="font-mono text-[9px] tracking-[0.15em] uppercase text-ink-soft">
                 Areas of focus
               </span>
               <div className="flex flex-wrap gap-2">
@@ -87,8 +87,8 @@ export function RoleDetails({ user }: { user: ProfileUser }) {
   if (user.role === 'organisation') {
     if (!hasAny([user.org_name, user.org_size, user.org_mission])) return null
     return (
-      <section className="border-t border-edge pt-8">
-        <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-soft mb-5">
+      <section className="border-t border-line pt-8">
+        <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-ink-soft mb-5">
           Organisation details
         </p>
         <div className="grid sm:grid-cols-2 gap-5">
@@ -101,10 +101,10 @@ export function RoleDetails({ user }: { user: ProfileUser }) {
           )}
           {user.org_mission && (
             <div className="flex flex-col gap-0.5 sm:col-span-2">
-              <span className="font-mono text-[9px] tracking-[0.15em] uppercase text-soft">
+              <span className="font-mono text-[9px] tracking-[0.15em] uppercase text-ink-soft">
                 Mission
               </span>
-              <p className="font-serif text-sm text-text leading-relaxed">{user.org_mission}</p>
+              <p className="font-body text-sm text-ink leading-relaxed">{user.org_mission}</p>
             </div>
           )}
         </div>
@@ -124,8 +124,8 @@ export function RoleDetails({ user }: { user: ProfileUser }) {
     if (!hasAny(fields)) return null
 
     return (
-      <section className="border-t border-edge pt-8">
-        <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-soft mb-5">
+      <section className="border-t border-line pt-8">
+        <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-ink-soft mb-5">
           {isJournalist ? 'Journalist details' : 'Creator details'}
         </p>
         <div className="grid sm:grid-cols-2 gap-5">
@@ -137,14 +137,14 @@ export function RoleDetails({ user }: { user: ProfileUser }) {
           )}
           {user.platform_url && (
             <div className="flex flex-col gap-0.5">
-              <span className="font-mono text-[9px] tracking-[0.15em] uppercase text-soft">
+              <span className="font-mono text-[9px] tracking-[0.15em] uppercase text-ink-soft">
                 Channel / page
               </span>
               <a
                 href={user.platform_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-serif text-sm text-live hover:opacity-75 transition-opacity truncate"
+                className="font-body text-sm text-pink-ink hover:opacity-75 transition-opacity truncate"
               >
                 {extractDomain(user.platform_url)}
               </a>
@@ -164,14 +164,14 @@ export function RoleDetails({ user }: { user: ProfileUser }) {
           )}
           {isJournalist && user.publication_url && (
             <div className="flex flex-col gap-0.5">
-              <span className="font-mono text-[9px] tracking-[0.15em] uppercase text-soft">
+              <span className="font-mono text-[9px] tracking-[0.15em] uppercase text-ink-soft">
                 Publication URL
               </span>
               <a
                 href={user.publication_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-serif text-sm text-live hover:opacity-75 transition-opacity truncate"
+                className="font-body text-sm text-pink-ink hover:opacity-75 transition-opacity truncate"
               >
                 {extractDomain(user.publication_url)}
               </a>

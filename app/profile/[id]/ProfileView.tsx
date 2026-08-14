@@ -103,38 +103,38 @@ export default function ProfileView({
   const profileName = profileUser ? getDisplayName(profileUser) : null
 
   return (
-    <div className="min-h-screen bg-base text-text">
+    <div className="min-h-screen bg-paper text-ink">
       {/* Nav */}
-      <header className="sticky top-0 z-10 bg-base/95 backdrop-blur-sm border-b border-edge px-6">
+      <header className="sticky top-0 z-10 bg-paper/95 backdrop-blur-sm border-b border-line px-6">
         <div className="mx-auto flex max-w-5xl items-center justify-between py-4">
           <Link
             href="/home"
-            className="font-serif text-base font-bold tracking-tight text-text"
+            className="font-body text-base font-bold tracking-tight text-ink"
           >
-            Tell <em className="italic text-live">The</em> World
+            Tell <em className="italic">The</em> World
           </Link>
           <nav className="flex items-center gap-6">
             <Link
               href="/directory"
-              className="font-mono text-[10px] tracking-[0.18em] uppercase text-soft hover:text-text transition-colors hidden sm:block"
+              className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors hidden sm:block"
             >
               Directory
             </Link>
             <Link
               href="/briefs"
-              className="font-mono text-[10px] tracking-[0.18em] uppercase text-soft hover:text-text transition-colors hidden sm:block"
+              className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors hidden sm:block"
             >
               Briefs
             </Link>
             <Link
               href={`/profile/${currentUserId}`}
-              className="font-mono text-[10px] tracking-[0.18em] uppercase text-soft hover:text-text transition-colors"
+              className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors"
             >
               Profile
             </Link>
             <button
               onClick={handleSignOut}
-              className="font-mono text-[10px] tracking-[0.18em] uppercase text-soft hover:text-text transition-colors"
+              className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors"
             >
               Sign out
             </button>
@@ -148,15 +148,15 @@ export default function ProfileView({
           {/* Profile not found */}
           {!profileUser && (
             <div className="py-20 text-center">
-              <p className="font-display uppercase text-3xl text-dark mb-3">
+              <p className="font-display uppercase text-3xl text-ink mb-3">
                 Profile not found
               </p>
-              <p className="font-serif text-sm text-soft mb-8">
+              <p className="font-body text-sm text-ink-soft mb-8">
                 This profile doesn&rsquo;t exist or the link may be incorrect.
               </p>
               <Link
                 href="/directory"
-                className="font-mono text-[10px] tracking-[0.18em] uppercase text-live hover:opacity-75 transition-opacity inline-flex items-center gap-2"
+                className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors inline-flex items-center gap-2"
               >
                 ← Browse directory
               </Link>
@@ -178,7 +178,7 @@ export default function ProfileView({
                   {/* Identity */}
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-3 mb-2">
-                      <h1 className="font-display uppercase text-2xl sm:text-3xl text-dark leading-tight">
+                      <h1 className="font-display uppercase text-2xl sm:text-3xl text-ink leading-tight">
                         {profileName}
                       </h1>
                       <RoleBadge role={profileUser.role} />
@@ -193,7 +193,7 @@ export default function ProfileView({
 
                     {/* Bio */}
                     {profileUser.bio && (
-                      <p className="font-serif text-base leading-[1.8] text-text mb-3 max-w-xl">
+                      <p className="font-body text-base leading-[1.8] text-ink mb-3 max-w-xl">
                         {profileUser.bio}
                       </p>
                     )}
@@ -204,7 +204,7 @@ export default function ProfileView({
                         href={profileUser.website_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="font-mono text-[10px] tracking-[0.15em] uppercase text-live hover:opacity-75 transition-opacity inline-flex items-center gap-1 group mb-4 block"
+                        className="font-mono text-[10px] tracking-[0.15em] uppercase text-ink-soft hover:text-ink transition-colors inline-flex items-center gap-1 group mb-4 block"
                       >
                         {extractDomain(profileUser.website_url)}{' '}
                         <span className="group-hover:translate-x-0.5 transition-transform" aria-hidden>
@@ -219,13 +219,13 @@ export default function ProfileView({
                         <>
                           <button
                             onClick={() => setEditOpen(true)}
-                            className="font-display uppercase tracking-widest text-xs bg-dark text-base px-5 py-2.5 hover:opacity-80 transition-opacity"
+                            className="font-display uppercase tracking-widest text-xs bg-ink text-paper px-5 py-2.5 hover:opacity-80 transition-opacity"
                           >
                             Edit Profile
                           </button>
                           <button
                             onClick={openNewPost}
-                            className="font-display uppercase tracking-widest text-xs border border-edge text-soft px-5 py-2.5 hover:text-text hover:border-text transition-colors"
+                            className="font-display uppercase tracking-widest text-xs border border-line text-ink-soft px-5 py-2.5 hover:text-ink hover:border-ink transition-colors"
                           >
                             New Post
                           </button>
@@ -233,7 +233,7 @@ export default function ProfileView({
                       ) : (
                         <button
                           onClick={() => setContactOpen(true)}
-                          className="font-display uppercase tracking-widest text-xs bg-dark text-base px-5 py-2.5 hover:opacity-80 transition-opacity"
+                          className="font-display uppercase tracking-widest text-xs bg-ink text-paper px-5 py-2.5 hover:opacity-80 transition-opacity"
                         >
                           Contact
                         </button>
@@ -249,10 +249,10 @@ export default function ProfileView({
               {/* Posts section */}
               <section>
                 <div className="flex items-center gap-5 mb-7">
-                  <h2 className="font-display uppercase tracking-[0.18em] text-dark text-sm shrink-0">
+                  <h2 className="font-display uppercase tracking-[0.18em] text-ink text-sm shrink-0">
                     Posts by {profileName}
                   </h2>
-                  <div className="flex-1 h-px bg-edge" />
+                  <div className="flex-1 h-px bg-line" />
                 </div>
 
                 {posts.length > 0 ? (
@@ -266,7 +266,7 @@ export default function ProfileView({
                     ))}
                   </div>
                 ) : (
-                  <p className="font-serif text-sm text-soft/60 italic py-4">
+                  <p className="font-body text-sm text-ink-soft/60 italic py-4">
                     {isOwnProfile
                       ? "You haven't shared any posts yet. Share your first post to get started."
                       : 'No posts yet.'}
@@ -279,10 +279,10 @@ export default function ProfileView({
                 (correctionProposals.length > 0 || isOwnProfile) && (
                 <section>
                   <div className="flex items-center gap-5 mb-7">
-                    <h2 className="font-display uppercase tracking-[0.18em] text-dark text-sm shrink-0">
+                    <h2 className="font-display uppercase tracking-[0.18em] text-ink text-sm shrink-0">
                       Correction proposals
                     </h2>
-                    <div className="flex-1 h-px bg-edge" />
+                    <div className="flex-1 h-px bg-line" />
                   </div>
 
                   {correctionProposals.length > 0 ? (
@@ -292,7 +292,7 @@ export default function ProfileView({
                       ))}
                     </div>
                   ) : (
-                    <p className="font-serif text-sm text-soft/60 italic py-4">
+                    <p className="font-body text-sm text-ink-soft/60 italic py-4">
                       No correction proposals yet.
                     </p>
                   )}
@@ -304,9 +304,9 @@ export default function ProfileView({
         </div>
       </main>
 
-      <footer className="border-t border-edge px-6 py-6 mt-16">
+      <footer className="border-t border-line px-6 py-6 mt-16">
         <div className="mx-auto max-w-3xl flex items-center justify-between">
-          <span className="font-serif text-sm font-bold text-soft/60 tracking-tight">
+          <span className="font-body text-sm font-bold text-ink-soft/60 tracking-tight">
             Tell <em className="italic">The</em> World
           </span>
         </div>

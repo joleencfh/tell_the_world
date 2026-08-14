@@ -41,9 +41,9 @@ function PostTypeBadge({ type }: { type: string }) {
 
 export function PostCard({ post, onEdit }: { post: ProfilePost; onEdit?: () => void }) {
   return (
-    <article className="bg-card border border-edge rounded-xl p-5 flex flex-col gap-3">
+    <article className="bg-paper-raised border border-line rounded-xl p-5 flex flex-col gap-3">
       <div className="flex items-start justify-between gap-3">
-        <p className="font-serif text-sm font-bold text-dark leading-snug flex-1">
+        <p className="font-body text-sm font-bold text-ink leading-snug flex-1">
           {post.title}
         </p>
         <div className="flex items-center gap-2 shrink-0">
@@ -52,7 +52,7 @@ export function PostCard({ post, onEdit }: { post: ProfilePost; onEdit?: () => v
             <button
               type="button"
               onClick={onEdit}
-              className="font-mono text-[9px] tracking-[0.1em] uppercase text-soft/60 hover:text-text transition-colors"
+              className="font-mono text-[9px] tracking-[0.1em] uppercase text-ink-soft/60 hover:text-ink transition-colors"
               aria-label="Edit post"
             >
               Edit
@@ -61,18 +61,18 @@ export function PostCard({ post, onEdit }: { post: ProfilePost; onEdit?: () => v
         </div>
       </div>
       {post.body && (
-        <p className="font-serif text-sm text-soft leading-relaxed">
+        <p className="font-body text-sm text-ink-soft leading-relaxed">
           {truncate(post.body, 200)}
         </p>
       )}
       <div className="flex items-center justify-between gap-3 mt-auto pt-1">
-        <span className="font-mono text-[9px] text-soft/70">{formatDate(post.created_at)}</span>
+        <span className="font-mono text-[9px] text-ink-soft/70">{formatDate(post.created_at)}</span>
         {post.url && (
           <a
             href={post.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-mono text-[9px] tracking-[0.15em] uppercase text-live hover:opacity-75 transition-opacity inline-flex items-center gap-1 group"
+            className="font-mono text-[9px] tracking-[0.15em] uppercase text-ink-soft hover:text-ink transition-colors inline-flex items-center gap-1 group"
           >
             View source{' '}
             <span className="group-hover:translate-x-0.5 transition-transform" aria-hidden>
@@ -98,11 +98,11 @@ export function CorrectionProposalCard({
 }) {
   const isPending = proposal.status === 'pending'
   return (
-    <article className="bg-card border border-edge rounded-xl p-5 flex flex-col gap-3">
+    <article className="bg-paper-raised border border-line rounded-xl p-5 flex flex-col gap-3">
       <div className="flex items-start justify-between gap-3">
         <Link
           href={`/briefs/${proposal.briefs.slug}`}
-          className="font-mono text-[9px] tracking-[0.15em] uppercase text-live hover:opacity-75 transition-opacity"
+          className="font-mono text-[9px] tracking-[0.15em] uppercase text-blue-ink hover:opacity-75 transition-opacity"
         >
           {proposal.briefs.title} →
         </Link>
@@ -112,10 +112,10 @@ export function CorrectionProposalCard({
           </span>
         )}
       </div>
-      <p className="font-serif text-sm text-text leading-relaxed whitespace-pre-wrap">
+      <p className="font-body text-sm text-ink leading-relaxed whitespace-pre-wrap">
         {proposal.contribution_text}
       </p>
-      <span className="font-mono text-[9px] text-soft/70">{formatDate(proposal.created_at)}</span>
+      <span className="font-mono text-[9px] text-ink-soft/70">{formatDate(proposal.created_at)}</span>
     </article>
   )
 }
