@@ -3,18 +3,19 @@
 import { useState } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { createBrief } from '@/lib/admin/brief-actions'
-import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingCta } from '@/lib/admin/actions'
+import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingCta, PendingCoverage } from '@/lib/admin/actions'
 import { ADMIN_PAGE_SIZE } from '@/lib/data/admin'
 import Pagination from '@/components/ui/Pagination'
 import { ApplicationCard, QuestionCard, CorrectionProposalCard, BriefProposalCard, ApprovedRow } from './cards'
 import { FaqAnswerCard } from './faq-answer-card'
 import { CtaCard } from './cta-card'
+import { CoverageCard } from './coverage-card'
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-type Tab = 'pending' | 'questions' | 'correctionProposals' | 'faqAnswers' | 'ctas' | 'proposals' | 'approved'
+type Tab = 'pending' | 'questions' | 'correctionProposals' | 'faqAnswers' | 'ctas' | 'coverage' | 'proposals' | 'approved'
 
 interface Props {
   adminEmail: string
@@ -36,6 +37,9 @@ interface Props {
   pendingCtas: PendingCta[]
   pendingCtasCount: number
   ctasPage: number
+  pendingCoverage: PendingCoverage[]
+  pendingCoverageCount: number
+  coveragePage: number
   briefProposals: BriefProposal[]
   briefProposalsCount: number
   proposalsPage: number
@@ -65,6 +69,9 @@ export default function AdminScreen({
   pendingCtas,
   pendingCtasCount,
   ctasPage,
+  pendingCoverage,
+  pendingCoverageCount,
+  coveragePage,
   briefProposals,
   briefProposalsCount,
   proposalsPage,
@@ -154,6 +161,14 @@ export default function AdminScreen({
               {pendingCtasCount > 0 && (
                 <span className="ml-2 font-mono text-[9px] bg-blue text-white px-1.5 py-0.5">
                   {pendingCtasCount}
+                </span>
+              )}
+            </TabButton>
+            <TabButton active={tab === 'coverage'} onClick={() => setTab('coverage')}>
+              Coverage
+              {pendingCoverageCount > 0 && (
+                <span className="ml-2 font-mono text-[9px] bg-blue text-white px-1.5 py-0.5">
+                  {pendingCoverageCount}
                 </span>
               )}
             </TabButton>
@@ -281,6 +296,29 @@ export default function AdminScreen({
                 pageSize={ADMIN_PAGE_SIZE}
                 total={pendingCtasCount}
                 buildHref={(p) => buildPageHref('ctasPage', p)}
+              />
+            </>
+          )}
+
+          {/* Pending coverage tab */}
+          {tab === 'coverage' && (
+            <>
+              {pendingCoverage.length === 0 ? (
+                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
+                  No pending coverage.
+                </p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {pendingCoverage.map(c => (
+                    <CoverageCard key={c.id} coverage={c} />
+                  ))}
+                </div>
+              )}
+              <Pagination
+                page={coveragePage}
+                pageSize={ADMIN_PAGE_SIZE}
+                total={pendingCoverageCount}
+                buildHref={(p) => buildPageHref('coveragePage', p)}
               />
             </>
           )}

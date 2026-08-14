@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getAdminClient } from '@/lib/supabase/admin'
 import { sendBriefProposalEmail } from '@/lib/email/send-brief-proposal'
 import { getMaxContentVersion } from '@/lib/data/contributions'
+import { fetchLinkPreview } from '@/lib/links/link-preview'
 import type { UserRole } from '@/lib/types'
 
 const CONTRIBUTOR_ROLES = ['expert', 'organisation']
@@ -179,6 +180,83 @@ export async function submitCta(
 
   revalidatePath(`/briefs/${briefSlug}`)
   return { success: true, published: isAdmin }
+}
+
+// Part 7: a member's submission of a press coverage link — any logged-in
+// member, not just experts/organisations (deliberate deviation from
+// submitCta above, confirmed with the user during this part's build).
+// URL-only form: outlet name, article title, and image all come from the
+// page's own Open Graph tags, fetched server-side here at submission time
+// (lib/links/link-preview.ts never throws, so this always has something
+// usable to insert even if the fetch fails or the site has no OG tags).
+export async function submitCoverage(
+  briefId: string,
+  briefSlug: string,
+  url: string,
+): Promise<{ error?: string; success?: boolean }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return { error: 'You must be logged in to add coverage.' }
+
+  const trimmedUrl = url.trim()
+  if (!trimmedUrl) return { error: 'Link URL cannot be empty.' }
+  if (trimmedUrl.length > 500) return { error: 'Link URL must be under 500 characters.' }
+  if (!/^https?:\/\//i.test(trimmedUrl)) return { error: 'Link URL must start with http:// or https://.' }
+
+  let parsed: URL
+  try {
+    parsed = new URL(trimmedUrl)
+  } catch {
+    return { error: 'That doesn’t look like a valid URL.' }
+  }
+
+  const preview = await fetchLinkPreview(parsed.toString())
+
+  const { error } = await supabase.from('brief_coverage').insert({
+    brief_id: briefId,
+    url: parsed.toString(),
+    outlet_name: preview.outletName,
+    title: preview.title,
+    image_url: preview.imageUrl,
+    published_date: preview.publishedDate,
+    submitted_by: user.id,
+    status: 'pending',
+  })
+
+  if (error) return { error: 'Failed to submit coverage. Please try again.' }
+
+  revalidatePath(`/briefs/${briefSlug}`)
+  return { success: true }
+}
+
+// A member's like on a coverage row — any logged-in member, true toggle
+// (insert if absent, delete if present), same shape as voteQuestion below.
+export async function likeCoverage(coverageId: string, briefSlug: string): Promise<{ error?: string; liked?: boolean }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return { error: 'You must be logged in to like this.' }
+
+  const { data: existing } = await supabase
+    .from('brief_coverage_likes')
+    .select('id')
+    .eq('coverage_id', coverageId)
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  const { error } = existing
+    ? await supabase.from('brief_coverage_likes').delete().eq('id', existing.id)
+    : await supabase.from('brief_coverage_likes').insert({ coverage_id: coverageId, user_id: user.id })
+
+  if (error) return { error: 'Failed to record your like. Please try again.' }
+
+  revalidatePath(`/briefs/${briefSlug}`)
+  return { liked: !existing }
 }
 
 // Part 5: a member's vote on a Community Q&A question — one row per

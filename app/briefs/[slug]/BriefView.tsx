@@ -3,6 +3,7 @@
 import { useState, Fragment } from 'react'
 import Link from 'next/link'
 import ProposeBriefModal from '@/components/ProposeBriefModal'
+import DarkBand from '@/components/ui/DarkBand'
 import {
   SECTION_ORDER,
   SECTION_META,
@@ -19,6 +20,7 @@ import { ReviewEndorseControl } from './review-endorse'
 import { ExplainerSections } from './explainer'
 import { FAQSection } from './faq'
 import { CtaCarousel, SuggestCtaModal } from './ctas'
+import { CoverageCarousel, AddCoverageModal } from './coverage'
 import { formatDate, computeReadTimeMinutes } from './helpers'
 import type {
   Brief,
@@ -32,6 +34,7 @@ import type {
   ExplainerContributionInfo,
   FaqAnswer,
   Cta,
+  Coverage,
 } from './page'
 
 // ---------------------------------------------------------------------------
@@ -50,13 +53,14 @@ interface BriefViewProps {
   explainerContributions: ExplainerContributionInfo[]
   faqAnswersByQuestion: Record<string, FaqAnswer[]>
   ctas: Cta[]
+  coverage: Coverage[]
 }
 
 // `media` stays in BriefViewProps (page.tsx still fetches and passes it —
 // dropping Media from the page was a deliberate call, but the data query
 // itself is out of scope for this change) but isn't destructured here since
 // nothing renders it anymore.
-export default function BriefView({ brief, quotes, endorsementBar, questions, answersByQuestion, currentUser, myReviewStatus, explainerContributions, faqAnswersByQuestion, ctas }: BriefViewProps) {
+export default function BriefView({ brief, quotes, endorsementBar, questions, answersByQuestion, currentUser, myReviewStatus, explainerContributions, faqAnswersByQuestion, ctas, coverage }: BriefViewProps) {
   const isLoggedIn = !!currentUser
   const showSections = isLoggedIn || brief.visibility === 'public'
   const canContribute = currentUser?.role === 'expert' || currentUser?.role === 'organisation'
@@ -83,6 +87,7 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
   const [proposeCorrectionOpen, setProposeCorrectionOpen] = useState(false)
   const [proposeBriefOpen, setProposeBriefOpen] = useState(false)
   const [suggestCtaOpen, setSuggestCtaOpen] = useState(false)
+  const [addCoverageOpen, setAddCoverageOpen] = useState(false)
   const sortedSections = [...brief.brief_sections].sort(
     (a, b) => a.display_order - b.display_order,
   )
@@ -368,6 +373,34 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
           </div>
         )}
 
+        {/* ── Covered By — fixed dark band in both themes (§1.3) ───────── */}
+        {showSections && (
+          <DarkBand className="px-6 py-16">
+            <div className="mx-auto max-w-4xl">
+              <SectionHeader
+                num="08"
+                label="Covered By"
+                description="Press coverage of this topic"
+                numTone="pink"
+                onDark
+                action={
+                  isLoggedIn ? (
+                    <button
+                      type="button"
+                      onClick={() => setAddCoverageOpen(true)}
+                      style={{ touchAction: 'manipulation' }}
+                      className="border-2 border-pink bg-pink px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.08em] text-white outline-none transition-colors hover:bg-transparent hover:text-pink focus-visible:ring-2 focus-visible:ring-pink"
+                    >
+                      + Add coverage
+                    </button>
+                  ) : undefined
+                }
+              />
+              <CoverageCarousel coverage={coverage} briefSlug={brief.slug} isLoggedIn={isLoggedIn} />
+            </div>
+          </DarkBand>
+        )}
+
         {/* ── Footer actions — logged-in members ───────────────────────── */}
         {isLoggedIn && (
           <div className="px-6 py-6 border-t border-line">
@@ -419,6 +452,16 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
             briefSlug={brief.slug}
             briefTitle={brief.title}
             onClose={() => setSuggestCtaOpen(false)}
+          />
+        )}
+
+        {/* ── Add coverage modal ───────────────────────────────────────── */}
+        {addCoverageOpen && currentUser && (
+          <AddCoverageModal
+            briefId={brief.id}
+            briefSlug={brief.slug}
+            briefTitle={brief.title}
+            onClose={() => setAddCoverageOpen(false)}
           />
         )}
 

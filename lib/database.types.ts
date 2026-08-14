@@ -223,6 +223,99 @@ export type Database = {
           },
         ]
       }
+      brief_coverage: {
+        Row: {
+          brief_id: string
+          created_at: string
+          id: string
+          image_url: string | null
+          outlet_name: string
+          published_date: string | null
+          score: number | null
+          status: string
+          submitted_by: string
+          title: string
+          url: string
+        }
+        Insert: {
+          brief_id: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          outlet_name: string
+          published_date?: string | null
+          score?: number | null
+          status?: string
+          submitted_by: string
+          title: string
+          url: string
+        }
+        Update: {
+          brief_id?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          outlet_name?: string
+          published_date?: string | null
+          score?: number | null
+          status?: string
+          submitted_by?: string
+          title?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brief_coverage_brief_id_fkey"
+            columns: ["brief_id"]
+            isOneToOne: false
+            referencedRelation: "briefs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brief_coverage_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      brief_coverage_likes: {
+        Row: {
+          coverage_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          coverage_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          coverage_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brief_coverage_likes_coverage_id_fkey"
+            columns: ["coverage_id"]
+            isOneToOne: false
+            referencedRelation: "brief_coverage"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brief_coverage_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       brief_ctas: {
         Row: {
           author_user_id: string | null
