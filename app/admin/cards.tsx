@@ -57,9 +57,9 @@ function formatDate(iso: string) {
 function Field({ label, value }: { label: string; value: string | number | null | undefined }) {
   if (!value && value !== 0) return null
   return (
-    <div className="grid grid-cols-[160px_1fr] gap-3 py-2.5 border-b border-edge last:border-0">
-      <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-soft pt-0.5">{label}</span>
-      <span className="font-serif text-sm text-text leading-relaxed break-words">{String(value)}</span>
+    <div className="grid grid-cols-[160px_1fr] gap-3 py-2.5 border-b border-line last:border-0">
+      <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft pt-0.5">{label}</span>
+      <span className="font-body text-sm text-ink leading-relaxed break-words">{String(value)}</span>
     </div>
   )
 }
@@ -67,13 +67,13 @@ function Field({ label, value }: { label: string; value: string | number | null 
 function LinkField({ label, value }: { label: string; value: string | null | undefined }) {
   if (!value) return null
   return (
-    <div className="grid grid-cols-[160px_1fr] gap-3 py-2.5 border-b border-edge last:border-0">
-      <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-soft pt-0.5">{label}</span>
+    <div className="grid grid-cols-[160px_1fr] gap-3 py-2.5 border-b border-line last:border-0">
+      <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft pt-0.5">{label}</span>
       <a
         href={value}
         target="_blank"
         rel="noopener noreferrer"
-        className="font-serif text-sm text-live hover:underline break-all"
+        className="font-body text-sm text-blue-ink hover:underline break-all"
       >
         {value}
       </a>
@@ -116,15 +116,15 @@ export function ApplicationCard({ app }: { app: Application }) {
   }
 
   return (
-    <div className="border border-edge bg-card">
+    <div className="border border-line bg-paper-raised">
       {/* Summary row — always visible */}
       <button
-        className="w-full text-left px-5 py-4 flex items-center gap-4 hover:bg-base/60 transition-colors"
+        className="w-full text-left px-5 py-4 flex items-center gap-4 hover:bg-paper/60 transition-colors"
         onClick={() => setExpanded(e => !e)}
         aria-expanded={expanded}
       >
         <span
-          className="font-mono text-[9px] tracking-[0.15em] text-soft shrink-0 transition-transform duration-150"
+          className="font-mono text-[9px] tracking-[0.15em] text-ink-soft shrink-0 transition-transform duration-150"
           aria-hidden
           style={{ transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)' }}
         >
@@ -133,20 +133,20 @@ export function ApplicationCard({ app }: { app: Application }) {
 
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2.5 mb-0.5">
-            <span className="font-serif text-sm font-semibold text-dark truncate">{displayName}</span>
+            <span className="font-body text-sm font-semibold text-ink truncate">{displayName}</span>
             <RoleBadge role={app.desired_role} />
           </div>
-          <span className="font-mono text-[10px] text-soft">{app.email}</span>
+          <span className="font-mono text-[10px] text-ink-soft">{app.email}</span>
         </div>
 
-        <span className="font-mono text-[9px] text-soft shrink-0 hidden sm:block">
+        <span className="font-mono text-[9px] text-ink-soft shrink-0 hidden sm:block">
           {formatDate(app.created_at)}
         </span>
       </button>
 
       {/* Expanded body */}
       {expanded && (
-        <div className="border-t border-edge px-5 pt-4 pb-5">
+        <div className="border-t border-line px-5 pt-4 pb-5">
 
           {/* All submitted fields */}
           <div className="mb-5">
@@ -159,7 +159,7 @@ export function ApplicationCard({ app }: { app: Application }) {
             } />
             <Field label="Bio" value={app.bio} />
             <LinkField label="Website" value={app.website_url} />
-            <span className="block font-mono text-[9px] text-soft mt-2 mb-1 pl-0">Submitted {formatDate(app.created_at)}</span>
+            <span className="block font-mono text-[9px] text-ink-soft mt-2 mb-1 pl-0">Submitted {formatDate(app.created_at)}</span>
 
             {/* Creator / Journalist */}
             {(app.desired_role === 'creator' || app.desired_role === 'journalist') && (
@@ -209,7 +209,7 @@ export function ApplicationCard({ app }: { app: Application }) {
 
           {/* Warning for "other" role */}
           {isOther && (
-            <div className="mb-4 px-4 py-3 border border-amber-300 bg-amber-50 font-serif text-xs text-amber-800 leading-relaxed">
+            <div className="mb-4 px-4 py-3 border border-amber-300 bg-amber-50 font-body text-xs text-amber-800 leading-relaxed">
               This applicant selected &ldquo;other&rdquo; as their role. To approve, assign a specific role
               directly in the Supabase dashboard, then return here to approve.
             </div>
@@ -225,14 +225,14 @@ export function ApplicationCard({ app }: { app: Application }) {
             <button
               onClick={handleApprove}
               disabled={loading !== null || isOther}
-              className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 bg-dark text-white hover:bg-text transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 bg-ink text-paper hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {loading === 'approving' ? 'Approving…' : 'Approve'}
             </button>
             <button
               onClick={handleReject}
               disabled={loading !== null}
-              className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-edge text-soft hover:border-text hover:text-text transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {loading === 'rejecting' ? 'Rejecting…' : 'Reject'}
             </button>
@@ -267,31 +267,31 @@ export function QuestionCard({ question }: { question: PendingQuestion }) {
   }
 
   return (
-    <div className="border border-edge bg-card px-5 py-4 space-y-3">
+    <div className="border border-line bg-paper-raised px-5 py-4 space-y-3">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="space-y-0.5">
-          <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-live">
+          <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-blue-ink">
             {question.briefs.title}
           </p>
-          <p className="font-mono text-[9px] text-soft">
+          <p className="font-mono text-[9px] text-ink-soft">
             {submitterName} · {formatDate(question.created_at)}
           </p>
         </div>
       </div>
-      <p className="font-serif text-sm text-dark leading-snug">{question.question_text}</p>
+      <p className="font-body text-sm text-ink leading-snug">{question.question_text}</p>
       {error && <p className="font-mono text-[10px] text-red-600">{error}</p>}
       <div className="flex gap-3">
         <button
           onClick={handleApprove}
           disabled={loading !== null}
-          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 bg-dark text-white hover:bg-text transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 bg-ink text-paper hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {loading === 'approving' ? 'Approving…' : 'Approve'}
         </button>
         <button
           onClick={handleDismiss}
           disabled={loading !== null}
-          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-edge text-soft hover:border-text hover:text-text transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {loading === 'dismissing' ? 'Dismissing…' : 'Dismiss'}
         </button>
@@ -324,13 +324,13 @@ export function CorrectionProposalCard({ proposal }: { proposal: PendingCorrecti
   }
 
   return (
-    <div className="border border-edge bg-card px-5 py-4 space-y-3">
+    <div className="border border-line bg-paper-raised px-5 py-4 space-y-3">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="space-y-0.5">
-          <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-live">
+          <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-blue-ink">
             {proposal.briefs.title}
           </p>
-          <p className="font-mono text-[9px] text-soft">
+          <p className="font-mono text-[9px] text-ink-soft">
             {submitterName}
             {' · '}
             <span className="capitalize">{proposal.users.role}</span>
@@ -339,7 +339,7 @@ export function CorrectionProposalCard({ proposal }: { proposal: PendingCorrecti
           </p>
         </div>
       </div>
-      <p className="font-serif text-sm text-dark leading-relaxed whitespace-pre-wrap">
+      <p className="font-body text-sm text-ink leading-relaxed whitespace-pre-wrap">
         {proposal.contribution_text}
       </p>
       {error && <p className="font-mono text-[10px] text-red-600">{error}</p>}
@@ -347,14 +347,14 @@ export function CorrectionProposalCard({ proposal }: { proposal: PendingCorrecti
         <button
           onClick={handleApprove}
           disabled={loading !== null}
-          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 bg-dark text-white hover:bg-text transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 bg-ink text-paper hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {loading === 'approving' ? 'Approving…' : 'Approve'}
         </button>
         <button
           onClick={handleDismiss}
           disabled={loading !== null}
-          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-edge text-soft hover:border-text hover:text-text transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {loading === 'dismissing' ? 'Dismissing…' : 'Dismiss'}
         </button>
@@ -380,46 +380,46 @@ export function BriefProposalCard({ proposal }: { proposal: BriefProposal }) {
   }
 
   return (
-    <div className="border border-edge bg-card">
+    <div className="border border-line bg-paper-raised">
       {/* Summary row */}
       <button
-        className="w-full text-left px-5 py-4 flex items-center gap-4 hover:bg-base/60 transition-colors"
+        className="w-full text-left px-5 py-4 flex items-center gap-4 hover:bg-paper/60 transition-colors"
         onClick={() => setExpanded(e => !e)}
         aria-expanded={expanded}
       >
         <span
-          className="font-mono text-[9px] tracking-[0.15em] text-soft shrink-0 transition-transform duration-150"
+          className="font-mono text-[9px] tracking-[0.15em] text-ink-soft shrink-0 transition-transform duration-150"
           aria-hidden
           style={{ transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)' }}
         >
           ▶
         </span>
         <div className="flex-1 min-w-0">
-          <p className="font-serif text-sm font-semibold text-dark truncate mb-0.5">
+          <p className="font-body text-sm font-semibold text-ink truncate mb-0.5">
             {proposal.topic_title}
           </p>
-          <p className="font-mono text-[10px] text-soft">
+          <p className="font-mono text-[10px] text-ink-soft">
             {proposal.submitter_name} · {proposal.submitter_email}
           </p>
         </div>
-        <span className="font-mono text-[9px] text-soft shrink-0 hidden sm:block">
+        <span className="font-mono text-[9px] text-ink-soft shrink-0 hidden sm:block">
           {formatDate(proposal.created_at)}
         </span>
       </button>
 
       {/* Expanded body */}
       {expanded && (
-        <div className="border-t border-edge px-5 pt-4 pb-5 space-y-4">
+        <div className="border-t border-line px-5 pt-4 pb-5 space-y-4">
           {proposal.from_brief_title && (
-            <p className="font-mono text-[9px] tracking-[0.15em] uppercase text-soft">
-              Submitted from brief: <span className="text-live">{proposal.from_brief_title}</span>
+            <p className="font-mono text-[9px] tracking-[0.15em] uppercase text-ink-soft">
+              Submitted from brief: <span className="text-blue-ink">{proposal.from_brief_title}</span>
             </p>
           )}
           <div>
-            <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-soft mb-2">
+            <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft mb-2">
               Why it matters / what it should cover
             </p>
-            <p className="font-serif text-sm text-dark leading-relaxed whitespace-pre-wrap">
+            <p className="font-body text-sm text-ink leading-relaxed whitespace-pre-wrap">
               {proposal.why_it_matters}
             </p>
           </div>
@@ -428,7 +428,7 @@ export function BriefProposalCard({ proposal }: { proposal: BriefProposal }) {
           <button
             onClick={handleDismiss}
             disabled={loading}
-            className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-edge text-soft hover:border-text hover:text-text transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {loading ? 'Dismissing…' : 'Dismiss'}
           </button>
@@ -445,16 +445,16 @@ export function BriefProposalCard({ proposal }: { proposal: BriefProposal }) {
 export function ApprovedRow({ app }: { app: Partial<Application> }) {
   const displayName = app.full_name || [app.first_name, app.last_name].filter(Boolean).join(' ') || app.email
   return (
-    <div className="flex flex-wrap items-center gap-3 py-3 border-b border-edge last:border-0">
+    <div className="flex flex-wrap items-center gap-3 py-3 border-b border-line last:border-0">
       <div className="flex-1 min-w-0">
         <div className="flex flex-wrap items-center gap-2 mb-0.5">
-          <span className="font-serif text-sm text-dark">{displayName}</span>
+          <span className="font-body text-sm text-ink">{displayName}</span>
           {app.desired_role && <RoleBadge role={app.desired_role} />}
         </div>
-        <span className="font-mono text-[10px] text-soft">{app.email}</span>
+        <span className="font-mono text-[10px] text-ink-soft">{app.email}</span>
       </div>
       {app.reviewed_at && (
-        <span className="font-mono text-[9px] text-soft shrink-0">
+        <span className="font-mono text-[9px] text-ink-soft shrink-0">
           Approved {formatDate(app.reviewed_at)}
         </span>
       )}

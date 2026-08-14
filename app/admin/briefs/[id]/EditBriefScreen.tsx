@@ -44,7 +44,7 @@ const SECTION_HELP: Record<BriefSection['section_type'], { instructions: ReactNo
     instructions: (
       <>
         One bullet per line, 3–5 lines. Optionally start a line with{' '}
-        <strong className="text-dark">**a bold lead term**</strong> followed by an em dash — e.g.{' '}
+        <strong className="text-ink">**a bold lead term**</strong> followed by an em dash — e.g.{' '}
         <code className="font-mono text-[11px]">**Compute race** — governments vs. governments, companies vs. companies.</code>
       </>
     ),
@@ -57,7 +57,7 @@ const SECTION_HELP: Record<BriefSection['section_type'], { instructions: ReactNo
         One question per block: a line starting with <code className="font-mono text-[11px]">Q:</code>, then a line
         starting with <code className="font-mono text-[11px]">A:</code>. Separate blocks with a blank line.
         {' '}
-        <strong className="text-dark">Renaming a question detaches its expert answers</strong> — additional expert
+        <strong className="text-ink">Renaming a question detaches its expert answers</strong> — additional expert
         answers are matched against the question&apos;s exact wording, so editing it here orphans anything already
         submitted under the old text.
       </>
@@ -121,10 +121,10 @@ function SectionEditor({ section, isFirst, isLast, onContentChange, onMoveUp, on
   const help = SECTION_HELP[section.section_type]
 
   return (
-    <div className="border border-edge bg-card">
+    <div className="border border-line bg-paper-raised">
       {/* Section header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-edge">
-        <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-dark">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-line">
+        <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink">
           {SECTION_LABELS[section.section_type]}
         </span>
         <div className="flex gap-1">
@@ -133,7 +133,7 @@ function SectionEditor({ section, isFirst, isLast, onContentChange, onMoveUp, on
             onClick={() => onMoveUp(section.clientKey)}
             disabled={isFirst}
             title="Move up"
-            className="px-2 py-1 font-mono text-[10px] border border-edge text-soft hover:border-text hover:text-text transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
+            className="px-2 py-1 font-mono text-[10px] border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
           >
             ↑
           </button>
@@ -142,7 +142,7 @@ function SectionEditor({ section, isFirst, isLast, onContentChange, onMoveUp, on
             onClick={() => onMoveDown(section.clientKey)}
             disabled={isLast}
             title="Move down"
-            className="px-2 py-1 font-mono text-[10px] border border-edge text-soft hover:border-text hover:text-text transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
+            className="px-2 py-1 font-mono text-[10px] border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
           >
             ↓
           </button>
@@ -151,7 +151,7 @@ function SectionEditor({ section, isFirst, isLast, onContentChange, onMoveUp, on
               type="button"
               onClick={() => onRemove(section.clientKey)}
               title="Remove this subsection"
-              className="px-2 py-1 font-mono text-[10px] border border-edge text-soft hover:border-red-600 hover:text-red-600 transition-colors"
+              className="px-2 py-1 font-mono text-[10px] border border-line text-ink-soft hover:border-red-600 hover:text-red-600 transition-colors"
             >
               Remove
             </button>
@@ -162,29 +162,29 @@ function SectionEditor({ section, isFirst, isLast, onContentChange, onMoveUp, on
       {/* Subsection title — Explainer only (Part 3): multiple explainer rows
           per brief are rendered as titled subsections on the public page. */}
       {isExplainer && onTitleChange && (
-        <div className="px-4 py-3 border-b border-edge bg-base/60">
-          <label className="block font-mono text-[9px] tracking-[0.18em] uppercase text-soft mb-1.5">
+        <div className="px-4 py-3 border-b border-line bg-paper/60">
+          <label className="block font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft mb-1.5">
             Subsection title (optional)
           </label>
           <input
             type="text"
             value={section.title ?? ''}
             onChange={(e) => onTitleChange(section.clientKey, e.target.value)}
-            className="w-full border border-edge bg-card px-3 py-2 font-serif text-sm text-dark focus:outline-none focus:border-text"
+            className="w-full border border-line bg-paper-raised px-3 py-2 font-body text-sm text-ink focus:outline-none focus:border-ink"
             placeholder="e.g. How the training process works"
           />
         </div>
       )}
 
-      <div className="px-4 py-3 border-b border-edge bg-base/60">
-        <p className="font-serif text-xs text-soft leading-relaxed">{help.instructions}</p>
+      <div className="px-4 py-3 border-b border-line bg-paper/60">
+        <p className="font-body text-xs text-ink-soft leading-relaxed">{help.instructions}</p>
       </div>
 
       <textarea
         value={section.content}
         onChange={(e) => onContentChange(section.clientKey, e.target.value)}
         rows={help.rows}
-        className="w-full px-3 py-3 font-mono text-sm text-text leading-relaxed focus:outline-none resize-y"
+        className="w-full px-3 py-3 font-mono text-sm text-ink leading-relaxed focus:outline-none resize-y"
         placeholder={help.placeholder}
       />
     </div>
@@ -309,21 +309,21 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
   }
 
   return (
-    <div className="min-h-screen bg-base text-text">
+    <div className="min-h-screen bg-paper text-ink">
 
       {/* Header */}
-      <header className="border-b border-edge px-6">
+      <header className="border-b border-line px-6">
         <div className="mx-auto flex max-w-4xl items-center justify-between py-4">
           <div className="flex items-center gap-4">
-            <Link href="/admin" className="font-serif text-base font-bold tracking-tight text-dark hover:text-live transition-colors">
-              Tell <em className="italic text-live">The</em> World
+            <Link href="/admin" className="font-body text-base font-bold tracking-tight text-ink hover:opacity-80 transition-opacity">
+              Tell <em className="italic">The</em> World
             </Link>
-            <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-soft border border-edge px-2 py-0.5">
+            <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-ink-soft border border-line px-2 py-0.5">
               Admin
             </span>
-            <span className="font-mono text-[9px] text-soft hidden sm:block">/ Edit Brief</span>
+            <span className="font-mono text-[9px] text-ink-soft hidden sm:block">/ Edit Brief</span>
           </div>
-          <span className="font-mono text-[9px] text-soft hidden sm:block">{adminEmail}</span>
+          <span className="font-mono text-[9px] text-ink-soft hidden sm:block">{adminEmail}</span>
         </div>
       </header>
 
@@ -335,11 +335,11 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
             <div>
               <Link
                 href="/admin"
-                className="font-mono text-[9px] tracking-[0.18em] uppercase text-soft hover:text-text transition-colors"
+                className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors"
               >
                 ← Back to admin
               </Link>
-              <h1 className="font-display uppercase text-[2rem] tracking-tight text-dark leading-none mt-1">
+              <h1 className="font-display uppercase text-[2rem] tracking-tight text-ink leading-none mt-1">
                 Edit Brief
               </h1>
             </div>
@@ -355,7 +355,7 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 bg-dark text-white hover:bg-text transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 bg-ink text-paper hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {saving ? 'Saving…' : 'Save'}
               </button>
@@ -364,28 +364,28 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
 
           {/* Title */}
           <div className="space-y-1.5">
-            <label className="font-mono text-[9px] tracking-[0.18em] uppercase text-soft">
+            <label className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">
               Title
             </label>
             <input
               type="text"
               value={title}
               onChange={e => setTitle(e.target.value)}
-              className="w-full border border-edge bg-card px-4 py-3 font-serif text-lg text-dark focus:outline-none focus:border-text"
+              className="w-full border border-line bg-paper-raised px-4 py-3 font-body text-lg text-ink focus:outline-none focus:border-ink"
               placeholder="Brief title"
             />
           </div>
 
           {/* Subtitle */}
           <div className="space-y-1.5">
-            <label className="font-mono text-[9px] tracking-[0.18em] uppercase text-soft">
+            <label className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">
               Subtitle
             </label>
             <input
               type="text"
               value={subtitle}
               onChange={e => setSubtitle(e.target.value)}
-              className="w-full border border-edge bg-card px-4 py-3 font-serif text-sm text-dark focus:outline-none focus:border-text"
+              className="w-full border border-line bg-paper-raised px-4 py-3 font-body text-sm text-ink focus:outline-none focus:border-ink"
               placeholder="One sentence, allowed a point of view"
             />
           </div>
@@ -393,28 +393,28 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
           {/* Topic tag + pinned media (drive the auto Quotes/Media sections) */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <label className="font-mono text-[9px] tracking-[0.18em] uppercase text-soft">
+              <label className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">
                 Topic tag
               </label>
               <input
                 type="text"
                 value={topicTag}
                 onChange={e => setTopicTag(e.target.value)}
-                className="w-full border border-edge bg-card px-4 py-3 font-mono text-sm text-dark focus:outline-none focus:border-text"
+                className="w-full border border-line bg-paper-raised px-4 py-3 font-mono text-sm text-ink focus:outline-none focus:border-ink"
                 placeholder="e.g. ai-safety"
               />
-              <p className="font-serif text-xs text-soft/70">
+              <p className="font-body text-xs text-ink-soft/70">
                 Drives the auto Quotes and Media sections — must match the tag used on content_posts.
               </p>
             </div>
             <div className="space-y-1.5">
-              <label className="font-mono text-[9px] tracking-[0.18em] uppercase text-soft">
+              <label className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">
                 Pinned media (&quot;Start here&quot;)
               </label>
               <select
                 value={pinnedMediaPostId}
                 onChange={e => setPinnedMediaPostId(e.target.value)}
-                className="w-full border border-edge bg-card px-4 py-3 font-serif text-sm text-dark focus:outline-none focus:border-text"
+                className="w-full border border-line bg-paper-raised px-4 py-3 font-body text-sm text-ink focus:outline-none focus:border-ink"
               >
                 <option value="">None</option>
                 {mediaOptions.map(option => (
@@ -428,7 +428,7 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
 
           {/* Visibility */}
           <div className="space-y-1.5">
-            <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-soft">
+            <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">
               Visibility
             </span>
             <div className="flex gap-0">
@@ -438,8 +438,8 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
                 className={[
                   'px-5 py-2.5 font-mono text-[10px] tracking-[0.18em] uppercase border transition-colors',
                   visibility === 'members_only'
-                    ? 'border-dark bg-dark text-white'
-                    : 'border-edge text-soft hover:border-text hover:text-text',
+                    ? 'border-ink bg-ink text-paper'
+                    : 'border-line text-ink-soft hover:border-ink hover:text-ink',
                 ].join(' ')}
               >
                 Members only
@@ -450,8 +450,8 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
                 className={[
                   'px-5 py-2.5 font-mono text-[10px] tracking-[0.18em] uppercase border border-l-0 transition-colors',
                   visibility === 'public'
-                    ? 'border-dark bg-dark text-white'
-                    : 'border-edge text-soft hover:border-text hover:text-text',
+                    ? 'border-ink bg-ink text-paper'
+                    : 'border-line text-ink-soft hover:border-ink hover:text-ink',
                 ].join(' ')}
               >
                 Public
@@ -461,7 +461,7 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
 
           {/* Sections */}
           <div className="space-y-3">
-            <h2 className="font-mono text-[9px] tracking-[0.18em] uppercase text-soft">Sections</h2>
+            <h2 className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">Sections</h2>
             {sections.map((section, i) => {
               return (
                 <SectionEditor
@@ -480,26 +480,26 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
             <button
               type="button"
               onClick={addExplainerSection}
-              className="w-full border border-dashed border-edge px-4 py-3 font-mono text-[10px] tracking-[0.18em] uppercase text-soft hover:border-text hover:text-text transition-colors"
+              className="w-full border border-dashed border-line px-4 py-3 font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:border-ink hover:text-ink transition-colors"
             >
               + Add explainer subsection
             </button>
           </div>
 
           {/* Bottom save */}
-          <div className="flex items-center justify-between pt-2 border-t border-edge">
+          <div className="flex items-center justify-between pt-2 border-t border-line">
             <div>
               {!confirmDelete ? (
                 <button
                   type="button"
                   onClick={() => setConfirmDelete(true)}
-                  className="font-mono text-[10px] tracking-[0.18em] uppercase text-soft hover:text-red-600 transition-colors"
+                  className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-red-600 transition-colors"
                 >
                   Delete brief
                 </button>
               ) : (
                 <div className="flex items-center gap-3">
-                  <span className="font-serif text-sm text-dark">Delete this brief permanently?</span>
+                  <span className="font-body text-sm text-ink">Delete this brief permanently?</span>
                   <button
                     type="button"
                     onClick={handleDelete}
@@ -511,7 +511,7 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
                   <button
                     type="button"
                     onClick={() => setConfirmDelete(false)}
-                    className="font-mono text-[10px] tracking-[0.18em] uppercase px-4 py-2 border border-edge text-soft hover:border-text hover:text-text transition-colors"
+                    className="font-mono text-[10px] tracking-[0.18em] uppercase px-4 py-2 border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors"
                   >
                     Cancel
                   </button>
@@ -529,7 +529,7 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 bg-dark text-white hover:bg-text transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 bg-ink text-paper hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {saving ? 'Saving…' : 'Save'}
               </button>
