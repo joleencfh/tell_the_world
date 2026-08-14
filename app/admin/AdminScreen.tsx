@@ -81,19 +81,19 @@ export default function AdminScreen({
   }
 
   return (
-    <div className="min-h-screen bg-base text-text">
+    <div className="min-h-screen bg-paper text-ink">
       {/* Header */}
-      <header className="border-b border-edge px-6">
+      <header className="border-b border-line px-6">
         <div className="mx-auto flex max-w-4xl items-center justify-between py-4">
           <div className="flex items-center gap-4">
-            <span className="font-serif text-base font-bold tracking-tight text-dark">
-              Tell <em className="italic text-live">The</em> World
+            <span className="font-body text-base font-bold tracking-tight text-ink">
+              Tell <em className="italic">The</em> World
             </span>
-            <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-soft border border-edge px-2 py-0.5">
+            <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-ink-soft border border-line px-2 py-0.5">
               Admin
             </span>
           </div>
-          <span className="font-mono text-[9px] text-soft hidden sm:block">{adminEmail}</span>
+          <span className="font-mono text-[9px] text-ink-soft hidden sm:block">{adminEmail}</span>
         </div>
       </header>
 
@@ -102,13 +102,13 @@ export default function AdminScreen({
 
           {/* Page title */}
           <div className="flex items-center justify-between mb-8">
-            <h1 className="font-display uppercase text-[2rem] tracking-tight text-dark leading-none">
+            <h1 className="font-display uppercase text-[2rem] tracking-tight text-ink leading-none">
               Applications
             </h1>
             <form action={createBrief}>
               <button
                 type="submit"
-                className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-edge text-soft hover:border-dark hover:text-dark transition-colors"
+                className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors"
               >
                 + New brief
               </button>
@@ -116,11 +116,11 @@ export default function AdminScreen({
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-0 border-b border-edge mb-6">
+          <div className="flex gap-0 border-b border-line mb-6">
             <TabButton active={tab === 'pending'} onClick={() => setTab('pending')}>
               Applications
               {pendingCount > 0 && (
-                <span className="ml-2 font-mono text-[9px] bg-live text-white px-1.5 py-0.5">
+                <span className="ml-2 font-mono text-[9px] bg-blue text-white px-1.5 py-0.5">
                   {pendingCount}
                 </span>
               )}
@@ -128,7 +128,7 @@ export default function AdminScreen({
             <TabButton active={tab === 'questions'} onClick={() => setTab('questions')}>
               Questions
               {pendingQuestionsCount > 0 && (
-                <span className="ml-2 font-mono text-[9px] bg-live text-white px-1.5 py-0.5">
+                <span className="ml-2 font-mono text-[9px] bg-blue text-white px-1.5 py-0.5">
                   {pendingQuestionsCount}
                 </span>
               )}
@@ -136,7 +136,7 @@ export default function AdminScreen({
             <TabButton active={tab === 'correctionProposals'} onClick={() => setTab('correctionProposals')}>
               Correction proposals
               {pendingCorrectionProposalsCount > 0 && (
-                <span className="ml-2 font-mono text-[9px] bg-live text-white px-1.5 py-0.5">
+                <span className="ml-2 font-mono text-[9px] bg-blue text-white px-1.5 py-0.5">
                   {pendingCorrectionProposalsCount}
                 </span>
               )}
@@ -144,7 +144,7 @@ export default function AdminScreen({
             <TabButton active={tab === 'faqAnswers'} onClick={() => setTab('faqAnswers')}>
               FAQ answers
               {pendingFaqAnswersCount > 0 && (
-                <span className="ml-2 font-mono text-[9px] bg-live text-white px-1.5 py-0.5">
+                <span className="ml-2 font-mono text-[9px] bg-blue text-white px-1.5 py-0.5">
                   {pendingFaqAnswersCount}
                 </span>
               )}
@@ -152,7 +152,7 @@ export default function AdminScreen({
             <TabButton active={tab === 'ctas'} onClick={() => setTab('ctas')}>
               Calls to action
               {pendingCtasCount > 0 && (
-                <span className="ml-2 font-mono text-[9px] bg-live text-white px-1.5 py-0.5">
+                <span className="ml-2 font-mono text-[9px] bg-blue text-white px-1.5 py-0.5">
                   {pendingCtasCount}
                 </span>
               )}
@@ -160,7 +160,7 @@ export default function AdminScreen({
             <TabButton active={tab === 'proposals'} onClick={() => setTab('proposals')}>
               Brief proposals
               {briefProposalsCount > 0 && (
-                <span className="ml-2 font-mono text-[9px] bg-live text-white px-1.5 py-0.5">
+                <span className="ml-2 font-mono text-[9px] bg-blue text-white px-1.5 py-0.5">
                   {briefProposalsCount}
                 </span>
               )}
@@ -174,7 +174,7 @@ export default function AdminScreen({
           {tab === 'pending' && (
             <>
               {pending.length === 0 ? (
-                <p className="font-serif text-sm text-soft italic py-8 text-center">
+                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
                   No pending applications.
                 </p>
               ) : (
@@ -197,7 +197,7 @@ export default function AdminScreen({
           {tab === 'questions' && (
             <>
               {pendingQuestions.length === 0 ? (
-                <p className="font-serif text-sm text-soft italic py-8 text-center">
+                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
                   No pending questions.
                 </p>
               ) : (
@@ -220,7 +220,7 @@ export default function AdminScreen({
           {tab === 'correctionProposals' && (
             <>
               {pendingCorrectionProposals.length === 0 ? (
-                <p className="font-serif text-sm text-soft italic py-8 text-center">
+                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
                   No pending correction proposals.
                 </p>
               ) : (
@@ -243,7 +243,7 @@ export default function AdminScreen({
           {tab === 'faqAnswers' && (
             <>
               {pendingFaqAnswers.length === 0 ? (
-                <p className="font-serif text-sm text-soft italic py-8 text-center">
+                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
                   No pending FAQ answers.
                 </p>
               ) : (
@@ -266,7 +266,7 @@ export default function AdminScreen({
           {tab === 'ctas' && (
             <>
               {pendingCtas.length === 0 ? (
-                <p className="font-serif text-sm text-soft italic py-8 text-center">
+                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
                   No pending calls to action.
                 </p>
               ) : (
@@ -289,7 +289,7 @@ export default function AdminScreen({
           {tab === 'proposals' && (
             <>
               {briefProposals.length === 0 ? (
-                <p className="font-serif text-sm text-soft italic py-8 text-center">
+                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
                   No brief proposals yet.
                 </p>
               ) : (
@@ -312,11 +312,11 @@ export default function AdminScreen({
           {tab === 'approved' && (
             <>
               {approved.length === 0 ? (
-                <p className="font-serif text-sm text-soft italic py-8 text-center">
+                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
                   No approved users yet.
                 </p>
               ) : (
-                <div className="bg-card border border-edge px-5 py-1">
+                <div className="bg-paper-raised border border-line px-5 py-1">
                   {approved.map(app => (
                     <ApprovedRow key={app.id} app={app} />
                   ))}
@@ -356,8 +356,8 @@ function TabButton({
       className={[
         'flex items-center px-4 py-2.5 font-mono text-[10px] tracking-[0.18em] uppercase border-b-2 -mb-px transition-colors',
         active
-          ? 'border-dark text-dark'
-          : 'border-transparent text-soft hover:text-text',
+          ? 'border-ink text-ink'
+          : 'border-transparent text-ink-soft hover:text-ink',
       ].join(' ')}
     >
       {children}

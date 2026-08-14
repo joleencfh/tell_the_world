@@ -33,13 +33,13 @@ export function CtaCard({ cta }: { cta: PendingCta }) {
   }
 
   return (
-    <div className="border border-edge bg-card px-5 py-4 space-y-3">
+    <div className="border border-line bg-paper-raised px-5 py-4 space-y-3">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="space-y-0.5">
-          <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-live">
+          <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-blue-ink">
             {cta.briefs.title}
           </p>
-          <p className="font-mono text-[9px] text-soft">
+          <p className="font-mono text-[9px] text-ink-soft">
             {submitterName}
             {' · '}
             <span className="capitalize">{cta.users.role}</span>
@@ -49,22 +49,22 @@ export function CtaCard({ cta }: { cta: PendingCta }) {
         </div>
       </div>
       <div>
-        <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-soft mb-1">Title</p>
-        <p className="font-serif text-sm text-dark font-semibold leading-snug">{cta.title}</p>
+        <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft mb-1">Title</p>
+        <p className="font-body text-sm text-ink font-semibold leading-snug">{cta.title}</p>
       </div>
       {cta.description && (
         <div>
-          <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-soft mb-1">Description</p>
-          <p className="font-serif text-sm text-dark leading-relaxed whitespace-pre-wrap">{cta.description}</p>
+          <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft mb-1">Description</p>
+          <p className="font-body text-sm text-ink leading-relaxed whitespace-pre-wrap">{cta.description}</p>
         </div>
       )}
       <div>
-        <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-soft mb-1">Link</p>
+        <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft mb-1">Link</p>
         <a
           href={cta.link_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="font-serif text-sm text-live hover:underline break-all"
+          className="font-body text-sm text-blue-ink hover:underline break-all"
         >
           {cta.link_url}
         </a>
@@ -74,14 +74,14 @@ export function CtaCard({ cta }: { cta: PendingCta }) {
         <button
           onClick={handleApprove}
           disabled={loading !== null}
-          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 bg-dark text-white hover:bg-text transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 bg-ink text-paper hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {loading === 'approving' ? 'Approving…' : 'Approve'}
         </button>
         <button
           onClick={handleDismiss}
           disabled={loading !== null}
-          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-edge text-soft hover:border-text hover:text-text transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {loading === 'dismissing' ? 'Dismissing…' : 'Dismiss'}
         </button>
