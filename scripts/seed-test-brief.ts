@@ -21,6 +21,9 @@ async function seed() {
         topic_tag: 'alignment',
         pinned_media_post_id: null,
         visibility: 'public',
+        // Mock value so the hero's "Last reviewed" chip has something to
+        // show (BriefView.tsx hides that chip entirely when null).
+        last_reviewed_at: '2026-08-06T00:00:00Z',
       },
       { onConflict: 'slug' }
     )
@@ -101,6 +104,41 @@ async function seed() {
   }
 
   console.log('✓ Sections inserted:', sections.length)
+
+  // Seed brief-level review contributions so the hero's "✓ Reviewed by N
+  // experts · M orgs" chip has something to show (BriefView.tsx hides it
+  // entirely when reviewedCount is 0 — see getEndorsementBarCounts in
+  // lib/data/contributions.ts). Reuses whatever expert/organisation
+  // accounts already exist, same convention as the FAQ-answers/CTA seeding
+  // below, rather than hardcoding ids.
+  await supabase.from('brief_contributions').delete().eq('brief_id', brief.id).is('section_id', null)
+
+  const { data: reviewerCandidates } = await supabase
+    .from('users')
+    .select('id')
+    .in('role', ['expert', 'organisation'])
+
+  if (!reviewerCandidates || reviewerCandidates.length === 0) {
+    console.log('⚠ No expert/organisation users found — skipping brief_contributions seed.')
+  } else {
+    const maxSectionVersion = 1 // every seeded section above omits content_version, so it defaults to 1
+    const reviewers = reviewerCandidates.slice(0, 7)
+    const reviewRows = reviewers.map((r) => ({
+      brief_id: brief.id,
+      section_id: null,
+      user_id: r.id,
+      type: 'review' as const,
+      section_version: maxSectionVersion,
+      status: 'published' as const,
+    }))
+
+    const { error: contributionsError } = await supabase.from('brief_contributions').insert(reviewRows)
+    if (contributionsError) {
+      console.error('brief_contributions insert failed:', contributionsError)
+    } else {
+      console.log('✓ brief_contributions (review) seeded:', reviewRows.length)
+    }
+  }
 
   // Seed a couple of published brief_faq_answers rows under the first FAQ
   // question only — the second question intentionally gets none (Part 4b's
