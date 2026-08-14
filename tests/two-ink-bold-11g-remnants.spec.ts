@@ -29,6 +29,7 @@ const MEMBERS_BRIEF_SLUG = 'test-members-brief'
 const TOKEN = {
   paper: 'rgb(255, 255, 255)',
   line: 'rgb(226, 227, 229)',
+  ink: 'rgb(12, 13, 14)',
   blueInk: 'rgb(11, 44, 153)',
   pinkInk: 'rgb(153, 7, 90)',
   pink: 'rgb(240, 25, 126)',
@@ -68,20 +69,25 @@ test.describe('Brief page dark-token remnants — Two-Ink Bold, logged-out visit
     expect(styles.svgColor).toBe(TOKEN.pink)
   })
 
-  test('page footer resolves to border-line and IBM Plex Sans, not the retired serif stack', async ({ page }) => {
+  test('page footer resolves to border-ink (2px, reference artifact match) and the system font stack, not the retired serif stack', async ({ page }) => {
     await page.goto(`/briefs/${PUBLIC_BRIEF_SLUG}`)
 
     const styles = await page.evaluate(() => {
       const footer = document.querySelector('footer')!
+      // The rule lives on the inner max-width wrapper, not <footer> itself —
+      // matches the reference artifact's .foot-inner structure.
+      const inner = footer.querySelector(':scope > div')!
       const span = footer.querySelector('span')!
       return {
-        borderColor: getComputedStyle(footer).borderTopColor,
+        borderColor: getComputedStyle(inner).borderTopColor,
+        borderWidth: getComputedStyle(inner).borderTopWidth,
         fontFamily: getComputedStyle(span).fontFamily,
       }
     })
 
-    expect(styles.borderColor).toBe(TOKEN.line)
-    expect(styles.fontFamily).toContain('IBM Plex Sans')
+    expect(styles.borderColor).toBe(TOKEN.ink)
+    expect(styles.borderWidth).toBe('2px')
+    expect(styles.fontFamily).toContain('Segoe UI')
     expect(styles.fontFamily.toLowerCase()).not.toContain('georgia')
   })
 })
