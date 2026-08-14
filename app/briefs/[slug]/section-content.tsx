@@ -13,54 +13,39 @@ import type { BriefSectionType, Quote, MediaPost } from './page'
 // Constants
 // ---------------------------------------------------------------------------
 
-// 'tldr' is rendered in the hero, not looped here — see BriefView.
-export const SECTION_ORDER: BriefSectionType[] = [
-  'use_this',
-  'featured_news',
-  'explainer',
-  'where_experts_stand',
-  'going_deeper',
-  'faq',
-]
+// 'tldr' is rendered in the hero, not looped here — see BriefView. Quotes
+// (§2 row 2) renders as its own explicit block in BriefView with its own
+// SectionHeader (num '03'), not through this loop.
+//
+// use_this/featured_news/where_experts_stand are old-IA section types the
+// Two-Ink Bold rebuild dropped (two-ink-bold-plan.md §2 — "stop authoring
+// new rows of those types") — their renderers are retired here too,
+// pulling that slice of Part 10's cleanup forward at the user's request
+// (2026-08-14). going_deeper still exists and folds into Explainer's final
+// subsection (Part 3); BriefView reads it directly via section_type
+// filtering rather than through this loop, so it's absent here too.
+type ActiveSectionType = 'explainer' | 'faq'
 
-export const SECTION_META: Record<BriefSectionType, { label: string; num: string; description: string }> =
+export const SECTION_ORDER: ActiveSectionType[] = ['explainer', 'faq']
+
+export const SECTION_META: Record<'tldr' | ActiveSectionType, { label: string; num: string; description: string }> =
   {
     // Not looped over via SECTION_ORDER (BriefView renders it as its own
-    // section right after the hero) but kept here so this stays a total map
-    // over BriefSectionType. num '01' is the hero's own eyebrow numeral.
+    // section right after the hero). num '01' is the hero's own eyebrow
+    // numeral.
     tldr: {
       label: 'TL;DR',
       num: '02',
       description: 'The three-minute version',
     },
-    use_this: {
-      label: 'Use This',
-      num: '01',
-      description: 'Story angles, misconceptions to avoid, and quotes ready to use',
-    },
-    featured_news: {
-      label: 'Featured News',
-      num: '02',
-      description: 'The latest events and why they matter',
-    },
     explainer: {
       label: 'Explainer',
-      num: '03',
-      description: 'The full picture, plainly explained',
-    },
-    where_experts_stand: {
-      label: 'Where Experts Stand',
       num: '04',
-      description: 'Where the experts we consulted agree — and where they don’t',
-    },
-    going_deeper: {
-      label: 'Going Deeper',
-      num: '05',
-      description: 'For when you want to go further',
+      description: 'The full picture, plainly explained',
     },
     faq: {
       label: 'Common Questions',
-      num: '06',
+      num: '05',
       description: 'The things everyone wonders about',
     },
   }

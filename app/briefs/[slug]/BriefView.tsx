@@ -223,14 +223,22 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
           </div>
         )}
 
+        {/* ── Quotes — auto section, query-driven off the brief's topic_tag
+            (two-ink-bold-plan.md §2 row 2). Rendered as its own explicit
+            block rather than threaded through the SECTION_ORDER loop below,
+            same pattern as CTA/Covered By/Related Briefs further down. ─── */}
+        {showSections && quotes.length > 0 && (
+          <div className="border-t-4 border-blue bg-paper-sunken-blue px-6 py-16">
+            <div className="mx-auto max-w-4xl anim-rise" style={{ animationDelay: '0ms' }}>
+              <QuotesCarousel quotes={quotes} />
+            </div>
+          </div>
+        )}
+
         {/* ── Sections or lock ─────────────────────────────────────────── */}
         {showSections ? (
           <>
             {SECTION_ORDER.map((type, i) => {
-              // going_deeper no longer renders as its own top-level section
-              // (folded into Explainer below) — skip it here entirely.
-              if (type === 'going_deeper') return null
-
               // A section type can have more than one row (e.g. multiple
               // titled Explainer subsections, Part 3) — render every
               // matching row, not just the first, so content isn't silently
@@ -279,18 +287,6 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
                       </div>
                     )
                   })()}
-
-                  {/* Quotes — auto section, query-driven off the brief's topic_tag
-                      (design doc §2 row 2). Anchored at the old "where experts
-                      stand" position in the loop pending Part 10's cleanup pass,
-                      which is expected to retire that section type entirely. */}
-                  {type === 'where_experts_stand' && quotes.length > 0 && (
-                    <div className="border-t-4 border-blue bg-paper-sunken-blue px-6 py-16">
-                      <div className="mx-auto max-w-4xl anim-rise" style={{ animationDelay: '0ms' }}>
-                        <QuotesCarousel quotes={quotes} />
-                      </div>
-                    </div>
-                  )}
                 </Fragment>
               )
             })}
@@ -332,7 +328,7 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
           <div className="bg-paper-sunken px-6 py-16">
             <div className="mx-auto max-w-4xl">
               <SectionHeader
-                num="05"
+                num="06"
                 label="Community Q&A"
                 description="Questions from members, answered by experts"
                 numTone="pink"
