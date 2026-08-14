@@ -302,30 +302,30 @@ export function ProposeCorrectionModal({
     >
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-dark/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-ink/60 backdrop-blur-sm"
         onClick={onClose}
         aria-hidden
       />
 
       {/* Panel */}
-      <div className="relative w-full max-w-xl bg-base rounded-2xl shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-xl bg-paper rounded-2xl shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="flex items-start justify-between px-7 pt-7 pb-5 border-b border-edge">
+        <div className="flex items-start justify-between px-7 pt-7 pb-5 border-b border-line">
           <div>
-            <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-live mb-1">
+            <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-blue-ink mb-1">
               Correction proposal
             </p>
-            <h2 className="font-display uppercase text-dark text-xl leading-tight">
+            <h2 className="font-display uppercase text-ink text-xl leading-tight">
               Propose a correction or addition
             </h2>
-            <p className="font-serif text-xs text-soft mt-1.5 leading-snug">
+            <p className="font-body text-xs text-ink-soft mt-1.5 leading-snug">
               For: <em>{briefTitle}</em>
             </p>
           </div>
           <button
             onClick={onClose}
             aria-label="Close"
-            className="shrink-0 w-8 h-8 rounded-full bg-edge/50 hover:bg-edge flex items-center justify-center text-soft hover:text-dark transition-all text-lg leading-none ml-4"
+            className="shrink-0 w-8 h-8 rounded-full bg-paper-raised hover:bg-line flex items-center justify-center text-ink-soft hover:text-ink transition-all text-lg leading-none ml-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue"
           >
             ×
           </button>
@@ -334,7 +334,7 @@ export function ProposeCorrectionModal({
         {/* Body */}
         <form onSubmit={handleSubmit} className="px-7 py-6 space-y-4">
           <div>
-            <label className="font-mono text-[10px] tracking-[0.18em] uppercase text-soft block mb-2">
+            <label className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint block mb-2">
               Your correction
             </label>
             <textarea
@@ -344,17 +344,19 @@ export function ProposeCorrectionModal({
               maxLength={3000}
               placeholder="Describe what you'd like to correct or add — include any sources or context that would help the admin review your suggestion…"
               disabled={isPending || feedback?.type === 'success'}
-              className="w-full bg-card border border-edge rounded-xl px-4 py-3 font-serif text-sm text-text placeholder:text-soft/40 focus:outline-none focus:ring-2 focus:ring-live/30 focus:border-live/50 resize-none disabled:opacity-50 transition"
+              className="w-full bg-paper border border-line rounded-xl px-4 py-3 font-body text-sm text-ink placeholder:text-ink-faint/70 focus:outline-none focus:ring-2 focus:ring-blue resize-none disabled:opacity-50 transition"
             />
-            <p className="font-mono text-[9px] text-soft/50 mt-1 text-right">
+            <p className="font-mono text-[9px] text-ink-faint mt-1 text-right">
               {text.length} / 3000
             </p>
           </div>
 
           {feedback && (
             <p
+              role={feedback.type === 'error' ? 'alert' : undefined}
+              aria-live="polite"
               className={`font-mono text-[10px] tracking-[0.1em] leading-relaxed ${
-                feedback.type === 'error' ? 'text-red-600' : 'text-green-700'
+                feedback.type === 'error' ? 'text-pink-ink' : 'text-blue-ink'
               }`}
             >
               {feedback.message}
@@ -366,7 +368,8 @@ export function ProposeCorrectionModal({
               <button
                 type="submit"
                 disabled={isPending || !text.trim()}
-                className="font-display uppercase tracking-widest text-xs bg-dark text-base px-6 py-3 hover:bg-text transition-colors disabled:opacity-40"
+                style={{ touchAction: 'manipulation' }}
+                className="bg-ink px-6 py-3 font-mono text-xs uppercase tracking-widest text-paper transition-opacity hover:opacity-90 disabled:opacity-40"
               >
                 {isPending ? 'Submitting…' : 'Submit for review'}
               </button>
@@ -374,7 +377,7 @@ export function ProposeCorrectionModal({
             <button
               type="button"
               onClick={onClose}
-              className="font-mono text-[10px] tracking-[0.15em] uppercase text-soft hover:text-text transition-colors"
+              className="font-mono text-[10px] tracking-[0.15em] uppercase text-ink-soft hover:text-ink transition-colors"
             >
               {feedback?.type === 'success' ? 'Close' : 'Cancel'}
             </button>
