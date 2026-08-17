@@ -1,11 +1,12 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import Avatar from '@/components/ui/Avatar'
 import { Carousel } from '@/components/ui/Carousel'
 import { getDisplayName, formatDate } from './helpers'
 import type { Quote } from './page'
+import type { UserRole } from '@/lib/types'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -209,10 +210,11 @@ export function QuotesCarousel({ quotes }: { quotes: Quote[] }) {
 // Header chip — endorsement bar / last-reviewed / read-time pills
 // ---------------------------------------------------------------------------
 
-const CHIP_TONE_CLASSES: Record<'blue' | 'pink' | 'default', string> = {
+const CHIP_TONE_CLASSES: Record<'blue' | 'pink' | 'default' | 'tag', string> = {
   blue: 'bg-blue-soft text-blue-ink border-blue/30',
   pink: 'bg-pink-soft text-pink-ink border-pink/30',
   default: 'bg-paper-raised text-ink-soft border-line',
+  tag: 'bg-paper-raised text-ink border-line',
 }
 
 export function HeaderChip({
@@ -220,14 +222,109 @@ export function HeaderChip({
   tone = 'default',
 }: {
   children: ReactNode
-  tone?: 'blue' | 'pink' | 'default'
+  tone?: 'blue' | 'pink' | 'default' | 'tag'
 }) {
   return (
     <span
-      className={`inline-flex items-center rounded-full font-mono text-[9px] tracking-[0.1em] uppercase px-3 py-1 border ${CHIP_TONE_CLASSES[tone]}`}
+      className={`inline-flex items-center whitespace-nowrap font-mono text-[9px] tracking-[0.1em] uppercase px-3 py-1 border-[1.5px] ${CHIP_TONE_CLASSES[tone]}`}
     >
       {children}
     </span>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Contribute menu — hero's role-gated dropdown, matching the reference
+// artifact's .contribute/.contribute-menu. Visual only for now: the menu
+// items don't submit anything yet (open/close is the only wired behavior).
+// The working equivalents already live elsewhere on the page — the header's
+// own Mark as reviewed/Endorse control, the Q&A form, the CTA/coverage "+"
+// buttons — this is just the artifact's single entry point into all of
+// them, added per Part 9 header-parity request (2026-08-14).
+// ---------------------------------------------------------------------------
+
+const EXPERT_ORG_ROLES: UserRole[] = ['expert', 'organisation']
+const CREATOR_JOURNALIST_ROLES: UserRole[] = ['creator', 'journalist']
+
+function ContributeMenuGroup({ label, tone, items }: { label: string; tone: 'blue' | 'pink'; items: string[] }) {
+  const hoverClasses =
+    tone === 'blue' ? 'hover:bg-blue-soft hover:text-blue-ink' : 'hover:bg-pink-soft hover:text-pink-ink'
+  const labelClasses = tone === 'blue' ? 'text-blue' : 'text-pink'
+
+  return (
+    <div>
+      <div className={`px-[0.9rem] pb-1 pt-[0.55rem] font-mono text-[9px] tracking-[0.08em] ${labelClasses}`}>
+        {label}
+      </div>
+      {items.map((item) => (
+        <button
+          key={item}
+          type="button"
+          className={`block w-full border-b border-line px-[0.9rem] py-[0.7rem] text-left font-mono text-[0.68rem] uppercase tracking-[0.03em] text-ink last:border-b-0 ${hoverClasses}`}
+        >
+          {item}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+export function ContributeMenu({ role }: { role: UserRole }) {
+  const [open, setOpen] = useState(false)
+  const wrapRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    function handleClick(e: MouseEvent) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [open])
+
+  // Admin sees both groups — like canSuggestCta elsewhere on this page, a
+  // preview/convenience path so admin doesn't need a separate expert/org or
+  // creator/journalist test account just to see the menu (2026-08-14). Safe
+  // here specifically because every item below is still visual-only (no
+  // onClick) — unlike the real review/endorse control and correction-
+  // proposal form, which stay expert/org-only since those actually submit
+  // and would error server-side for admin.
+  const isAdmin = role === 'admin'
+  const showExpertGroup = isAdmin || EXPERT_ORG_ROLES.includes(role)
+  const showCreatorGroup = isAdmin || CREATOR_JOURNALIST_ROLES.includes(role)
+  if (!showExpertGroup && !showCreatorGroup) return null
+
+  return (
+    <div ref={wrapRef} className="relative shrink-0">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-haspopup="true"
+        style={{ touchAction: 'manipulation' }}
+        className="inline-flex items-center gap-1.5 border-[1.5px] border-ink bg-ink px-4 py-2.5 font-mono text-[0.68rem] font-semibold uppercase tracking-[0.06em] text-paper transition-opacity hover:opacity-90"
+      >
+        Contribute <span aria-hidden>▾</span>
+      </button>
+      {open && (
+        <div className="absolute right-0 top-[calc(100%+0.4rem)] z-20 min-w-[240px] border-[1.5px] border-ink bg-paper shadow-[0_10px_28px_rgba(0,0,0,0.14)]">
+          {showExpertGroup && (
+            <ContributeMenuGroup
+              label="Expert / Org — verify"
+              tone="blue"
+              items={['Endorse this brief', 'Add a review', 'Suggest a question']}
+            />
+          )}
+          {showCreatorGroup && (
+            <ContributeMenuGroup
+              label="Creator / Journalist — engage"
+              tone="pink"
+              items={['Ask a question', 'Add media coverage', 'Suggest a call to action']}
+            />
+          )}
+        </div>
+      )}
+    </div>
   )
 }
 

@@ -13,6 +13,7 @@ import {
   QuotesCarousel,
   HeaderChip,
   TLDRList,
+  ContributeMenu,
 } from './section-content'
 import { QuestionsList, QuestionForm, ProposeCorrectionModal } from './qa'
 import { ReviewEndorseControl } from './review-endorse'
@@ -21,7 +22,7 @@ import { FAQSection } from './faq'
 import { CtaCarousel, SuggestCtaModal } from './ctas'
 import { CoverageCarousel, AddCoverageModal } from './coverage'
 import { RelatedBriefsCarousel } from './related-briefs'
-import { formatDate, computeReadTimeMinutes } from './helpers'
+import { formatDate, computeReadTimeMinutes, getBriefNumber, getBriefCategory } from './helpers'
 import type {
   Brief,
   CurrentUser,
@@ -143,31 +144,46 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
             <div className="flex items-center gap-4 mb-8 anim-rise" style={{ animationDelay: '0ms' }}>
               <span className="font-mono text-sm tracking-[0.2em] text-ink font-bold tabular-nums">01</span>
               <div className="h-px flex-1 bg-line" />
-              <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-ink-faint">Brief</span>
+              <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-ink-faint">
+                Brief No. {getBriefNumber(brief.id)} — {getBriefCategory(brief.topic_tag)}
+              </span>
             </div>
 
-            {/* Title — large, dominant */}
-            <h1
-              className="font-display uppercase font-extrabold text-ink anim-rise"
-              style={{
-                fontSize: 'clamp(3.1rem, 7.8vw, 6.6rem)',
-                lineHeight: '0.96',
-                letterSpacing: '-0.035em',
-                animationDelay: '80ms',
-              }}
-            >
-              {brief.title}
-            </h1>
+            {/* Title/subtitle block + Contribute — flex row so the hero's
+                role-gated dropdown (Part 9) sits top-right of the title,
+                matching the reference artifact's .hero-top layout. */}
+            <div className="flex flex-wrap items-start justify-between gap-6">
+              <div className="min-w-0 flex-1">
+                {/* Title — large, dominant */}
+                <h1
+                  className="font-display uppercase font-extrabold text-ink anim-rise"
+                  style={{
+                    fontSize: 'clamp(3.1rem, 7.8vw, 6.6rem)',
+                    lineHeight: '0.96',
+                    letterSpacing: '-0.035em',
+                    animationDelay: '80ms',
+                  }}
+                >
+                  {brief.title}
+                </h1>
 
-            {/* Subtitle — one sentence, allowed a point of view */}
-            {brief.subtitle && (
-              <p
-                className="font-body text-base sm:text-lg text-ink-soft italic mt-4 max-w-2xl anim-rise"
-                style={{ animationDelay: '120ms' }}
-              >
-                {brief.subtitle}
-              </p>
-            )}
+                {/* Subtitle — one sentence, allowed a point of view */}
+                {brief.subtitle && (
+                  <p
+                    className="font-body text-base sm:text-lg text-ink-soft italic mt-4 max-w-2xl anim-rise"
+                    style={{ animationDelay: '120ms' }}
+                  >
+                    {brief.subtitle}
+                  </p>
+                )}
+              </div>
+
+              {currentUser && (
+                <div className="anim-rise" style={{ animationDelay: '100ms' }}>
+                  <ContributeMenu role={currentUser.role} />
+                </div>
+              )}
+            </div>
 
             {/* Header chip bar — endorsement bar, last reviewed, read time.
                 aria-live: chips appear/change count in place with no
@@ -193,6 +209,17 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
               )}
               <HeaderChip>{readTimeMinutes} min read</HeaderChip>
             </div>
+
+            {/* Tag row — the brief's single topic tag, styled like the
+                reference artifact's multi-tag row (§ hero .tag-row). */}
+            {brief.topic_tag && (
+              <div
+                className="flex flex-wrap gap-1.5 mt-3 anim-rise"
+                style={{ animationDelay: '170ms' }}
+              >
+                <HeaderChip tone="tag">{brief.topic_tag}</HeaderChip>
+              </div>
+            )}
 
             {/* Brief-level review/endorse control — expert/organisation only */}
             {canContribute && (
@@ -257,6 +284,19 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
                             label={meta.label}
                             description={meta.description}
                             numTone={type === 'faq' ? 'blue' : 'ink'}
+                            action={
+                              // Visual-only button (no onClick), so — unlike
+                              // canContribute's other gated controls — it's
+                              // safe to also preview for admin.
+                              type === 'faq' && (canContribute || currentUser?.role === 'admin') ? (
+                                <button
+                                  type="button"
+                                  className="border-[1.5px] border-ink bg-paper px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.06em] text-ink transition-colors hover:border-blue hover:text-blue"
+                                >
+                                  + Suggest question
+                                </button>
+                              ) : undefined
+                            }
                           />
                           {type === 'explainer' ? (
                             <ExplainerSections
@@ -325,6 +365,14 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
                 label="Community Q&A"
                 description="Questions from members, answered by experts"
                 numTone="pink"
+                action={
+                  <button
+                    type="button"
+                    className="border-[1.5px] border-pink bg-paper px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.06em] text-pink transition-colors hover:bg-pink hover:text-white"
+                  >
+                    + Ask a question
+                  </button>
+                }
               />
               <QuestionsList
                 questions={questions}
