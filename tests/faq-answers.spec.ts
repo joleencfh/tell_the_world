@@ -12,22 +12,29 @@
  *
  * What this does — and doesn't — cover
  * ─────────────────────────────────────
- * There's no admin auth fixture yet (see two-ink-bold-plan.md's engineering
- * conventions section), so the admin-approval step itself isn't driven
- * through the admin UI here. Instead:
  *   - the submission test verifies a pending row lands in the database with
  *     the right shape and is NOT visible under "More answers" while pending
  *   - the display test seeds an already-published row directly (bypassing
  *     the approval UI, same as findMessage/deleteTestMessages does for the
  *     contact-modal tests) and verifies it renders correctly
- * Together these cover the two things that actually differ per-request
- * (validation + gating, and read-side rendering); the approval button
- * itself is a one-line status update already covered by lib/admin/actions.ts
- * following the identical pattern as correction-proposal approval.
+ *   - the moderation-loop test below (two-ink-bold-plan.md Part 9b's payoff
+ *     for the admin auth fixture) drives the real thing end to end: submit
+ *     as expert, click the actual Approve button in the admin UI, confirm
+ *     it shows up for a logged-out visitor. It needs
+ *     playwright/.auth/admin.json (see tests/two-ink-bold-11f-admin.spec.ts's
+ *     header comment for when that exists and reaches /admin) and skips
+ *     itself with an explanatory message otherwise, same pattern as that
+ *     file and tests/security.spec.ts's "Admin routes — admin session"
+ *     block.
+ * Together these cover the things that actually differ per-request
+ * (validation + gating, read-side rendering, and — when the fixture is
+ * available — the real moderation click-through).
  */
 
 import { test, expect } from '@playwright/test'
 import { loadEnvConfig } from '@next/env'
+import * as fs from 'fs'
+import * as path from 'path'
 import {
   getTestUser,
   getTestBrief,
@@ -44,6 +51,9 @@ const expertEmail = process.env.TEST_EXPERT_EMAIL ?? ''
 if (!expertEmail) {
   throw new Error('TEST_EXPERT_EMAIL must be set in .env.local')
 }
+
+const adminFixturePath = path.join(process.cwd(), 'playwright', '.auth', 'admin.json')
+const adminFixtureExists = fs.existsSync(adminFixturePath)
 
 const BRIEF_SLUG = 'test-public-brief'
 const QUESTION = 'What is this test brief for?'
@@ -162,5 +172,94 @@ test.describe('FAQ "More answers" — published answers, logged-out visitor', ()
 
     const authorName = expert.display_name ?? expertEmail.split('@')[0]
     await expect(page.getByText(authorName, { exact: false }).first()).toBeVisible()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Moderation — full loop, driven through the real admin UI
+// (two-ink-bold-plan.md Part 9b)
+// ---------------------------------------------------------------------------
+
+test.describe('FAQ answer moderation — full loop (expert submits, admin approves)', () => {
+  let brief: TestBrief
+
+  test.beforeAll(async () => {
+    brief = await getTestBrief(BRIEF_SLUG)
+  })
+
+  test.afterEach(async () => {
+    await deleteFaqAnswers(brief.id, QUESTION)
+  })
+
+  test('expert submits, admin approves via Approve button, then a logged-out visitor sees it under "More answers"', async ({ browser }) => {
+    test.skip(
+      !adminFixtureExists,
+      'playwright/.auth/admin.json not generated — set TEST_ADMIN_EMAIL and rerun the suite',
+    )
+
+    const body = `Playwright moderation-loop test ${Date.now()}`
+
+    // 1. Submit as expert — same flow as the submission tests above, in its
+    //    own context so it doesn't share state with the admin/visitor steps.
+    const expertContext = await browser.newContext({ storageState: 'playwright/.auth/expert.json' })
+    try {
+      const expertPage = await expertContext.newPage()
+      await expertPage.goto(`/briefs/${BRIEF_SLUG}`)
+      await expertPage.getByRole('button', { name: QUESTION }).click()
+      await expertPage.getByRole('button', { name: /add an answer/i }).click()
+      await expertPage.getByPlaceholder(/share your own answer/i).fill(body)
+      await expertPage.getByRole('button', { name: /submit answer/i }).click()
+      await expect(expertPage.getByText(/submitted for review/i)).toBeVisible({ timeout: 10000 })
+    } finally {
+      await expertContext.close()
+    }
+
+    const rows = await findFaqAnswers(brief.id, QUESTION)
+    expect(rows).toHaveLength(1)
+    expect(rows[0].status).toBe('pending')
+
+    // 2. Approve as admin — click the real Approve button, not a direct
+    //    service-role status update.
+    const adminContext = await browser.newContext({ storageState: adminFixturePath })
+    try {
+      const adminPage = await adminContext.newPage()
+      await adminPage.goto('/admin')
+      test.skip(
+        !adminPage.url().includes('/admin'),
+        'Redirected away from /admin — this dev server must be started with ADMIN_EMAIL=<TEST_ADMIN_EMAIL value> (see tests/two-ink-bold-11f-admin.spec.ts header comment)',
+      )
+
+      await adminPage.getByRole('button', { name: /faq answers/i }).click()
+
+      // Scope to this answer's own card (unique body text) rather than a
+      // loose "div containing this text" filter, which would also match
+      // every ancestor wrapper and make the Approve lookup ambiguous.
+      const bodyText = adminPage.getByText(body, { exact: true })
+      await expect(bodyText).toBeVisible()
+      const card = bodyText.locator('xpath=ancestor::div[contains(@class, "border-line")][1]')
+      await card.getByRole('button', { name: 'Approve' }).click()
+
+      // The action's revalidatePath('/admin') drops it from the pending list.
+      await expect(bodyText).not.toBeVisible({ timeout: 10000 })
+    } finally {
+      await adminContext.close()
+    }
+
+    const rowsAfterApproval = await findFaqAnswers(brief.id, QUESTION)
+    expect(rowsAfterApproval[0]?.status).toBe('published')
+
+    // 3. Confirm it renders for a logged-out visitor.
+    const visitorContext = await browser.newContext()
+    try {
+      const visitorPage = await visitorContext.newPage()
+      await visitorPage.goto(`/briefs/${BRIEF_SLUG}`)
+      await visitorPage.getByRole('button', { name: QUESTION }).click()
+      const toggle = visitorPage.getByRole('button', { name: /more answers/i })
+      await expect(toggle).toBeVisible()
+      await toggle.click()
+      await expect(visitorPage.getByText(body)).toBeVisible()
+    } finally {
+      await visitorContext.close()
+    }
   })
 })
