@@ -57,6 +57,7 @@ const TOKEN = {
   line: 'rgb(226, 227, 229)',
   paper: 'rgb(255, 255, 255)',
   blue: 'rgb(30, 79, 235)',
+  pink: 'rgb(240, 25, 126)',
 }
 
 const adminFixturePath = path.join(process.cwd(), 'playwright', '.auth', 'admin.json')
@@ -83,25 +84,30 @@ test.describe('Admin — Two-Ink Bold tokens', () => {
     }
   })
 
-  test('dashboard masthead, header rule, and tab underline resolve to real ink/line values', async ({ page }) => {
+  test('dashboard masthead, header rule, and brand mark resolve to real ink/blue/pink values', async ({ page }) => {
+    // Logo (components/ui/Logo.tsx) replaced the old plain-text wordmark
+    // sitewide — this now checks the masthead's 2px ink rule (was a thin
+    // border-line before that migration) and the brand-mark's two dots,
+    // rather than the retired <span>/<em> wordmark structure.
     await expect(page.getByRole('heading', { name: 'Applications' })).toBeVisible()
 
     const styles = await page.evaluate(() => {
       const header = document.querySelector('header')!
-      const wordmark = header.querySelector('span')!
-      const em = wordmark.querySelector('em')!
+      const logo = header.querySelector('a')!
+      const mark = logo.querySelector('span')!
+      const [pinkDot, blueDot] = mark.querySelectorAll('span')
       return {
         headerBorder: getComputedStyle(header).borderBottomColor,
-        wordmarkColor: getComputedStyle(wordmark).color,
-        emColor: getComputedStyle(em).color,
+        wordmarkColor: getComputedStyle(logo).color,
+        pinkDotColor: getComputedStyle(pinkDot).backgroundColor,
+        blueDotColor: getComputedStyle(blueDot).backgroundColor,
       }
     })
 
-    expect(styles.headerBorder).toBe(TOKEN.line)
+    expect(styles.headerBorder).toBe(TOKEN.ink)
     expect(styles.wordmarkColor).toBe(TOKEN.ink)
-    // The <em> no longer carries its own text-live color — it should
-    // inherit the same ink as the rest of the wordmark.
-    expect(styles.emColor).toBe(styles.wordmarkColor)
+    expect(styles.pinkDotColor).toBe(TOKEN.pink)
+    expect(styles.blueDotColor).toBe(TOKEN.blue)
   })
 
   test('a pending application renders a blue tab-count badge and a border-line card', async ({ page }) => {

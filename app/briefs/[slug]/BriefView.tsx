@@ -2,6 +2,7 @@
 
 import { useState, Fragment } from 'react'
 import Link from 'next/link'
+import Logo from '@/components/ui/Logo'
 import ProposeBriefModal from '@/components/ProposeBriefModal'
 import DarkBand from '@/components/ui/DarkBand'
 import {
@@ -108,12 +109,7 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
       {/* ── Nav ──────────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-10 bg-paper/95 backdrop-blur-sm border-b-2 border-ink px-6">
         <div className="mx-auto flex max-w-4xl items-center justify-between py-4">
-          <Link
-            href={isLoggedIn ? '/home' : '/'}
-            className="font-display text-[1.02rem] font-extrabold tracking-[-0.01em] text-ink"
-          >
-            Tell <em className="italic text-ink-soft">The</em> World
-          </Link>
+          <Logo href={isLoggedIn ? '/home' : '/'} />
           <nav className="flex items-center gap-6">
             {isLoggedIn ? (
               <>

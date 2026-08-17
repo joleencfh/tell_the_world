@@ -1,17 +1,13 @@
 import Link from "next/link";
+import Logo from "@/components/ui/Logo";
 
 export default function PendingPage() {
   return (
     <div className="min-h-screen bg-paper text-ink flex flex-col">
       {/* Nav */}
-      <header className="border-b border-line px-6">
+      <header className="border-b-2 border-ink px-6">
         <div className="mx-auto flex max-w-2xl items-center justify-between py-4">
-          <Link
-            href="/"
-            className="font-body text-base font-bold tracking-tight text-ink"
-          >
-            Tell <em className="italic">The</em> World
-          </Link>
+          <Logo href="/" />
         </div>
       </header>
 
