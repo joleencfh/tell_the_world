@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Logo from "@/components/ui/Logo";
 import { submitApplication } from "@/lib/applications/actions";
 import { Field, FormSection, SelectInput, TextareaInput, TextInput } from "./form-fields";
 import { CreatorFields, JournalistFields, ExpertFields, OrganisationFields, ExtrasFields } from "./role-sections";
@@ -105,14 +106,9 @@ export default function ApplyPage() {
   return (
     <div className="min-h-screen bg-paper text-ink">
       {/* Nav */}
-      <header className="sticky top-0 z-10 bg-paper/95 backdrop-blur-sm border-b border-line px-6">
+      <header className="sticky top-0 z-10 bg-paper/95 backdrop-blur-sm border-b-2 border-ink px-6">
         <div className="mx-auto flex max-w-2xl items-center justify-between py-4">
-          <Link
-            href="/"
-            className="font-body text-base font-bold tracking-tight text-ink"
-          >
-            Tell <em className="italic">The</em> World
-          </Link>
+          <Logo href="/" />
           <Link
             href="/login"
             className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors"

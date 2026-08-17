@@ -6,6 +6,7 @@ import { createBrief } from '@/lib/admin/brief-actions'
 import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingCta, PendingCoverage } from '@/lib/admin/actions'
 import { ADMIN_PAGE_SIZE } from '@/lib/data/admin'
 import Pagination from '@/components/ui/Pagination'
+import Logo from '@/components/ui/Logo'
 import { ApplicationCard, QuestionCard, CorrectionProposalCard, BriefProposalCard, ApprovedRow } from './cards'
 import { FaqAnswerCard } from './faq-answer-card'
 import { CtaCard } from './cta-card'
@@ -90,12 +91,10 @@ export default function AdminScreen({
   return (
     <div className="min-h-screen bg-paper text-ink">
       {/* Header */}
-      <header className="border-b border-line px-6">
+      <header className="border-b-2 border-ink px-6">
         <div className="mx-auto flex max-w-4xl items-center justify-between py-4">
           <div className="flex items-center gap-4">
-            <span className="font-body text-base font-bold tracking-tight text-ink">
-              Tell <em className="italic">The</em> World
-            </span>
+            <Logo href="/admin" />
             <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-ink-soft border border-line px-2 py-0.5">
               Admin
             </span>

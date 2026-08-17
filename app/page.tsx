@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Logo from "@/components/ui/Logo";
 
 // ---------------------------------------------------------------------------
 // Placeholder data — replace with Supabase queries in a later session
@@ -353,11 +354,9 @@ export default function LandingPage() {
       {/* ------------------------------------------------------------------ */}
       {/* Nav                                                                  */}
       {/* ------------------------------------------------------------------ */}
-      <header className="sticky top-0 z-10 bg-paper/95 backdrop-blur-sm border-b border-line px-6">
+      <header className="sticky top-0 z-10 bg-paper/95 backdrop-blur-sm border-b-2 border-ink px-6">
         <div className="mx-auto flex max-w-5xl items-center justify-between py-4">
-          <span className="font-body text-base font-bold tracking-tight text-ink">
-            Tell <em className="italic">The</em> World
-          </span>
+          <Logo href="/" />
           <Link
             href="/login"
             className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors"

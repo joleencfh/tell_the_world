@@ -2,6 +2,7 @@
 
 import { useState, useCallback, type ReactNode } from 'react'
 import Link from 'next/link'
+import Logo from '@/components/ui/Logo'
 import { saveBrief, deleteBrief } from '@/lib/admin/brief-actions'
 import type { Brief, BriefSection, MediaPickerOption } from '@/lib/admin/brief-actions'
 
@@ -312,12 +313,10 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
     <div className="min-h-screen bg-paper text-ink">
 
       {/* Header */}
-      <header className="border-b border-line px-6">
+      <header className="border-b-2 border-ink px-6">
         <div className="mx-auto flex max-w-4xl items-center justify-between py-4">
           <div className="flex items-center gap-4">
-            <Link href="/admin" className="font-body text-base font-bold tracking-tight text-ink hover:opacity-80 transition-opacity">
-              Tell <em className="italic">The</em> World
-            </Link>
+            <Logo href="/admin" />
             <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-ink-soft border border-line px-2 py-0.5">
               Admin
             </span>

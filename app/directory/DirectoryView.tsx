@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import UserCard from './UserCard'
 import QuoteCard from './QuoteCard'
 import Pagination from '@/components/ui/Pagination'
+import Logo from '@/components/ui/Logo'
 import { DIRECTORY_PAGE_SIZE } from '@/lib/directory/queries'
 import type { UserResult, QuoteResult, SearchParams } from '@/lib/directory/queries'
 
@@ -164,11 +165,9 @@ export default function DirectoryView({ users, usersCount, quotes, quotesCount, 
     <div className="min-h-screen bg-paper text-ink">
 
       {/* ── Nav ─────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-10 bg-paper/95 backdrop-blur-sm border-b border-line px-6">
+      <header className="sticky top-0 z-10 bg-paper/95 backdrop-blur-sm border-b-2 border-ink px-6">
         <div className="mx-auto flex max-w-5xl items-center justify-between py-4">
-          <Link href="/home" className="font-body text-base font-bold tracking-tight text-ink">
-            Tell <em className="italic">The</em> World
-          </Link>
+          <Logo href="/home" />
           <nav className="flex items-center gap-6">
             <Link
               href="/directory"
