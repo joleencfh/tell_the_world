@@ -6,15 +6,17 @@ import RoleBadge from '@/components/ui/RoleBadge'
 type UserRole = UserResult['role']
 
 // ---------------------------------------------------------------------------
-// Left-border accent per role — adds identity to the grid at a glance
+// Left-border accent per role — adds identity to the grid at a glance.
+// Two-Ink Bold semantic tone, same split as RoleBadge: blue = expert/org
+// verification, pink = creator/journalist engagement, neutral for admin.
 // ---------------------------------------------------------------------------
 
 const ROLE_BORDER: Record<UserRole, string> = {
-  creator:      'border-l-blue-300',
-  journalist:   'border-l-purple-300',
-  expert:       'border-l-green-300',
-  organisation: 'border-l-amber-300',
-  admin:        'border-l-red-300',
+  creator:      'border-l-pink/40',
+  journalist:   'border-l-pink/40',
+  expert:       'border-l-blue/40',
+  organisation: 'border-l-blue/40',
+  admin:        'border-l-line-strong',
 }
 
 // ---------------------------------------------------------------------------
@@ -32,7 +34,10 @@ function affiliationLine(user: UserResult): string | null {
 }
 
 // ---------------------------------------------------------------------------
-// Availability dot — only shown when open or limited
+// Availability dot — only shown when open or limited. Two-Ink Bold has no
+// traffic-light palette, so this stays inside the blue/neutral discipline
+// rather than introducing a third accent color: blue for the positive
+// "open" state, neutral ink-soft for the lesser "limited" state.
 // ---------------------------------------------------------------------------
 
 function AvailabilityDot({ status }: { status: string | null }) {
@@ -41,12 +46,12 @@ function AvailabilityDot({ status }: { status: string | null }) {
   return (
     <span className="inline-flex items-center gap-1">
       <span
-        className={`h-1.5 w-1.5 rounded-full shrink-0 ${isOpen ? 'bg-green-500' : 'bg-amber-400'}`}
+        className={`h-1.5 w-1.5 rounded-full shrink-0 ${isOpen ? 'bg-blue' : 'bg-ink-soft/50'}`}
         aria-hidden
       />
       <span
         className={`font-mono text-[8px] tracking-[0.1em] uppercase ${
-          isOpen ? 'text-green-700' : 'text-amber-600'
+          isOpen ? 'text-blue-ink' : 'text-ink-soft'
         }`}
       >
         {isOpen ? 'Available' : 'Limited'}
@@ -111,7 +116,7 @@ export default function UserCard({ user }: { user: UserResult }) {
             {areas.map((area) => (
               <span
                 key={area}
-                className="px-2 py-0.5 bg-green-50 text-green-700 rounded-full font-mono text-[8px] tracking-[0.08em]"
+                className="px-2 py-0.5 bg-paper text-ink-soft border border-line rounded-full font-mono text-[8px] tracking-[0.08em]"
               >
                 {area}
               </span>

@@ -14,7 +14,7 @@ export type SearchParams = {
   qpage?: string        // quotes list page (1-indexed)
 }
 
-export const DIRECTORY_PAGE_SIZE = 50
+export const DIRECTORY_PAGE_SIZE = 9
 
 export interface PagedResult<T> {
   data: T[]
