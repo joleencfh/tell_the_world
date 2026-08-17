@@ -26,30 +26,6 @@
   --color-pink-ink:          #99075A;
   --color-coverage-bg:       #0C0D0E; /* fixed dark band, both themes */
   --color-coverage-fg:       #F1F2F3; /* fixed light text for the dark band — ink/paper-raised invert between themes and would go illegible here, coverage-bg's whole point is to *not* invert */
-
-  /* Legacy "Punchy Media Brand" tokens — retired by the Two-Ink Bold
-     migration (Part 0) but restored here as a compat shim. Two-Ink Bold
-     was explicitly scoped to the public Brief page only (see
-     docs/design/brief-feature/two-ink-bold-plan.md §0); it turned out
-     most of the rest of the app (admin, landing, login, home, profile,
-     directory, apply flow, and the shared RoleBadge/Pagination
-     components) still authors against these names and was never
-     migrated. Removing them outright — as intended for anything genuinely
-     inside Two-Ink Bold's scope — left every one of those screens with
-     unstyled/invisible-text bugs (undefined Tailwind utilities emit no
-     CSS). Values are unchanged from the pre-Part-0 theme so these screens
-     render exactly as before. No dark-mode variants: the original theme
-     never had any (dark mode is still light-only sitewide, see below).
-     Don't add new call sites against these names — they're a shim for
-     existing code, not a supported token set going forward. */
-  --color-base:   #FAF9F6;
-  --color-warm:   #F5EDD9;
-  --color-dark:   #0D0D0D;
-  --color-text:   #1C1C1C;
-  --color-soft:   #6B7A8D;
-  --color-live:   #C8810A;
-  --color-edge:   #E0DAD4;
-  --color-card:   #FFFFFF;
 }
 
 /* @theme inline for fonts: --font-mono references the next/font CSS variable
@@ -64,13 +40,6 @@
   --font-display: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   --font-body:    "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   --font-mono:    var(--font-plex-mono), ui-monospace, "SF Mono", Consolas, monospace;
-
-  /* Legacy token, same compat rationale as the --color-* block above.
-     The original value loaded Source Serif 4 via next/font, but that font
-     was dropped entirely in Part 0 (no next/font variable survives to
-     reference) — a system serif stack is the lightest fix that doesn't
-     mean reloading a discontinued webfont just for unmigrated screens. */
-  --font-serif:   Georgia, "Times New Roman", Times, serif;
 }
 
 /* Dark mode is disabled for now — light is the preferred/default theme
