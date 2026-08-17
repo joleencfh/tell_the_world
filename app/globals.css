@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+/* Tailwind's Preflight resets <button> to cursor:default, unlike native
+   <a> (which already gets pointer from the browser UA stylesheet) — every
+   button site-wide needs this restored explicitly, confirmed missing
+   2026-08-17 (every button, including clearly-interactive ones, showed
+   cursor:default). Disabled buttons correctly keep the browser default. */
+button:not(:disabled) {
+  cursor: pointer;
+}
+
 /* Plain @theme (not @theme inline) for colors: utilities need to keep the
    var(--color-x) indirection so the dark-mode override below actually
    reaches them. @theme inline bakes the light literal straight into every

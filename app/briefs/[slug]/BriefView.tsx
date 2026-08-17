@@ -471,9 +471,10 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
               <button
                 type="button"
                 onClick={() => setProposeBriefOpen(true)}
-                className="font-mono text-[10px] tracking-[0.15em] uppercase text-ink-soft hover:text-ink transition-colors inline-flex items-center gap-2"
+                style={{ touchAction: 'manipulation' }}
+                className="ml-auto inline-flex items-center gap-2 border-2 border-blue bg-paper px-8 py-3 font-display text-sm uppercase tracking-widest text-blue-ink transition-colors hover:bg-blue hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue"
               >
-                <span aria-hidden>→</span> Propose a new brief
+                Propose a new brief <span aria-hidden>→</span>
               </button>
             </div>
           </div>
