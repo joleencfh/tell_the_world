@@ -404,15 +404,15 @@ export function LockedPlaceholder() {
   return (
     <div className="relative overflow-hidden py-10">
       <div className="space-y-3 select-none pointer-events-none" aria-hidden>
-        <div className="h-3 w-10 rounded bg-edge/50 mb-1" />
-        <div className="h-7 w-56 rounded-lg bg-edge/50" />
+        <div className="h-3 w-10 rounded bg-line/50 mb-1" />
+        <div className="h-7 w-56 rounded-lg bg-line/50" />
         <div className="mt-5 space-y-2">
           {[88, 75, 92, 68, 80].map((w, i) => (
-            <div key={i} className="h-3 rounded bg-edge/35" style={{ width: `${w}%` }} />
+            <div key={i} className="h-3 rounded bg-line/35" style={{ width: `${w}%` }} />
           ))}
         </div>
       </div>
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-base/60 to-base" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-paper/60 to-paper" />
     </div>
   )
 }

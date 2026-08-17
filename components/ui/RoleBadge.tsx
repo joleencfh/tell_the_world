@@ -11,12 +11,15 @@ import type { UserRole } from '@/lib/types'
 export type RoleBadgeSize = 'xs' | 'sm' | 'md'
 export type RoleBadgeVariant = 'pill' | 'outline'
 
+// Two-Ink Bold semantic tone, same split as OUTLINE_TONE_CLASSES below:
+// blue = expert/org verification, pink = creator/journalist engagement,
+// neutral ink for admin.
 const PILL_COLORS: Record<UserRole, string> = {
-  creator: 'bg-blue-100 text-blue-700',
-  journalist: 'bg-purple-100 text-purple-700',
-  expert: 'bg-green-100 text-green-700',
-  organisation: 'bg-amber-100 text-amber-700',
-  admin: 'bg-red-100 text-red-700',
+  creator: 'bg-pink-soft text-pink-ink',
+  journalist: 'bg-pink-soft text-pink-ink',
+  expert: 'bg-blue-soft text-blue-ink',
+  organisation: 'bg-blue-soft text-blue-ink',
+  admin: 'bg-paper-raised text-ink-soft',
 }
 
 const PILL_LABELS: Record<UserRole, string> = {
