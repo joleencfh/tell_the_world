@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Logo from "@/components/ui/Logo";
+import Footer from "@/components/ui/Footer";
 
 // ---------------------------------------------------------------------------
 // Placeholder data — replace with Supabase queries in a later session
@@ -513,22 +514,7 @@ export default function LandingPage() {
 
       </main>
 
-      {/* ------------------------------------------------------------------ */}
-      {/* Footer                                                              */}
-      {/* ------------------------------------------------------------------ */}
-      <footer className="bg-coverage-bg border-t border-white/10 px-6 py-6">
-        <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <span className="font-body text-sm font-bold text-coverage-fg/40 tracking-tight">
-            Tell <em className="italic">The</em> World
-          </span>
-          <Link
-            href="/login"
-            className="font-mono text-[10px] tracking-[0.18em] uppercase text-coverage-fg/40 hover:text-coverage-fg/70 transition-colors"
-          >
-            Log in
-          </Link>
-        </div>
-      </footer>
+      <Footer />
 
     </div>
   );
