@@ -1088,8 +1088,39 @@ the admin editor.
 
 ### Part 9b — Playwright admin auth fixture (testing infrastructure, stretch)
 
-**Status: requested by the user 2026-08-12, alongside Part 4b's E2E tests.**
-This isn't a page feature — it's the recurring test-infrastructure gap
+**Status: DONE (2026-08-17).** The mechanism (fixture generation, the
+`TEST_ADMIN_EMAIL` env var, `tests/two-ink-bold-11f-admin.spec.ts`) had
+already landed earlier, bundled into PR #42 ("Part 11f: admin") rather
+than as its own dedicated pass — a later audit (2026-08-17) found two of
+this part's original requirements still open despite that, both now
+closed:
+- **CI never actually ran admin tests.** `ADMIN_EMAIL` was never pointed
+  at `TEST_ADMIN_EMAIL` anywhere, including in CI, so every
+  admin-authenticated test silently skipped on every PR/push. Fixed:
+  added a `TEST_ADMIN_EMAIL` repo secret and repointed
+  `.github/workflows/ci.yml`'s `ADMIN_EMAIL` to it — this only affects
+  the throwaway dev server that job spins up, never a real deployment or
+  your local `.env.local`. Admin tests now run for real in CI. Also added
+  a dedicated inverse smoke test, `tests/security.spec.ts`'s "Admin
+  routes — admin session" block (`/admin loads instead of redirecting to
+  /login`), next to the existing logged-out-visitor block it mirrors.
+- **`tests/faq-answers.spec.ts` never used the fixture once it existed.**
+  Its own header comment still said "no admin auth fixture yet" and every
+  test bypassed moderation via direct service-role seeding. Added a new
+  `FAQ answer moderation — full loop` test that drives the real thing:
+  submits as expert, clicks the actual Approve button in the admin UI
+  (not a DB write), confirms the answer appears under "More answers" for
+  a logged-out visitor. Skips itself with an explanatory message if
+  `admin.json` isn't available, same pattern as the other two admin
+  specs.
+
+Verified: `bunx tsc --noEmit` / `bun run lint` clean, full local
+`bunx playwright test` run (81 passed, 1 opt-in skip) with
+`ADMIN_EMAIL=<TEST_ADMIN_EMAIL value>` — including the new moderation-loop
+test and the admin-session smoke test.
+
+Original framing, kept for history: this isn't a page feature — it's the
+recurring test-infrastructure gap
 that's shown up at every admin-adjacent checkpoint in this plan so far:
 pt.3 and pt.4's shared-component work couldn't be interactively verified
 as an admin (memory: `[[brief_two_ink_bold_plan]]`), pt.5's admin
@@ -1164,10 +1195,40 @@ assume).
 
 ### Part 10 — Cleanup and final verification
 
-Retire the dead `use_this` / `featured_news` / `where_experts_stand` /
-`going_deeper` (now folded into Explainer) renderers from
-`section-content.tsx` and `BriefView.tsx`'s `SECTION_ORDER`/`SECTION_META`
-if nothing still references them. Full regression pass.
+**Status: DONE, but delivered piecemeal rather than as its own pass —
+confirmed and documented 2026-08-17.** Every item below happened, just
+scattered across other parts' PRs instead of one dedicated "Part 10"
+commit, which is why this section went undocumented for a while (unlike
+every other part in this doc) and why a later session had to reconstruct
+what had actually landed:
+1. Dead `use_this`/`featured_news`/`where_experts_stand` renderers: gone.
+   Retired inside PR #46 (Part 9's own PR), whose commit explicitly notes
+   it's "pulling that slice of Part 10's cleanup forward at the user's
+   request." `going_deeper` correctly still exists, folded into Explainer
+   per Part 3, as expected — not a miss.
+2. `contested_points` and the `take`/`comment` `brief_contributions`
+   types: confirmed untouched. `contested_points` appears only in
+   migration 017, generated types, and docs; `take`/`comment` appear only
+   in the generated enum — no app code reads or writes either beyond what
+   Parts 1/3 already do for `review`/`endorsement`.
+3. Full verification pass: confirmed green. `tsc`/lint clean, and CI's
+   full Playwright suite passed on the current `master` tip
+   (`Brief header parity...`, PR #48, 2026-08-17T06:34:53Z).
+4. "Final sign-off across the whole page" as its own deliberate close-out
+   moment: this is the one sub-item that genuinely never happened as
+   written — there's no dedicated commit/PR and this doc's own status
+   note was never added, unlike Parts 0–9b and 11a–11h which all got one
+   once built. Retroactively, items 1–3 above constitute the substance of
+   what that pass would have verified; treat this note as that sign-off
+   rather than opening a new dedicated PR for it, per the user's own
+   framing when this was audited ("for 10 is only a matter of
+   documentation").
+
+Original scope, kept for history: retire the dead `use_this` /
+`featured_news` / `where_experts_stand` / `going_deeper` (now folded into
+Explainer) renderers from `section-content.tsx` and `BriefView.tsx`'s
+`SECTION_ORDER`/`SECTION_META` if nothing still references them. Full
+regression pass.
 
 #### Prompt for next session — Part 10
 

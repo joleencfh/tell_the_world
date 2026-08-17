@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test'
+import * as fs from 'fs'
+import * as path from 'path'
 
 // ---------------------------------------------------------------------------
 // Security regression tests
@@ -71,6 +73,32 @@ test.describe('Admin routes — logged-out visitor', () => {
   test('/admin/briefs/some-id redirects to /login', async ({ page }) => {
     await page.goto('/admin/briefs/00000000-0000-0000-0000-000000000000')
     await expect(page).toHaveURL(/\/login/)
+  })
+})
+
+// Inverse of the block above: an admin session should reach /admin, not get
+// redirected. See tests/two-ink-bold-11f-admin.spec.ts's header comment for
+// why this only runs for real in CI (ADMIN_EMAIL there is pointed at
+// TEST_ADMIN_EMAIL) — locally it skips unless the dev server was started
+// with that same override (two-ink-bold-plan.md Part 9b).
+const adminFixturePath = path.join(process.cwd(), 'playwright', '.auth', 'admin.json')
+const adminFixtureExists = fs.existsSync(adminFixturePath)
+
+test.describe('Admin routes — admin session', () => {
+  test.use({ storageState: adminFixtureExists ? adminFixturePath : undefined })
+
+  test('/admin loads instead of redirecting to /login', async ({ page }) => {
+    test.skip(
+      !adminFixtureExists,
+      'playwright/.auth/admin.json not generated — set TEST_ADMIN_EMAIL and rerun the suite',
+    )
+    await page.goto('/admin')
+    test.skip(
+      !page.url().includes('/admin'),
+      'Redirected away from /admin — this dev server must be started with ADMIN_EMAIL=<TEST_ADMIN_EMAIL value> (see tests/two-ink-bold-11f-admin.spec.ts header comment)',
+    )
+    await expect(page).not.toHaveURL(/\/login/)
+    await expect(page.getByRole('heading', { name: 'Applications' })).toBeVisible()
   })
 })
 

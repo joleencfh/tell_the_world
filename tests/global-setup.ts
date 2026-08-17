@@ -28,14 +28,17 @@
  *   TEST_ADMIN_EMAIL only grants access to /admin if the dev server this
  *   suite runs against was itself started with ADMIN_EMAIL=TEST_ADMIN_EMAIL
  *   (that variable gates the real /admin route by direct equality check, see
- *   app/admin/page.tsx). Since this project has one Supabase project shared
- *   across dev and CI with no separate staging, ADMIN_EMAIL is NOT
- *   permanently repointed anywhere by this file — admin.json is generated
- *   whenever TEST_ADMIN_EMAIL is set, but tests/two-ink-bold-11f-admin.spec.ts
- *   (the only spec that uses it) must itself be run with that env override,
- *   see the header comment there. If TEST_ADMIN_EMAIL isn't set (e.g. CI,
- *   until that secret is added), admin.json generation is skipped — every
- *   other fixture and test is unaffected.
+ *   app/admin/page.tsx). In CI (.github/workflows/ci.yml), ADMIN_EMAIL is
+ *   pointed at the TEST_ADMIN_EMAIL secret for the whole job, so admin
+ *   tests run for real there. Locally, ADMIN_EMAIL is NOT repointed by this
+ *   file — your .env.local's ADMIN_EMAIL presumably gates your own real
+ *   /admin route, and this project has one Supabase project shared across
+ *   dev and CI with no separate staging, so that value is left alone.
+ *   admin.json is still generated whenever TEST_ADMIN_EMAIL is set, but
+ *   tests/two-ink-bold-11f-admin.spec.ts (the only spec that uses it)
+ *   needs a manual env override to actually reach /admin locally — see the
+ *   header comment there. If TEST_ADMIN_EMAIL isn't set at all, admin.json
+ *   generation is skipped — every other fixture and test is unaffected.
  */
 
 import { FullConfig } from '@playwright/test'

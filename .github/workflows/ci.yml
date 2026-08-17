@@ -19,7 +19,13 @@ jobs:
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-      ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+      # Pointed at TEST_ADMIN_EMAIL, not the real ADMIN_EMAIL secret — this
+      # only gates the throwaway dev server this job spins up (two-ink-bold
+      # -plan.md Part 9b), never a real deployment. TEST_ADMIN_EMAIL is a
+      # dedicated fixture account (playwright-test-admin@..., not a real
+      # person's address).
+      ADMIN_EMAIL: ${{ secrets.TEST_ADMIN_EMAIL }}
+      TEST_ADMIN_EMAIL: ${{ secrets.TEST_ADMIN_EMAIL }}
       TEST_CREATOR_EMAIL: ${{ secrets.TEST_CREATOR_EMAIL }}
       TEST_EXPERT_EMAIL: ${{ secrets.TEST_EXPERT_EMAIL }}
     steps:

@@ -13,26 +13,31 @@
  * Prerequisites
  * ─────────────
  * 1. `playwright/.auth/admin.json` must exist (written by global-setup.ts,
- *    but ONLY if TEST_ADMIN_EMAIL is set in .env.local — see that file's
- *    doc comment for why this is optional). Admin auth in this app is a
- *    single ADMIN_EMAIL equality check (app/admin/page.tsx), not a role
- *    column, so a valid admin.json session only reaches /admin if the dev
- *    server THIS SUITE RUNS AGAINST was itself started with
- *    ADMIN_EMAIL=<the same TEST_ADMIN_EMAIL value>. Since
- *    playwright.config.ts reuses an already-running dev server locally
- *    (reuseExistingServer), that means:
- *      1. Stop any dev server already running on :3000 (e.g. one open in
- *         a Browser pane / preview_start) — Playwright needs to spawn its
- *         own with the override, not reuse yours.
- *      2. Run:
- *         ADMIN_EMAIL=<your TEST_ADMIN_EMAIL value> bunx playwright test tests/two-ink-bold-11f-admin.spec.ts
- *    Running this file (or the full suite) the normal way, without that
- *    override, will see admin.json's session get redirected away from
- *    /admin — this file's beforeEach detects that and skips with a message
- *    explaining why, rather than failing confusingly. This mirrors the
- *    tradeoff two-ink-bold-plan.md's Part 9b documents: one shared
- *    Supabase project across dev/CI, no separate staging, so ADMIN_EMAIL
- *    isn't silently repointed anywhere persistent.
+ *    but ONLY if TEST_ADMIN_EMAIL is set — see that file's doc comment for
+ *    why this is optional). Admin auth in this app is a single ADMIN_EMAIL
+ *    equality check (app/admin/page.tsx), not a role column, so a valid
+ *    admin.json session only reaches /admin if the dev server THIS SUITE
+ *    RUNS AGAINST was itself started with ADMIN_EMAIL=<the same
+ *    TEST_ADMIN_EMAIL value>.
+ *      - In CI (.github/workflows/ci.yml): already true — ADMIN_EMAIL is
+ *        pointed at the TEST_ADMIN_EMAIL secret for the whole job, so this
+ *        spec runs for real on every PR/push, no override needed.
+ *      - Locally: your .env.local's ADMIN_EMAIL is presumably your own
+ *        real admin address, not TEST_ADMIN_EMAIL, and
+ *        playwright.config.ts reuses an already-running dev server
+ *        (reuseExistingServer) — so running the suite the normal way will
+ *        see admin.json's session get redirected away from /admin; this
+ *        file's beforeEach detects that and skips with a message rather
+ *        than failing confusingly. To actually exercise it locally:
+ *          1. Stop any dev server already running on :3000 (e.g. one open
+ *             in a Browser pane / preview_start) — Playwright needs to
+ *             spawn its own with the override, not reuse yours.
+ *          2. Run:
+ *             ADMIN_EMAIL=<your TEST_ADMIN_EMAIL value> bunx playwright test tests/two-ink-bold-11f-admin.spec.ts
+ *    This mirrors the tradeoff two-ink-bold-plan.md's Part 9b documents:
+ *    one shared Supabase project across dev/CI, no separate staging, so
+ *    the real local ADMIN_EMAIL isn't silently repointed — only CI's is,
+ *    since CI's dev server is thrown away after every run.
  * 2. Seed the test briefs: bun scripts/seed-test-briefs.ts
  */
 
