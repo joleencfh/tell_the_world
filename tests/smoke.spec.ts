@@ -88,11 +88,11 @@ test.describe('Landing page', () => {
     await expect(hiddenBlocks.first()).toHaveAttribute('aria-hidden', 'true')
   })
 
-  test('footer — login link', async ({ page }) => {
+  test('footer — brand mark, no links', async ({ page }) => {
     const footer = page.getByRole('contentinfo')
-    const loginLink = footer.getByRole('link', { name: 'Log in' })
-    await expect(loginLink).toBeVisible()
-    await expect(loginLink).toHaveAttribute('href', '/login')
+    await expect(footer).toContainText('Tell The World')
+    // The footer is deliberately link-free — Log in lives in the nav instead.
+    await expect(footer.getByRole('link')).toHaveCount(0)
   })
 
   test('mobile — page renders without layout errors', async ({ page }) => {
