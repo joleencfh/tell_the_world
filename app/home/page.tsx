@@ -8,6 +8,7 @@ import { getPostsByAuthors } from '@/lib/data/posts'
 import Avatar from '@/components/ui/Avatar'
 import RoleBadge from '@/components/ui/RoleBadge'
 import Logo from '@/components/ui/Logo'
+import Footer from '@/components/ui/Footer'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -345,13 +346,7 @@ export default async function HomePage() {
         </div>
       </main>
 
-      <footer className="border-t border-line px-6 py-6 mt-16">
-        <div className="mx-auto max-w-5xl flex items-center justify-between">
-          <span className="font-body text-sm font-bold text-ink-soft/60 tracking-tight">
-            Tell <em className="italic">The</em> World
-          </span>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }
