@@ -35,6 +35,9 @@ export interface BriefWithSections {
   topic_tag: string | null
   pinned_media_post_id: string | null
   last_reviewed_at: string | null
+  // Per-brief TL;DR one-liner (Part 3 step 1) — null falls back to
+  // SECTION_META.tldr's generic description in BriefView.tsx.
+  tldr_teaser: string | null
   visibility: BriefVisibility
   brief_sections: BriefSection[]
 }
@@ -78,7 +81,7 @@ export async function getBriefWithSectionsBySlug(
   const { data, error } = await db
     .from('briefs')
     .select(
-      'id, title, slug, subtitle, topic_tags, pinned_media_post_id, last_reviewed_at, visibility, brief_sections(id, section_type, title, content, rich_content, content_version, display_order)',
+      'id, title, slug, subtitle, topic_tags, pinned_media_post_id, last_reviewed_at, tldr_teaser, visibility, brief_sections(id, section_type, title, content, rich_content, content_version, display_order)',
     )
     .eq('slug', slug)
     .single()

@@ -551,6 +551,7 @@ export type Database = {
           slug: string
           subtitle: string | null
           title: string
+          tldr_teaser: string | null
           topic_tags: string[]
           updated_at: string
           visibility: Database["public"]["Enums"]["brief_visibility"]
@@ -563,6 +564,7 @@ export type Database = {
           slug: string
           subtitle?: string | null
           title: string
+          tldr_teaser?: string | null
           topic_tags?: string[]
           updated_at?: string
           visibility?: Database["public"]["Enums"]["brief_visibility"]
@@ -575,6 +577,7 @@ export type Database = {
           slug?: string
           subtitle?: string | null
           title?: string
+          tldr_teaser?: string | null
           topic_tags?: string[]
           updated_at?: string
           visibility?: Database["public"]["Enums"]["brief_visibility"]
