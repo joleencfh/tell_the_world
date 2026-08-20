@@ -380,9 +380,12 @@ control.
 3. "Add media coverage" / "Suggest a call to action" → trigger the
    already-built `AddCoverageModal` / `SuggestCtaModal`, same modals the
    sections' own "+" buttons already open.
-4. "Send feedback on this page" (creator/journalist, new item) →
-   Part 0c's shared mechanism, brief-level context (no specific
-   section).
+4. "Send feedback on this page" (creator/journalist, new item; admin
+   also gets it for free — `ContributeMenu` already previews the whole
+   Creator/Journalist group to admin via its existing `isAdmin`
+   convenience path, so this item needs no separate admin gate, and
+   nothing added here should introduce one) → Part 0c's shared
+   mechanism, brief-level context (no specific section).
 
 #### Prompt for next session — Part 2
 
@@ -408,13 +411,21 @@ ContributeMenuGroup.
    triggering them from a second entry point. BriefView.tsx already has
    the open/close state for both (suggestCtaOpen, addCoverageOpen) —
    reuse it, don't create parallel state.
-4. Wire "Send feedback on this page" (creator/journalist group only) to
-   Part 0c's shared feedback mechanism, with brief-level context (no
-   section reference).
+4. Add "Send feedback on this page" to the Creator/Journalist group's
+   `items` array (the same array `ContributeMenuGroup` renders for that
+   group), wired to Part 0c's shared feedback mechanism with brief-level
+   context (no section reference). Do NOT add an extra role check that
+   restricts this item further than the group it's already in —
+   `ContributeMenu`'s existing `isAdmin` convenience logic already shows
+   admin the whole Creator/Journalist group (same as it already does for
+   Expert/Org), so admin must see this item too, same as every other
+   item in both groups.
 
 Verify: bunx tsc --noEmit && bun run lint clean, browser-check each of
 the 6 menu items actually opens its modal and the action completes,
-across an expert/org session and a creator/journalist session.
+across an expert/org session, a creator/journalist session, and an
+admin session (admin should see all 6 items across both groups, same as
+today's visual-only menu already does).
 ```
 
 ---
@@ -632,7 +643,8 @@ part of step 1 (the "give feedback" half of the triple-dot menu).
    "info" (written-by TTW staff implicit, collaborating experts/orgs —
    linked user references, feedback-givers — linked user references) and
    "give feedback" (routes into Part 0c's shared mechanism, visible to
-   all users). Needs new structured data: a table linking a brief's FAQ
+   all logged-in users — no role restriction, admin included). Needs new
+   structured data: a table linking a brief's FAQ
    question to collaborator/feedback-giver user references (question
    text as the key, same fragile-but-accepted tradeoff as the existing
    `brief_faq_answers` matching).
