@@ -18,7 +18,7 @@ async function seed() {
         title: 'AI Alignment: The Core Problem',
         slug: 'ai-alignment-core-problem',
         subtitle: '[Placeholder subtitle] One sentence, allowed a point of view.',
-        topic_tag: 'alignment',
+        topic_tags: ['alignment'],
         pinned_media_post_id: null,
         visibility: 'public',
         // Mock value so the hero's "Last reviewed" chip has something to

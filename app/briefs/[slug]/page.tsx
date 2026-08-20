@@ -64,6 +64,9 @@ export interface Brief {
   title: string
   slug: string
   subtitle: string | null
+  topic_tags: string[]
+  // TODO(Part 1 step 4): drop once BriefView.tsx's hero renders topic_tags
+  // directly — see the matching TODO on lib/data/briefs.ts's BriefWithSections.
   topic_tag: string | null
   pinned_media_post_id: string | null
   last_reviewed_at: string | null
@@ -128,7 +131,7 @@ export default async function BriefPage({
     .map((s) => s.id)
 
   const [quotes, media, endorsementBar, myReviewStatus, sectionCounts, myExplainerStatuses, faqAnswersMap, ctas, coverage, relatedBriefs] = await Promise.all([
-    getQuotesByTopicTag(supabase, brief.topic_tag, 4),
+    getQuotesByTopicTag(supabase, brief.topic_tags, 4),
     getMediaSection(supabase, brief.topic_tag, brief.pinned_media_post_id, 6),
     getEndorsementBarCounts(supabase, brief.id, brief.brief_sections),
     user
@@ -141,7 +144,7 @@ export default async function BriefPage({
     getPublishedFaqAnswers(supabase, brief.id),
     getPublishedCtas(supabase, brief.id),
     getPublishedCoverage(supabase, brief.id, user?.id ?? null),
-    getRelatedBriefs(supabase, brief.id, brief.topic_tag, 3),
+    getRelatedBriefs(supabase, brief.id, brief.topic_tags, 3),
   ])
 
   // Converted from a Map to a plain object — Map doesn't round-trip cleanly

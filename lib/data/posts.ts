@@ -92,15 +92,17 @@ export async function getPostsByAuthors(
   return (data ?? []) as unknown as FeedPost[]
 }
 
-// Quote-type posts tagged with the brief's topic, for the brief page's
-// Quotes section (design doc §2 row 7 — a filtered view of content_posts,
-// not hand-curated).
+// Quote-type posts sharing at least one of the brief's topic_tags, for the
+// brief page's Quotes section (design doc §2 row 7 — a filtered view of
+// content_posts, not hand-curated). Array-overlap match, not equality, since
+// both content_posts.topic_tags and briefs.topic_tags are arrays
+// (docs/design/brief-feature/brief-page-part2-plan.md §2, Part 0a step 3).
 export async function getQuotesByTopicTag(
   db: DB,
-  topicTag: string | null,
+  topicTags: string[],
   limit = 4,
 ): Promise<Quote[]> {
-  if (!topicTag) return []
+  if (topicTags.length === 0) return []
 
   const { data } = await db
     .from('content_posts')
@@ -108,7 +110,7 @@ export async function getQuotesByTopicTag(
       'id, title, body, url, user_id, created_at, users(id, display_name, avatar_url, role, affiliation, org_name)',
     )
     .eq('post_type', 'quote')
-    .contains('topic_tags', [topicTag])
+    .overlaps('topic_tags', topicTags)
     .order('created_at', { ascending: false })
     .limit(limit)
 

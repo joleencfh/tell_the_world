@@ -503,7 +503,7 @@ export type Database = {
           slug: string
           subtitle: string | null
           title: string
-          topic_tag: string | null
+          topic_tags: string[]
           updated_at: string
           visibility: Database["public"]["Enums"]["brief_visibility"]
         }
@@ -515,7 +515,7 @@ export type Database = {
           slug: string
           subtitle?: string | null
           title: string
-          topic_tag?: string | null
+          topic_tags?: string[]
           updated_at?: string
           visibility?: Database["public"]["Enums"]["brief_visibility"]
         }
@@ -527,7 +527,7 @@ export type Database = {
           slug?: string
           subtitle?: string | null
           title?: string
-          topic_tag?: string | null
+          topic_tags?: string[]
           updated_at?: string
           visibility?: Database["public"]["Enums"]["brief_visibility"]
         }
@@ -544,6 +544,7 @@ export type Database = {
       content_posts: {
         Row: {
           body: string | null
+          brief_id: string | null
           created_at: string
           id: string
           post_type: Database["public"]["Enums"]["post_type"]
@@ -555,6 +556,7 @@ export type Database = {
         }
         Insert: {
           body?: string | null
+          brief_id?: string | null
           created_at?: string
           id?: string
           post_type: Database["public"]["Enums"]["post_type"]
@@ -566,6 +568,7 @@ export type Database = {
         }
         Update: {
           body?: string | null
+          brief_id?: string | null
           created_at?: string
           id?: string
           post_type?: Database["public"]["Enums"]["post_type"]
@@ -577,7 +580,50 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "content_posts_brief_id_fkey"
+            columns: ["brief_id"]
+            isOneToOne: false
+            referencedRelation: "briefs"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "content_posts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_usage: {
+        Row: {
+          content_post_id: string
+          id: string
+          used_at: string
+          user_id: string | null
+        }
+        Insert: {
+          content_post_id: string
+          id?: string
+          used_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          content_post_id?: string
+          id?: string
+          used_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_usage_content_post_id_fkey"
+            columns: ["content_post_id"]
+            isOneToOne: false
+            referencedRelation: "content_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_usage_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"

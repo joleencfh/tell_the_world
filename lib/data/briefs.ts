@@ -23,6 +23,10 @@ export interface BriefWithSections {
   title: string
   slug: string
   subtitle: string | null
+  topic_tags: string[]
+  // TODO(Part 1 step 4): drop once BriefView.tsx's hero renders topic_tags
+  // directly — kept for now so the hero's single-tag read keeps compiling
+  // unchanged (docs/design/brief-feature/brief-page-part2-plan.md §2, Part 0a).
   topic_tag: string | null
   pinned_media_post_id: string | null
   last_reviewed_at: string | null
@@ -44,6 +48,9 @@ export interface RelatedBrief {
   id: string
   title: string
   slug: string
+  topic_tags: string[]
+  // TODO(Part 1 step 4): drop once related-briefs.tsx renders topic_tags
+  // directly — see the matching TODO on BriefWithSections above.
   topic_tag: string | null
   created_at: string
 }
@@ -66,13 +73,13 @@ export async function getBriefWithSectionsBySlug(
   const { data, error } = await db
     .from('briefs')
     .select(
-      'id, title, slug, subtitle, topic_tag, pinned_media_post_id, last_reviewed_at, visibility, brief_sections(id, section_type, title, content, content_version, display_order)',
+      'id, title, slug, subtitle, topic_tags, pinned_media_post_id, last_reviewed_at, visibility, brief_sections(id, section_type, title, content, content_version, display_order)',
     )
     .eq('slug', slug)
     .single()
 
   if (error || !data) return null
-  return data as BriefWithSections
+  return { ...data, topic_tag: data.topic_tags[0] ?? null } as BriefWithSections
 }
 
 export async function getRecentBriefs(db: DB, limit = 5): Promise<BriefListItem[]> {
@@ -92,31 +99,31 @@ export async function getRecentBriefs(db: DB, limit = 5): Promise<BriefListItem[
   }))
 }
 
-// Related briefs — other briefs sharing the current brief's topic_tag, most
-// recent first, excluding itself. Like the rest of this file, visibility is
-// left to RLS on the passed-in client rather than filtered here: briefs
-// metadata (title/slug/topic_tag) is world-readable (migration 013), so a
-// logged-out visitor sees the same related list as a member, same as
-// getRecentBriefs above. A null topic_tag means "nothing to relate this
-// brief to" — short-circuit before querying rather than returning every
-// brief with a null tag (they wouldn't share a real topic).
+// Related briefs — other briefs sharing at least one of the current brief's
+// topic_tags, most recent first, excluding itself. Like the rest of this
+// file, visibility is left to RLS on the passed-in client rather than
+// filtered here: briefs metadata (title/slug/topic_tags) is world-readable
+// (migration 013), so a logged-out visitor sees the same related list as a
+// member, same as getRecentBriefs above. An empty topic_tags array means
+// "nothing to relate this brief to" — short-circuit before querying rather
+// than returning every brief with no tags (they wouldn't share a real topic).
 export async function getRelatedBriefs(
   db: DB,
   briefId: string,
-  topicTag: string | null,
+  topicTags: string[],
   limit = 3,
 ): Promise<RelatedBrief[]> {
-  if (!topicTag) return []
+  if (topicTags.length === 0) return []
 
   const { data } = await db
     .from('briefs')
-    .select('id, title, slug, topic_tag, created_at')
-    .eq('topic_tag', topicTag)
+    .select('id, title, slug, topic_tags, created_at')
+    .overlaps('topic_tags', topicTags)
     .neq('id', briefId)
     .order('created_at', { ascending: false })
     .limit(limit)
 
-  return data ?? []
+  return (data ?? []).map((b) => ({ ...b, topic_tag: b.topic_tags[0] ?? null }))
 }
 
 // Correction proposals authored by a user, for their profile. RLS returns
