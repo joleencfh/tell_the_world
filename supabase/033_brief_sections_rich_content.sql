@@ -1,0 +1,21 @@
+-- =============================================================
+-- Tell The World — brief_sections.rich_content
+-- Run this in the Supabase SQL Editor.
+--
+-- Brief page Part 2 (docs/design/brief-feature/brief-page-part2-plan.md
+-- §2, Part 0b): Lexical-authored rich text for Explainer subsections.
+-- Additive, alongside the existing plain-text `content` column — TipTap
+-- was removed once already (PR #26) because its HTML output diverged
+-- from the public page's plain-text parsers, so this deliberately avoids
+-- HTML entirely. `rich_content` stores a Lexical editorState.toJSON()
+-- tree; the public page walks that JSON with its own React renderer
+-- (lib/richtext/render.tsx), never dangerouslySetInnerHTML.
+--
+-- Null means "not yet authored via the rich text editor" — existing
+-- explainer subsections (plain paragraphs + {{term|definition}} keyterm
+-- syntax) keep rendering exactly as before via the old `content` path
+-- until an admin deliberately switches a subsection over in the editor.
+-- Both shapes coexist; this migration doesn't touch `content` at all.
+-- =============================================================
+
+alter table brief_sections add column rich_content jsonb;

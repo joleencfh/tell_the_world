@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { randomUUID } from 'crypto'
 import { requireAdmin } from '@/lib/auth/require'
 import { getAdminClient } from '@/lib/supabase/admin'
+import type { Json } from '@/lib/database.types'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -48,6 +49,10 @@ export interface BriefSection {
   section_type: BriefSectionType
   title: string | null
   content: string
+  // Lexical editorState.toJSON() tree (migration 033) — see lib/data/briefs.ts's
+  // BriefSection.rich_content for the read-side contract. Only explainer
+  // sections use this; every other type leaves it null.
+  rich_content: unknown
   display_order: number
 }
 
@@ -182,6 +187,7 @@ export async function saveBrief(
       section_type: BriefSectionType
       title: string | null
       content: string
+      rich_content: unknown
       display_order: number
     }>
   }
@@ -244,7 +250,12 @@ export async function saveBrief(
     if (section.id) {
       const { error } = await getAdminClient()
         .from('brief_sections')
-        .update({ content: section.content, display_order: section.display_order, title: titleValue })
+        .update({
+          content: section.content,
+          rich_content: section.rich_content as Json,
+          display_order: section.display_order,
+          title: titleValue,
+        })
         .eq('id', section.id)
       if (error) return { error: error.message }
     } else {
@@ -253,6 +264,7 @@ export async function saveBrief(
         section_type: section.section_type,
         title: titleValue,
         content: section.content,
+        rich_content: section.rich_content as Json,
         display_order: section.display_order,
       })
       if (error) return { error: error.message }

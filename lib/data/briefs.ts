@@ -14,6 +14,11 @@ export interface BriefSection {
   section_type: BriefSectionType
   title: string | null
   content: string
+  // Lexical editorState.toJSON() tree (migration 033) — null when this
+  // section hasn't been authored via the rich text editor yet, in which
+  // case `content` (plain text) is still the source of truth. Parse with
+  // lib/richtext/types.ts's parseRichContent before rendering.
+  rich_content: unknown
   content_version: number
   display_order: number
 }
@@ -73,7 +78,7 @@ export async function getBriefWithSectionsBySlug(
   const { data, error } = await db
     .from('briefs')
     .select(
-      'id, title, slug, subtitle, topic_tags, pinned_media_post_id, last_reviewed_at, visibility, brief_sections(id, section_type, title, content, content_version, display_order)',
+      'id, title, slug, subtitle, topic_tags, pinned_media_post_id, last_reviewed_at, visibility, brief_sections(id, section_type, title, content, rich_content, content_version, display_order)',
     )
     .eq('slug', slug)
     .single()

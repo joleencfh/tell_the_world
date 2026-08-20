@@ -45,6 +45,7 @@ export interface BriefSection {
   section_type: BriefSectionType
   title: string | null
   content: string
+  rich_content: unknown
   content_version: number
   display_order: number
 }

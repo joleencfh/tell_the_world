@@ -460,6 +460,7 @@ export type Database = {
           content_version: number
           display_order: number
           id: string
+          rich_content: Json | null
           section_type: Database["public"]["Enums"]["brief_section_type"]
           title: string | null
           updated_at: string
@@ -470,6 +471,7 @@ export type Database = {
           content_version?: number
           display_order: number
           id?: string
+          rich_content?: Json | null
           section_type: Database["public"]["Enums"]["brief_section_type"]
           title?: string | null
           updated_at?: string
@@ -480,6 +482,7 @@ export type Database = {
           content_version?: number
           display_order?: number
           id?: string
+          rich_content?: Json | null
           section_type?: Database["public"]["Enums"]["brief_section_type"]
           title?: string | null
           updated_at?: string
