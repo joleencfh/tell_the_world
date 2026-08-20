@@ -633,7 +633,7 @@ async function main() {
           title: brief.title,
           slug: brief.slug,
           subtitle: brief.subtitle,
-          topic_tag: brief.topic_tag,
+          topic_tags: [brief.topic_tag],
           pinned_media_post_id: pinnedByTag.get(brief.topic_tag) ?? null,
           visibility: brief.visibility,
         },

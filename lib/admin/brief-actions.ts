@@ -15,6 +15,10 @@ export interface Brief {
   title: string
   slug: string
   subtitle: string | null
+  topic_tags: string[]
+  // TODO(Part 1 step 4): drop once EditBriefScreen.tsx edits topic_tags
+  // directly — kept so the admin form's single-tag field keeps compiling
+  // unchanged (docs/design/brief-feature/brief-page-part2-plan.md §2, Part 0a).
   topic_tag: string | null
   pinned_media_post_id: string | null
   last_reviewed_at: string | null
@@ -97,8 +101,11 @@ export async function getBrief(id: string): Promise<{
 
   if (briefResult.error) return { brief: null, sections: [], error: briefResult.error.message }
 
+  const rawBrief = briefResult.data as Brief
+  const brief: Brief = { ...rawBrief, topic_tag: rawBrief.topic_tags[0] ?? null }
+
   return {
-    brief: briefResult.data as Brief,
+    brief,
     sections: (sectionsResult.data ?? []) as BriefSection[],
     error: null,
   }
@@ -181,10 +188,16 @@ export async function saveBrief(
 ): Promise<{ success?: boolean; error?: string; sections?: BriefSection[] }> {
   await requireAdmin()
 
+  // saveBrief's public param is still a single topicTag string — the admin
+  // form (EditBriefScreen.tsx) isn't updated to a multi-tag input until Part
+  // 1 step 4. Written through as a one-element (or empty) topic_tags array
+  // so the underlying column stays the source of truth.
+  const topicTagTrimmed = data.topicTag.trim()
+
   const updates: Record<string, unknown> = {
     title: data.title,
     subtitle: data.subtitle.trim() || null,
-    topic_tag: data.topicTag.trim() || null,
+    topic_tags: topicTagTrimmed ? [topicTagTrimmed] : [],
     pinned_media_post_id: data.pinnedMediaPostId,
     visibility: data.visibility,
   }
