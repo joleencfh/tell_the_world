@@ -113,20 +113,64 @@ export interface EndorsementBarCounts {
   orgCount: number
 }
 
-// Endorsement bar computation (design doc §8): count distinct users with a
-// published review or endorsement whose pinned section_version is current,
-// split by type — endorsers are not double-counted as reviewers. A user
-// can hold current review/endorsement rows on several sections at once
-// (§3.3 rule 1 scopes uniqueness per target, not per brief); if any of
-// them is an endorsement, that user counts as endorsed.
-export async function getEndorsementBarCounts(
+// One reviewer/endorser, for the hero's "Reviewed by" tooltip (Part 1 step
+// 2) — role is the reviewer's own account role (expert vs organisation),
+// which is what "experts and orgs separately" groups by; unrelated to
+// orgCount above (that counts distinct affiliated organisations, not
+// organisation-role accounts).
+export interface Reviewer {
+  userId: string
+  displayName: string | null
+  avatarUrl: string | null
+  role: 'expert' | 'organisation'
+  // Credential line shown under an expert's name in the modal (job title +
+  // affiliation) — organisation accounts leave both null, their display
+  // name already is their full identity.
+  jobTitle: string | null
+  affiliation: string | null
+  // Most recent published review/endorsement timestamp counted toward the
+  // bar (a user can hold several current rows across sections; this is the
+  // latest of those).
+  contributedAt: string
+}
+
+export interface EndorsementBarDetail {
+  reviewers: Reviewer[]
+  endorsers: Reviewer[]
+}
+
+interface EndorsementDetailRow {
+  user_id: string
+  type: 'review' | 'endorsement'
+  section_id: string | null
+  section_version: number | null
+  updated_at: string
+  users: {
+    display_name: string | null
+    avatar_url: string | null
+    role: string
+    job_title: string | null
+    affiliation: string | null
+  } | null
+}
+
+// Endorsement bar computation (design doc §8) — one query, returning both
+// the counts (for the chip labels) and the actual reviewer/endorser
+// identities (for the hero chip's hover tooltip and click-through list,
+// Part 1 step 2). Counts distinct users with a published review or
+// endorsement whose pinned section_version is current, split by type —
+// endorsers are not double-counted as reviewers. A user can hold current
+// review/endorsement rows on several sections at once (§3.3 rule 1 scopes
+// uniqueness per target, not per brief); if any of them is an endorsement,
+// that user counts as endorsed.
+export async function getEndorsementBar(
   db: DB,
   briefId: string,
   sections: { id: string; content_version: number }[],
-): Promise<EndorsementBarCounts> {
+): Promise<{ counts: EndorsementBarCounts; detail: EndorsementBarDetail }> {
   const { data } = await db
     .from('brief_contributions')
-    .select('user_id, type, section_id, section_version')
+    .select('user_id, type, section_id, section_version, updated_at, users(display_name, avatar_url, role, job_title, affiliation)')
     .eq('brief_id', briefId)
     .eq('status', 'published')
     .in('type', ['review', 'endorsement'])
@@ -134,25 +178,41 @@ export async function getEndorsementBarCounts(
   const versionBySection = new Map(sections.map((s) => [s.id, s.content_version]))
   const maxVersion = sections.reduce((m, s) => Math.max(m, s.content_version), 1)
 
-  const statusByUser = new Map<string, 'endorsement' | 'review'>()
-  for (const row of data ?? []) {
+  const byUser = new Map<string, Reviewer & { type: 'review' | 'endorsement' }>()
+  for (const row of (data ?? []) as unknown as EndorsementDetailRow[]) {
     const currentVersion = row.section_id ? versionBySection.get(row.section_id) : maxVersion
     if (currentVersion === undefined || row.section_version == null) continue
     if (row.section_version < currentVersion) continue // stale — drops out of the count (§4, §6.2)
+    if (!row.users || (row.users.role !== 'expert' && row.users.role !== 'organisation')) continue
 
-    if (row.type === 'endorsement') {
-      statusByUser.set(row.user_id, 'endorsement')
-    } else if (!statusByUser.has(row.user_id)) {
-      statusByUser.set(row.user_id, 'review')
-    }
+    const existing = byUser.get(row.user_id)
+    // Endorsement wins over review for the same user (matches the count
+    // logic above); newer contributedAt wins between two rows of the same
+    // resulting type.
+    const shouldReplace =
+      !existing ||
+      (row.type === 'endorsement' && existing.type !== 'endorsement') ||
+      (row.type === existing.type && row.updated_at > existing.contributedAt)
+    if (!shouldReplace) continue
+
+    byUser.set(row.user_id, {
+      userId: row.user_id,
+      displayName: row.users.display_name,
+      avatarUrl: row.users.avatar_url,
+      role: row.users.role,
+      jobTitle: row.users.job_title,
+      affiliation: row.users.affiliation,
+      contributedAt: row.updated_at,
+      type: row.type as 'review' | 'endorsement',
+    })
   }
 
-  const counted = [...statusByUser.entries()]
-  const reviewedCount = counted.filter(([, t]) => t === 'review').length
-  const endorsedCount = counted.filter(([, t]) => t === 'endorsement').length
+  const all = [...byUser.values()].sort((a, b) => (a.contributedAt < b.contributedAt ? 1 : -1))
+  const reviewers = all.filter((r) => r.type === 'review')
+  const endorsers = all.filter((r) => r.type === 'endorsement')
 
   let orgCount = 0
-  const userIds = counted.map(([id]) => id)
+  const userIds = all.map((r) => r.userId)
   if (userIds.length > 0) {
     const { data: affiliations } = await db
       .from('user_affiliations')
@@ -161,5 +221,8 @@ export async function getEndorsementBarCounts(
     orgCount = new Set((affiliations ?? []).map((a) => a.organisation_id)).size
   }
 
-  return { reviewedCount, endorsedCount, orgCount }
+  return {
+    counts: { reviewedCount: reviewers.length, endorsedCount: endorsers.length, orgCount },
+    detail: { reviewers, endorsers },
+  }
 }
