@@ -23,6 +23,7 @@ export interface Brief {
   topic_tag: string | null
   pinned_media_post_id: string | null
   last_reviewed_at: string | null
+  tldr_teaser: string | null
   visibility: 'public' | 'members_only'
   created_at: string
   updated_at: string
@@ -180,6 +181,7 @@ export async function saveBrief(
     title: string
     subtitle: string
     topicTag: string
+    tldrTeaser: string
     pinnedMediaPostId: string | null
     visibility: 'public' | 'members_only'
     sections: Array<{
@@ -204,6 +206,7 @@ export async function saveBrief(
     title: data.title,
     subtitle: data.subtitle.trim() || null,
     topic_tags: topicTagTrimmed ? [topicTagTrimmed] : [],
+    tldr_teaser: data.tldrTeaser.trim() || null,
     pinned_media_post_id: data.pinnedMediaPostId,
     visibility: data.visibility,
   }

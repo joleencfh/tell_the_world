@@ -23,6 +23,7 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
   const [title, setTitle]           = useState(brief.title)
   const [subtitle, setSubtitle]     = useState(brief.subtitle ?? '')
   const [topicTag, setTopicTag]     = useState(brief.topic_tag ?? '')
+  const [tldrTeaser, setTldrTeaser] = useState(brief.tldr_teaser ?? '')
   const [pinnedMediaPostId, setPinnedMediaPostId] = useState(brief.pinned_media_post_id ?? '')
   const [visibility, setVisibility] = useState<Brief['visibility']>(brief.visibility)
   const [sections, setSections]     = useState<EditableSection[]>(
@@ -103,6 +104,7 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
       title,
       subtitle,
       topicTag,
+      tldrTeaser,
       pinnedMediaPostId: pinnedMediaPostId || null,
       visibility,
       sections: sections.map(s => ({
@@ -218,6 +220,25 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
               className="w-full border border-line bg-paper-raised px-4 py-3 font-body text-sm text-ink focus:outline-none focus:border-ink"
               placeholder="One sentence, allowed a point of view"
             />
+          </div>
+
+          {/* TL;DR teaser — the one-liner shown under the TL;DR section
+              header on the public page, in place of the generic default
+              (Part 3 step 1). */}
+          <div className="space-y-1.5">
+            <label className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">
+              TL;DR teaser
+            </label>
+            <input
+              type="text"
+              value={tldrTeaser}
+              onChange={e => setTldrTeaser(e.target.value)}
+              className="w-full border border-line bg-paper-raised px-4 py-3 font-body text-sm text-ink focus:outline-none focus:border-ink"
+              placeholder="e.g. Three races, conflated constantly — the skim version"
+            />
+            <p className="font-body text-xs text-ink-soft/70">
+              Shown under the TL;DR heading on the public page. Leave blank to fall back to a generic default.
+            </p>
           </div>
 
           {/* Topic tag + pinned media (drive the auto Quotes/Media sections) */}

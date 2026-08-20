@@ -23,6 +23,7 @@ import { FAQSection } from './faq'
 import { CtaCarousel, SuggestCtaModal } from './ctas'
 import { CoverageCarousel, AddCoverageModal } from './coverage'
 import { RelatedBriefsCarousel } from './related-briefs'
+import { FeedbackModal } from './feedback'
 import { formatDate, computeReadTimeMinutes, getBriefNumber, getBriefCategory } from './helpers'
 import type {
   Brief,
@@ -92,6 +93,7 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
   const [proposeBriefOpen, setProposeBriefOpen] = useState(false)
   const [suggestCtaOpen, setSuggestCtaOpen] = useState(false)
   const [addCoverageOpen, setAddCoverageOpen] = useState(false)
+  const [tldrFeedbackOpen, setTldrFeedbackOpen] = useState(false)
   const sortedSections = [...brief.brief_sections].sort(
     (a, b) => a.display_order - b.display_order,
   )
@@ -238,7 +240,19 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
               <SectionHeader
                 num={SECTION_META.tldr.num}
                 label={SECTION_META.tldr.label}
-                description={SECTION_META.tldr.description}
+                description={brief.tldr_teaser || SECTION_META.tldr.description}
+                action={
+                  canContribute || currentUser?.role === 'admin' ? (
+                    <button
+                      type="button"
+                      onClick={() => setTldrFeedbackOpen(true)}
+                      style={{ touchAction: 'manipulation' }}
+                      className="border-[1.5px] border-blue bg-paper px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.06em] text-blue-ink outline-none transition-colors hover:bg-blue hover:text-white focus-visible:ring-2 focus-visible:ring-blue"
+                    >
+                      Suggest changes
+                    </button>
+                  ) : undefined
+                }
               />
               <TLDRList content={tldr} />
             </div>
@@ -517,6 +531,14 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
             briefSlug={brief.slug}
             briefTitle={brief.title}
             onClose={() => setAddCoverageOpen(false)}
+          />
+        )}
+
+        {/* ── TL;DR "Suggest changes" feedback modal ───────────────────── */}
+        {tldrFeedbackOpen && currentUser && (
+          <FeedbackModal
+            context={{ briefId: brief.id, briefTitle: brief.title, section: 'tldr', sectionLabel: 'TL;DR' }}
+            onClose={() => setTldrFeedbackOpen(false)}
           />
         )}
 
