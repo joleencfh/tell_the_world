@@ -4,11 +4,12 @@ import type { BriefVisibility, BriefSectionType, UserRole } from '@/lib/types'
 import { getBriefWithSectionsBySlug, getRelatedBriefs, type RelatedBrief } from '@/lib/data/briefs'
 import { getQuotesByTopicTag, getMediaSection, type MediaPost } from '@/lib/data/posts'
 import {
-  getEndorsementBarCounts,
+  getEndorsementBar,
   getMyContributionStatus,
   getMyContributionStatuses,
   getSectionContributionCounts,
   type EndorsementBarCounts,
+  type EndorsementBarDetail,
   type ContributionStatus,
 } from '@/lib/data/contributions'
 import { getApprovedQuestions, type Question, type QuestionAuthor, type VoteSplit } from '@/lib/data/questions'
@@ -29,6 +30,7 @@ export type {
   UserRole,
   MediaPost,
   EndorsementBarCounts,
+  EndorsementBarDetail,
   ContributionStatus,
   FaqAnswer,
   Cta,
@@ -135,7 +137,7 @@ export default async function BriefPage({
   const [quotes, media, endorsementBar, myReviewStatus, sectionCounts, myExplainerStatuses, faqAnswersMap, ctas, coverage, relatedBriefs] = await Promise.all([
     getQuotesByTopicTag(supabase, brief.topic_tags, 4),
     getMediaSection(supabase, brief.topic_tag, brief.pinned_media_post_id, 6),
-    getEndorsementBarCounts(supabase, brief.id, brief.brief_sections),
+    getEndorsementBar(supabase, brief.id, brief.brief_sections),
     user
       ? getMyContributionStatus(supabase, brief.id, null, user.id)
       : Promise.resolve<ContributionStatus>('none'),
@@ -186,7 +188,8 @@ export default async function BriefPage({
       brief={brief}
       quotes={quotes}
       media={media}
-      endorsementBar={endorsementBar}
+      endorsementBar={endorsementBar.counts}
+      endorsementDetail={endorsementBar.detail}
       questions={questions}
       answersByQuestion={answersByQuestion}
       currentUser={currentUser}

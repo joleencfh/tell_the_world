@@ -12,7 +12,8 @@ import {
   SectionHeader,
   LockedPlaceholder,
   QuotesCarousel,
-  HeaderChip,
+  HeroChipBar,
+  ReviewersModal,
   TLDRList,
   ContributeMenu,
 } from './section-content'
@@ -24,7 +25,7 @@ import { CtaCarousel, SuggestCtaModal } from './ctas'
 import { CoverageCarousel, AddCoverageModal } from './coverage'
 import { RelatedBriefsCarousel } from './related-briefs'
 import { FeedbackModal } from './feedback'
-import { formatDate, computeReadTimeMinutes, getBriefNumber, getBriefCategory } from './helpers'
+import { computeReadTimeMinutes, getBriefNumber, getBriefCategory } from './helpers'
 import type {
   Brief,
   CurrentUser,
@@ -33,6 +34,7 @@ import type {
   Quote,
   MediaPost,
   EndorsementBarCounts,
+  EndorsementBarDetail,
   ContributionStatus,
   ExplainerContributionInfo,
   FaqAnswer,
@@ -50,6 +52,7 @@ interface BriefViewProps {
   quotes: Quote[]
   media: MediaPost[]
   endorsementBar: EndorsementBarCounts
+  endorsementDetail: EndorsementBarDetail
   questions: Question[]
   answersByQuestion: Record<string, QuestionAnswer[]>
   currentUser: CurrentUser | null
@@ -65,7 +68,7 @@ interface BriefViewProps {
 // dropping Media from the page was a deliberate call, but the data query
 // itself is out of scope for this change) but isn't destructured here since
 // nothing renders it anymore.
-export default function BriefView({ brief, quotes, endorsementBar, questions, answersByQuestion, currentUser, myReviewStatus, explainerContributions, faqAnswersByQuestion, ctas, coverage, relatedBriefs }: BriefViewProps) {
+export default function BriefView({ brief, quotes, endorsementBar, endorsementDetail, questions, answersByQuestion, currentUser, myReviewStatus, explainerContributions, faqAnswersByQuestion, ctas, coverage, relatedBriefs }: BriefViewProps) {
   const isLoggedIn = !!currentUser
   const showSections = isLoggedIn || brief.visibility === 'public'
   const canContribute = currentUser?.role === 'expert' || currentUser?.role === 'organisation'
@@ -94,12 +97,16 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
   const [suggestCtaOpen, setSuggestCtaOpen] = useState(false)
   const [addCoverageOpen, setAddCoverageOpen] = useState(false)
   const [tldrFeedbackOpen, setTldrFeedbackOpen] = useState(false)
+  const [reviewersModalOpen, setReviewersModalOpen] = useState(false)
   const sortedSections = [...brief.brief_sections].sort(
     (a, b) => a.display_order - b.display_order,
   )
   const tldr = sortedSections.find((s) => s.section_type === 'tldr')?.content ?? ''
   const readTimeMinutes = computeReadTimeMinutes(sortedSections)
-  const { reviewedCount, endorsedCount, orgCount } = endorsementBar
+  // orgCount (distinct affiliated orgs among reviewers) is still computed by
+  // getEndorsementBar but not currently rendered anywhere — the combined
+  // "Reviewed (N)" button dropped the expert/org breakdown (2026-08-20).
+  const { reviewedCount, endorsedCount } = endorsementBar
   // going_deeper's own top-level section is retired — its Sources rendering
   // now folds into Explainer as its final subsection (two-ink-bold-plan.md
   // §3 Part 3 step 5).
@@ -132,14 +139,14 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
       <main>
 
         {/* ── Hero — neutral ink, no blue/pink tint (§1.1) ─────────────── */}
-        <div className="grid-texture relative overflow-hidden border-b border-line px-6 pt-16 pb-20">
+        <div className="grid-texture relative overflow-hidden border-b border-line px-6 pt-12 pb-14">
           {/* Bottom fade to next section */}
           <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent to-paper pointer-events-none" />
 
           <div className="mx-auto max-w-4xl relative">
             {/* Numbered eyebrow — 01, so the SectionHeader sequence starting
                 at 02 (TL;DR, just below) doesn't appear to skip 01 (§1.3). */}
-            <div className="flex items-center gap-4 mb-8 anim-rise" style={{ animationDelay: '0ms' }}>
+            <div className="flex items-center gap-4 mb-[0.9rem] anim-rise" style={{ animationDelay: '0ms' }}>
               <span className="font-mono text-sm tracking-[0.2em] text-ink font-bold tabular-nums">01</span>
               <div className="h-px flex-1 bg-line" />
               <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-ink-faint">
@@ -156,7 +163,7 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
                 <h1
                   className="font-display uppercase font-extrabold text-ink anim-rise"
                   style={{
-                    fontSize: 'clamp(3.1rem, 7.8vw, 6.6rem)',
+                    fontSize: 'clamp(2.48rem, 6.24vw, 5.28rem)',
                     lineHeight: '0.96',
                     letterSpacing: '-0.035em',
                     animationDelay: '80ms',
@@ -183,41 +190,18 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
               )}
             </div>
 
-            {/* Header chip bar — endorsement bar, last reviewed, read time.
-                aria-live: chips appear/change count in place with no
-                navigation when the review/endorse control below is used. */}
-            <div
-              className="flex flex-wrap items-center gap-2 mt-6 anim-rise"
-              style={{ animationDelay: '160ms' }}
-              aria-live="polite"
-            >
-              {reviewedCount > 0 && (
-                <HeaderChip tone="blue">
-                  ✓ Reviewed by {reviewedCount} expert{reviewedCount === 1 ? '' : 's'}
-                  {orgCount > 0 && ` · ${orgCount} org${orgCount === 1 ? '' : 's'}`}
-                </HeaderChip>
-              )}
-              {endorsedCount > 0 && (
-                <HeaderChip tone="blue">
-                  ★ Endorsed by {endorsedCount}
-                </HeaderChip>
-              )}
-              {brief.last_reviewed_at && (
-                <HeaderChip>Last reviewed {formatDate(brief.last_reviewed_at)}</HeaderChip>
-              )}
-              <HeaderChip>{readTimeMinutes} min read</HeaderChip>
-            </div>
-
-            {/* Tag row — the brief's single topic tag, styled like the
-                reference artifact's multi-tag row (§ hero .tag-row). */}
-            {brief.topic_tag && (
-              <div
-                className="flex flex-wrap gap-1.5 mt-3 anim-rise"
-                style={{ animationDelay: '170ms' }}
-              >
-                <HeaderChip tone="tag">{brief.topic_tag}</HeaderChip>
-              </div>
-            )}
+            {/* Header chip bar + tag row — endorsement bar, last reviewed,
+                read time, topic tags (Part 0a). aria-live inside HeroChipBar:
+                chips appear/change count in place with no navigation when
+                the review/endorse control below is used. */}
+            <HeroChipBar
+              reviewedCount={reviewedCount}
+              endorsedCount={endorsedCount}
+              lastReviewedAt={brief.last_reviewed_at}
+              readTimeMinutes={readTimeMinutes}
+              topicTags={brief.topic_tags}
+              onOpenReviewers={() => setReviewersModalOpen(true)}
+            />
 
             {/* Brief-level review/endorse control — expert/organisation only */}
             {canContribute && (
@@ -539,6 +523,19 @@ export default function BriefView({ brief, quotes, endorsementBar, questions, an
           <FeedbackModal
             context={{ briefId: brief.id, briefTitle: brief.title, section: 'tldr', sectionLabel: 'TL;DR' }}
             onClose={() => setTldrFeedbackOpen(false)}
+          />
+        )}
+
+        {/* ── Reviewed/endorsed-by modal — rendered here, not inside the
+            hero, so it isn't trapped as a containing block by anim-rise's
+            resolved transform (see ReviewersModal's own comment). No
+            currentUser gate: viewing who reviewed a brief is informational,
+            not a submission, so it's available logged out too. ───────── */}
+        {reviewersModalOpen && (
+          <ReviewersModal
+            reviewers={endorsementDetail.reviewers}
+            endorsers={endorsementDetail.endorsers}
+            onClose={() => setReviewersModalOpen(false)}
           />
         )}
 
