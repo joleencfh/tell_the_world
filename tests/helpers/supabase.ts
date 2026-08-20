@@ -332,6 +332,82 @@ export async function deleteTestApplication(email: string): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
+// Brief + brief_sections helpers (brief-page-part2-plan.md Part 0b rich text
+// editor tests). Unlike the additive child-row helpers above (CTAs, FAQ
+// answers, questions — independent tables that coexist fine with other specs
+// sharing test-public-brief), these tests edit a brief's own
+// brief_sections rows through the same admin editor UI other specs' pages
+// render, and need deterministic section count/order to locate a specific
+// subsection in the DOM — so they get a dedicated throwaway brief instead of
+// piggybacking on the shared fixtures.
+// ---------------------------------------------------------------------------
+
+/** Create a throwaway brief for a test file's own fixtures — delete it in afterAll (cascades brief_sections). */
+export async function createTestBrief(fields: {
+  title: string
+  slug: string
+  visibility: 'public' | 'members_only'
+}): Promise<TestBrief> {
+  const client = getTestAdminClient()
+  const { data, error } = await client
+    .from('briefs')
+    .insert({ title: fields.title, slug: fields.slug, visibility: fields.visibility })
+    .select('id, slug, title')
+    .single()
+
+  if (error || !data) {
+    throw new Error(`Failed to insert test brief: ${error?.message}`)
+  }
+
+  return data as TestBrief
+}
+
+/** Delete a brief created with createTestBrief — brief_sections cascade with it. */
+export async function deleteTestBrief(id: string): Promise<void> {
+  const client = getTestAdminClient()
+  const { error } = await client.from('briefs').delete().eq('id', id)
+
+  if (error) {
+    console.warn(`Failed to clean up test brief: ${error.message}`)
+  }
+}
+
+export interface TestBriefSection {
+  id: string
+  brief_id: string
+  section_type: string
+  title: string | null
+  content: string
+  rich_content: unknown
+  display_order: number
+}
+
+/** Seed a brief_sections row directly (bypasses the admin editor). */
+export async function insertBriefSection(
+  briefId: string,
+  fields: { section_type: string; content: string; display_order: number; title?: string | null },
+): Promise<TestBriefSection> {
+  const client = getTestAdminClient()
+  const { data, error } = await client
+    .from('brief_sections')
+    .insert({
+      brief_id: briefId,
+      section_type: fields.section_type,
+      content: fields.content,
+      display_order: fields.display_order,
+      title: fields.title ?? null,
+    })
+    .select('id, brief_id, section_type, title, content, rich_content, display_order')
+    .single()
+
+  if (error || !data) {
+    throw new Error(`Failed to insert brief_sections row: ${error?.message}`)
+  }
+
+  return data as TestBriefSection
+}
+
+// ---------------------------------------------------------------------------
 // Message helpers
 // ---------------------------------------------------------------------------
 

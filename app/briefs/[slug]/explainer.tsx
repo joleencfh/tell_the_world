@@ -2,6 +2,8 @@ import { Fragment } from 'react'
 import { HeaderChip } from './section-content'
 import { ReviewEndorseControl } from './review-endorse'
 import { parseSources, SourcesGrid } from './sources'
+import { parseRichContent } from '@/lib/richtext/types'
+import { renderRichText } from '@/lib/richtext/render'
 import type { ExplainerContributionInfo } from './page'
 
 // ---------------------------------------------------------------------------
@@ -57,7 +59,32 @@ function Keyterm({ term, definition, id }: { term: string; definition: string; i
   )
 }
 
-function ExplainerBody({ sectionId, content }: { sectionId: string; content: string }) {
+// Paragraph className matches the legacy path's first-paragraph emphasis
+// (larger/medium for the lead paragraph, smaller/soft for the rest) so a
+// subsection reads the same whether it's rich-text or legacy plain-text.
+function explainerParagraphClassName(index: number): string {
+  return `font-body leading-[1.7] ${
+    index === 0 ? 'text-[1.05rem] font-medium text-ink' : 'text-[0.95rem] text-ink-soft'
+  }`
+}
+
+function ExplainerBody({
+  sectionId,
+  content,
+  richContent,
+}: {
+  sectionId: string
+  content: string
+  richContent: unknown
+}) {
+  const doc = parseRichContent(richContent)
+  if (doc) {
+    return <div className="max-w-2xl space-y-5">{renderRichText(doc, { paragraphClassName: explainerParagraphClassName })}</div>
+  }
+
+  // Legacy plain-text path — {{term|definition}} keyterm syntax, not
+  // authored via the rich text editor yet (docs/design/brief-feature/
+  // brief-page-part2-plan.md §2, Part 0b: the two shapes coexist).
   const paragraphs = content.split(/\n\n+/).filter(Boolean)
 
   return (
@@ -65,12 +92,7 @@ function ExplainerBody({ sectionId, content }: { sectionId: string; content: str
       {paragraphs.map((paragraph, i) => {
         const tokens = tokenizeKeyterms(paragraph.trim())
         return (
-          <p
-            key={i}
-            className={`font-body leading-[1.7] ${
-              i === 0 ? 'text-[1.05rem] font-medium text-ink' : 'text-[0.95rem] text-ink-soft'
-            }`}
-          >
+          <p key={i} className={explainerParagraphClassName(i)}>
             {tokens.map((token, j) =>
               token.type === 'text' ? (
                 <Fragment key={j}>{token.text}</Fragment>
@@ -100,6 +122,7 @@ interface ExplainerSectionRow {
   id: string
   title: string | null
   content: string
+  rich_content: unknown
 }
 
 function ExplainerSubsection({
@@ -140,7 +163,7 @@ function ExplainerSubsection({
           )}
         </div>
       )}
-      <ExplainerBody sectionId={section.id} content={section.content} />
+      <ExplainerBody sectionId={section.id} content={section.content} richContent={section.rich_content} />
     </div>
   )
 }
