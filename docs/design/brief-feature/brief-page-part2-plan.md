@@ -558,7 +558,7 @@ records a content_usage row, like button toggles correctly.
 sources items are independent of rich text) — but do Part 0b first
 anyway if both are queued, since Explainer is the one section touched by
 both parts and doing them out of order risks merge conflicts on the same
-files.
+files. **Depends on: Part 0c** for step 6 only.
 
 1. **Typography pass** for long-form readability. Body text currently
    0.95–1.05rem at 1.7 line-height — not egregious, but small for
@@ -587,6 +587,27 @@ files.
    `SourceItem` has no publisher field today — add one to the
    `parseSources` authoring convention and the admin editor's helper
    text, make it mandatory when a source is added.
+6. **Explainer feedback buttons (×2)** — was listed as one of Part 0c's
+   dependents but never actually specified; filling that gap now rather
+   than leaving it for whoever builds this part to rediscover. Mirrors
+   the two-tier pattern this plan already uses elsewhere (Part 3's
+   TL;DR = restricted "suggest changes," Part 6's FAQ = open "give
+   feedback") rather than inventing a third shape:
+   - **"Suggest changes"** — visible org/expert/admin only, same
+     SectionHeader action-slot placement as TL;DR's (Part 3 step 2),
+     wired to Part 0c's shared mechanism with `{ briefId, section:
+     'explainer' }` context. Section-level, not per-subsection — a
+     reviewer flagging something wrong in the Explainer shouldn't have
+     to pick which subsection first.
+   - **"Give feedback"** — visible to all logged-in users, no role
+     restriction (mirrors FAQ's open trigger). A small text-link-style
+     control placed once, after the last subsection in
+     `ExplainerSections` — not per-subsection, since a brief's
+     subsection count varies and a fixed single trigger avoids an
+     unpredictable number of buttons. Wired to the same shared
+     mechanism, same `{ briefId, section: 'explainer' }` context as the
+     restricted button above (role of the submitter is what
+     differentiates the two, not the section key).
 
 #### Prompt for next session — Part 5
 
@@ -622,11 +643,23 @@ Part 5) — app/briefs/[slug]/explainer.tsx and sources.tsx.
    to document the new required line and make its absence a validation
    error, not a silent gap. Render the publisher name on both SourceCard
    and SourceDrawer.
+6. Confirm Part 0c has landed, then add two feedback triggers, both
+   wired to Part 0c's shared mechanism with { briefId, section:
+   'explainer' } context: a "Suggest changes" button in the Explainer
+   SectionHeader's action slot, visible only when currentUser?.role is
+   'expert'/'organisation'/'admin' (copy Part 3 step 2's TL;DR button
+   verbatim, same slot pattern, just a different section key) — and a
+   "Give feedback" text-link-style control rendered once at the end of
+   ExplainerSections (after the last subsection), visible to any
+   logged-in user with no role check at all.
 
 Verify: bunx tsc --noEmit && bun run lint clean, browser-check: a brief
 with 8+ sources shows exactly 6 + a working "show more," a newly-authored
 source without a publisher line is rejected by the admin editor, the
-timeline renders correctly on a seeded brief with 3+ events.
+timeline renders correctly on a seeded brief with 3+ events, "Suggest
+changes" only appears for expert/org/admin sessions while "Give
+feedback" appears for every logged-in role including admin, and both
+submit successfully.
 ```
 
 ---
