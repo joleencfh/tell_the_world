@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { createBrief } from '@/lib/admin/brief-actions'
-import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingCta, PendingCoverage } from '@/lib/admin/actions'
+import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingCta, PendingCoverage, PendingBriefFeedback } from '@/lib/admin/actions'
 import { ADMIN_PAGE_SIZE } from '@/lib/data/admin'
 import Pagination from '@/components/ui/Pagination'
 import Logo from '@/components/ui/Logo'
@@ -11,12 +11,13 @@ import { ApplicationCard, QuestionCard, CorrectionProposalCard, BriefProposalCar
 import { FaqAnswerCard } from './faq-answer-card'
 import { CtaCard } from './cta-card'
 import { CoverageCard } from './coverage-card'
+import { FeedbackCard } from './feedback-card'
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-type Tab = 'pending' | 'questions' | 'correctionProposals' | 'faqAnswers' | 'ctas' | 'coverage' | 'proposals' | 'approved'
+type Tab = 'pending' | 'questions' | 'correctionProposals' | 'faqAnswers' | 'ctas' | 'coverage' | 'feedback' | 'proposals' | 'approved'
 
 interface Props {
   adminEmail: string
@@ -41,6 +42,9 @@ interface Props {
   pendingCoverage: PendingCoverage[]
   pendingCoverageCount: number
   coveragePage: number
+  pendingBriefFeedback: PendingBriefFeedback[]
+  pendingBriefFeedbackCount: number
+  feedbackPage: number
   briefProposals: BriefProposal[]
   briefProposalsCount: number
   proposalsPage: number
@@ -73,6 +77,9 @@ export default function AdminScreen({
   pendingCoverage,
   pendingCoverageCount,
   coveragePage,
+  pendingBriefFeedback,
+  pendingBriefFeedbackCount,
+  feedbackPage,
   briefProposals,
   briefProposalsCount,
   proposalsPage,
@@ -168,6 +175,14 @@ export default function AdminScreen({
               {pendingCoverageCount > 0 && (
                 <span className="ml-2 font-mono text-[9px] bg-blue text-white px-1.5 py-0.5">
                   {pendingCoverageCount}
+                </span>
+              )}
+            </TabButton>
+            <TabButton active={tab === 'feedback'} onClick={() => setTab('feedback')}>
+              Feedback
+              {pendingBriefFeedbackCount > 0 && (
+                <span className="ml-2 font-mono text-[9px] bg-blue text-white px-1.5 py-0.5">
+                  {pendingBriefFeedbackCount}
                 </span>
               )}
             </TabButton>
@@ -318,6 +333,29 @@ export default function AdminScreen({
                 pageSize={ADMIN_PAGE_SIZE}
                 total={pendingCoverageCount}
                 buildHref={(p) => buildPageHref('coveragePage', p)}
+              />
+            </>
+          )}
+
+          {/* Brief feedback tab */}
+          {tab === 'feedback' && (
+            <>
+              {pendingBriefFeedback.length === 0 ? (
+                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
+                  No new feedback.
+                </p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {pendingBriefFeedback.map(f => (
+                    <FeedbackCard key={f.id} feedback={f} />
+                  ))}
+                </div>
+              )}
+              <Pagination
+                page={feedbackPage}
+                pageSize={ADMIN_PAGE_SIZE}
+                total={pendingBriefFeedbackCount}
+                buildHref={(p) => buildPageHref('feedbackPage', p)}
               />
             </>
           )}
