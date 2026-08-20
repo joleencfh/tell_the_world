@@ -396,6 +396,43 @@ export async function getVoters(
   return { voters: (data ?? []).map((row) => (row as unknown as { users: Voter }).users).filter(Boolean) }
 }
 
+// Part 0c: shared "send feedback to moderators" mechanism, reused by five
+// later parts (Contribute menu, TL;DR, Explainer ×2, FAQ) rather than
+// built five times. Unlike submitCorrectionProposal/submitFaqAnswer/
+// submitCta above, this isn't gated to expert/organisation — any signed-in
+// member can submit — but login is required (confirmed with the user;
+// brief_feedback's insert RLS policy, migration 034, is authenticated-
+// only). `section` is a loose, caller-defined key (e.g. 'tldr',
+// 'faq:<question>', 'explainer:<section id>', or omitted for brief-level
+// feedback) — this action doesn't validate its shape.
+export async function submitBriefFeedback(
+  briefId: string,
+  section: string | null,
+  body: string,
+): Promise<{ error?: string; success?: boolean }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return { error: 'You must be logged in to send feedback.' }
+
+  const trimmed = body.trim()
+  if (!trimmed) return { error: 'Feedback cannot be empty.' }
+  if (trimmed.length > 2000) return { error: 'Feedback must be under 2000 characters.' }
+
+  const { error } = await supabase.from('brief_feedback').insert({
+    brief_id: briefId,
+    section,
+    user_id: user.id,
+    body: trimmed,
+  })
+
+  if (error) return { error: 'Failed to submit feedback. Please try again.' }
+
+  return { success: true }
+}
+
 export async function proposeBrief(
   topicTitle: string,
   whyItMatters: string,

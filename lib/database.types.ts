@@ -409,6 +409,51 @@ export type Database = {
           },
         ]
       }
+      brief_feedback: {
+        Row: {
+          body: string
+          brief_id: string
+          created_at: string
+          id: string
+          section: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          brief_id: string
+          created_at?: string
+          id?: string
+          section?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          brief_id?: string
+          created_at?: string
+          id?: string
+          section?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brief_feedback_brief_id_fkey"
+            columns: ["brief_id"]
+            isOneToOne: false
+            referencedRelation: "briefs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brief_feedback_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       brief_proposals: {
         Row: {
           created_at: string

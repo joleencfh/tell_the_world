@@ -442,6 +442,45 @@ export async function dismissCoverage(coverageId: string): Promise<{ success?: b
 }
 
 // ---------------------------------------------------------------------------
+// Brief feedback moderation (brief-page-part2-plan.md §2, Part 0c) — the
+// shared "send feedback to moderators" mechanism's admin queue. Unlike the
+// other moderation tables above, there's no approve/publish step here
+// (nothing submitted through this channel is ever displayed publicly) —
+// just new → reviewed. Submission requires login (migration 034), so
+// users is always present, unlike content_usage's nullable user_id.
+// ---------------------------------------------------------------------------
+
+export interface PendingBriefFeedback {
+  id: string
+  body: string
+  section: string | null
+  status: 'new' | 'reviewed'
+  created_at: string
+  brief_id: string
+  briefs: { title: string; slug: string }
+  users: { id: string; display_name: string | null; email: string; role: string }
+}
+
+export async function getPendingBriefFeedback(page = 1): Promise<PagedResult<PendingBriefFeedback>> {
+  await requireAdmin()
+  return adminData.getPendingBriefFeedback(getAdminClient(), page)
+}
+
+export async function markBriefFeedbackReviewed(feedbackId: string): Promise<{ success?: boolean; error?: string }> {
+  await requireAdmin()
+
+  const { error } = await getAdminClient()
+    .from('brief_feedback')
+    .update({ status: 'reviewed' })
+    .eq('id', feedbackId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/admin')
+  return { success: true }
+}
+
+// ---------------------------------------------------------------------------
 // Brief proposals
 // ---------------------------------------------------------------------------
 
