@@ -23,6 +23,13 @@ export interface BriefSection {
   display_order: number
 }
 
+export interface BriefTimelineEvent {
+  id: string
+  event_name: string
+  event_date: string
+  display_order: number
+}
+
 export interface BriefWithSections {
   id: string
   title: string
@@ -40,6 +47,10 @@ export interface BriefWithSections {
   tldr_teaser: string | null
   visibility: BriefVisibility
   brief_sections: BriefSection[]
+  // Part 5 step 2 — rendered as TimelineGraphic after the Explainer's first
+  // subsection. Empty on most briefs; only populated where an admin has
+  // authored one.
+  brief_timeline_events: BriefTimelineEvent[]
 }
 
 export interface BriefListItem {
@@ -81,7 +92,7 @@ export async function getBriefWithSectionsBySlug(
   const { data, error } = await db
     .from('briefs')
     .select(
-      'id, title, slug, subtitle, topic_tags, pinned_media_post_id, last_reviewed_at, tldr_teaser, visibility, brief_sections(id, section_type, title, content, rich_content, content_version, display_order)',
+      'id, title, slug, subtitle, topic_tags, pinned_media_post_id, last_reviewed_at, tldr_teaser, visibility, brief_sections(id, section_type, title, content, rich_content, content_version, display_order), brief_timeline_events(id, event_name, event_date, display_order)',
     )
     .eq('slug', slug)
     .single()

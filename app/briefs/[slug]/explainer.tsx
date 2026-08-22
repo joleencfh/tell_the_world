@@ -2,9 +2,10 @@ import { Fragment } from 'react'
 import { HeaderChip } from './section-content'
 import { ReviewEndorseControl } from './review-endorse'
 import { parseSources, SourcesGrid } from './sources'
+import { TimelineGraphic } from './timeline'
 import { parseRichContent } from '@/lib/richtext/types'
 import { renderRichText } from '@/lib/richtext/render'
-import type { ExplainerContributionInfo } from './page'
+import type { ExplainerContributionInfo, BriefTimelineEvent } from './page'
 
 // ---------------------------------------------------------------------------
 // Keyterm tooltips — authoring convention: {{term|definition}} inline in an
@@ -60,11 +61,15 @@ function Keyterm({ term, definition, id }: { term: string; definition: string; i
 }
 
 // Paragraph className matches the legacy path's first-paragraph emphasis
-// (larger/medium for the lead paragraph, smaller/soft for the rest) so a
+// (medium weight for the lead paragraph, soft color for the rest) so a
 // subsection reads the same whether it's rich-text or legacy plain-text.
+// Both sizes sit at 1.125rem (Part 5 step 1, "Option B" — signed off
+// 2026-08-22): weight alone carries the lead/rest hierarchy at this size,
+// so the two no longer need different font sizes the way the smaller
+// 1.05rem/0.95rem baseline did.
 function explainerParagraphClassName(index: number): string {
-  return `font-body leading-[1.7] ${
-    index === 0 ? 'text-[1.05rem] font-medium text-ink' : 'text-[0.95rem] text-ink-soft'
+  return `font-body text-[1.125rem] leading-[1.7] ${
+    index === 0 ? 'font-medium text-ink' : 'text-ink-soft'
   }`
 }
 
@@ -79,7 +84,7 @@ function ExplainerBody({
 }) {
   const doc = parseRichContent(richContent)
   if (doc) {
-    return <div className="max-w-2xl space-y-5">{renderRichText(doc, { paragraphClassName: explainerParagraphClassName })}</div>
+    return <div className="max-w-2xl space-y-6">{renderRichText(doc, { paragraphClassName: explainerParagraphClassName })}</div>
   }
 
   // Legacy plain-text path — {{term|definition}} keyterm syntax, not
@@ -88,7 +93,7 @@ function ExplainerBody({
   const paragraphs = content.split(/\n\n+/).filter(Boolean)
 
   return (
-    <div className="max-w-2xl space-y-5">
+    <div className="max-w-2xl space-y-6">
       {paragraphs.map((paragraph, i) => {
         const tokens = tokenizeKeyterms(paragraph.trim())
         return (
@@ -178,17 +183,28 @@ function ExplainerSubsection({
 export function ExplainerSections({
   sections,
   sourceSections,
+  timelineEvents,
   briefId,
   briefSlug,
   canContribute,
   contributions,
+  showGiveFeedback,
+  onGiveFeedback,
 }: {
   sections: ExplainerSectionRow[]
   sourceSections: { id: string; content: string }[]
+  timelineEvents: BriefTimelineEvent[]
   briefId: string
   briefSlug: string
   canContribute: boolean
   contributions: ExplainerContributionInfo[]
+  // Part 5 step 6 — "Give feedback" is open to any logged-in user (no role
+  // check, admin included by construction), unlike the SectionHeader's
+  // "Suggest changes" button (BriefView.tsx, org/expert/admin only). Both
+  // trigger the same feedback modal/context; only who can see the trigger
+  // differs.
+  showGiveFeedback: boolean
+  onGiveFeedback: () => void
 }) {
   const contributionBySection = new Map(contributions.map((c) => [c.sectionId, c]))
   const sourceGroups = sourceSections
@@ -197,15 +213,20 @@ export function ExplainerSections({
 
   return (
     <div className="space-y-10">
-      {sections.map((section) => (
-        <ExplainerSubsection
-          key={section.id}
-          section={section}
-          briefId={briefId}
-          briefSlug={briefSlug}
-          canContribute={canContribute}
-          contribution={contributionBySection.get(section.id)}
-        />
+      {sections.map((section, i) => (
+        <Fragment key={section.id}>
+          <ExplainerSubsection
+            section={section}
+            briefId={briefId}
+            briefSlug={briefSlug}
+            canContribute={canContribute}
+            contribution={contributionBySection.get(section.id)}
+          />
+          {/* Timeline graphic (Part 5 step 2) — after the first subsection,
+              signed off with the user 2026-08-22, rather than at the end or
+              admin-configurable. */}
+          {i === 0 && <TimelineGraphic events={timelineEvents} />}
+        </Fragment>
       ))}
       {sourceGroups.length > 0 && (
         <div className="space-y-6 border-t border-line pt-10">
@@ -214,6 +235,15 @@ export function ExplainerSections({
             <SourcesGrid key={group.id} items={group.items} />
           ))}
         </div>
+      )}
+      {showGiveFeedback && (
+        <button
+          type="button"
+          onClick={onGiveFeedback}
+          className="font-mono text-[10px] tracking-[0.15em] uppercase text-ink-soft hover:text-ink transition-colors inline-flex items-center gap-2"
+        >
+          <span aria-hidden>→</span> Give feedback on this section
+        </button>
       )}
     </div>
   )
