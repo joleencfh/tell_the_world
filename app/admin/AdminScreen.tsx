@@ -3,13 +3,14 @@
 import { useState } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { createBrief } from '@/lib/admin/brief-actions'
-import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingCta, PendingCoverage, PendingBriefFeedback } from '@/lib/admin/actions'
+import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingCta, PendingCoverage, PendingBriefFeedback, PendingQuote } from '@/lib/admin/actions'
 import { ADMIN_PAGE_SIZE } from '@/lib/data/admin'
 import Pagination from '@/components/ui/Pagination'
 import Logo from '@/components/ui/Logo'
 import { ApplicationCard, QuestionCard, CorrectionProposalCard, BriefProposalCard, ApprovedRow } from './cards'
 import { FaqAnswerCard } from './faq-answer-card'
 import { CtaCard } from './cta-card'
+import { QuoteCard } from './quote-card'
 import { CoverageCard } from './coverage-card'
 import { FeedbackCard } from './feedback-card'
 
@@ -17,7 +18,7 @@ import { FeedbackCard } from './feedback-card'
 // Types
 // ---------------------------------------------------------------------------
 
-type Tab = 'pending' | 'questions' | 'correctionProposals' | 'faqAnswers' | 'ctas' | 'coverage' | 'feedback' | 'proposals' | 'approved'
+type Tab = 'pending' | 'questions' | 'correctionProposals' | 'faqAnswers' | 'ctas' | 'quotes' | 'coverage' | 'feedback' | 'proposals' | 'approved'
 
 interface Props {
   adminEmail: string
@@ -39,6 +40,9 @@ interface Props {
   pendingCtas: PendingCta[]
   pendingCtasCount: number
   ctasPage: number
+  pendingQuotes: PendingQuote[]
+  pendingQuotesCount: number
+  quotesPage: number
   pendingCoverage: PendingCoverage[]
   pendingCoverageCount: number
   coveragePage: number
@@ -74,6 +78,9 @@ export default function AdminScreen({
   pendingCtas,
   pendingCtasCount,
   ctasPage,
+  pendingQuotes,
+  pendingQuotesCount,
+  quotesPage,
   pendingCoverage,
   pendingCoverageCount,
   coveragePage,
@@ -167,6 +174,14 @@ export default function AdminScreen({
               {pendingCtasCount > 0 && (
                 <span className="ml-2 font-mono text-[9px] bg-blue text-white px-1.5 py-0.5">
                   {pendingCtasCount}
+                </span>
+              )}
+            </TabButton>
+            <TabButton active={tab === 'quotes'} onClick={() => setTab('quotes')}>
+              Quotes
+              {pendingQuotesCount > 0 && (
+                <span className="ml-2 font-mono text-[9px] bg-blue text-white px-1.5 py-0.5">
+                  {pendingQuotesCount}
                 </span>
               )}
             </TabButton>
@@ -310,6 +325,29 @@ export default function AdminScreen({
                 pageSize={ADMIN_PAGE_SIZE}
                 total={pendingCtasCount}
                 buildHref={(p) => buildPageHref('ctasPage', p)}
+              />
+            </>
+          )}
+
+          {/* Pending quotes tab */}
+          {tab === 'quotes' && (
+            <>
+              {pendingQuotes.length === 0 ? (
+                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
+                  No pending quotes.
+                </p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {pendingQuotes.map(q => (
+                    <QuoteCard key={q.id} quote={q} />
+                  ))}
+                </div>
+              )}
+              <Pagination
+                page={quotesPage}
+                pageSize={ADMIN_PAGE_SIZE}
+                total={pendingQuotesCount}
+                buildHref={(p) => buildPageHref('quotesPage', p)}
               />
             </>
           )}

@@ -3,9 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import Avatar from '@/components/ui/Avatar'
-import { Carousel } from '@/components/ui/Carousel'
 import { getDisplayName, formatDate } from './helpers'
-import type { Quote } from './page'
 import type { UserRole } from '@/lib/types'
 import type { Reviewer } from '@/lib/data/contributions'
 
@@ -99,111 +97,6 @@ export function TLDRList({ content }: { content: string }) {
         </li>
       ))}
     </ul>
-  )
-}
-
-// ---------------------------------------------------------------------------
-// Quote card — matches the Two-Ink Bold reference artifact's .qcard: flat
-// (no radius/shadow), 1px line border + 3px blue top border, blue avatar
-// (square for organisation authors), no decorative watermark.
-// ---------------------------------------------------------------------------
-
-export function QuoteCard({ quote }: { quote: Quote }) {
-  const authorName = getDisplayName(quote.users)
-  const credential = quote.users.affiliation || quote.users.org_name
-  const isOrg = quote.users.role === 'organisation'
-
-  return (
-    <div className="w-[300px] shrink-0 snap-start pt-1 first:pl-1">
-      <div className="flex h-full flex-col gap-[0.9rem] border border-line border-t-[3px] border-t-blue bg-paper p-5 transition-all duration-150 motion-reduce:transition-none hover:-translate-x-0.5 hover:-translate-y-0.5 hover:border-blue hover:shadow-[4px_4px_0_0_var(--color-blue)]">
-        <span className="font-mono text-[0.62rem] tracking-[0.06em] text-ink-faint tabular-nums">
-          {formatDate(quote.created_at)}
-        </span>
-        <p className="flex-1 font-body text-base font-medium leading-[1.5] text-ink">
-          &ldquo;{quote.body || quote.title}&rdquo;
-        </p>
-        <div className="flex items-center gap-[0.65rem] border-t border-line pt-[0.85rem]">
-          <Avatar
-            name={authorName}
-            avatarUrl={quote.users.avatar_url}
-            palette="blue"
-            shape={isOrg ? 'square' : 'circle'}
-            size="sm"
-          />
-          <div className="min-w-0 flex-1">
-            <Link
-              href={`/profile/${quote.users.id}`}
-              className="block truncate font-display text-[0.85rem] font-extrabold text-ink hover:text-blue transition-colors"
-            >
-              {authorName}
-            </Link>
-            {credential && (
-              <p className="mt-0.5 truncate font-mono text-[0.62rem] text-ink-soft">{credential}</p>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ---------------------------------------------------------------------------
-// Quotes carousel — SectionHeader + role filter + shared Carousel, matching
-// the reference artifact's #quotes section (filter-select in the sec-head,
-// blue-toned section number, blue top rule on the section itself)
-// ---------------------------------------------------------------------------
-
-const QUOTE_FILTERS: { value: 'all' | 'expert' | 'organisation'; label: string }[] = [
-  { value: 'all', label: 'All' },
-  { value: 'expert', label: 'Experts only' },
-  { value: 'organisation', label: 'Orgs only' },
-]
-
-export function QuotesCarousel({ quotes }: { quotes: Quote[] }) {
-  const [filter, setFilter] = useState<'all' | 'expert' | 'organisation'>('all')
-  const filtered = filter === 'all' ? quotes : quotes.filter((q) => q.users.role === filter)
-
-  return (
-    <>
-      <SectionHeader
-        num="03"
-        label="Quotes"
-        description="Pulled from the platform & source documents on this topic"
-        numTone="blue"
-        action={
-          <>
-            <label htmlFor="quote-filter" className="sr-only">
-              Filter quotes
-            </label>
-            <select
-              id="quote-filter"
-              value={filter}
-              onChange={(e) => setFilter(e.target.value as typeof filter)}
-              className="border-[1.5px] border-line-strong bg-paper px-3 py-2 font-mono text-[0.68rem] uppercase tracking-[0.04em] text-ink"
-            >
-              {QUOTE_FILTERS.map((f) => (
-                <option key={f.value} value={f.value}>
-                  {f.label}
-                </option>
-              ))}
-            </select>
-          </>
-        }
-      />
-      {filtered.length > 0 ? (
-        <Carousel.Provider>
-          <Carousel.PrevButton />
-          <Carousel.NextButton />
-          <Carousel.Track fadeColor="var(--color-paper-sunken-blue)" ariaLabel="Expert quotes">
-            {filtered.map((q) => (
-              <QuoteCard key={q.id} quote={q} />
-            ))}
-          </Carousel.Track>
-        </Carousel.Provider>
-      ) : (
-        <p className="font-mono text-xs text-ink-faint">No quotes match this filter.</p>
-      )}
-    </>
   )
 }
 

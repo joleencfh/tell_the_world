@@ -11,12 +11,13 @@ import {
   SECTION_BG,
   SectionHeader,
   LockedPlaceholder,
-  QuotesCarousel,
   HeroChipBar,
   ReviewersModal,
   TLDRList,
   ContributeMenu,
 } from './section-content'
+import { QuotesCarousel } from './quotes'
+import { AddQuoteModal, QuoteDetailModal } from './quote-modals'
 import { QuestionsList, QuestionForm, ProposeCorrectionModal } from './qa'
 import { ReviewEndorseControl } from './review-endorse'
 import { ExplainerSections } from './explainer'
@@ -82,6 +83,11 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
   // server-side (CONTRIBUTOR_ROLES doesn't include it), so widening
   // canContribute itself would just show more buttons that error on click.
   const canSuggestCta = canContribute || currentUser?.role === 'admin'
+  // Quotes: "+ Add quote" visible to the same org/expert/admin group as
+  // "+ New CTA" above (submitQuote in lib/briefs/actions.ts accepts admin
+  // the same way, no service-role bypass needed — see that action's own
+  // comment).
+  const canAddQuote = canContribute || currentUser?.role === 'admin'
   // A voter's own role decides which color their Community Q&A vote lands
   // in (qa.tsx's VoteControl) — expert/org votes count blue, creator/
   // journalist votes count pink, anything else (just 'admin' today) counts
@@ -98,6 +104,8 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
   const [addCoverageOpen, setAddCoverageOpen] = useState(false)
   const [tldrFeedbackOpen, setTldrFeedbackOpen] = useState(false)
   const [reviewersModalOpen, setReviewersModalOpen] = useState(false)
+  const [addQuoteOpen, setAddQuoteOpen] = useState(false)
+  const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null)
   const sortedSections = [...brief.brief_sections].sort(
     (a, b) => a.display_order - b.display_order,
   )
@@ -247,10 +255,10 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
             (two-ink-bold-plan.md §2 row 2). Rendered as its own explicit
             block rather than threaded through the SECTION_ORDER loop below,
             same pattern as CTA/Covered By/Related Briefs further down. ─── */}
-        {showSections && quotes.length > 0 && (
+        {showSections && (quotes.length > 0 || canAddQuote) && (
           <div className="border-t-4 border-t-blue border-b border-b-line bg-paper-sunken-blue px-6 py-16">
             <div className="mx-auto max-w-4xl anim-rise" style={{ animationDelay: '0ms' }}>
-              <QuotesCarousel quotes={quotes} />
+              <QuotesCarousel quotes={quotes} briefSlug={brief.slug} isLoggedIn={isLoggedIn} canAddQuote={canAddQuote} onAddQuote={() => setAddQuoteOpen(true)} onOpenQuote={setSelectedQuote} />
             </div>
           </div>
         )}
@@ -524,6 +532,21 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
             context={{ briefId: brief.id, briefTitle: brief.title, section: 'tldr', sectionLabel: 'TL;DR' }}
             onClose={() => setTldrFeedbackOpen(false)}
           />
+        )}
+
+        {/* ── Add quote modal ──────────────────────────────────────────── */}
+        {addQuoteOpen && currentUser && (
+          <AddQuoteModal
+            briefId={brief.id} briefSlug={brief.slug} briefTitle={brief.title} defaultTags={brief.topic_tags} onClose={() => setAddQuoteOpen(false)}
+          />
+        )}
+
+        {/* ── Quote detail modal — rendered here, not inside the Quotes
+            band's anim-rise wrapper, same reasoning as ReviewersModal's own
+            comment below. No currentUser gate: viewing a quote's detail is
+            informational, available logged out too (like/copy just adapt). */}
+        {selectedQuote && (
+          <QuoteDetailModal quote={selectedQuote} briefSlug={brief.slug} isLoggedIn={isLoggedIn} onClose={() => setSelectedQuote(null)} />
         )}
 
         {/* ── Reviewed/endorsed-by modal — rendered here, not inside the

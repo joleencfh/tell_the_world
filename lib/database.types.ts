@@ -592,6 +592,42 @@ export type Database = {
           },
         ]
       }
+      content_post_likes: {
+        Row: {
+          content_post_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          content_post_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          content_post_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_post_likes_content_post_id_fkey"
+            columns: ["content_post_id"]
+            isOneToOne: false
+            referencedRelation: "content_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_post_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       content_posts: {
         Row: {
           body: string | null
@@ -599,6 +635,7 @@ export type Database = {
           created_at: string
           id: string
           post_type: Database["public"]["Enums"]["post_type"]
+          status: string
           title: string
           topic_tags: string[]
           updated_at: string
@@ -611,6 +648,7 @@ export type Database = {
           created_at?: string
           id?: string
           post_type: Database["public"]["Enums"]["post_type"]
+          status?: string
           title: string
           topic_tags?: string[]
           updated_at?: string
@@ -623,6 +661,7 @@ export type Database = {
           created_at?: string
           id?: string
           post_type?: Database["public"]["Enums"]["post_type"]
+          status?: string
           title?: string
           topic_tags?: string[]
           updated_at?: string

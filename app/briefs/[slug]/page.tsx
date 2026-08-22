@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import type { BriefVisibility, BriefSectionType, UserRole } from '@/lib/types'
 import { getBriefWithSectionsBySlug, getRelatedBriefs, type RelatedBrief } from '@/lib/data/briefs'
-import { getQuotesByTopicTag, getMediaSection, type MediaPost } from '@/lib/data/posts'
+import { getQuotesForBrief, getMediaSection, type MediaPost } from '@/lib/data/posts'
 import {
   getEndorsementBar,
   getMyContributionStatus,
@@ -95,7 +95,11 @@ export interface Quote {
   url: string | null
   user_id: string
   created_at: string
+  updated_at: string
+  topic_tags: string[]
   users: QuoteAuthor
+  likeCount: number
+  myLike: boolean
 }
 
 export interface CurrentUser {
@@ -135,7 +139,7 @@ export default async function BriefPage({
     .map((s) => s.id)
 
   const [quotes, media, endorsementBar, myReviewStatus, sectionCounts, myExplainerStatuses, faqAnswersMap, ctas, coverage, relatedBriefs] = await Promise.all([
-    getQuotesByTopicTag(supabase, brief.topic_tags, 4),
+    getQuotesForBrief(supabase, brief.id, brief.topic_tags, 4, user?.id ?? null),
     getMediaSection(supabase, brief.topic_tag, brief.pinned_media_post_id, 6),
     getEndorsementBar(supabase, brief.id, brief.brief_sections),
     user
