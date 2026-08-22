@@ -16,6 +16,7 @@ import { getApprovedQuestions, type Question, type QuestionAuthor, type VoteSpli
 import { getQuestionAnswers, type QuestionAnswer } from '@/lib/data/question-answers'
 import { getUserBasic } from '@/lib/data/users'
 import { getPublishedFaqAnswers, type FaqAnswer } from '@/lib/data/faq-answers'
+import { getFaqMeta, type FaqMeta } from '@/lib/data/faq-meta'
 import { getPublishedCtas, type Cta } from '@/lib/data/ctas'
 import { getPublishedCoverage, type Coverage } from '@/lib/data/coverage'
 import BriefView from './BriefView'
@@ -33,6 +34,7 @@ export type {
   EndorsementBarDetail,
   ContributionStatus,
   FaqAnswer,
+  FaqMeta,
   Cta,
   Coverage,
   RelatedBrief,
@@ -138,7 +140,7 @@ export default async function BriefPage({
     .filter((s) => s.section_type === 'explainer')
     .map((s) => s.id)
 
-  const [quotes, media, endorsementBar, myReviewStatus, sectionCounts, myExplainerStatuses, faqAnswersMap, ctas, coverage, relatedBriefs] = await Promise.all([
+  const [quotes, media, endorsementBar, myReviewStatus, sectionCounts, myExplainerStatuses, faqAnswersMap, faqMetaMap, ctas, coverage, relatedBriefs] = await Promise.all([
     getQuotesForBrief(supabase, brief.id, brief.topic_tags, 4, user?.id ?? null),
     getMediaSection(supabase, brief.topic_tag, brief.pinned_media_post_id, 6),
     getEndorsementBar(supabase, brief.id, brief.brief_sections),
@@ -150,6 +152,7 @@ export default async function BriefPage({
       ? getMyContributionStatuses(supabase, brief.id, explainerSectionIds, user.id)
       : Promise.resolve(new Map<string, ContributionStatus>()),
     getPublishedFaqAnswers(supabase, brief.id),
+    getFaqMeta(supabase, brief.id),
     getPublishedCtas(supabase, brief.id),
     getPublishedCoverage(supabase, brief.id, user?.id ?? null),
     getRelatedBriefs(supabase, brief.id, brief.topic_tags, 3),
@@ -159,6 +162,7 @@ export default async function BriefPage({
   // across the server/client boundary into 'use client' BriefView, matching
   // how ExplainerContributionInfo below is a plain array for the same reason.
   const faqAnswersByQuestion: Record<string, FaqAnswer[]> = Object.fromEntries(faqAnswersMap)
+  const faqMetaByQuestion: Record<string, FaqMeta> = Object.fromEntries(faqMetaMap)
 
   const explainerContributions: ExplainerContributionInfo[] = explainerSectionIds.map((sectionId) => {
     const counts = sectionCounts.get(sectionId)
@@ -200,6 +204,7 @@ export default async function BriefPage({
       myReviewStatus={myReviewStatus}
       explainerContributions={explainerContributions}
       faqAnswersByQuestion={faqAnswersByQuestion}
+      faqMetaByQuestion={faqMetaByQuestion}
       ctas={ctas}
       coverage={coverage}
       relatedBriefs={relatedBriefs}

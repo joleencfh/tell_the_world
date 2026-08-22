@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import type { BriefSection } from '@/lib/admin/brief-actions'
-import RichTextEditor from './rich-text-editor'
+import RichTextEditor from '@/lib/richtext/editor'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -30,7 +30,7 @@ export type EditableSection = Omit<BriefSection, 'id'> & { id: string | null; cl
 // app/briefs/[slug]/section-content.tsx and sources.tsx, the keyterm/
 // paragraph parsing in app/briefs/[slug]/explainer.tsx) — there is no rich
 // HTML rendering path on the public page, so the editor must not produce HTML.
-// Explainer subsections are the one exception (Part 0b): rich-text-editor.tsx
+// Explainer subsections are the one exception (Part 0b): lib/richtext/editor.tsx
 // uses Lexical, which never produces HTML either — its JSON tree is walked
 // by lib/richtext/render.tsx into plain React elements instead.
 const PARAGRAPH_HELP: { instructions: ReactNode; placeholder: string; rows: number } = {

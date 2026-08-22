@@ -6,6 +6,7 @@ import { randomUUID } from 'crypto'
 import { requireAdmin } from '@/lib/auth/require'
 import { getAdminClient } from '@/lib/supabase/admin'
 import type { Json } from '@/lib/database.types'
+import type { UserRole } from '@/lib/types'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -33,6 +34,24 @@ export interface MediaPickerOption {
   id: string
   title: string
   post_type: 'video' | 'article' | 'paper' | 'resource'
+}
+
+// For the FAQ-meta editor's collaborator/feedback-giver pickers (Part 6).
+export interface UserOption {
+  id: string
+  display_name: string | null
+  role: UserRole
+}
+
+// brief_faq_meta row (migration 039) — keyed by (brief_id, question), same
+// fragile-but-accepted text match brief_faq_answers already uses. `id` is
+// null for a question that doesn't have a row yet (saveBrief upserts by
+// question, not id).
+export interface FaqMetaRow {
+  question: string
+  collaboratorUserIds: string[]
+  feedbackGiverUserIds: string[]
+  richContent: unknown
 }
 
 export type BriefSectionType =
@@ -96,16 +115,21 @@ export async function createBrief(): Promise<never> {
 export async function getBrief(id: string): Promise<{
   brief: Brief | null
   sections: BriefSection[]
+  faqMeta: FaqMetaRow[]
   error: string | null
 }> {
   await requireAdmin()
 
-  const [briefResult, sectionsResult] = await Promise.all([
+  const [briefResult, sectionsResult, faqMetaResult] = await Promise.all([
     getAdminClient().from('briefs').select('*').eq('id', id).single(),
     getAdminClient().from('brief_sections').select('*').eq('brief_id', id).order('display_order'),
+    getAdminClient()
+      .from('brief_faq_meta')
+      .select('question, collaborator_user_ids, feedback_giver_user_ids, answer_rich_content')
+      .eq('brief_id', id),
   ])
 
-  if (briefResult.error) return { brief: null, sections: [], error: briefResult.error.message }
+  if (briefResult.error) return { brief: null, sections: [], faqMeta: [], error: briefResult.error.message }
 
   const rawBrief = briefResult.data as Brief
   const brief: Brief = { ...rawBrief, topic_tag: rawBrief.topic_tags[0] ?? null }
@@ -113,8 +137,28 @@ export async function getBrief(id: string): Promise<{
   return {
     brief,
     sections: (sectionsResult.data ?? []) as BriefSection[],
+    faqMeta: (faqMetaResult.data ?? []).map((row) => ({
+      question: row.question,
+      collaboratorUserIds: row.collaborator_user_ids,
+      feedbackGiverUserIds: row.feedback_giver_user_ids,
+      richContent: row.answer_rich_content,
+    })),
     error: null,
   }
+}
+
+// User picker for the FAQ-meta editor's collaborator/feedback-giver fields
+// (Part 6) — same shape/purpose as getMediaPickerOptions above.
+export async function getUserOptions(): Promise<UserOption[]> {
+  await requireAdmin()
+
+  const { data } = await getAdminClient()
+    .from('users')
+    .select('id, display_name, role')
+    .order('display_name', { ascending: true })
+    .limit(500)
+
+  return (data ?? []) as UserOption[]
 }
 
 // Non-quote posts, for the "pinned media" picker in the brief editor
@@ -192,6 +236,7 @@ export async function saveBrief(
       rich_content: unknown
       display_order: number
     }>
+    faqMeta: FaqMetaRow[]
   }
 ): Promise<{ success?: boolean; error?: string; sections?: BriefSection[] }> {
   await requireAdmin()
@@ -272,6 +317,27 @@ export async function saveBrief(
       })
       if (error) return { error: error.message }
     }
+  }
+
+  // FAQ per-question meta (Part 6, migration 039) — upserted by (brief_id,
+  // question), same key brief_faq_answers already matches against. Not
+  // diff-deleted when a question disappears/is renamed: same accepted
+  // "detaches" fragility as brief_faq_answers, rather than extra bookkeeping
+  // to prune orphaned rows that are harmless if left behind.
+  if (data.faqMeta.length > 0) {
+    const { error } = await getAdminClient()
+      .from('brief_faq_meta')
+      .upsert(
+        data.faqMeta.map((row) => ({
+          brief_id: briefId,
+          question: row.question,
+          collaborator_user_ids: row.collaboratorUserIds,
+          feedback_giver_user_ids: row.feedbackGiverUserIds,
+          answer_rich_content: row.richContent as Json,
+        })),
+        { onConflict: 'brief_id,question' },
+      )
+    if (error) return { error: error.message }
   }
 
   revalidatePath('/admin')

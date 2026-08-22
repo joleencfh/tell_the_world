@@ -2,31 +2,11 @@
 
 import { useState } from 'react'
 import type { FaqAnswer } from '@/lib/data/faq-answers'
-import { MoreAnswersToggle, AddAnswerForm } from './faq-answers'
-
-// ---------------------------------------------------------------------------
-// FAQ parser
-// ---------------------------------------------------------------------------
-
-interface FAQItem {
-  question: string
-  answer: string
-}
-
-function parseFAQ(content: string): FAQItem[] | null {
-  const items: FAQItem[] = []
-  const blocks = content.split(/\n(?=Q:)/g)
-  for (const block of blocks) {
-    const qMatch = block.match(/Q:\s*(.+?)(?:\n|\r\n?)([\s\S]*)/)
-    if (!qMatch) continue
-    const question = qMatch[1].trim()
-    const rest = qMatch[2].trim()
-    const aMatch = rest.match(/^A:\s*([\s\S]+)/)
-    const answer = aMatch ? aMatch[1].trim() : rest
-    if (question) items.push({ question, answer })
-  }
-  return items.length >= 1 ? items : null
-}
+import type { FaqMeta } from '@/lib/data/faq-meta'
+import { MoreAnswersToggle, AddAnswerForm, FaqMetaMenu } from './faq-answers'
+import { parseFAQ, type FAQItem } from '@/lib/briefs/parse-faq'
+import { parseRichContent } from '@/lib/richtext/types'
+import { renderRichText } from '@/lib/richtext/render'
 
 // ---------------------------------------------------------------------------
 // FAQ accordion — collapsed by default, click (or Enter/Space, native
@@ -45,6 +25,9 @@ function FAQBlock({
   briefSlug,
   canSubmit,
   answers,
+  meta,
+  onGiveFeedback,
+  isLoggedIn,
 }: {
   item: FAQItem
   index: number
@@ -52,6 +35,9 @@ function FAQBlock({
   briefSlug: string
   canSubmit: boolean
   answers: FaqAnswer[]
+  meta: FaqMeta | undefined
+  onGiveFeedback: (question: string) => void
+  isLoggedIn: boolean
 }) {
   const [isOpen, setIsOpen] = useState(false)
   const triggerId = `faq-trigger-${index}`
@@ -88,7 +74,25 @@ function FAQBlock({
       <div id={panelId} role="region" aria-labelledby={triggerId} hidden={!isOpen}>
         {isOpen && (
           <div className="anim-drawer max-w-[68ch] space-y-4 pb-[1.3rem]">
-            <p className="font-body text-[0.96rem] leading-[1.68] text-ink">{item.answer}</p>
+            <div>
+              {/* Primary-answer byline (Part 6 step 1) — was previously
+                  unlabeled, unlike expert-submitted "More answers" cards
+                  below, which already show a full byline. */}
+              <div className="mb-1.5 flex items-center justify-between gap-2">
+                <span className="font-mono text-[0.6rem] uppercase tracking-[0.08em] text-ink-faint">
+                  Tell The World
+                </span>
+                <FaqMetaMenu meta={meta} question={item.question} onGiveFeedback={onGiveFeedback} isLoggedIn={isLoggedIn} />
+              </div>
+              {(() => {
+                const doc = parseRichContent(meta?.richContent)
+                return doc ? (
+                  renderRichText(doc, { paragraphClassName: () => 'font-body text-[0.96rem] leading-[1.68] text-ink' })
+                ) : (
+                  <p className="font-body text-[0.96rem] leading-[1.68] text-ink">{item.answer}</p>
+                )
+              })()}
+            </div>
             {answers.length > 0 && <MoreAnswersToggle answers={answers} />}
             {canSubmit && <AddAnswerForm briefId={briefId} briefSlug={briefSlug} question={item.question} />}
           </div>
@@ -113,12 +117,18 @@ export function FAQSection({
   briefSlug,
   canSubmit,
   answersByQuestion,
+  faqMetaByQuestion,
+  onGiveFeedback,
+  isLoggedIn,
 }: {
   sections: { id: string; content: string }[]
   briefId: string
   briefSlug: string
   canSubmit: boolean
   answersByQuestion: Record<string, FaqAnswer[]>
+  faqMetaByQuestion: Record<string, FaqMeta>
+  onGiveFeedback: (question: string) => void
+  isLoggedIn: boolean
 }) {
   return (
     <div>
@@ -134,6 +144,9 @@ export function FAQSection({
             briefSlug={briefSlug}
             canSubmit={canSubmit}
             answers={answersByQuestion[item.question] ?? []}
+            meta={faqMetaByQuestion[item.question]}
+            onGiveFeedback={onGiveFeedback}
+            isLoggedIn={isLoggedIn}
           />
         ))
       })}

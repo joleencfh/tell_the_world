@@ -7,6 +7,7 @@ import { sendBriefProposalEmail } from '@/lib/email/send-brief-proposal'
 import { getMaxContentVersion } from '@/lib/data/contributions'
 import { fetchLinkPreview } from '@/lib/links/link-preview'
 import type { UserRole } from '@/lib/types'
+import type { Json } from '@/lib/database.types'
 
 const CONTRIBUTOR_ROLES = ['expert', 'organisation']
 
@@ -82,6 +83,7 @@ export async function submitFaqAnswer(
   briefSlug: string,
   question: string,
   body: string,
+  richContent?: unknown,
 ): Promise<{ error?: string; success?: boolean }> {
   const supabase = await createClient()
   const {
@@ -104,6 +106,11 @@ export async function submitFaqAnswer(
     question,
     author_user_id: user.id,
     body: trimmed,
+    // rich_content (migration 040) is the Lexical editorState.toJSON() tree
+    // from the same shared editor Explainer subsections use (Part 0b);
+    // `body` stays the not-null plain-text mirror the fallback render path
+    // and any plain-text consumers read.
+    rich_content: (richContent ?? null) as Json,
     status: 'pending',
   })
 

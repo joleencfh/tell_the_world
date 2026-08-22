@@ -372,6 +372,7 @@ export type Database = {
           created_at: string
           id: string
           question: string
+          rich_content: Json | null
           status: string
         }
         Insert: {
@@ -381,6 +382,7 @@ export type Database = {
           created_at?: string
           id?: string
           question: string
+          rich_content?: Json | null
           status?: string
         }
         Update: {
@@ -390,6 +392,7 @@ export type Database = {
           created_at?: string
           id?: string
           question?: string
+          rich_content?: Json | null
           status?: string
         }
         Relationships: [
@@ -402,6 +405,47 @@ export type Database = {
           },
           {
             foreignKeyName: "brief_faq_answers_brief_id_fkey"
+            columns: ["brief_id"]
+            isOneToOne: false
+            referencedRelation: "briefs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      brief_faq_meta: {
+        Row: {
+          answer_rich_content: Json | null
+          brief_id: string
+          collaborator_user_ids: string[]
+          created_at: string
+          feedback_giver_user_ids: string[]
+          id: string
+          question: string
+          updated_at: string
+        }
+        Insert: {
+          answer_rich_content?: Json | null
+          brief_id: string
+          collaborator_user_ids?: string[]
+          created_at?: string
+          feedback_giver_user_ids?: string[]
+          id?: string
+          question: string
+          updated_at?: string
+        }
+        Update: {
+          answer_rich_content?: Json | null
+          brief_id?: string
+          collaborator_user_ids?: string[]
+          created_at?: string
+          feedback_giver_user_ids?: string[]
+          id?: string
+          question?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brief_faq_meta_brief_id_fkey"
             columns: ["brief_id"]
             isOneToOne: false
             referencedRelation: "briefs"
@@ -535,6 +579,41 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "brief_sections_brief_id_fkey"
+            columns: ["brief_id"]
+            isOneToOne: false
+            referencedRelation: "briefs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      brief_timeline_events: {
+        Row: {
+          brief_id: string
+          created_at: string
+          display_order: number
+          event_date: string
+          event_name: string
+          id: string
+        }
+        Insert: {
+          brief_id: string
+          created_at?: string
+          display_order?: number
+          event_date: string
+          event_name: string
+          id?: string
+        }
+        Update: {
+          brief_id?: string
+          created_at?: string
+          display_order?: number
+          event_date?: string
+          event_name?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brief_timeline_events_brief_id_fkey"
             columns: ["brief_id"]
             isOneToOne: false
             referencedRelation: "briefs"
@@ -883,6 +962,7 @@ export type Database = {
           created_at: string
           id: string
           question_id: string
+          status: string
         }
         Insert: {
           author_user_id: string
@@ -890,6 +970,7 @@ export type Database = {
           created_at?: string
           id?: string
           question_id: string
+          status?: string
         }
         Update: {
           author_user_id?: string
@@ -897,6 +978,7 @@ export type Database = {
           created_at?: string
           id?: string
           question_id?: string
+          status?: string
         }
         Relationships: [
           {
@@ -1082,6 +1164,7 @@ export type Database = {
           availability: Database["public"]["Enums"]["availability_status"]
           avatar_url: string | null
           bio: string | null
+          channel_name: string | null
           content_language: string | null
           created_at: string
           credibility_url: string | null
@@ -1112,6 +1195,7 @@ export type Database = {
           availability?: Database["public"]["Enums"]["availability_status"]
           avatar_url?: string | null
           bio?: string | null
+          channel_name?: string | null
           content_language?: string | null
           created_at?: string
           credibility_url?: string | null
@@ -1142,6 +1226,7 @@ export type Database = {
           availability?: Database["public"]["Enums"]["availability_status"]
           avatar_url?: string | null
           bio?: string | null
+          channel_name?: string | null
           content_language?: string | null
           created_at?: string
           credibility_url?: string | null
