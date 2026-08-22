@@ -232,6 +232,109 @@ export async function submitCoverage(
   return { success: true }
 }
 
+// Part 4: an expert/organisation's quote explicitly attached to this brief
+// (content_posts.brief_id, added in Part 0a) — a free-text submission, so
+// it follows the propose/moderate pattern like submitFaqAnswer/submitCta
+// above rather than publishing immediately (confirmed with the user during
+// this part's build: content_posts has no existing moderation queue — the
+// profile "share something" flow, lib/posts/actions.ts's createPost,
+// publishes immediately and is untouched — but a quote posted straight to
+// a brief's public page needed one). Admin submissions go through the same
+// pending queue as everyone else rather than an immediate-publish bypass
+// like submitCta's admin branch: unlike brief_ctas, content_posts' insert
+// RLS policy was never role-restricted (008_member_read_policies.sql), so
+// there's no RLS obstacle a bypass would need to work around — admin's own
+// quote just waits in the same "Quotes" admin tab as anyone else's.
+export async function submitQuote(
+  briefId: string,
+  briefSlug: string,
+  body: string,
+  tags: string[],
+): Promise<{ error?: string; success?: boolean }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return { error: 'You must be logged in to add a quote.' }
+
+  const { data: userData } = await supabase.from('users').select('role').eq('id', user.id).single()
+  const role = userData?.role as UserRole | undefined
+  if (!role || !(CONTRIBUTOR_ROLES.includes(role) || role === 'admin')) {
+    return { error: 'Only experts and organisations can add quotes.' }
+  }
+
+  const trimmed = body.trim()
+  if (!trimmed) return { error: 'Quote cannot be empty.' }
+  if (trimmed.length > 500) return { error: 'Quote must be under 500 characters.' }
+
+  const cleanTags = [...new Set(tags.map((t) => t.trim()).filter(Boolean))].slice(0, 10)
+
+  // title holds the quote text itself (content_posts.title is not null;
+  // QuoteCard renders `body || title`, so leaving body null here falls
+  // straight back to what was just typed — same shape a bare-title quote
+  // authored any other way already renders as).
+  const { error } = await supabase.from('content_posts').insert({
+    user_id: user.id,
+    post_type: 'quote',
+    title: trimmed,
+    brief_id: briefId,
+    topic_tags: cleanTags,
+    status: 'pending',
+  })
+
+  if (error) return { error: 'Failed to submit quote. Please try again.' }
+
+  revalidatePath(`/briefs/${briefSlug}`)
+  return { success: true }
+}
+
+// A member's like on a quote — any logged-in member, true toggle, same
+// shape as likeCoverage below.
+export async function likeQuote(contentPostId: string, briefSlug: string): Promise<{ error?: string; liked?: boolean }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return { error: 'You must be logged in to like this.' }
+
+  const { data: existing } = await supabase
+    .from('content_post_likes')
+    .select('id')
+    .eq('content_post_id', contentPostId)
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  const { error } = existing
+    ? await supabase.from('content_post_likes').delete().eq('id', existing.id)
+    : await supabase.from('content_post_likes').insert({ content_post_id: contentPostId, user_id: user.id })
+
+  if (error) return { error: 'Failed to record your like. Please try again.' }
+
+  revalidatePath(`/briefs/${briefSlug}`)
+  return { liked: !existing }
+}
+
+// Records a copy-event on a quote (content_usage, migration 031) — the
+// card-level and detail-view copy buttons both call this. Logged-out
+// copies still count (user_id null); no revalidatePath since nothing
+// visible changes from this beyond the button's own "Copied" state.
+export async function logQuoteUsage(contentPostId: string): Promise<{ error?: string; success?: boolean }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  const { error } = await supabase.from('content_usage').insert({
+    content_post_id: contentPostId,
+    user_id: user?.id ?? null,
+  })
+
+  if (error) return { error: 'Failed to record usage.' }
+  return { success: true }
+}
+
 // A member's like on a coverage row — any logged-in member, true toggle
 // (insert if absent, delete if present), same shape as voteQuestion below.
 export async function likeCoverage(coverageId: string, briefSlug: string): Promise<{ error?: string; liked?: boolean }> {

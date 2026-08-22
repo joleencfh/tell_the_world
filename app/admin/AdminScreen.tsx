@@ -3,13 +3,14 @@
 import { useState } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { createBrief } from '@/lib/admin/brief-actions'
-import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingCta, PendingCoverage, PendingBriefFeedback, BriefReview } from '@/lib/admin/actions'
+import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingCta, PendingCoverage, PendingBriefFeedback, PendingQuote, BriefReview } from '@/lib/admin/actions'
 import { ADMIN_PAGE_SIZE } from '@/lib/data/admin'
 import Pagination from '@/components/ui/Pagination'
 import Logo from '@/components/ui/Logo'
 import { ApplicationCard, QuestionCard, CorrectionProposalCard, BriefProposalCard, ApprovedRow } from './cards'
 import { FaqAnswerCard } from './faq-answer-card'
 import { CtaCard } from './cta-card'
+import { QuoteCard } from './quote-card'
 import { CoverageCard } from './coverage-card'
 import { FeedbackCard } from './feedback-card'
 import { ReviewCard } from './review-card'
@@ -18,7 +19,7 @@ import { ReviewCard } from './review-card'
 // Types
 // ---------------------------------------------------------------------------
 
-type Tab = 'pending' | 'questions' | 'correctionProposals' | 'faqAnswers' | 'ctas' | 'coverage' | 'feedback' | 'reviews' | 'proposals' | 'approved'
+type Tab = 'pending' | 'questions' | 'correctionProposals' | 'faqAnswers' | 'ctas' | 'quotes' | 'coverage' | 'feedback' | 'reviews' | 'proposals' | 'approved'
 
 interface Props {
   adminEmail: string
@@ -40,6 +41,9 @@ interface Props {
   pendingCtas: PendingCta[]
   pendingCtasCount: number
   ctasPage: number
+  pendingQuotes: PendingQuote[]
+  pendingQuotesCount: number
+  quotesPage: number
   pendingCoverage: PendingCoverage[]
   pendingCoverageCount: number
   coveragePage: number
@@ -78,6 +82,9 @@ export default function AdminScreen({
   pendingCtas,
   pendingCtasCount,
   ctasPage,
+  pendingQuotes,
+  pendingQuotesCount,
+  quotesPage,
   pendingCoverage,
   pendingCoverageCount,
   coveragePage,
@@ -140,7 +147,7 @@ export default function AdminScreen({
             </form>
           </div>
 
-          {/* Tabs — 10 of them now, split across two pages (see tabPage's
+          {/* Tabs — 11 of them now, split across two pages (see tabPage's
               own comment above) rather than one overcrowded row. */}
           {(() => {
             const tabDefs: { key: Tab; label: string; count?: number }[] = [
@@ -149,6 +156,7 @@ export default function AdminScreen({
               { key: 'correctionProposals', label: 'Correction proposals', count: pendingCorrectionProposalsCount },
               { key: 'faqAnswers', label: 'FAQ answers', count: pendingFaqAnswersCount },
               { key: 'ctas', label: 'Calls to action', count: pendingCtasCount },
+              { key: 'quotes', label: 'Quotes', count: pendingQuotesCount },
               { key: 'coverage', label: 'Coverage', count: pendingCoverageCount },
               { key: 'feedback', label: 'Feedback', count: pendingBriefFeedbackCount },
               { key: 'reviews', label: 'Reviews & endorsements', count: briefReviewsCount },
@@ -305,6 +313,29 @@ export default function AdminScreen({
                 pageSize={ADMIN_PAGE_SIZE}
                 total={pendingCtasCount}
                 buildHref={(p) => buildPageHref('ctasPage', p)}
+              />
+            </>
+          )}
+
+          {/* Pending quotes tab */}
+          {tab === 'quotes' && (
+            <>
+              {pendingQuotes.length === 0 ? (
+                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
+                  No pending quotes.
+                </p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {pendingQuotes.map(q => (
+                    <QuoteCard key={q.id} quote={q} />
+                  ))}
+                </div>
+              )}
+              <Pagination
+                page={quotesPage}
+                pageSize={ADMIN_PAGE_SIZE}
+                total={pendingQuotesCount}
+                buildHref={(p) => buildPageHref('quotesPage', p)}
               />
             </>
           )}

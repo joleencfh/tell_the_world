@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/lib/database.types'
-import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingCta, PendingCoverage, PendingBriefFeedback, BriefReview } from '@/lib/admin/actions'
+import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingCta, PendingCoverage, PendingBriefFeedback, PendingQuote, BriefReview } from '@/lib/admin/actions'
 
 // Data-access layer for admin queue reads. See lib/data/briefs.ts for the
 // pattern. No auth here — callers (lib/admin/actions.ts) call requireAdmin()
@@ -84,6 +84,23 @@ export async function getPendingCtas(db: DB, page = 1): Promise<PagedResult<Pend
     .range(...range(page))
 
   return { data: error ? [] : (data as unknown as PendingCta[]) ?? [], count: count ?? 0 }
+}
+
+export async function getPendingQuotes(db: DB, page = 1): Promise<PagedResult<PendingQuote>> {
+  // content_posts has two FK paths to briefs (this row's own brief_id, and
+  // briefs.pinned_media_post_id pointing back at a content_posts row) — the
+  // bare `briefs(...)` embed PostgREST shorthand every other query in this
+  // file uses is ambiguous here and errors (PGRST201), so the join has to
+  // name the specific constraint (030_content_posts_brief_id.sql).
+  const { data, error, count } = await db
+    .from('content_posts')
+    .select('id, title, topic_tags, created_at, brief_id, briefs!content_posts_brief_id_fkey(title, slug), users(id, display_name, email, role)', { count: 'exact' })
+    .eq('post_type', 'quote')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: true })
+    .range(...range(page))
+
+  return { data: error ? [] : (data as unknown as PendingQuote[]) ?? [], count: count ?? 0 }
 }
 
 export async function getPendingCoverage(db: DB, page = 1): Promise<PagedResult<PendingCoverage>> {

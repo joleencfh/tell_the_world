@@ -385,6 +385,60 @@ export async function dismissCta(ctaId: string): Promise<{ success?: boolean; er
 }
 
 // ---------------------------------------------------------------------------
+// Quote moderation (brief-page-part2-plan.md §2, Part 4) — a quote posted
+// straight to a brief via "+ Add quote" (content_posts.brief_id), pending →
+// published via admin approval, same shape as CTA moderation above. Only
+// ever non-empty for brief-scoped submissions (submitQuote in lib/briefs/
+// actions.ts) — the profile's own "share something" flow never sets
+// status: 'pending', so nothing else ever lands in this queue.
+// ---------------------------------------------------------------------------
+
+export interface PendingQuote {
+  id: string
+  title: string
+  topic_tags: string[]
+  created_at: string
+  brief_id: string | null
+  briefs: { title: string; slug: string } | null
+  users: { id: string; display_name: string | null; email: string; role: string }
+}
+
+export async function getPendingQuotes(page = 1): Promise<PagedResult<PendingQuote>> {
+  await requireAdmin()
+  return adminData.getPendingQuotes(getAdminClient(), page)
+}
+
+export async function approveQuote(quoteId: string): Promise<{ success?: boolean; error?: string }> {
+  await requireAdmin()
+
+  const { error } = await getAdminClient()
+    .from('content_posts')
+    .update({ status: 'published' })
+    .eq('id', quoteId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/admin')
+  return { success: true }
+}
+
+// No 'dismissed' status exists for this table (only pending/published, same
+// as brief_ctas) — dismissal just deletes the row.
+export async function dismissQuote(quoteId: string): Promise<{ success?: boolean; error?: string }> {
+  await requireAdmin()
+
+  const { error } = await getAdminClient()
+    .from('content_posts')
+    .delete()
+    .eq('id', quoteId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/admin')
+  return { success: true }
+}
+
+// ---------------------------------------------------------------------------
 // Covered By moderation (two-ink-bold-plan.md Part 7) — url/outlet/title/
 // image were extracted server-side from the submitted URL's Open Graph
 // tags at submission time (lib/links/link-preview.ts), so there's nothing
