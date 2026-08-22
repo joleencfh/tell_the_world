@@ -481,6 +481,53 @@ export async function markBriefFeedbackReviewed(feedbackId: string): Promise<{ s
 }
 
 // ---------------------------------------------------------------------------
+// Reviews & endorsements — read-only, unlike every queue above. These
+// publish immediately (setReviewStatus in lib/briefs/actions.ts never sets
+// a pending status), so there's nothing to approve/dismiss here; this tab
+// is purely visibility into who reviewed/endorsed what, and any comment
+// left (brief-page-part2-plan.md §2, Part 2 follow-up, 2026-08-22).
+// ---------------------------------------------------------------------------
+
+export interface BriefReview {
+  id: string
+  type: 'review' | 'endorsement'
+  body: string | null
+  created_at: string
+  updated_at: string
+  brief_id: string
+  briefs: { title: string; slug: string }
+  users: { id: string; display_name: string | null; email: string; role: string }
+}
+
+export async function getBriefReviews(page = 1): Promise<PagedResult<BriefReview>> {
+  await requireAdmin()
+  return adminData.getBriefReviews(getAdminClient(), page)
+}
+
+// Soft-remove, not a hard delete — 'archived' is an existing status on this
+// table (migration 017), already used for a contributor's own self-withdraw
+// (lib/briefs/actions.ts). Archiving drops it out of the public reviewer
+// count/list (getEndorsementBar filters status = 'published') while keeping
+// it in the row's own history — same reasoning as the profile withdrawal
+// history this pairs with. briefSlug is only needed to revalidate the
+// brief's own page (this table's rows don't cascade a revalidate on their
+// own the way /admin's mutations already do via revalidatePath('/admin')).
+export async function archiveBriefReview(reviewId: string, briefSlug: string): Promise<{ success?: boolean; error?: string }> {
+  await requireAdmin()
+
+  const { error } = await getAdminClient()
+    .from('brief_contributions')
+    .update({ status: 'archived' })
+    .eq('id', reviewId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/admin')
+  revalidatePath(`/briefs/${briefSlug}`)
+  return { success: true }
+}
+
+// ---------------------------------------------------------------------------
 // Brief proposals
 // ---------------------------------------------------------------------------
 

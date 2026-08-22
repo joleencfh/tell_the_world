@@ -15,8 +15,8 @@ import {
   HeroChipBar,
   ReviewersModal,
   TLDRList,
-  ContributeMenu,
 } from './section-content'
+import { ContributeMenu, ContributeModals, type ContributeModalKind } from './contribute'
 import { QuestionsList, QuestionForm, ProposeCorrectionModal } from './qa'
 import { ReviewEndorseControl } from './review-endorse'
 import { ExplainerSections } from './explainer'
@@ -98,6 +98,7 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
   const [addCoverageOpen, setAddCoverageOpen] = useState(false)
   const [tldrFeedbackOpen, setTldrFeedbackOpen] = useState(false)
   const [reviewersModalOpen, setReviewersModalOpen] = useState(false)
+  const [activeContributeModal, setActiveContributeModal] = useState<ContributeModalKind | null>(null)
   const sortedSections = [...brief.brief_sections].sort(
     (a, b) => a.display_order - b.display_order,
   )
@@ -185,7 +186,12 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
 
               {currentUser && (
                 <div className="anim-rise" style={{ animationDelay: '100ms' }}>
-                  <ContributeMenu role={currentUser.role} />
+                  <ContributeMenu
+                    role={currentUser.role}
+                    onOpenModal={setActiveContributeModal}
+                    onSuggestCta={() => setSuggestCtaOpen(true)}
+                    onAddCoverage={() => setAddCoverageOpen(true)}
+                  />
                 </div>
               )}
             </div>
@@ -284,7 +290,7 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
                               // safe to also preview for admin.
                               type === 'faq' && (canContribute || currentUser?.role === 'admin') ? (
                                 <button
-                                  type="button"
+                                  type="button" onClick={() => setActiveContributeModal('faq-question')} style={{ touchAction: 'manipulation' }}
                                   className="border-[1.5px] border-ink bg-paper px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.06em] text-ink transition-colors hover:border-blue hover:text-blue"
                                 >
                                   + Suggest question
@@ -525,6 +531,16 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
             onClose={() => setTldrFeedbackOpen(false)}
           />
         )}
+
+        {/* ── Contribute menu's modals — activeContributeModal can only be
+            set by ContributeMenu above, which only renders for currentUser,
+            so no separate currentUser gate is needed here. ────────────── */}
+        <ContributeModals
+          brief={brief}
+          myReviewStatus={myReviewStatus}
+          active={activeContributeModal}
+          onClose={() => setActiveContributeModal(null)}
+        />
 
         {/* ── Reviewed/endorsed-by modal — rendered here, not inside the
             hero, so it isn't trapped as a containing block by anim-rise's

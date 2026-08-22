@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/lib/database.types'
-import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingCta, PendingCoverage, PendingBriefFeedback } from '@/lib/admin/actions'
+import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingCta, PendingCoverage, PendingBriefFeedback, BriefReview } from '@/lib/admin/actions'
 
 // Data-access layer for admin queue reads. See lib/data/briefs.ts for the
 // pattern. No auth here — callers (lib/admin/actions.ts) call requireAdmin()
@@ -106,6 +106,22 @@ export async function getPendingBriefFeedback(db: DB, page = 1): Promise<PagedRe
     .range(...range(page))
 
   return { data: error ? [] : (data as unknown as PendingBriefFeedback[]) ?? [], count: count ?? 0 }
+}
+
+// Reviews/endorsements publish immediately (no pending state, see
+// setReviewStatus in lib/briefs/actions.ts) — this is a read-only activity
+// feed, not a moderation queue, so it orders newest-first rather than the
+// oldest-first FIFO the pending queues above use.
+export async function getBriefReviews(db: DB, page = 1): Promise<PagedResult<BriefReview>> {
+  const { data, error, count } = await db
+    .from('brief_contributions')
+    .select('id, type, body, created_at, updated_at, brief_id, briefs(title, slug), users(id, display_name, email, role)', { count: 'exact' })
+    .in('type', ['review', 'endorsement'])
+    .eq('status', 'published')
+    .order('updated_at', { ascending: false })
+    .range(...range(page))
+
+  return { data: error ? [] : (data as unknown as BriefReview[]) ?? [], count: count ?? 0 }
 }
 
 export async function getBriefProposals(db: DB, page = 1): Promise<PagedResult<BriefProposal>> {

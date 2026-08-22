@@ -4,6 +4,7 @@ import type { UserRole, AvailabilityStatus, PrimaryPlatform, OrgSize } from '@/l
 import { getFullProfile, getUserBasic } from '@/lib/data/users'
 import { getUserPosts } from '@/lib/data/posts'
 import { getUserCorrectionProposals } from '@/lib/data/briefs'
+import { getUserReviewHistory } from '@/lib/data/contributions'
 import ProfileView from './ProfileView'
 
 // ---------------------------------------------------------------------------
@@ -11,6 +12,7 @@ import ProfileView from './ProfileView'
 // ---------------------------------------------------------------------------
 
 export type { UserRole, AvailabilityStatus, PrimaryPlatform, OrgSize }
+export type { UserReview as ProfileReview } from '@/lib/data/contributions'
 
 export interface ProfileUser {
   id: string
@@ -198,6 +200,7 @@ export default async function ProfilePage({
         profileUser={MOCK_PROFILES[profileId]}
         posts={MOCK_POSTS[profileId] ?? []}
         correctionProposals={[]}
+        reviews={[]}
         isOwnProfile={false}
         currentUserId={user.id}
         currentUser={mockViewer}
@@ -205,12 +208,14 @@ export default async function ProfilePage({
     )
   }
 
-  // Fetch profile user's row, their posts, correction proposals, and the
-  // viewer's own info in parallel — all through the lib/data layer (RLS client).
-  const [profileUser, posts, rawCorrectionProposals, currentUser] = await Promise.all([
+  // Fetch profile user's row, their posts, correction proposals, review
+  // history, and the viewer's own info in parallel — all through the
+  // lib/data layer (RLS client).
+  const [profileUser, posts, rawCorrectionProposals, reviews, currentUser] = await Promise.all([
     getFullProfile(supabase, profileId),
     getUserPosts(supabase, profileId, 20),
     getUserCorrectionProposals(supabase, profileId),
+    getUserReviewHistory(supabase, profileId),
     getUserBasic(supabase, user.id),
   ])
 
@@ -224,6 +229,7 @@ export default async function ProfilePage({
       profileUser={profileUser}
       posts={posts}
       correctionProposals={correctionProposals}
+      reviews={reviews}
       isOwnProfile={isOwnProfile}
       currentUserId={user.id}
       currentUser={currentUser}
