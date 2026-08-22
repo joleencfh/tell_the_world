@@ -13,7 +13,7 @@ import type { UserRole } from '@/lib/types'
 
 type DB = SupabaseClient<Database>
 
-const AUTHOR_SELECT = 'id, display_name, email, avatar_url, role, affiliation, org_name'
+const AUTHOR_SELECT = 'id, display_name, email, avatar_url, role, affiliation, org_name, channel_name, platform_url'
 
 export interface QuestionAnswer {
   id: string
@@ -50,6 +50,7 @@ export async function getQuestionAnswers(db: DB, questionIds: string[], userId: 
     .from('question_answers')
     .select(`id, question_id, body, created_at, users!question_answers_author_user_id_fkey(${AUTHOR_SELECT})`)
     .in('question_id', questionIds)
+    .eq('status', 'published')
     .order('created_at', { ascending: true })
 
   const answers = (rows ?? []) as unknown as AnswerRow[]

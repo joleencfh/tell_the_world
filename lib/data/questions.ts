@@ -16,6 +16,8 @@ export interface QuestionAuthor {
   role: UserRole | null
   affiliation: string | null
   org_name: string | null
+  channel_name: string | null
+  platform_url: string | null
 }
 
 // A vote tally split by voter segment — pink (creator/journalist) vs. blue
@@ -39,7 +41,7 @@ export interface Question {
   questionVotes: VoteSplit
 }
 
-const AUTHOR_SELECT = 'id, display_name, email, avatar_url, role, affiliation, org_name'
+const AUTHOR_SELECT = 'id, display_name, email, avatar_url, role, affiliation, org_name, channel_name, platform_url'
 
 interface QuestionRow {
   id: string

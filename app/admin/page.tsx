@@ -6,6 +6,7 @@ import {
   getPendingQuestions,
   getPendingCorrectionProposals,
   getPendingFaqAnswers,
+  getPendingQuestionAnswers,
   getPendingCtas,
   getPendingQuotes,
   getPendingCoverage,
@@ -38,6 +39,7 @@ export default async function AdminPage({
   const questionsPage = toPage(raw.questionsPage)
   const correctionProposalsPage = toPage(raw.correctionProposalsPage)
   const faqAnswersPage = toPage(raw.faqAnswersPage)
+  const questionAnswersPage = toPage(raw.questionAnswersPage)
   const ctasPage = toPage(raw.ctasPage)
   const quotesPage = toPage(raw.quotesPage)
   const coveragePage = toPage(raw.coveragePage)
@@ -47,12 +49,13 @@ export default async function AdminPage({
   const approvedPage = toPage(raw.approvedPage)
 
   // Fetch data with the service-role client (bypasses RLS)
-  const [pendingResult, approvedResult, questionsResult, correctionProposalsResult, faqAnswersResult, ctasResult, quotesResult, coverageResult, feedbackResult, reviewsResult, proposalsResult] = await Promise.all([
+  const [pendingResult, approvedResult, questionsResult, correctionProposalsResult, faqAnswersResult, questionAnswersResult, ctasResult, quotesResult, coverageResult, feedbackResult, reviewsResult, proposalsResult] = await Promise.all([
     getPendingApplications(pendingPage),
     getRecentlyApproved(approvedPage),
     getPendingQuestions(questionsPage),
     getPendingCorrectionProposals(correctionProposalsPage),
     getPendingFaqAnswers(faqAnswersPage),
+    getPendingQuestionAnswers(questionAnswersPage),
     getPendingCtas(ctasPage),
     getPendingQuotes(quotesPage),
     getPendingCoverage(coveragePage),
@@ -79,6 +82,9 @@ export default async function AdminPage({
       pendingFaqAnswers={faqAnswersResult.data}
       pendingFaqAnswersCount={faqAnswersResult.count}
       faqAnswersPage={faqAnswersPage}
+      pendingQuestionAnswers={questionAnswersResult.data}
+      pendingQuestionAnswersCount={questionAnswersResult.count}
+      questionAnswersPage={questionAnswersPage}
       pendingCtas={ctasResult.data}
       pendingCtasCount={ctasResult.count}
       ctasPage={ctasPage}

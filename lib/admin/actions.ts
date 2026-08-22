@@ -332,6 +332,59 @@ export async function dismissFaqAnswer(answerId: string): Promise<{ success?: bo
 }
 
 // ---------------------------------------------------------------------------
+// Community Q&A answers moderation (brief-page-part2-plan.md §2, Part 7) —
+// free-text answers, pending → published via admin approval, same shape as
+// FAQ answers moderation above. Unlike brief_faq_answers (which keys off a
+// parsed question string), these hang off a real question_id — briefs is
+// reached through questions rather than a direct column on this table.
+// ---------------------------------------------------------------------------
+
+export interface PendingQuestionAnswer {
+  id: string
+  body: string
+  created_at: string
+  question_id: string
+  questions: { question_text: string; brief_id: string; briefs: { title: string; slug: string } }
+  users: { id: string; display_name: string | null; email: string; role: string }
+}
+
+export async function getPendingQuestionAnswers(page = 1): Promise<PagedResult<PendingQuestionAnswer>> {
+  await requireAdmin()
+  return adminData.getPendingQuestionAnswers(getAdminClient(), page)
+}
+
+export async function approveQuestionAnswer(answerId: string): Promise<{ success?: boolean; error?: string }> {
+  await requireAdmin()
+
+  const { error } = await getAdminClient()
+    .from('question_answers')
+    .update({ status: 'published' })
+    .eq('id', answerId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/admin')
+  return { success: true }
+}
+
+// No 'dismissed' status exists for this table (only pending/published, see
+// migration 039) — dismissal just deletes the row, same as FAQ answers'
+// dismissFaqAnswer above.
+export async function dismissQuestionAnswer(answerId: string): Promise<{ success?: boolean; error?: string }> {
+  await requireAdmin()
+
+  const { error } = await getAdminClient()
+    .from('question_answers')
+    .delete()
+    .eq('id', answerId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/admin')
+  return { success: true }
+}
+
+// ---------------------------------------------------------------------------
 // Calls to action moderation (two-ink-bold-plan.md Part 6) — free-text
 // suggestion + a link, so pending → published via admin approval, same
 // shape as FAQ answers moderation above.

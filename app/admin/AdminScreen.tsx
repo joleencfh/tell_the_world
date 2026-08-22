@@ -3,12 +3,13 @@
 import { useState } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { createBrief } from '@/lib/admin/brief-actions'
-import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingCta, PendingCoverage, PendingBriefFeedback, PendingQuote, BriefReview } from '@/lib/admin/actions'
+import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingQuestionAnswer, PendingCta, PendingCoverage, PendingBriefFeedback, PendingQuote, BriefReview } from '@/lib/admin/actions'
 import { ADMIN_PAGE_SIZE } from '@/lib/data/admin'
 import Pagination from '@/components/ui/Pagination'
 import Logo from '@/components/ui/Logo'
 import { ApplicationCard, QuestionCard, CorrectionProposalCard, BriefProposalCard, ApprovedRow } from './cards'
 import { FaqAnswerCard } from './faq-answer-card'
+import { QuestionAnswerCard } from './question-answer-card'
 import { CtaCard } from './cta-card'
 import { QuoteCard } from './quote-card'
 import { CoverageCard } from './coverage-card'
@@ -19,7 +20,7 @@ import { ReviewCard } from './review-card'
 // Types
 // ---------------------------------------------------------------------------
 
-type Tab = 'pending' | 'questions' | 'correctionProposals' | 'faqAnswers' | 'ctas' | 'quotes' | 'coverage' | 'feedback' | 'reviews' | 'proposals' | 'approved'
+type Tab = 'pending' | 'questions' | 'correctionProposals' | 'faqAnswers' | 'questionAnswers' | 'ctas' | 'quotes' | 'coverage' | 'feedback' | 'reviews' | 'proposals' | 'approved'
 
 interface Props {
   adminEmail: string
@@ -38,6 +39,9 @@ interface Props {
   pendingFaqAnswers: PendingFaqAnswer[]
   pendingFaqAnswersCount: number
   faqAnswersPage: number
+  pendingQuestionAnswers: PendingQuestionAnswer[]
+  pendingQuestionAnswersCount: number
+  questionAnswersPage: number
   pendingCtas: PendingCta[]
   pendingCtasCount: number
   ctasPage: number
@@ -79,6 +83,9 @@ export default function AdminScreen({
   pendingFaqAnswers,
   pendingFaqAnswersCount,
   faqAnswersPage,
+  pendingQuestionAnswers,
+  pendingQuestionAnswersCount,
+  questionAnswersPage,
   pendingCtas,
   pendingCtasCount,
   ctasPage,
@@ -155,6 +162,7 @@ export default function AdminScreen({
               { key: 'questions', label: 'Questions', count: pendingQuestionsCount },
               { key: 'correctionProposals', label: 'Correction proposals', count: pendingCorrectionProposalsCount },
               { key: 'faqAnswers', label: 'FAQ answers', count: pendingFaqAnswersCount },
+              { key: 'questionAnswers', label: 'Q&A answers', count: pendingQuestionAnswersCount },
               { key: 'ctas', label: 'Calls to action', count: pendingCtasCount },
               { key: 'quotes', label: 'Quotes', count: pendingQuotesCount },
               { key: 'coverage', label: 'Coverage', count: pendingCoverageCount },
@@ -290,6 +298,29 @@ export default function AdminScreen({
                 pageSize={ADMIN_PAGE_SIZE}
                 total={pendingFaqAnswersCount}
                 buildHref={(p) => buildPageHref('faqAnswersPage', p)}
+              />
+            </>
+          )}
+
+          {/* Pending Q&A answers tab */}
+          {tab === 'questionAnswers' && (
+            <>
+              {pendingQuestionAnswers.length === 0 ? (
+                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
+                  No pending Q&amp;A answers.
+                </p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {pendingQuestionAnswers.map(a => (
+                    <QuestionAnswerCard key={a.id} answer={a} />
+                  ))}
+                </div>
+              )}
+              <Pagination
+                page={questionAnswersPage}
+                pageSize={ADMIN_PAGE_SIZE}
+                total={pendingQuestionAnswersCount}
+                buildHref={(p) => buildPageHref('questionAnswersPage', p)}
               />
             </>
           )}

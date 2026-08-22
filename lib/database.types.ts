@@ -542,6 +542,41 @@ export type Database = {
           },
         ]
       }
+      brief_timeline_events: {
+        Row: {
+          brief_id: string
+          created_at: string
+          display_order: number
+          event_date: string
+          event_name: string
+          id: string
+        }
+        Insert: {
+          brief_id: string
+          created_at?: string
+          display_order?: number
+          event_date: string
+          event_name: string
+          id?: string
+        }
+        Update: {
+          brief_id?: string
+          created_at?: string
+          display_order?: number
+          event_date?: string
+          event_name?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brief_timeline_events_brief_id_fkey"
+            columns: ["brief_id"]
+            isOneToOne: false
+            referencedRelation: "briefs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       briefs: {
         Row: {
           created_at: string
@@ -883,6 +918,7 @@ export type Database = {
           created_at: string
           id: string
           question_id: string
+          status: string
         }
         Insert: {
           author_user_id: string
@@ -890,6 +926,7 @@ export type Database = {
           created_at?: string
           id?: string
           question_id: string
+          status?: string
         }
         Update: {
           author_user_id?: string
@@ -897,6 +934,7 @@ export type Database = {
           created_at?: string
           id?: string
           question_id?: string
+          status?: string
         }
         Relationships: [
           {
@@ -1082,6 +1120,7 @@ export type Database = {
           availability: Database["public"]["Enums"]["availability_status"]
           avatar_url: string | null
           bio: string | null
+          channel_name: string | null
           content_language: string | null
           created_at: string
           credibility_url: string | null
@@ -1112,6 +1151,7 @@ export type Database = {
           availability?: Database["public"]["Enums"]["availability_status"]
           avatar_url?: string | null
           bio?: string | null
+          channel_name?: string | null
           content_language?: string | null
           created_at?: string
           credibility_url?: string | null
@@ -1142,6 +1182,7 @@ export type Database = {
           availability?: Database["public"]["Enums"]["availability_status"]
           avatar_url?: string | null
           bio?: string | null
+          channel_name?: string | null
           content_language?: string | null
           created_at?: string
           credibility_url?: string | null

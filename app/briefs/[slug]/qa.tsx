@@ -35,6 +35,23 @@ function AuthorBar({ author, date }: { author: QuestionAuthor; date: string }) {
         {name}
       </Link>
       {author.role && <RoleBadge role={author.role} variant="outline" />}
+      {author.channel_name && (
+        <>
+          <span className="text-ink-faint">·</span>
+          {author.platform_url ? (
+            <a
+              href={author.platform_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="truncate font-bold text-ink-soft transition-colors hover:text-pink"
+            >
+              {author.channel_name}
+            </a>
+          ) : (
+            <span className="truncate text-ink-faint">{author.channel_name}</span>
+          )}
+        </>
+      )}
       {credential && (
         <>
           <span className="text-ink-faint">·</span>
@@ -96,12 +113,14 @@ function QuestionCard({
   answers,
   briefSlug,
   canEndorse,
+  canSubmitAnswer,
   voterTone,
 }: {
   question: Question
   answers: QuestionAnswer[]
   briefSlug: string
   canEndorse: boolean
+  canSubmitAnswer: boolean
   voterTone: VoterTone
 }) {
   const [isOpen, setIsOpen] = useState(false)
@@ -146,7 +165,16 @@ function QuestionCard({
       </div>
 
       <div id={panelId} hidden={!isOpen}>
-        {isOpen && <AnswersList answers={answers} briefSlug={briefSlug} canEndorse={canEndorse} voterTone={voterTone} />}
+        {isOpen && (
+          <AnswersList
+            answers={answers}
+            briefSlug={briefSlug}
+            questionId={question.id}
+            canEndorse={canEndorse}
+            canSubmit={canSubmitAnswer}
+            voterTone={voterTone}
+          />
+        )}
       </div>
     </div>
   )
@@ -162,12 +190,14 @@ export function QuestionsList({
   answersByQuestion,
   briefSlug,
   canEndorse,
+  canSubmitAnswer,
   voterTone,
 }: {
   questions: Question[]
   answersByQuestion: Record<string, QuestionAnswer[]>
   briefSlug: string
   canEndorse: boolean
+  canSubmitAnswer: boolean
   voterTone: VoterTone
 }) {
   if (questions.length === 0) {
@@ -187,6 +217,7 @@ export function QuestionsList({
           answers={answersByQuestion[q.id] ?? []}
           briefSlug={briefSlug}
           canEndorse={canEndorse}
+          canSubmitAnswer={canSubmitAnswer}
           voterTone={voterTone}
         />
       ))}
