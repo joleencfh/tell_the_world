@@ -256,6 +256,58 @@ export function QuestionForm({ briefId, briefSlug }: { briefId: string; briefSlu
 }
 
 // ---------------------------------------------------------------------------
+// Question modal — Contribute menu's "Suggest a question" / "Ask a
+// question" entry points (brief-page-part2-plan.md §2, Part 2 step 2). A
+// modal shell around QuestionForm above, not a separate form. Rendered at
+// BriefView's top level like its other modals — see ReviewEndorseModal's
+// comment (review-endorse.tsx) for why it can't nest inside the hero's
+// Contribute menu.
+// ---------------------------------------------------------------------------
+
+export function QuestionModal({
+  briefId,
+  briefSlug,
+  briefTitle,
+  onClose,
+}: {
+  briefId: string
+  briefSlug: string
+  briefTitle: string
+  onClose: () => void
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center sm:p-6"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Ask a question"
+    >
+      <div className="absolute inset-0 bg-ink/60 backdrop-blur-sm" onClick={onClose} aria-hidden />
+      <div className="relative w-full max-w-xl overflow-hidden border border-line bg-paper">
+        <div className="flex items-start justify-between border-b border-line px-7 pb-5 pt-7">
+          <div>
+            <p className="mb-1 font-mono text-[9px] uppercase tracking-[0.2em] text-pink">Community Q&amp;A</p>
+            <h2 className="font-display text-xl uppercase leading-tight text-ink">Ask a question</h2>
+            <p className="mt-1.5 font-body text-xs italic leading-snug text-ink-soft">For: {briefTitle}</p>
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            style={{ touchAction: 'manipulation' }}
+            className="ml-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-paper-raised text-lg leading-none text-ink-soft outline-none transition-colors hover:bg-line hover:text-ink focus-visible:ring-2 focus-visible:ring-pink"
+          >
+            ×
+          </button>
+        </div>
+        <div className="px-7 py-6">
+          <QuestionForm briefId={briefId} briefSlug={briefSlug} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Propose correction modal — experts and organisations only. Unrelated to
 // Q&A (Part 3's brief_contributions mechanism); left as-is, not part of
 // this redesign's scope.

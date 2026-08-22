@@ -1,7 +1,9 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
-import type { ProfilePost, ProfileCorrectionProposal } from './page'
+import { withdrawReview } from '@/lib/briefs/actions'
+import type { ProfilePost, ProfileCorrectionProposal, ProfileReview } from './page'
 
 // ---------------------------------------------------------------------------
 // Utilities
@@ -116,6 +118,74 @@ export function CorrectionProposalCard({
         {proposal.contribution_text}
       </p>
       <span className="font-mono text-[9px] text-ink-soft/70">{formatDate(proposal.created_at)}</span>
+    </article>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Review history card — one row per brief this user has reviewed/endorsed,
+// including ones they've withdrawn (RLS only surfaces those to the owner —
+// see getUserReviewHistory's own comment in lib/data/contributions.ts).
+// Withdraw button only shows on your own profile, and only while the row is
+// still active — nothing to withdraw twice.
+// ---------------------------------------------------------------------------
+
+export function ReviewHistoryCard({
+  review,
+  isOwnProfile,
+}: {
+  review: ProfileReview
+  isOwnProfile: boolean
+}) {
+  const [status, setStatus] = useState(review.status)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const isEndorsement = review.type === 'endorsement'
+  const isArchived = status === 'archived'
+
+  async function handleWithdraw() {
+    setLoading(true)
+    setError(null)
+    const result = await withdrawReview(review.id, review.briefs.slug)
+    if (result.error) { setError(result.error); setLoading(false) }
+    else setStatus('archived')
+  }
+
+  return (
+    <article className={`border rounded-xl p-5 flex flex-col gap-3 ${isArchived ? 'border-line/60 bg-paper-raised/50 opacity-70' : 'border-line bg-paper-raised'}`}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <Link
+          href={`/briefs/${review.briefs.slug}`}
+          className="font-mono text-[9px] tracking-[0.15em] uppercase text-blue-ink hover:opacity-75 transition-opacity"
+        >
+          {review.briefs.title} →
+        </Link>
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-ink-soft bg-paper px-2 py-0.5 rounded-full">
+            {isEndorsement ? '★ Endorsed' : '✓ Reviewed'}
+          </span>
+          {isArchived && (
+            <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-ink-soft/70">Withdrawn</span>
+          )}
+        </div>
+      </div>
+      {review.body && (
+        <p className="font-body text-sm text-ink leading-relaxed whitespace-pre-wrap">&ldquo;{review.body}&rdquo;</p>
+      )}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <span className="font-mono text-[9px] text-ink-soft/70">{formatDate(review.updated_at)}</span>
+        {isOwnProfile && !isArchived && (
+          <button
+            type="button"
+            onClick={handleWithdraw}
+            disabled={loading}
+            className="font-mono text-[9px] tracking-[0.1em] uppercase text-ink-soft hover:text-ink disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Withdrawing…' : 'Withdraw'}
+          </button>
+        )}
+      </div>
+      {error && <p className="font-mono text-[9px] text-red-600">{error}</p>}
     </article>
   )
 }

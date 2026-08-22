@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { createBrief } from '@/lib/admin/brief-actions'
-import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingCta, PendingCoverage, PendingBriefFeedback, PendingQuote } from '@/lib/admin/actions'
+import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingCta, PendingCoverage, PendingBriefFeedback, PendingQuote, BriefReview } from '@/lib/admin/actions'
 import { ADMIN_PAGE_SIZE } from '@/lib/data/admin'
 import Pagination from '@/components/ui/Pagination'
 import Logo from '@/components/ui/Logo'
@@ -13,12 +13,13 @@ import { CtaCard } from './cta-card'
 import { QuoteCard } from './quote-card'
 import { CoverageCard } from './coverage-card'
 import { FeedbackCard } from './feedback-card'
+import { ReviewCard } from './review-card'
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-type Tab = 'pending' | 'questions' | 'correctionProposals' | 'faqAnswers' | 'ctas' | 'quotes' | 'coverage' | 'feedback' | 'proposals' | 'approved'
+type Tab = 'pending' | 'questions' | 'correctionProposals' | 'faqAnswers' | 'ctas' | 'quotes' | 'coverage' | 'feedback' | 'reviews' | 'proposals' | 'approved'
 
 interface Props {
   adminEmail: string
@@ -49,6 +50,9 @@ interface Props {
   pendingBriefFeedback: PendingBriefFeedback[]
   pendingBriefFeedbackCount: number
   feedbackPage: number
+  briefReviews: BriefReview[]
+  briefReviewsCount: number
+  reviewsPage: number
   briefProposals: BriefProposal[]
   briefProposalsCount: number
   proposalsPage: number
@@ -87,11 +91,19 @@ export default function AdminScreen({
   pendingBriefFeedback,
   pendingBriefFeedbackCount,
   feedbackPage,
+  briefReviews,
+  briefReviewsCount,
+  reviewsPage,
   briefProposals,
   briefProposalsCount,
   proposalsPage,
 }: Props) {
   const [tab, setTab] = useState<Tab>('pending')
+  // The tab row outgrew a single line (10 tabs) — split across two pages
+  // rather than wrapping or scrolling, toggled by the ‹ › control next to
+  // it. Independent of `tab` itself: paging just changes which button row
+  // is visible, it doesn't change the active tab or its content below.
+  const [tabPage, setTabPage] = useState<0 | 1>(0)
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
@@ -135,84 +147,60 @@ export default function AdminScreen({
             </form>
           </div>
 
-          {/* Tabs */}
-          <div className="flex gap-0 border-b border-line mb-6">
-            <TabButton active={tab === 'pending'} onClick={() => setTab('pending')}>
-              Applications
-              {pendingCount > 0 && (
-                <span className="ml-2 font-mono text-[9px] bg-blue text-white px-1.5 py-0.5">
-                  {pendingCount}
-                </span>
-              )}
-            </TabButton>
-            <TabButton active={tab === 'questions'} onClick={() => setTab('questions')}>
-              Questions
-              {pendingQuestionsCount > 0 && (
-                <span className="ml-2 font-mono text-[9px] bg-blue text-white px-1.5 py-0.5">
-                  {pendingQuestionsCount}
-                </span>
-              )}
-            </TabButton>
-            <TabButton active={tab === 'correctionProposals'} onClick={() => setTab('correctionProposals')}>
-              Correction proposals
-              {pendingCorrectionProposalsCount > 0 && (
-                <span className="ml-2 font-mono text-[9px] bg-blue text-white px-1.5 py-0.5">
-                  {pendingCorrectionProposalsCount}
-                </span>
-              )}
-            </TabButton>
-            <TabButton active={tab === 'faqAnswers'} onClick={() => setTab('faqAnswers')}>
-              FAQ answers
-              {pendingFaqAnswersCount > 0 && (
-                <span className="ml-2 font-mono text-[9px] bg-blue text-white px-1.5 py-0.5">
-                  {pendingFaqAnswersCount}
-                </span>
-              )}
-            </TabButton>
-            <TabButton active={tab === 'ctas'} onClick={() => setTab('ctas')}>
-              Calls to action
-              {pendingCtasCount > 0 && (
-                <span className="ml-2 font-mono text-[9px] bg-blue text-white px-1.5 py-0.5">
-                  {pendingCtasCount}
-                </span>
-              )}
-            </TabButton>
-            <TabButton active={tab === 'quotes'} onClick={() => setTab('quotes')}>
-              Quotes
-              {pendingQuotesCount > 0 && (
-                <span className="ml-2 font-mono text-[9px] bg-blue text-white px-1.5 py-0.5">
-                  {pendingQuotesCount}
-                </span>
-              )}
-            </TabButton>
-            <TabButton active={tab === 'coverage'} onClick={() => setTab('coverage')}>
-              Coverage
-              {pendingCoverageCount > 0 && (
-                <span className="ml-2 font-mono text-[9px] bg-blue text-white px-1.5 py-0.5">
-                  {pendingCoverageCount}
-                </span>
-              )}
-            </TabButton>
-            <TabButton active={tab === 'feedback'} onClick={() => setTab('feedback')}>
-              Feedback
-              {pendingBriefFeedbackCount > 0 && (
-                <span className="ml-2 font-mono text-[9px] bg-blue text-white px-1.5 py-0.5">
-                  {pendingBriefFeedbackCount}
-                </span>
-              )}
-            </TabButton>
-            <TabButton active={tab === 'proposals'} onClick={() => setTab('proposals')}>
-              Brief proposals
-              {briefProposalsCount > 0 && (
-                <span className="ml-2 font-mono text-[9px] bg-blue text-white px-1.5 py-0.5">
-                  {briefProposalsCount}
-                </span>
-              )}
-            </TabButton>
-            <TabButton active={tab === 'approved'} onClick={() => setTab('approved')}>
-              Recently approved
-            </TabButton>
-          </div>
+          {/* Tabs — 11 of them now, split across two pages (see tabPage's
+              own comment above) rather than one overcrowded row. */}
+          {(() => {
+            const tabDefs: { key: Tab; label: string; count?: number }[] = [
+              { key: 'pending', label: 'Applications', count: pendingCount },
+              { key: 'questions', label: 'Questions', count: pendingQuestionsCount },
+              { key: 'correctionProposals', label: 'Correction proposals', count: pendingCorrectionProposalsCount },
+              { key: 'faqAnswers', label: 'FAQ answers', count: pendingFaqAnswersCount },
+              { key: 'ctas', label: 'Calls to action', count: pendingCtasCount },
+              { key: 'quotes', label: 'Quotes', count: pendingQuotesCount },
+              { key: 'coverage', label: 'Coverage', count: pendingCoverageCount },
+              { key: 'feedback', label: 'Feedback', count: pendingBriefFeedbackCount },
+              { key: 'reviews', label: 'Reviews & endorsements', count: briefReviewsCount },
+              { key: 'proposals', label: 'Brief proposals', count: briefProposalsCount },
+              { key: 'approved', label: 'Recently approved' },
+            ]
+            const tabPages = [tabDefs.slice(0, 5), tabDefs.slice(5)]
+
+            return (
+              <div className="flex items-center justify-between gap-4 border-b border-line mb-6">
+                <div className="flex gap-0">
+                  {tabPages[tabPage].map((t) => (
+                    <TabButton key={t.key} active={tab === t.key} onClick={() => setTab(t.key)}>
+                      {t.label}
+                      {!!t.count && t.count > 0 && (
+                        <span className="ml-2 font-mono text-[9px] bg-blue text-white px-1.5 py-0.5">{t.count}</span>
+                      )}
+                    </TabButton>
+                  ))}
+                </div>
+                <div className="flex items-center gap-2 pb-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setTabPage(0)}
+                    disabled={tabPage === 0}
+                    aria-label="Previous tabs"
+                    className="font-mono text-xs text-ink-soft hover:text-ink disabled:opacity-30 disabled:cursor-default"
+                  >
+                    ‹
+                  </button>
+                  <span className="font-mono text-[9px] text-ink-faint tabular-nums">{tabPage + 1}/2</span>
+                  <button
+                    type="button"
+                    onClick={() => setTabPage(1)}
+                    disabled={tabPage === 1}
+                    aria-label="More tabs"
+                    className="font-mono text-xs text-ink-soft hover:text-ink disabled:opacity-30 disabled:cursor-default"
+                  >
+                    ›
+                  </button>
+                </div>
+              </div>
+            )
+          })()}
 
           {/* Pending applications tab */}
           {tab === 'pending' && (
@@ -394,6 +382,29 @@ export default function AdminScreen({
                 pageSize={ADMIN_PAGE_SIZE}
                 total={pendingBriefFeedbackCount}
                 buildHref={(p) => buildPageHref('feedbackPage', p)}
+              />
+            </>
+          )}
+
+          {/* Reviews & endorsements tab — read-only, no pending state */}
+          {tab === 'reviews' && (
+            <>
+              {briefReviews.length === 0 ? (
+                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
+                  No reviews or endorsements yet.
+                </p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {briefReviews.map(r => (
+                    <ReviewCard key={r.id} review={r} />
+                  ))}
+                </div>
+              )}
+              <Pagination
+                page={reviewsPage}
+                pageSize={ADMIN_PAGE_SIZE}
+                total={briefReviewsCount}
+                buildHref={(p) => buildPageHref('reviewsPage', p)}
               />
             </>
           )}
