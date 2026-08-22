@@ -132,6 +132,9 @@ export interface Reviewer {
   // bar (a user can hold several current rows across sections; this is the
   // latest of those).
   contributedAt: string
+  // Free-text note left with the review/endorsement, if any (Part 2's
+  // Contribute-menu modal is the only current writer of this).
+  body: string | null
 }
 
 export interface EndorsementBarDetail {
@@ -145,6 +148,7 @@ interface EndorsementDetailRow {
   section_id: string | null
   section_version: number | null
   updated_at: string
+  body: string | null
   users: {
     display_name: string | null
     avatar_url: string | null
@@ -170,7 +174,7 @@ export async function getEndorsementBar(
 ): Promise<{ counts: EndorsementBarCounts; detail: EndorsementBarDetail }> {
   const { data } = await db
     .from('brief_contributions')
-    .select('user_id, type, section_id, section_version, updated_at, users(display_name, avatar_url, role, job_title, affiliation)')
+    .select('user_id, type, section_id, section_version, updated_at, body, users(display_name, avatar_url, role, job_title, affiliation)')
     .eq('brief_id', briefId)
     .eq('status', 'published')
     .in('type', ['review', 'endorsement'])
@@ -203,6 +207,7 @@ export async function getEndorsementBar(
       jobTitle: row.users.job_title,
       affiliation: row.users.affiliation,
       contributedAt: row.updated_at,
+      body: row.body,
       type: row.type as 'review' | 'endorsement',
     })
   }
@@ -225,4 +230,33 @@ export async function getEndorsementBar(
     counts: { reviewedCount: reviewers.length, endorsedCount: endorsers.length, orgCount },
     detail: { reviewers, endorsers },
   }
+}
+
+// ---------------------------------------------------------------------------
+// A user's own review/endorsement history (profile page) — no status filter
+// in the query itself, unlike getEndorsementBar above; RLS does the scoping
+// (migration 017): a visitor sees only this user's *published* rows, the
+// user viewing their own profile also sees their archived (withdrawn) ones,
+// same "own pending/dismissed visible only to you" shape as
+// getUserCorrectionProposals in lib/data/briefs.ts.
+// ---------------------------------------------------------------------------
+
+export interface UserReview {
+  id: string
+  type: 'review' | 'endorsement'
+  body: string | null
+  status: 'pending' | 'published' | 'archived'
+  updated_at: string
+  briefs: { title: string; slug: string }
+}
+
+export async function getUserReviewHistory(db: DB, userId: string): Promise<UserReview[]> {
+  const { data } = await db
+    .from('brief_contributions')
+    .select('id, type, body, status, updated_at, briefs(title, slug)')
+    .eq('user_id', userId)
+    .in('type', ['review', 'endorsement'])
+    .order('updated_at', { ascending: false })
+
+  return (data ?? []) as unknown as UserReview[]
 }

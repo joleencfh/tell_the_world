@@ -8,11 +8,11 @@ import EditProfileModal from './EditProfileModal'
 import PostModal from '@/components/PostModal'
 import ContactModal from '@/components/ContactModal'
 import type { PostData } from '@/components/PostModal'
-import type { ProfileUser, ProfilePost, ProfileCorrectionProposal, UserRole, AvailabilityStatus } from './page'
+import type { ProfileUser, ProfilePost, ProfileCorrectionProposal, ProfileReview, UserRole, AvailabilityStatus } from './page'
 import Avatar from '@/components/ui/Avatar'
 import RoleBadge from '@/components/ui/RoleBadge'
 import Logo from '@/components/ui/Logo'
-import { PostCard, CorrectionProposalCard } from './cards'
+import { PostCard, CorrectionProposalCard, ReviewHistoryCard } from './cards'
 import { RoleDetails, extractDomain } from './RoleDetails'
 
 // ---------------------------------------------------------------------------
@@ -53,6 +53,7 @@ interface ProfileViewProps {
   profileUser: ProfileUser | null
   posts: ProfilePost[]
   correctionProposals: ProfileCorrectionProposal[]
+  reviews: ProfileReview[]
   isOwnProfile: boolean
   currentUserId: string
   currentUser: { id: string; display_name: string | null; email: string; role: UserRole } | null
@@ -62,6 +63,7 @@ export default function ProfileView({
   profileUser,
   posts,
   correctionProposals,
+  reviews,
   isOwnProfile,
   currentUserId,
   currentUser,
@@ -290,6 +292,34 @@ export default function ProfileView({
                   ) : (
                     <p className="font-body text-sm text-ink-soft/60 italic py-4">
                       No correction proposals yet.
+                    </p>
+                  )}
+                </section>
+              )}
+
+              {/* Review/endorsement history — experts and organisations
+                  only, same gate as correction proposals above. Visitors
+                  only ever see published rows (RLS), so "withdrawn" rows
+                  only appear when isOwnProfile. */}
+              {(profileUser.role === 'expert' || profileUser.role === 'organisation') &&
+                (reviews.length > 0 || isOwnProfile) && (
+                <section>
+                  <div className="flex items-center gap-5 mb-7">
+                    <h2 className="font-display uppercase tracking-[0.18em] text-ink text-sm shrink-0">
+                      Reviews &amp; endorsements
+                    </h2>
+                    <div className="flex-1 h-px bg-line" />
+                  </div>
+
+                  {reviews.length > 0 ? (
+                    <div className="space-y-4">
+                      {reviews.map((r) => (
+                        <ReviewHistoryCard key={r.id} review={r} isOwnProfile={isOwnProfile} />
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="font-body text-sm text-ink-soft/60 italic py-4">
+                      No briefs reviewed or endorsed yet.
                     </p>
                   )}
                 </section>
