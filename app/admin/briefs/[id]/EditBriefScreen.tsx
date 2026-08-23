@@ -217,12 +217,26 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
           {/* Page title + back link */}
           <div className="flex items-center justify-between">
             <div>
-              <Link
-                href="/admin"
-                className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors"
-              >
-                ← Back to admin
-              </Link>
+              <div className="flex items-center gap-4">
+                <Link
+                  href="/admin"
+                  className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors"
+                >
+                  ← Back to admin
+                </Link>
+                {/* Opens in a new tab — an admin checking their save (or
+                    just reading the live page) shouldn't lose this form's
+                    state, which a same-tab navigation away and back would
+                    otherwise discard. */}
+                <Link
+                  href={`/briefs/${brief.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-mono text-[9px] tracking-[0.18em] uppercase text-blue-ink hover:text-blue transition-colors"
+                >
+                  View brief →
+                </Link>
+              </div>
               <h1 className="font-display uppercase text-[2rem] tracking-tight text-ink leading-none mt-1">
                 Edit Brief
               </h1>
