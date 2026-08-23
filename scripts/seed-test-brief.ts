@@ -78,8 +78,10 @@ async function seed() {
       // blocks to render at all — one block alone renders nothing.
       content:
         '• "[Placeholder] First source title" — a short description of the source\n' +
+        'Publisher: [Placeholder] First Publisher\n' +
         'https://example.com/placeholder-source-1\n\n' +
         '• "[Placeholder] Second source title" — a short description of the source\n' +
+        'Publisher: [Placeholder] Second Publisher\n' +
         'https://example.com/placeholder-source-2',
     },
     {

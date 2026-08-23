@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { randomUUID } from 'crypto'
 import { requireAdmin } from '@/lib/auth/require'
 import { getAdminClient } from '@/lib/supabase/admin'
+import { parseSources } from '@/lib/briefs/parse-sources'
 import type { Json } from '@/lib/database.types'
 
 // ---------------------------------------------------------------------------
@@ -57,6 +58,18 @@ export interface BriefSection {
   display_order: number
 }
 
+// Part 5 step 2: a dedicated table rather than a brief_sections type —
+// structured event data (name + date per row), not prose. Rendered as
+// TimelineGraphic (app/briefs/[slug]/timeline.tsx) after the Explainer's
+// first subsection.
+export interface TimelineEvent {
+  id: string
+  brief_id: string
+  event_name: string
+  event_date: string
+  display_order: number
+}
+
 // ---------------------------------------------------------------------------
 // Create
 // ---------------------------------------------------------------------------
@@ -96,16 +109,18 @@ export async function createBrief(): Promise<never> {
 export async function getBrief(id: string): Promise<{
   brief: Brief | null
   sections: BriefSection[]
+  timelineEvents: TimelineEvent[]
   error: string | null
 }> {
   await requireAdmin()
 
-  const [briefResult, sectionsResult] = await Promise.all([
+  const [briefResult, sectionsResult, timelineResult] = await Promise.all([
     getAdminClient().from('briefs').select('*').eq('id', id).single(),
     getAdminClient().from('brief_sections').select('*').eq('brief_id', id).order('display_order'),
+    getAdminClient().from('brief_timeline_events').select('*').eq('brief_id', id).order('display_order'),
   ])
 
-  if (briefResult.error) return { brief: null, sections: [], error: briefResult.error.message }
+  if (briefResult.error) return { brief: null, sections: [], timelineEvents: [], error: briefResult.error.message }
 
   const rawBrief = briefResult.data as Brief
   const brief: Brief = { ...rawBrief, topic_tag: rawBrief.topic_tags[0] ?? null }
@@ -113,6 +128,7 @@ export async function getBrief(id: string): Promise<{
   return {
     brief,
     sections: (sectionsResult.data ?? []) as BriefSection[],
+    timelineEvents: (timelineResult.data ?? []) as TimelineEvent[],
     error: null,
   }
 }
@@ -192,9 +208,34 @@ export async function saveBrief(
       rich_content: unknown
       display_order: number
     }>
+    timelineEvents: Array<{
+      event_name: string
+      event_date: string
+      display_order: number
+    }>
   }
-): Promise<{ success?: boolean; error?: string; sections?: BriefSection[] }> {
+): Promise<{ success?: boolean; error?: string; sections?: BriefSection[]; timelineEvents?: TimelineEvent[] }> {
   await requireAdmin()
+
+  // Publisher is required on every source (Part 5 step 5) — checked here,
+  // before any write, rather than left as a silent gap on the public page.
+  // parseSources returns null for a going_deeper block that doesn't yet
+  // have 2+ parsed sources — nothing to validate yet in that case, same
+  // threshold the public page itself uses to decide whether to render.
+  for (const section of data.sections) {
+    if (section.section_type !== 'going_deeper') continue
+    const parsed = parseSources(section.content)
+    if (!parsed) continue
+    const missingIndex = parsed.findIndex((item) => !item.publisher)
+    if (missingIndex !== -1) {
+      return { error: `Sources needs a "Publisher:" line for source ${missingIndex + 1} ("${parsed[missingIndex].title || 'untitled'}").` }
+    }
+  }
+
+  for (const event of data.timelineEvents) {
+    if (!event.event_name.trim()) return { error: 'Every timeline event needs a name.' }
+    if (!event.event_date) return { error: `Timeline event "${event.event_name}" needs a date.` }
+  }
 
   // saveBrief's public param is still a single topicTag string — the admin
   // form (EditBriefScreen.tsx) isn't updated to a multi-tag input until Part
@@ -274,16 +315,40 @@ export async function saveBrief(
     }
   }
 
+  // Timeline events have no dependents to preserve (unlike brief_sections,
+  // nothing else references a timeline event by id) — delete-and-reinsert
+  // is simpler than diffing ids for what's a short, admin-only list.
+  const { error: deleteTimelineError } = await getAdminClient()
+    .from('brief_timeline_events')
+    .delete()
+    .eq('brief_id', briefId)
+  if (deleteTimelineError) return { error: deleteTimelineError.message }
+
+  if (data.timelineEvents.length > 0) {
+    const { error: timelineError } = await getAdminClient().from('brief_timeline_events').insert(
+      data.timelineEvents.map((event) => ({
+        brief_id: briefId,
+        event_name: event.event_name.trim(),
+        event_date: event.event_date,
+        display_order: event.display_order,
+      })),
+    )
+    if (timelineError) return { error: timelineError.message }
+  }
+
   revalidatePath('/admin')
   revalidatePath(`/admin/briefs/${briefId}`)
 
-  const { data: freshSections } = await getAdminClient()
-    .from('brief_sections')
-    .select('*')
-    .eq('brief_id', briefId)
-    .order('display_order')
+  const [{ data: freshSections }, { data: freshTimelineEvents }] = await Promise.all([
+    getAdminClient().from('brief_sections').select('*').eq('brief_id', briefId).order('display_order'),
+    getAdminClient().from('brief_timeline_events').select('*').eq('brief_id', briefId).order('display_order'),
+  ])
 
-  return { success: true, sections: (freshSections ?? []) as BriefSection[] }
+  return {
+    success: true,
+    sections: (freshSections ?? []) as BriefSection[],
+    timelineEvents: (freshTimelineEvents ?? []) as TimelineEvent[],
+  }
 }
 
 // ---------------------------------------------------------------------------

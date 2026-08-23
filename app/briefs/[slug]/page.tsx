@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import type { BriefVisibility, BriefSectionType, UserRole } from '@/lib/types'
-import { getBriefWithSectionsBySlug, getRelatedBriefs, type RelatedBrief } from '@/lib/data/briefs'
+import { getBriefWithSectionsBySlug, getRelatedBriefs, type RelatedBrief, type BriefTimelineEvent } from '@/lib/data/briefs'
 import { getQuotesForBrief, getMediaSection, type MediaPost } from '@/lib/data/posts'
 import {
   getEndorsementBar,
@@ -40,6 +40,7 @@ export type {
   QuestionAuthor,
   VoteSplit,
   QuestionAnswer,
+  BriefTimelineEvent,
 }
 
 export interface BriefSection {
@@ -76,6 +77,7 @@ export interface Brief {
   tldr_teaser: string | null
   visibility: BriefVisibility
   brief_sections: BriefSection[]
+  brief_timeline_events: BriefTimelineEvent[]
 }
 
 // No email — see the comment on lib/data/posts.ts's QuoteAuthor.

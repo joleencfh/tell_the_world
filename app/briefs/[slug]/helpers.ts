@@ -10,6 +10,20 @@ export function formatDate(iso: string) {
   })
 }
 
+// For a date-only value (Postgres `date` column, e.g. brief_timeline_events'
+// event_date — "YYYY-MM-DD", no time/timezone). formatDate above would parse
+// that string as UTC midnight and then render it in the viewer's local
+// timezone, which can shift the displayed day backward west of UTC. Building
+// the Date from local year/month/day components instead sidesteps that.
+export function formatDateOnly(dateOnly: string) {
+  const [year, month, day] = dateOnly.split('-').map(Number)
+  return new Date(year, month - 1, day).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
 // Read time is calculated on authored section text only — annotations,
 // takes, quotes, and Q&A are excluded (design doc §11).
 const READ_TIME_SECTION_TYPES = new Set([
