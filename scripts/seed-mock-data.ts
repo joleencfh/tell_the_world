@@ -58,6 +58,7 @@ function formatTLDR(items: { lead?: string; rest: string }[]): string {
 interface SourceSeed {
   title: string
   description: string
+  publisher: string
   url: string
   summary: string
   takeaways: string[]
@@ -68,6 +69,7 @@ function formatSources(items: SourceSeed[]): string {
     .map((s) =>
       [
         `• "${s.title}" — ${s.description}`,
+        `Publisher: ${s.publisher}`,
         s.url,
         `Summary: ${s.summary}`,
         'Key takeaways:',
@@ -302,12 +304,12 @@ const BRIEFS: BriefSeed[] = [
       },
     ],
     sources: [
-      { title: 'Frontier Model Evaluations: 2026 Methodology Report', description: lorem(18), url: 'https://example.com/sources/frontier-evaluations-2026', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
-      { title: 'Reward Hacking in Reinforcement Learning: A Survey', description: lorem(18), url: 'https://example.com/sources/reward-hacking-survey', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
-      { title: 'Interpretability Benchmarks for Large Language Models', description: lorem(18), url: 'https://example.com/sources/interpretability-benchmarks', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
-      { title: 'Scalable Oversight: Where the Research Stands', description: lorem(18), url: 'https://example.com/sources/scalable-oversight', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
-      { title: 'Alignment Faking and Deceptive Cooperation: Case Studies', description: lorem(18), url: 'https://example.com/sources/alignment-faking-cases', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
-      { title: 'Compute Thresholds and Evaluation Triggers, Annotated', description: lorem(18), url: 'https://example.com/sources/compute-thresholds-annotated', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
+      { title: 'Frontier Model Evaluations: 2026 Methodology Report', description: lorem(18), publisher: 'MetaBench Labs', url: 'https://example.com/sources/frontier-evaluations-2026', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
+      { title: 'Reward Hacking in Reinforcement Learning: A Survey', description: lorem(18), publisher: 'Journal of Machine Learning Safety', url: 'https://example.com/sources/reward-hacking-survey', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
+      { title: 'Interpretability Benchmarks for Large Language Models', description: lorem(18), publisher: 'Cortex Research', url: 'https://example.com/sources/interpretability-benchmarks', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
+      { title: 'Scalable Oversight: Where the Research Stands', description: lorem(18), publisher: 'Vantage Policy Group', url: 'https://example.com/sources/scalable-oversight', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
+      { title: 'Alignment Faking and Deceptive Cooperation: Case Studies', description: lorem(18), publisher: 'Sentinel AI Watch', url: 'https://example.com/sources/alignment-faking-cases', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
+      { title: 'Compute Thresholds and Evaluation Triggers, Annotated', description: lorem(18), publisher: 'Beacon Institute', url: 'https://example.com/sources/compute-thresholds-annotated', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
     ],
     faq: [
       { q: 'Is AI alignment the same thing as AI safety?', a: lorem(48) },
@@ -365,12 +367,12 @@ const BRIEFS: BriefSeed[] = [
       },
     ],
     sources: [
-      { title: 'Compute Capacity Tracker, Q2 2026', description: lorem(18), url: 'https://example.com/sources/compute-capacity-tracker-q2', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
-      { title: 'Scaling Laws for Neural Language Models, Revisited', description: lorem(18), url: 'https://example.com/sources/scaling-laws-revisited', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
-      { title: 'Export Control Rule 2026-14, Annotated', description: lorem(18), url: 'https://example.com/sources/export-control-2026-14', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
-      { title: 'Global GPU Supply Chain: A Mapping Exercise', description: lorem(18), url: 'https://example.com/sources/gpu-supply-chain-map', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
-      { title: 'Training Run Cost Trends, 2019–2026', description: lorem(18), url: 'https://example.com/sources/training-cost-trends', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
-      { title: 'Data Center Energy Demand and the Compute Race', description: lorem(18), url: 'https://example.com/sources/datacenter-energy-demand', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
+      { title: 'Compute Capacity Tracker, Q2 2026', description: lorem(18), publisher: 'Open Ledger Project', url: 'https://example.com/sources/compute-capacity-tracker-q2', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
+      { title: 'Scaling Laws for Neural Language Models, Revisited', description: lorem(18), publisher: 'Journal of Machine Learning Safety', url: 'https://example.com/sources/scaling-laws-revisited', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
+      { title: 'Export Control Rule 2026-14, Annotated', description: lorem(18), publisher: 'Lyra Governance Lab', url: 'https://example.com/sources/export-control-2026-14', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
+      { title: 'Global GPU Supply Chain: A Mapping Exercise', description: lorem(18), publisher: 'Basalt Daily', url: 'https://example.com/sources/gpu-supply-chain-map', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
+      { title: 'Training Run Cost Trends, 2019–2026', description: lorem(18), publisher: 'Clarity Research Collective', url: 'https://example.com/sources/training-cost-trends', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
+      { title: 'Data Center Energy Demand and the Compute Race', description: lorem(18), publisher: 'Northfield Review', url: 'https://example.com/sources/datacenter-energy-demand', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
     ],
     faq: [
       { q: 'Is compute the main bottleneck, or is it data?', a: lorem(48) },
@@ -427,12 +429,12 @@ const BRIEFS: BriefSeed[] = [
       },
     ],
     sources: [
-      { title: 'Synthetic Media Detection: State of the Art, 2026', description: lorem(18), url: 'https://example.com/sources/synthetic-media-detection-2026', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
-      { title: 'Content Provenance Standards: A Comparison', description: lorem(18), url: 'https://example.com/sources/provenance-standards-comparison', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
-      { title: "The Liar's Dividend: How Deepfakes Erode Trust in Real Footage", description: lorem(18), url: 'https://example.com/sources/liars-dividend', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
-      { title: 'Watermarking Generative Media: Technical Limits', description: lorem(18), url: 'https://example.com/sources/watermarking-technical-limits', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
-      { title: 'Deepfake Incidents Database, 2023–2026', description: lorem(18), url: 'https://example.com/sources/deepfake-incidents-database', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
-      { title: 'Platform Policy Responses to Synthetic Media, Annotated', description: lorem(18), url: 'https://example.com/sources/platform-policy-responses', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
+      { title: 'Synthetic Media Detection: State of the Art, 2026', description: lorem(18), publisher: 'Cortex Research', url: 'https://example.com/sources/synthetic-media-detection-2026', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
+      { title: 'Content Provenance Standards: A Comparison', description: lorem(18), publisher: 'Clarity Research Collective', url: 'https://example.com/sources/provenance-standards-comparison', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
+      { title: "The Liar's Dividend: How Deepfakes Erode Trust in Real Footage", description: lorem(18), publisher: 'Continuum Magazine', url: 'https://example.com/sources/liars-dividend', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
+      { title: 'Watermarking Generative Media: Technical Limits', description: lorem(18), publisher: 'MetaBench Labs', url: 'https://example.com/sources/watermarking-technical-limits', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
+      { title: 'Deepfake Incidents Database, 2023–2026', description: lorem(18), publisher: 'Open Circuit', url: 'https://example.com/sources/deepfake-incidents-database', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
+      { title: 'Platform Policy Responses to Synthetic Media, Annotated', description: lorem(18), publisher: 'Vantage Policy Group', url: 'https://example.com/sources/platform-policy-responses', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
     ],
     faq: [
       { q: 'Can watermarking actually stop deepfakes from spreading?', a: lorem(48) },
@@ -489,12 +491,12 @@ const BRIEFS: BriefSeed[] = [
       },
     ],
     sources: [
-      { title: 'Task-Level Automation Exposure, by Occupation', description: lorem(18), url: 'https://example.com/sources/automation-exposure-by-occupation', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
-      { title: 'Productivity Gains and Wage Growth: A Widening Gap?', description: lorem(18), url: 'https://example.com/sources/productivity-wage-gap', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
-      { title: 'Reskilling Programs: What Actually Works', description: lorem(18), url: 'https://example.com/sources/reskilling-programs-that-work', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
-      { title: 'The Skill Premium in the Age of Generative AI', description: lorem(18), url: 'https://example.com/sources/skill-premium-generative-ai', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
-      { title: 'Labor Share of Income, 2015–2026', description: lorem(18), url: 'https://example.com/sources/labor-share-of-income', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
-      { title: 'Occupational Displacement Case Studies, 2024–2026', description: lorem(18), url: 'https://example.com/sources/occupational-displacement-cases', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
+      { title: 'Task-Level Automation Exposure, by Occupation', description: lorem(18), publisher: 'Lyra Governance Lab', url: 'https://example.com/sources/automation-exposure-by-occupation', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
+      { title: 'Productivity Gains and Wage Growth: A Widening Gap?', description: lorem(18), publisher: 'Meridian Standard', url: 'https://example.com/sources/productivity-wage-gap', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
+      { title: 'Reskilling Programs: What Actually Works', description: lorem(18), publisher: 'The Signal Weekly', url: 'https://example.com/sources/reskilling-programs-that-work', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
+      { title: 'The Skill Premium in the Age of Generative AI', description: lorem(18), publisher: 'Journal of Machine Learning Safety', url: 'https://example.com/sources/skill-premium-generative-ai', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
+      { title: 'Labor Share of Income, 2015–2026', description: lorem(18), publisher: 'Northfield Review', url: 'https://example.com/sources/labor-share-of-income', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
+      { title: 'Occupational Displacement Case Studies, 2024–2026', description: lorem(18), publisher: 'The Continental Wire', url: 'https://example.com/sources/occupational-displacement-cases', summary: lorem(38), takeaways: [lorem(8), lorem(8), lorem(8)] },
     ],
     faq: [
       { q: "Does the evidence support 'AI replaces jobs', or is it more complicated?", a: lorem(48) },
