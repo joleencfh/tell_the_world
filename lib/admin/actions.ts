@@ -368,7 +368,7 @@ export async function approveQuestionAnswer(answerId: string): Promise<{ success
 }
 
 // No 'dismissed' status exists for this table (only pending/published, see
-// migration 039) — dismissal just deletes the row, same as FAQ answers'
+// migration 043) — dismissal just deletes the row, same as FAQ answers'
 // dismissFaqAnswer above.
 export async function dismissQuestionAnswer(answerId: string): Promise<{ success?: boolean; error?: string }> {
   await requireAdmin()
