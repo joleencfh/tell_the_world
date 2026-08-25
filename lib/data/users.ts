@@ -41,7 +41,7 @@ export async function getFullProfile(db: DB, id: string): Promise<UserRow | null
     .select(
       `id, email, full_name, display_name, bio, avatar_url, role,
        availability, website_url, preferred_language, created_at,
-       primary_platform, platform_url, audience_size, content_language,
+       primary_platform, platform_url, channel_name, audience_size, content_language,
        publication_name, publication_url, reporting_beat,
        affiliation, job_title, credibility_url, areas_of_focus,
        org_name, org_size, org_mission`,

@@ -87,6 +87,8 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
   // the same way, no service-role bypass needed — see that action's own
   // comment).
   const canAddQuote = canContribute || currentUser?.role === 'admin'
+  // "Add an answer": same org/expert/admin group as CTAs/quotes above.
+  const canSubmitAnswer = canContribute || currentUser?.role === 'admin'
   // A voter's own role decides which color their Community Q&A vote lands
   // in (qa.tsx's VoteControl) — expert/org votes count blue, creator/
   // journalist votes count pink, anything else (just 'admin' today) counts
@@ -421,6 +423,7 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
                 answersByQuestion={answersByQuestion}
                 briefSlug={brief.slug}
                 canEndorse={canContribute}
+                canSubmitAnswer={canSubmitAnswer}
                 voterTone={voterTone}
               />
               <QuestionForm briefId={brief.id} briefSlug={brief.slug} />

@@ -29,6 +29,7 @@ export interface ProfileUser {
   // creator / journalist
   primary_platform: PrimaryPlatform | null
   platform_url: string | null
+  channel_name: string | null
   audience_size: number | null
   content_language: string | null
   publication_name: string | null
@@ -87,6 +88,7 @@ const MOCK_PROFILES: Record<string, ProfileUser> = {
     created_at: '2025-09-12T08:00:00Z',
     primary_platform: null,
     platform_url: null,
+    channel_name: null,
     audience_size: null,
     content_language: null,
     publication_name: null,
@@ -114,6 +116,7 @@ const MOCK_PROFILES: Record<string, ProfileUser> = {
     created_at: '2025-10-03T14:30:00Z',
     primary_platform: 'youtube',
     platform_url: 'https://youtube.com/@example',
+    channel_name: 'The Priya Sharma Show',
     audience_size: 280000,
     content_language: 'English',
     publication_name: null,

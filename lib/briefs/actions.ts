@@ -434,6 +434,47 @@ export async function voteAnswer(answerId: string, briefSlug: string): Promise<{
   return { voted: !existing }
 }
 
+// Part 7: an expert/organisation/admin's answer to a Community Q&A
+// question — question_answers previously had no submission path at all
+// (migration 024's own comment flagged this as deferred). Propose-then-
+// pending like submitFaqAnswer above; admin bypasses to immediate publish
+// via the service role, same shape as submitCta's admin branch.
+export async function submitAnswer(
+  briefSlug: string,
+  questionId: string,
+  body: string,
+): Promise<{ error?: string; success?: boolean; published?: boolean }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return { error: 'You must be logged in to add an answer.' }
+
+  const { data: userData } = await supabase.from('users').select('role').eq('id', user.id).single()
+  const role = userData?.role as UserRole | undefined
+  const isContributor = !!role && CONTRIBUTOR_ROLES.includes(role)
+  const isAdmin = role === 'admin'
+  if (!isContributor && !isAdmin) {
+    return { error: 'Only experts, organisations, and admins can add answers.' }
+  }
+
+  const trimmed = body.trim()
+  if (!trimmed) return { error: 'Answer cannot be empty.' }
+  if (trimmed.length > 2000) return { error: 'Answer must be under 2000 characters.' }
+
+  const row = { question_id: questionId, author_user_id: user.id, body: trimmed }
+
+  const { error } = isAdmin
+    ? await getAdminClient().from('question_answers').insert({ ...row, status: 'published' })
+    : await supabase.from('question_answers').insert({ ...row, status: 'pending' })
+
+  if (error) return { error: 'Failed to submit answer. Please try again.' }
+
+  revalidatePath(`/briefs/${briefSlug}`)
+  return { success: true, published: isAdmin }
+}
+
 // An expert/organisation's endorsement of a specific answer — role-gated
 // (belt-and-suspenders, RLS also enforces this). No "has an answer" check
 // needed anymore since an answer_id only ever exists once the answer row

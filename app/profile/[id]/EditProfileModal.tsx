@@ -128,6 +128,7 @@ function buildInitialState(user: ProfileUser): ProfileUpdatePayload {
     availability: user.availability ?? 'open',
     primary_platform: user.primary_platform ?? null,
     platform_url: user.platform_url ?? null,
+    channel_name: user.channel_name ?? null,
     audience_size: user.audience_size ?? null,
     content_language: user.content_language ?? null,
     publication_name: user.publication_name ?? null,
@@ -330,6 +331,15 @@ export default function EditProfileModal({ user, onClose }: EditProfileModalProp
           {isCreatorOrJournalist && (
             <div className="space-y-4">
               <SectionDivider label="Content" />
+              <Field label="Channel / publication name">
+                <input
+                  type="text"
+                  value={form.channel_name ?? ''}
+                  onChange={(e) => set('channel_name', e.target.value || null)}
+                  placeholder="e.g. The Daily Signal"
+                  className={inputCls}
+                />
+              </Field>
               <Field label="Primary platform">
                 <select
                   value={form.primary_platform ?? ''}

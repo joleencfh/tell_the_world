@@ -115,6 +115,7 @@ export function RoleDetails({ user }: { user: ProfileUser }) {
   if (user.role === 'creator' || user.role === 'journalist') {
     const isJournalist = user.role === 'journalist'
     const fields = [
+      user.channel_name,
       user.primary_platform,
       user.platform_url,
       user.audience_size,
@@ -129,6 +130,9 @@ export function RoleDetails({ user }: { user: ProfileUser }) {
           {isJournalist ? 'Journalist details' : 'Creator details'}
         </p>
         <div className="grid sm:grid-cols-2 gap-5">
+          {user.channel_name && (
+            <DetailRow label="Channel / publication" value={user.channel_name} />
+          )}
           {user.primary_platform && (
             <DetailRow
               label="Primary platform"

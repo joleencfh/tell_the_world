@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/lib/database.types'
-import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingCta, PendingCoverage, PendingBriefFeedback, PendingQuote, BriefReview, WaitlistSignup } from '@/lib/admin/actions'
+import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingQuestionAnswer, PendingCta, PendingCoverage, PendingBriefFeedback, PendingQuote, BriefReview, WaitlistSignup } from '@/lib/admin/actions'
 
 // Data-access layer for admin queue reads. See lib/data/briefs.ts for the
 // pattern. No auth here — callers (lib/admin/actions.ts) call requireAdmin()
@@ -73,6 +73,21 @@ export async function getPendingFaqAnswers(db: DB, page = 1): Promise<PagedResul
     .range(...range(page))
 
   return { data: error ? [] : (data as unknown as PendingFaqAnswer[]) ?? [], count: count ?? 0 }
+}
+
+// Part 7: Community Q&A answers moderation — question_answers has no
+// brief_id of its own (only question_id), so briefs is reached through a
+// nested embed off questions rather than a direct join, unlike the other
+// pending-queue queries in this file.
+export async function getPendingQuestionAnswers(db: DB, page = 1): Promise<PagedResult<PendingQuestionAnswer>> {
+  const { data, error, count } = await db
+    .from('question_answers')
+    .select('id, body, created_at, question_id, questions(question_text, brief_id, briefs(title, slug)), users(id, display_name, email, role)', { count: 'exact' })
+    .eq('status', 'pending')
+    .order('created_at', { ascending: true })
+    .range(...range(page))
+
+  return { data: error ? [] : (data as unknown as PendingQuestionAnswer[]) ?? [], count: count ?? 0 }
 }
 
 export async function getPendingCtas(db: DB, page = 1): Promise<PagedResult<PendingCta>> {

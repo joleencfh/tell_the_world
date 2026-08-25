@@ -1,8 +1,9 @@
 'use client'
 
-import { useId } from 'react'
+import { useId, useRef, useState, useTransition } from 'react'
 import Link from 'next/link'
 import Avatar from '@/components/ui/Avatar'
+import { submitAnswer } from '@/lib/briefs/actions'
 import { VoteButton, EndorseButton, VoteCountBadge, type VoterTone } from './qa-votes'
 import { getDisplayName, formatDate } from './helpers'
 import type { QuestionAuthor } from '@/lib/data/questions'
@@ -42,6 +43,23 @@ function AuthorRow({ author, date }: { author: QuestionAuthor; date: string }) {
           {name}
         </Link>
         <p className="truncate font-mono text-[9px] text-ink-faint mt-0.5">
+          {author.channel_name && (
+            <>
+              {author.platform_url ? (
+                <a
+                  href={author.platform_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-blue transition-colors"
+                >
+                  {author.channel_name}
+                </a>
+              ) : (
+                author.channel_name
+              )}
+              {' · '}
+            </>
+          )}
           {credential && `${credential} · `}
           {formatDate(date)}
         </p>
@@ -131,6 +149,93 @@ export function AnswerCountIndicator({ count }: { count: number }) {
 }
 
 // ---------------------------------------------------------------------------
+// "Add an answer" — expert/organisation/admin, propose-then-pending pattern
+// (faq-answers.tsx's AddAnswerForm is the pattern this mirrors). Admin's
+// submission publishes immediately instead of queuing (see submitAnswer's
+// own comment in lib/briefs/actions.ts), but the form itself doesn't need
+// to know that beyond showing the right confirmation message.
+// ---------------------------------------------------------------------------
+
+function AddAnswerForm({ briefSlug, questionId }: { briefSlug: string; questionId: string }) {
+  const [open, setOpen] = useState(false)
+  const [body, setBody] = useState('')
+  const [isPending, startTransition] = useTransition()
+  const [feedback, setFeedback] = useState<{ type: 'error' | 'success'; message: string } | null>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const fieldId = useId()
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        style={{ touchAction: 'manipulation' }}
+        className="inline-block rounded-sm font-mono text-[0.68rem] uppercase tracking-[0.08em] text-blue-ink underline decoration-dotted underline-offset-2 outline-none focus-visible:ring-2 focus-visible:ring-blue"
+      >
+        + Add an answer
+      </button>
+    )
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setFeedback(null)
+    startTransition(async () => {
+      const result = await submitAnswer(briefSlug, questionId, body)
+      if (result.error) {
+        setFeedback({ type: 'error', message: result.error })
+        textareaRef.current?.focus()
+      } else {
+        setBody('')
+        setFeedback({
+          type: 'success',
+          message: result.published
+            ? 'Answer published.'
+            : 'Answer submitted for review — it will appear here once approved.',
+        })
+      }
+    })
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-2 border-t border-line pt-4">
+      <label htmlFor={fieldId} className="block font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint">
+        Add your answer
+      </label>
+      <textarea
+        id={fieldId}
+        ref={textareaRef}
+        value={body}
+        onChange={(e) => setBody(e.target.value)}
+        rows={4}
+        maxLength={2000}
+        placeholder="Share your own answer to this question…"
+        disabled={isPending || feedback?.type === 'success'}
+        className="w-full resize-none border border-line bg-paper px-3 py-2.5 font-body text-sm text-ink placeholder:text-ink-faint/70 focus:outline-none focus:ring-2 focus:ring-blue disabled:opacity-50"
+      />
+      {feedback && (
+        <p
+          role={feedback.type === 'error' ? 'alert' : undefined}
+          className={`font-mono text-[10px] ${feedback.type === 'error' ? 'text-pink-ink' : 'text-blue-ink'}`}
+        >
+          {feedback.message}
+        </p>
+      )}
+      {feedback?.type !== 'success' && (
+        <button
+          type="submit"
+          disabled={isPending || !body.trim()}
+          style={{ touchAction: 'manipulation' }}
+          className="bg-ink px-4 py-2 font-mono text-[10px] uppercase tracking-[0.15em] text-paper transition-opacity hover:opacity-90 disabled:opacity-40"
+        >
+          {isPending ? 'Submitting…' : 'Submit answer'}
+        </button>
+      )}
+    </form>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // The actual list, rendered by qa.tsx's QuestionCard inside the
 // collapsible panel the pink +/× toggle controls.
 // ---------------------------------------------------------------------------
@@ -138,23 +243,28 @@ export function AnswerCountIndicator({ count }: { count: number }) {
 export function AnswersList({
   answers,
   briefSlug,
+  questionId,
   canEndorse,
+  canSubmit,
   voterTone,
 }: {
   answers: QuestionAnswer[]
   briefSlug: string
+  questionId: string
   canEndorse: boolean
+  canSubmit: boolean
   voterTone: VoterTone
 }) {
-  if (answers.length === 0) {
-    return <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-faint">No answers yet.</p>
-  }
-
   return (
     <div className="space-y-3 pt-1">
-      {answers.map((a) => (
-        <AnswerCard key={a.id} answer={a} briefSlug={briefSlug} canEndorse={canEndorse} voterTone={voterTone} />
-      ))}
+      {answers.length === 0 ? (
+        <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-faint">No answers yet.</p>
+      ) : (
+        answers.map((a) => (
+          <AnswerCard key={a.id} answer={a} briefSlug={briefSlug} canEndorse={canEndorse} voterTone={voterTone} />
+        ))
+      )}
+      {canSubmit && <AddAnswerForm briefSlug={briefSlug} questionId={questionId} />}
     </div>
   )
 }

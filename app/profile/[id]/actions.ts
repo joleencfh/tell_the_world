@@ -19,6 +19,7 @@ export interface ProfileUpdatePayload {
   availability?: AvailabilityStatus | null
   primary_platform?: PrimaryPlatform | null
   platform_url?: string | null
+  channel_name?: string | null
   audience_size?: number | null
   content_language?: string | null
   // Optional — journalist only
