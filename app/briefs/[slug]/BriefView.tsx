@@ -3,7 +3,6 @@
 import { useState, Fragment } from 'react'
 import Link from 'next/link'
 import Logo from '@/components/ui/Logo'
-import ProposeBriefModal from '@/components/ProposeBriefModal'
 import DarkBand from '@/components/ui/DarkBand'
 import {
   SECTION_ORDER,
@@ -12,20 +11,18 @@ import {
   SectionHeader,
   LockedPlaceholder,
   HeroChipBar,
-  ReviewersModal,
   TLDRList,
 } from './section-content'
 import { QuotesCarousel } from './quotes'
-import { AddQuoteModal, QuoteDetailModal } from './quote-modals'
-import { ContributeMenu, ContributeModals, type ContributeModalKind } from './contribute'
-import { QuestionsList, QuestionForm, ProposeCorrectionModal } from './qa'
+import { ContributeMenu, type ContributeModalKind } from './contribute'
+import { QuestionsList, QuestionForm } from './qa'
 import { ReviewEndorseControl } from './review-endorse'
 import { ExplainerSections } from './explainer'
 import { FAQSection } from './faq'
-import { CtaCarousel, SuggestCtaModal } from './ctas'
-import { CoverageCarousel, AddCoverageModal } from './coverage'
+import { CtaCarousel } from './ctas'
+import { CoverageCarousel } from './coverage'
 import { RelatedBriefsCarousel } from './related-briefs'
-import { FeedbackModal } from './feedback'
+import { BriefModals } from './brief-modals'
 import { computeReadTimeMinutes, getBriefNumber, getBriefCategory } from './helpers'
 import type {
   Brief,
@@ -43,6 +40,7 @@ import type {
   Coverage,
   RelatedBrief,
 } from './page'
+import type { FaqMeta } from '@/lib/data/faq-meta'
 
 // ---------------------------------------------------------------------------
 // Main component
@@ -60,6 +58,7 @@ interface BriefViewProps {
   myReviewStatus: ContributionStatus
   explainerContributions: ExplainerContributionInfo[]
   faqAnswersByQuestion: Record<string, FaqAnswer[]>
+  faqMetaByQuestion: Record<string, FaqMeta>
   ctas: Cta[]
   coverage: Coverage[]
   relatedBriefs: RelatedBrief[]
@@ -69,7 +68,7 @@ interface BriefViewProps {
 // dropping Media from the page was a deliberate call, but the data query
 // itself is out of scope for this change) but isn't destructured here since
 // nothing renders it anymore.
-export default function BriefView({ brief, quotes, endorsementBar, endorsementDetail, questions, answersByQuestion, currentUser, myReviewStatus, explainerContributions, faqAnswersByQuestion, ctas, coverage, relatedBriefs }: BriefViewProps) {
+export default function BriefView({ brief, quotes, endorsementBar, endorsementDetail, questions, answersByQuestion, currentUser, myReviewStatus, explainerContributions, faqAnswersByQuestion, faqMetaByQuestion, ctas, coverage, relatedBriefs }: BriefViewProps) {
   const isLoggedIn = !!currentUser
   const showSections = isLoggedIn || brief.visibility === 'public'
   const canContribute = currentUser?.role === 'expert' || currentUser?.role === 'organisation'
@@ -105,6 +104,12 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
   const [suggestCtaOpen, setSuggestCtaOpen] = useState(false)
   const [addCoverageOpen, setAddCoverageOpen] = useState(false)
   const [tldrFeedbackOpen, setTldrFeedbackOpen] = useState(false)
+  const [explainerFeedbackOpen, setExplainerFeedbackOpen] = useState(false)
+  // FAQ's "give feedback" (Part 6 step 1) needs to carry which question it's
+  // about, unlike TL;DR/Explainer's single fixed trigger above — one
+  // FeedbackModal instance here, its context built from whichever question
+  // set this.
+  const [faqFeedbackQuestion, setFaqFeedbackQuestion] = useState<string | null>(null)
   const [reviewersModalOpen, setReviewersModalOpen] = useState(false)
   const [addQuoteOpen, setAddQuoteOpen] = useState(false)
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null)
@@ -163,6 +168,17 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
               <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-ink-faint">
                 Brief No. {getBriefNumber(brief.id)} — {getBriefCategory(brief.topic_tag)}
               </span>
+              {/* Admin-only entry point into the existing brief editor (Part 5
+                  step 3) — no new editing capability, just a visible link
+                  into /admin/briefs/[id] from the live page. */}
+              {currentUser?.role === 'admin' && (
+                <Link
+                  href={`/admin/briefs/${brief.id}`}
+                  className="shrink-0 font-mono text-[10px] tracking-[0.3em] uppercase text-ink-faint hover:text-ink transition-colors"
+                >
+                  Edit this brief →
+                </Link>
+              )}
             </div>
 
             {/* Title/subtitle block + Contribute — flex row so the hero's
@@ -293,15 +309,29 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
                             description={meta.description}
                             numTone={type === 'faq' ? 'blue' : 'ink'}
                             action={
-                              // Visual-only button (no onClick), so — unlike
-                              // canContribute's other gated controls — it's
-                              // safe to also preview for admin.
                               type === 'faq' && (canContribute || currentUser?.role === 'admin') ? (
+                                // Opens the shared feedback mechanism (Part 0c)
+                                // rather than a role-gated submission, so —
+                                // unlike canContribute's other gated controls —
+                                // it's safe to also preview for admin.
                                 <button
                                   type="button" onClick={() => setActiveContributeModal('faq-question')} style={{ touchAction: 'manipulation' }}
                                   className="border-[1.5px] border-ink bg-paper px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.06em] text-ink transition-colors hover:border-blue hover:text-blue"
                                 >
                                   + Suggest question
+                                </button>
+                              ) : type === 'explainer' && (canContribute || currentUser?.role === 'admin') ? (
+                                // Part 5 step 6 — same slot pattern and role
+                                // gate as TL;DR's own "Suggest changes"
+                                // button, just a different feedback section
+                                // key ('explainer' vs 'tldr').
+                                <button
+                                  type="button"
+                                  onClick={() => setExplainerFeedbackOpen(true)}
+                                  style={{ touchAction: 'manipulation' }}
+                                  className="border-[1.5px] border-blue bg-paper px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.06em] text-blue-ink outline-none transition-colors hover:bg-blue hover:text-white focus-visible:ring-2 focus-visible:ring-blue"
+                                >
+                                  Suggest changes
                                 </button>
                               ) : undefined
                             }
@@ -310,18 +340,24 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
                             <ExplainerSections
                               sections={sections}
                               sourceSections={goingDeeperSections}
+                              timelineEvents={brief.brief_timeline_events}
                               briefId={brief.id}
                               briefSlug={brief.slug}
                               canContribute={canContribute}
                               contributions={explainerContributions}
+                              showGiveFeedback={isLoggedIn}
+                              onGiveFeedback={() => setExplainerFeedbackOpen(true)}
                             />
                           ) : (
                             <FAQSection
                               sections={sections}
                               briefId={brief.id}
                               briefSlug={brief.slug}
-                              canSubmit={canContribute}
+                              canSubmit={canContribute || currentUser?.role === 'admin'}
                               answersByQuestion={faqAnswersByQuestion}
+                              faqMetaByQuestion={faqMetaByQuestion}
+                              onGiveFeedback={setFaqFeedbackQuestion}
+                              isLoggedIn={isLoggedIn}
                             />
                           )}
                         </div>
@@ -493,79 +529,41 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
           </div>
         )}
 
-        {/* ── Propose correction modal ─────────────────────────────────── */}
-        {proposeCorrectionOpen && currentUser && (
-          <ProposeCorrectionModal
-            briefId={brief.id} briefSlug={brief.slug} briefTitle={brief.title} onClose={() => setProposeCorrectionOpen(false)}
-          />
-        )}
-
-        {/* ── Propose brief modal ───────────────────────────────────────── */}
-        {proposeBriefOpen && currentUser && (
-          <ProposeBriefModal
-            submitterName={currentUser.display_name || currentUser.email.split('@')[0]}
-            submitterEmail={currentUser.email}
-            fromBriefTitle={brief.title}
-            onClose={() => setProposeBriefOpen(false)}
-          />
-        )}
-
-        {/* ── Suggest a call to action modal ───────────────────────────── */}
-        {suggestCtaOpen && currentUser && (
-          <SuggestCtaModal
-            briefId={brief.id} briefSlug={brief.slug} briefTitle={brief.title} onClose={() => setSuggestCtaOpen(false)}
-          />
-        )}
-
-        {/* ── Add coverage modal ───────────────────────────────────────── */}
-        {addCoverageOpen && currentUser && (
-          <AddCoverageModal
-            briefId={brief.id} briefSlug={brief.slug} briefTitle={brief.title} onClose={() => setAddCoverageOpen(false)}
-          />
-        )}
-
-        {/* ── TL;DR "Suggest changes" feedback modal ───────────────────── */}
-        {tldrFeedbackOpen && currentUser && (
-          <FeedbackModal
-            context={{ briefId: brief.id, briefTitle: brief.title, section: 'tldr', sectionLabel: 'TL;DR' }}
-            onClose={() => setTldrFeedbackOpen(false)}
-          />
-        )}
-
-        {/* ── Add quote modal ──────────────────────────────────────────── */}
-        {addQuoteOpen && currentUser && (
-          <AddQuoteModal
-            briefId={brief.id} briefSlug={brief.slug} briefTitle={brief.title} defaultTags={brief.topic_tags} onClose={() => setAddQuoteOpen(false)}
-          />
-        )}
-
-        {/* ── Quote detail modal — rendered here, not inside the Quotes
-            band's anim-rise wrapper, same reasoning as ReviewersModal's own
-            comment below. No currentUser gate: viewing a quote's detail is
-            informational, available logged out too (like/copy just adapt). */}
-        {selectedQuote && (
-          <QuoteDetailModal quote={selectedQuote} briefSlug={brief.slug} isLoggedIn={isLoggedIn} onClose={() => setSelectedQuote(null)} />
-        )}
-
-        {/* ── Contribute menu's modals — activeContributeModal can only be
-            set by ContributeMenu above, which only renders for currentUser,
-            so no separate currentUser gate is needed here. ────────────── */}
-        <ContributeModals
-          brief={brief} myReviewStatus={myReviewStatus} active={activeContributeModal} onClose={() => setActiveContributeModal(null)}
+        {/* ── Every top-level modal — extracted to brief-modals.tsx to keep
+            this file under the repo's max-lines budget (CONTRIBUTING.md).
+            Rendered here (not nested in any anim-rise-wrapped section
+            above) so position:fixed modals aren't trapped as a containing
+            block by a completed anim-rise transform — see ReviewersModal's
+            own comment in section-content.tsx. ─────────────────────────── */}
+        <BriefModals
+          brief={brief}
+          currentUser={currentUser}
+          isLoggedIn={isLoggedIn}
+          myReviewStatus={myReviewStatus}
+          endorsementDetail={endorsementDetail}
+          proposeCorrectionOpen={proposeCorrectionOpen}
+          onCloseProposeCorrection={() => setProposeCorrectionOpen(false)}
+          proposeBriefOpen={proposeBriefOpen}
+          onCloseProposeBrief={() => setProposeBriefOpen(false)}
+          suggestCtaOpen={suggestCtaOpen}
+          onCloseSuggestCta={() => setSuggestCtaOpen(false)}
+          addCoverageOpen={addCoverageOpen}
+          onCloseAddCoverage={() => setAddCoverageOpen(false)}
+          tldrFeedbackOpen={tldrFeedbackOpen}
+          onCloseTldrFeedback={() => setTldrFeedbackOpen(false)}
+          explainerFeedbackOpen={explainerFeedbackOpen}
+          onCloseExplainerFeedback={() => setExplainerFeedbackOpen(false)}
+          faqFeedbackQuestion={faqFeedbackQuestion}
+          onCloseFaqFeedback={() => setFaqFeedbackQuestion(null)}
+          addQuoteOpen={addQuoteOpen}
+          onCloseAddQuote={() => setAddQuoteOpen(false)}
+          selectedQuote={selectedQuote}
+          onCloseSelectedQuote={() => setSelectedQuote(null)}
+          activeContributeModal={activeContributeModal}
+          onCloseContributeModal={() => setActiveContributeModal(null)}
+          reviewersModalOpen={reviewersModalOpen}
+          onCloseReviewersModal={() => setReviewersModalOpen(false)}
         />
-
-        {/* ── Reviewed/endorsed-by modal — rendered here, not inside the
-            hero, so it isn't trapped as a containing block by anim-rise's
-            resolved transform (see ReviewersModal's own comment). No
-            currentUser gate: viewing who reviewed a brief is informational,
-            not a submission, so it's available logged out too. ───────── */}
-        {reviewersModalOpen && (
-          <ReviewersModal
-            reviewers={endorsementDetail.reviewers}
-            endorsers={endorsementDetail.endorsers}
-            onClose={() => setReviewersModalOpen(false)}
-          />
-        )}
 
       </main>
 

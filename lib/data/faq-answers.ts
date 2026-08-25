@@ -23,12 +23,16 @@ export interface FaqAnswer {
   id: string
   question: string
   body: string
+  // Lexical editorState.toJSON() tree (migration 042) — see lib/richtext's
+  // read-side contract. Null for answers submitted before Part 6, or an
+  // author who didn't add any links/bold.
+  rich_content: unknown
   created_at: string
   users: FaqAnswerAuthor
 }
 
 const FAQ_ANSWER_SELECT =
-  'id, question, body, created_at, users(id, display_name, avatar_url, role, affiliation, org_name)'
+  'id, question, body, rich_content, created_at, users(id, display_name, avatar_url, role, affiliation, org_name)'
 
 // Published FAQ answers for a brief, grouped by exact question text — the
 // table has no FK to a specific FAQ item (questions are parsed out of

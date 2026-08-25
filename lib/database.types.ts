@@ -372,6 +372,7 @@ export type Database = {
           created_at: string
           id: string
           question: string
+          rich_content: Json | null
           status: string
         }
         Insert: {
@@ -381,6 +382,7 @@ export type Database = {
           created_at?: string
           id?: string
           question: string
+          rich_content?: Json | null
           status?: string
         }
         Update: {
@@ -390,6 +392,7 @@ export type Database = {
           created_at?: string
           id?: string
           question?: string
+          rich_content?: Json | null
           status?: string
         }
         Relationships: [
@@ -402,6 +405,47 @@ export type Database = {
           },
           {
             foreignKeyName: "brief_faq_answers_brief_id_fkey"
+            columns: ["brief_id"]
+            isOneToOne: false
+            referencedRelation: "briefs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      brief_faq_meta: {
+        Row: {
+          answer_rich_content: Json | null
+          brief_id: string
+          collaborator_user_ids: string[]
+          created_at: string
+          feedback_giver_user_ids: string[]
+          id: string
+          question: string
+          updated_at: string
+        }
+        Insert: {
+          answer_rich_content?: Json | null
+          brief_id: string
+          collaborator_user_ids?: string[]
+          created_at?: string
+          feedback_giver_user_ids?: string[]
+          id?: string
+          question: string
+          updated_at?: string
+        }
+        Update: {
+          answer_rich_content?: Json | null
+          brief_id?: string
+          collaborator_user_ids?: string[]
+          created_at?: string
+          feedback_giver_user_ids?: string[]
+          id?: string
+          question?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brief_faq_meta_brief_id_fkey"
             columns: ["brief_id"]
             isOneToOne: false
             referencedRelation: "briefs"
@@ -1205,6 +1249,42 @@ export type Database = {
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
           website_url?: string | null
+        }
+        Relationships: []
+      }
+      waitlist_signups: {
+        Row: {
+          additional_info: string | null
+          affiliation: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          linkedin_or_website_url: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          wants_early_access: boolean
+        }
+        Insert: {
+          additional_info?: string | null
+          affiliation?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          linkedin_or_website_url?: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          wants_early_access?: boolean
+        }
+        Update: {
+          additional_info?: string | null
+          affiliation?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          linkedin_or_website_url?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          wants_early_access?: boolean
         }
         Relationships: []
       }

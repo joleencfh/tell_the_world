@@ -22,12 +22,15 @@ import {
   type EditorState,
 } from 'lexical'
 
-// Minimal Lexical editor for Explainer subsections (docs/design/brief-feature/
-// brief-page-part2-plan.md §2, Part 0b): bold + links + paragraphs only, no
-// headings/lists/images — matches the fixed shape lib/richtext/types.ts and
-// lib/richtext/render.tsx know how to store/render. Deliberately avoids HTML
-// entirely (see the migration's comment for why) — onChange hands the caller
-// editorState.toJSON() directly, never an HTML string.
+// Minimal Lexical editor, originally built for Explainer subsections
+// (docs/design/brief-feature/brief-page-part2-plan.md §2, Part 0b) and
+// reused as-is for FAQ answer authoring (Part 6, both the primary answer's
+// admin-set override and expert-submitted "More answers"): bold + links +
+// paragraphs only, no headings/lists/images — matches the fixed shape
+// lib/richtext/types.ts and lib/richtext/render.tsx know how to store/
+// render. Deliberately avoids HTML entirely (see migration 033's comment
+// for why) — onChange hands the caller editorState.toJSON() directly,
+// never an HTML string.
 
 // A relative path (/briefs/some-slug) is treated as internal by the renderer;
 // anything else must be a well-formed http(s) URL. Rejects garbage input at
