@@ -5,9 +5,10 @@ import {
   approveApplication, rejectApplication,
   approveQuestion, dismissQuestion,
   approveCorrectionProposal, dismissCorrectionProposal,
-  dismissBriefProposal,
+  declineBriefProposal, convertProposalToBrief, linkProposalToBrief,
 } from '@/lib/admin/actions'
 import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal } from '@/lib/admin/actions'
+import type { BriefOption } from '@/lib/admin/brief-actions'
 
 // ---------------------------------------------------------------------------
 // Role badges
@@ -367,15 +368,34 @@ export function CorrectionProposalCard({ proposal }: { proposal: PendingCorrecti
 // Brief proposal card
 // ---------------------------------------------------------------------------
 
-export function BriefProposalCard({ proposal }: { proposal: BriefProposal }) {
+export function BriefProposalCard({ proposal, briefOptions }: { proposal: BriefProposal; briefOptions: BriefOption[] }) {
   const [expanded, setExpanded] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [minorChanges, setMinorChanges] = useState(false)
+  const [linkBriefId, setLinkBriefId] = useState('')
 
-  async function handleDismiss() {
+  async function handleDecline() {
     setLoading(true)
     setError(null)
-    const result = await dismissBriefProposal(proposal.id)
+    const result = await declineBriefProposal(proposal.id)
+    if (result.error) { setError(result.error); setLoading(false) }
+  }
+
+  async function handleConvert() {
+    setLoading(true)
+    setError(null)
+    // Redirects into the admin editor on success (never resolves here);
+    // only returns when the proposal turned out to already be resolved.
+    const result = await convertProposalToBrief(proposal.id, minorChanges)
+    if (result?.error) { setError(result.error); setLoading(false) }
+  }
+
+  async function handleLink() {
+    if (!linkBriefId) return
+    setLoading(true)
+    setError(null)
+    const result = await linkProposalToBrief(proposal.id, linkBriefId, minorChanges)
     if (result.error) { setError(result.error); setLoading(false) }
   }
 
@@ -424,14 +444,55 @@ export function BriefProposalCard({ proposal }: { proposal: BriefProposal }) {
             </p>
           </div>
           <Field label="Submitted by" value={`${proposal.submitter_name} (${proposal.submitter_email})`} />
+
+          <label className="flex items-center gap-2 font-mono text-[10px] tracking-[0.1em] uppercase text-ink-soft">
+            <input
+              type="checkbox"
+              checked={minorChanges}
+              onChange={(e) => setMinorChanges(e.target.checked)}
+              className="h-3.5 w-3.5"
+            />
+            Not too significant changes from the proposal
+          </label>
+
           {error && <p className="font-mono text-[10px] text-red-600" role="alert">{error}</p>}
-          <button
-            onClick={handleDismiss}
-            disabled={loading}
-            className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            {loading ? 'Dismissing…' : 'Dismiss'}
-          </button>
+
+          <div className="flex flex-wrap items-center gap-3 pt-1">
+            <button
+              onClick={handleConvert}
+              disabled={loading}
+              className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 bg-ink text-paper hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Working…' : 'Convert to new brief'}
+            </button>
+
+            <select
+              value={linkBriefId}
+              onChange={(e) => setLinkBriefId(e.target.value)}
+              disabled={loading}
+              className="font-mono text-[10px] tracking-[0.1em] border border-line bg-paper px-3 py-2.5 text-ink disabled:opacity-40"
+            >
+              <option value="">Link to existing brief…</option>
+              {briefOptions.map((b) => (
+                <option key={b.id} value={b.id}>{b.title}</option>
+              ))}
+            </select>
+            <button
+              onClick={handleLink}
+              disabled={loading || !linkBriefId}
+              className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Link
+            </button>
+
+            <button
+              onClick={handleDecline}
+              disabled={loading}
+              className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-40 disabled:cursor-not-allowed ml-auto"
+            >
+              {loading ? 'Working…' : 'Decline'}
+            </button>
+          </div>
         </div>
       )}
     </div>

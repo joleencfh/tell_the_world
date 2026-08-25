@@ -15,6 +15,7 @@ import {
   getBriefProposals,
   getWaitlistSignups,
 } from '@/lib/admin/actions'
+import { getBriefOptions } from '@/lib/admin/brief-actions'
 import AdminScreen from './AdminScreen'
 
 function toPage(v: string | string[] | undefined): number {
@@ -51,7 +52,7 @@ export default async function AdminPage({
   const waitlistPage = toPage(raw.waitlistPage)
 
   // Fetch data with the service-role client (bypasses RLS)
-  const [pendingResult, approvedResult, questionsResult, correctionProposalsResult, faqAnswersResult, questionAnswersResult, ctasResult, quotesResult, coverageResult, feedbackResult, reviewsResult, proposalsResult, waitlistResult] = await Promise.all([
+  const [pendingResult, approvedResult, questionsResult, correctionProposalsResult, faqAnswersResult, questionAnswersResult, ctasResult, quotesResult, coverageResult, feedbackResult, reviewsResult, proposalsResult, briefOptions, waitlistResult] = await Promise.all([
     getPendingApplications(pendingPage),
     getRecentlyApproved(approvedPage),
     getPendingQuestions(questionsPage),
@@ -64,6 +65,7 @@ export default async function AdminPage({
     getPendingBriefFeedback(feedbackPage),
     getBriefReviews(reviewsPage),
     getBriefProposals(proposalsPage),
+    getBriefOptions(),
     getWaitlistSignups(waitlistPage),
   ])
 
@@ -106,6 +108,7 @@ export default async function AdminPage({
       briefProposals={proposalsResult.data}
       briefProposalsCount={proposalsResult.count}
       proposalsPage={proposalsPage}
+      briefOptions={briefOptions}
       waitlistSignups={waitlistResult.data}
       waitlistSignupsCount={waitlistResult.count}
       waitlistPage={waitlistPage}

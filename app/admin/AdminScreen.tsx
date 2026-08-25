@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { createBrief } from '@/lib/admin/brief-actions'
+import type { BriefOption } from '@/lib/admin/brief-actions'
 import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingQuestionAnswer, PendingCta, PendingCoverage, PendingBriefFeedback, PendingQuote, BriefReview, WaitlistSignup } from '@/lib/admin/actions'
 import { ADMIN_PAGE_SIZE } from '@/lib/data/admin'
 import Pagination from '@/components/ui/Pagination'
@@ -61,6 +62,7 @@ interface Props {
   briefProposals: BriefProposal[]
   briefProposalsCount: number
   proposalsPage: number
+  briefOptions: BriefOption[]
   waitlistSignups: WaitlistSignup[]
   waitlistSignupsCount: number
   waitlistPage: number
@@ -108,6 +110,7 @@ export default function AdminScreen({
   briefProposals,
   briefProposalsCount,
   proposalsPage,
+  briefOptions,
   waitlistSignups,
   waitlistSignupsCount,
   waitlistPage,
@@ -458,7 +461,7 @@ export default function AdminScreen({
               ) : (
                 <div className="flex flex-col gap-2">
                   {briefProposals.map(p => (
-                    <BriefProposalCard key={p.id} proposal={p} />
+                    <BriefProposalCard key={p.id} proposal={p} briefOptions={briefOptions} />
                   ))}
                 </div>
               )}

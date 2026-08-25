@@ -280,6 +280,84 @@ export type Database = {
           },
         ]
       }
+      brief_coverage_comment_votes: {
+        Row: {
+          comment_id: string
+          created_at: string
+          direction: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          direction: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          direction?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brief_coverage_comment_votes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "brief_coverage_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brief_coverage_comment_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      brief_coverage_comments: {
+        Row: {
+          body: string
+          coverage_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          coverage_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          coverage_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brief_coverage_comments_coverage_id_fkey"
+            columns: ["coverage_id"]
+            isOneToOne: false
+            referencedRelation: "brief_coverage"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brief_coverage_comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       brief_coverage_likes: {
         Row: {
           coverage_id: string
@@ -322,6 +400,7 @@ export type Database = {
           brief_id: string
           created_at: string
           description: string | null
+          display_order: number | null
           id: string
           link_url: string
           status: string
@@ -332,6 +411,7 @@ export type Database = {
           brief_id: string
           created_at?: string
           description?: string | null
+          display_order?: number | null
           id?: string
           link_url: string
           status?: string
@@ -342,6 +422,7 @@ export type Database = {
           brief_id?: string
           created_at?: string
           description?: string | null
+          display_order?: number | null
           id?: string
           link_url?: string
           status?: string
@@ -503,6 +584,8 @@ export type Database = {
           created_at: string
           from_brief_title: string | null
           id: string
+          minor_changes_flag: boolean
+          published_brief_id: string | null
           status: string
           submitter_email: string
           submitter_name: string
@@ -514,6 +597,8 @@ export type Database = {
           created_at?: string
           from_brief_title?: string | null
           id?: string
+          minor_changes_flag?: boolean
+          published_brief_id?: string | null
           status?: string
           submitter_email: string
           submitter_name: string
@@ -525,6 +610,8 @@ export type Database = {
           created_at?: string
           from_brief_title?: string | null
           id?: string
+          minor_changes_flag?: boolean
+          published_brief_id?: string | null
           status?: string
           submitter_email?: string
           submitter_name?: string
@@ -533,6 +620,13 @@ export type Database = {
           why_it_matters?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "brief_proposals_published_brief_id_fkey"
+            columns: ["published_brief_id"]
+            isOneToOne: false
+            referencedRelation: "briefs"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "brief_proposals_user_id_fkey"
             columns: ["user_id"]

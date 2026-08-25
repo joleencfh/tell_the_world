@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import type { BriefVisibility, BriefSectionType, UserRole } from '@/lib/types'
-import { getBriefWithSectionsBySlug, getRelatedBriefs, type RelatedBrief, type BriefTimelineEvent } from '@/lib/data/briefs'
+import { getBriefWithSectionsBySlug, getRelatedBriefs, getBriefContributors, type RelatedBrief, type BriefTimelineEvent, type BriefContributor } from '@/lib/data/briefs'
 import { getQuotesForBrief, getMediaSection, type MediaPost } from '@/lib/data/posts'
 import {
   getEndorsementBar,
@@ -43,6 +43,7 @@ export type {
   VoteSplit,
   QuestionAnswer,
   BriefTimelineEvent,
+  BriefContributor,
 }
 
 export interface BriefSection {
@@ -142,7 +143,7 @@ export default async function BriefPage({
     .filter((s) => s.section_type === 'explainer')
     .map((s) => s.id)
 
-  const [quotes, media, endorsementBar, myReviewStatus, sectionCounts, myExplainerStatuses, faqAnswersMap, faqMetaMap, ctas, coverage, relatedBriefs] = await Promise.all([
+  const [quotes, media, endorsementBar, myReviewStatus, sectionCounts, myExplainerStatuses, faqAnswersMap, faqMetaMap, ctas, coverage, relatedBriefs, contributors] = await Promise.all([
     getQuotesForBrief(supabase, brief.id, brief.topic_tags, 4, user?.id ?? null),
     getMediaSection(supabase, brief.topic_tag, brief.pinned_media_post_id, 6),
     getEndorsementBar(supabase, brief.id, brief.brief_sections),
@@ -158,6 +159,7 @@ export default async function BriefPage({
     getPublishedCtas(supabase, brief.id),
     getPublishedCoverage(supabase, brief.id, user?.id ?? null),
     getRelatedBriefs(supabase, brief.id, brief.topic_tags, 3),
+    getBriefContributors(supabase, brief.id),
   ])
 
   // Converted from a Map to a plain object — Map doesn't round-trip cleanly
@@ -210,6 +212,7 @@ export default async function BriefPage({
       ctas={ctas}
       coverage={coverage}
       relatedBriefs={relatedBriefs}
+      contributors={contributors}
     />
   )
 }

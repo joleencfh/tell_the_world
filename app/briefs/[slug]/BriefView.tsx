@@ -12,6 +12,7 @@ import {
   LockedPlaceholder,
   HeroChipBar,
   TLDRList,
+  ContributorsList,
 } from './section-content'
 import { QuotesCarousel } from './quotes'
 import { ContributeMenu, type ContributeModalKind } from './contribute'
@@ -39,6 +40,7 @@ import type {
   Cta,
   Coverage,
   RelatedBrief,
+  BriefContributor,
 } from './page'
 import type { FaqMeta } from '@/lib/data/faq-meta'
 
@@ -62,13 +64,14 @@ interface BriefViewProps {
   ctas: Cta[]
   coverage: Coverage[]
   relatedBriefs: RelatedBrief[]
+  contributors: BriefContributor[]
 }
 
 // `media` stays in BriefViewProps (page.tsx still fetches and passes it —
 // dropping Media from the page was a deliberate call, but the data query
 // itself is out of scope for this change) but isn't destructured here since
 // nothing renders it anymore.
-export default function BriefView({ brief, quotes, endorsementBar, endorsementDetail, questions, answersByQuestion, currentUser, myReviewStatus, explainerContributions, faqAnswersByQuestion, faqMetaByQuestion, ctas, coverage, relatedBriefs }: BriefViewProps) {
+export default function BriefView({ brief, quotes, endorsementBar, endorsementDetail, questions, answersByQuestion, currentUser, myReviewStatus, explainerContributions, faqAnswersByQuestion, faqMetaByQuestion, ctas, coverage, relatedBriefs, contributors }: BriefViewProps) {
   const isLoggedIn = !!currentUser
   const showSections = isLoggedIn || brief.visibility === 'public'
   const canContribute = currentUser?.role === 'expert' || currentUser?.role === 'organisation'
@@ -232,6 +235,11 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
               topicTags={brief.topic_tags}
               onOpenReviewers={() => setReviewersModalOpen(true)}
             />
+
+            {/* Contributors — members whose proposed-brief submission was
+                converted/linked into this brief (Part 10 step 3). Renders
+                nothing when empty. */}
+            <ContributorsList contributors={contributors} />
 
             {/* Brief-level review/endorse control — expert/organisation only */}
             {canContribute && (

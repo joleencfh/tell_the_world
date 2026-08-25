@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import type { UserRole } from '@/lib/types'
-import { getRecentBriefs } from '@/lib/data/briefs'
+import { getRecentBriefs, getUserBriefProposals, type UserBriefProposal } from '@/lib/data/briefs'
 import { getUserBasic, getRecentUsers, getExpertOrgIds } from '@/lib/data/users'
 import { getPostsByAuthors } from '@/lib/data/posts'
 import Avatar from '@/components/ui/Avatar'
@@ -114,6 +114,48 @@ function EmptyState({ message }: { message: string }) {
   )
 }
 
+// Part 10 (docs/design/brief-feature/brief-page-part2-plan.md §2) — status
+// card for the submitter's own brief_proposals rows.
+const PROPOSAL_STATUS_LABEL: Record<UserBriefProposal['status'], string> = {
+  pending: 'Pending review',
+  approved: 'Approved',
+  declined: 'Declined',
+}
+
+const PROPOSAL_STATUS_CLASS: Record<UserBriefProposal['status'], string> = {
+  pending: 'bg-amber-100 text-amber-700',
+  approved: 'bg-green-100 text-green-700',
+  declined: 'bg-gray-100 text-gray-600',
+}
+
+function ProposalCard({ proposal }: { proposal: UserBriefProposal }) {
+  return (
+    <article className="bg-paper-raised border border-line rounded-xl p-5 flex flex-col gap-3">
+      <div className="flex items-start justify-between gap-3">
+        <h3 className="font-body text-sm font-bold text-ink leading-snug flex-1">
+          {proposal.topic_title}
+        </h3>
+        <span
+          className={`shrink-0 inline-block px-2 py-0.5 rounded-full font-mono text-[9px] tracking-[0.1em] uppercase ${PROPOSAL_STATUS_CLASS[proposal.status]}`}
+        >
+          {PROPOSAL_STATUS_LABEL[proposal.status]}
+        </span>
+      </div>
+      {proposal.status === 'approved' && proposal.published_brief_slug && (
+        <Link
+          href={`/briefs/${proposal.published_brief_slug}`}
+          className="font-mono text-[9px] tracking-[0.15em] uppercase text-ink-soft hover:text-ink transition-colors inline-flex items-center gap-1 group mt-auto"
+        >
+          Read brief{' '}
+          <span className="group-hover:translate-x-0.5 transition-transform" aria-hidden>
+            →
+          </span>
+        </Link>
+      )}
+    </article>
+  )
+}
+
 function BriefCard({ brief }: { brief: Brief }) {
   return (
     <article className="bg-paper-raised border border-line rounded-xl p-5 flex flex-col gap-3">
@@ -213,11 +255,12 @@ export default async function HomePage() {
   if (!user) redirect('/login')
 
   // Round 1 — parallel: current user, briefs, recently joined, expert/org IDs
-  const [currentUser, briefs, recentUsers, expertOrgIds] = await Promise.all([
+  const [currentUser, briefs, recentUsers, expertOrgIds, myProposals] = await Promise.all([
     getUserBasic(supabase, user.id),
     getRecentBriefs(supabase, 5),
     getRecentUsers(supabase, user.id, 8),
     getExpertOrgIds(supabase),
+    getUserBriefProposals(supabase, user.id),
   ])
 
   // Round 2 — posts filtered by expert/org user IDs
@@ -295,6 +338,21 @@ export default async function HomePage() {
                 complete your onboarding.
               </p>
             </div>
+          )}
+
+          {/* Your Proposals — only shown to members who've actually
+              proposed a brief; no empty-state fallback for everyone else,
+              same "additive, no empty-state chip" spirit as the
+              Contributors list this pairs with on BriefView.tsx. */}
+          {myProposals.length > 0 && (
+            <section>
+              <SectionHeader title="Your Proposals" />
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {myProposals.map((p) => (
+                  <ProposalCard key={p.id} proposal={p} />
+                ))}
+              </div>
+            </section>
           )}
 
           {/* Active Briefs */}
