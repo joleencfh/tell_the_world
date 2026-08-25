@@ -51,3 +51,4 @@ export type QuestionRow = Tables<'questions'>
 export type BriefContributionRow = Tables<'brief_contributions'>
 export type BriefCorrectionProposalRow = Tables<'brief_correction_proposals'>
 export type MessageRow = Tables<'messages'>
+export type WaitlistSignupRow = Tables<'waitlist_signups'>

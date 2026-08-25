@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/lib/database.types'
-import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingCta, PendingCoverage, PendingBriefFeedback, PendingQuote, BriefReview } from '@/lib/admin/actions'
+import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingCta, PendingCoverage, PendingBriefFeedback, PendingQuote, BriefReview, WaitlistSignup } from '@/lib/admin/actions'
 
 // Data-access layer for admin queue reads. See lib/data/briefs.ts for the
 // pattern. No auth here — callers (lib/admin/actions.ts) call requireAdmin()
@@ -123,6 +123,20 @@ export async function getPendingBriefFeedback(db: DB, page = 1): Promise<PagedRe
     .range(...range(page))
 
   return { data: error ? [] : (data as unknown as PendingBriefFeedback[]) ?? [], count: count ?? 0 }
+}
+
+// Waitlist signups (docs/design/landing-page/temp-landing-page-plan.md §2,
+// Part 1) — read-only list, no approve/reject step. Newest first, unlike
+// the moderation queues above (oldest first), since there's no backlog to
+// work through in order, just a list to glance at.
+export async function getWaitlistSignups(db: DB, page = 1): Promise<PagedResult<WaitlistSignup>> {
+  const { data, error, count } = await db
+    .from('waitlist_signups')
+    .select('id, role, email, full_name, affiliation, linkedin_or_website_url, additional_info, wants_early_access, created_at', { count: 'exact' })
+    .order('created_at', { ascending: false })
+    .range(...range(page))
+
+  return { data: error ? [] : (data as WaitlistSignup[]) ?? [], count: count ?? 0 }
 }
 
 // Reviews/endorsements publish immediately (no pending state, see

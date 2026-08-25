@@ -1,5 +1,12 @@
 import { test, expect } from '@playwright/test'
 
+// Landing page was replaced with a silent-launch page (waitlist signup,
+// no public briefs/apply flow) — see
+// docs/design/landing-page/temp-landing-page-plan.md. The old page these
+// tests targeted (briefs teaser grid, trust strip, "Apply to join") still
+// exists at components/landing/LegacyLandingPage.tsx but isn't routed
+// anywhere right now, so there's nothing left to test it against.
+
 test.describe('Landing page', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
@@ -15,83 +22,47 @@ test.describe('Landing page', () => {
   test('page title and heading', async ({ page }) => {
     await expect(page).toHaveTitle('Tell The World')
     await expect(page.getByRole('heading', { level: 1 })).toContainText(
-      'AI safety is'
+      'AI safety research rarely reaches'
     )
   })
 
-  test('nav — brand and login link', async ({ page }) => {
+  test('nav — brand and sign in link', async ({ page }) => {
     const header = page.getByRole('banner')
     await expect(header).toContainText('Tell The World')
-    const loginLink = header.getByRole('link', { name: 'Log in' })
-    await expect(loginLink).toBeVisible()
-    await expect(loginLink).toHaveAttribute('href', '/login')
+    const signInLink = header.getByRole('link', { name: 'Sign in' })
+    await expect(signInLink).toBeVisible()
+    await expect(signInLink).toHaveAttribute('href', '/login')
   })
 
-  test('hero — apply CTA links to /apply', async ({ page }) => {
-    const applyLinks = page.getByRole('link', { name: 'Apply to join' })
-    await expect(applyLinks.first()).toBeVisible()
-    await expect(applyLinks.first()).toHaveAttribute('href', '/apply')
+  test('hero — Join the waitlist opens the signup form', async ({ page }) => {
+    const cta = page.getByRole('button', { name: 'Join the waitlist' }).first()
+    await expect(cta).toBeVisible()
+    await cta.click()
+    await expect(page.getByRole('dialog')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Tell us who you are' })).toBeVisible()
   })
 
-  test('hero — "See active briefs" anchor', async ({ page }) => {
-    const anchor = page.getByRole('link', { name: /see active briefs/i })
-    await expect(anchor).toBeVisible()
-    await expect(anchor).toHaveAttribute('href', '#briefs')
+  test('two-circles section — both audiences visible', async ({ page }) => {
+    await expect(page.getByText('Creators & journalists')).toBeVisible()
+    await expect(page.getByText('Researchers & organisations')).toBeVisible()
   })
 
-  test("who's here — lists experts and organisations", async ({ page }) => {
-    await expect(page.getByText('Experts').first()).toBeVisible()
-    await expect(page.getByText('Organisations').first()).toBeVisible()
-    await expect(page.getByText('Dr. Stuart Russell')).toBeVisible()
-    await expect(page.getByText('UK AI Safety Institute')).toBeVisible()
+  test('closing section — waitlist and early-tester CTAs visible', async ({ page }) => {
+    await expect(page.getByRole('button', { name: 'Join the waitlist' }).last()).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Become an early tester' })).toBeVisible()
   })
 
-  test('public briefs — titles visible', async ({ page }) => {
-    await expect(
-      page.getByRole('heading', { name: 'Who Controls the Off Switch?' })
-    ).toBeVisible()
-    await expect(
-      page.getByRole('heading', { name: 'Inside the Alignment Labs' })
-    ).toBeVisible()
-  })
-
-  test('public briefs — "Cover this story" links to /apply', async ({ page }) => {
-    const links = page.getByRole('link', { name: /cover this story/i })
-    await expect(links.first()).toBeVisible()
-    await expect(links.first()).toHaveAttribute('href', '/apply')
-  })
-
-  test('members-only briefs — title and TLDR visible', async ({ page }) => {
-    await expect(
-      page.getByRole('heading', { name: 'The Compute Governance Gap' })
-    ).toBeVisible()
-    await expect(
-      page.getByRole('heading', { name: /Safety vs Speed/i })
-    ).toBeVisible()
-    await expect(
-      page.getByRole('heading', { name: /Are AI Safety Tests/i })
-    ).toBeVisible()
-  })
-
-  test('members-only briefs — show "Members only" badge and join prompt', async ({
-    page,
-  }) => {
-    await expect(page.getByText('Members only').first()).toBeVisible()
-    await expect(page.getByText('Full brief for members.').first()).toBeVisible()
-  })
-
-  test('members-only briefs — blurred section content is hidden from assistive tech', async ({
-    page,
-  }) => {
-    const hiddenBlocks = page.locator('[aria-hidden="true"].blur-\\[3px\\]')
-    await expect(hiddenBlocks.first()).toBeAttached()
-    await expect(hiddenBlocks.first()).toHaveAttribute('aria-hidden', 'true')
+  test('closing section — early tester shows the intro step first', async ({ page }) => {
+    await page.getByRole('button', { name: 'Become an early tester' }).click()
+    await expect(page.getByRole('heading', { name: 'Before you sign up' })).toBeVisible()
+    await page.getByRole('button', { name: 'Next', exact: true }).click()
+    await expect(page.getByRole('heading', { name: 'Tell us who you are' })).toBeVisible()
   })
 
   test('footer — brand mark, no links', async ({ page }) => {
     const footer = page.getByRole('contentinfo')
     await expect(footer).toContainText('Tell The World')
-    // The footer is deliberately link-free — Log in lives in the nav instead.
+    // The footer is deliberately link-free — Sign in lives in the nav instead.
     await expect(footer.getByRole('link')).toHaveCount(0)
   })
 
@@ -99,6 +70,6 @@ test.describe('Landing page', () => {
     await page.setViewportSize({ width: 375, height: 812 })
     await page.goto('/')
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Apply to join' }).first()).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Join the waitlist' }).first()).toBeVisible()
   })
 })

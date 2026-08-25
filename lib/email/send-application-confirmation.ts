@@ -1,6 +1,7 @@
 import 'server-only'
 
 import { sendEmail } from './send'
+import { COLOR, FONT, MONO, esc, nl2br, eyebrow, emailShell } from './brand'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -42,24 +43,12 @@ export interface ApplicationConfirmationData {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function esc(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-}
-
-function nl2br(str: string): string {
-  return esc(str).replace(/\n/g, '<br>')
-}
-
 function row(label: string, value: string | undefined): string {
   if (!value?.trim()) return ''
   return `
     <tr>
-      <td style="padding:10px 20px 10px 0;font-family:'Courier New',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#888;white-space:nowrap;vertical-align:top;border-bottom:1px solid #f0ede8;">${esc(label)}</td>
-      <td style="padding:10px 0;font-family:Georgia,'Times New Roman',serif;font-size:14px;color:#1a1a1a;line-height:1.7;border-bottom:1px solid #f0ede8;">${nl2br(value)}</td>
+      <td style="padding:10px 20px 10px 0;font-family:${MONO};font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:${COLOR.inkFaint};white-space:nowrap;vertical-align:top;border-bottom:1px solid ${COLOR.line};">${esc(label)}</td>
+      <td style="padding:10px 0;font-family:${FONT};font-size:14px;color:${COLOR.ink};line-height:1.7;border-bottom:1px solid ${COLOR.line};">${nl2br(value)}</td>
     </tr>`
 }
 
@@ -145,63 +134,22 @@ export async function sendApplicationConfirmation(
     row('Additional info', data.additional_info),
   ].join('')
 
-  const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-</head>
-<body style="margin:0;padding:0;background:#f5f3ee;font-family:Georgia,'Times New Roman',serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#f5f3ee;padding:48px 16px;">
-    <tr>
-      <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="max-width:560px;background:#ffffff;border:1px solid #e5e1d8;">
+  const bodyHtml = `
+    ${eyebrow('Application received')}
+    <p style="margin:0 0 32px;font-family:${FONT};font-size:15px;line-height:1.75;color:${COLOR.inkSoft};">
+      Hi ${esc(data.first_name)}, thanks for applying! Here&rsquo;s a copy of your submission.
+    </p>
+    <p style="margin:0 0 0;font-family:${MONO};font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:${COLOR.inkFaint};border-top:1px solid ${COLOR.line};padding-top:20px;">
+      Your submission
+    </p>
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-bottom:28px;">
+      ${summaryRows}
+    </table>
+    <p style="margin:0;font-family:${FONT};font-size:12px;line-height:1.7;color:${COLOR.inkFaint};">
+      If anything above looks wrong, just reply to this email and let us know.
+    </p>`
 
-          <!-- Brand header -->
-          <tr>
-            <td style="padding:28px 40px;border-bottom:1px solid #e5e1d8;">
-              <span style="font-family:Georgia,serif;font-size:16px;font-weight:bold;color:#1a1a1a;letter-spacing:-0.01em;">
-                Tell <em style="font-style:italic;color:#b45309;">The</em> World
-              </span>
-            </td>
-          </tr>
-
-          <!-- Body -->
-          <tr>
-            <td style="padding:40px 40px 36px;">
-
-              <!-- Eyebrow -->
-              <p style="margin:0 0 14px;font-family:'Courier New',monospace;font-size:10px;letter-spacing:0.25em;text-transform:uppercase;color:#888888;">
-                Application received
-              </p>
-
-              <!-- Intro -->
-              <p style="margin:0 0 36px;font-family:Georgia,'Times New Roman',serif;font-size:15px;line-height:1.8;color:#555555;">
-                Hi ${esc(data.first_name)}, thanks for applying! Here is a copy of your submission.
-              </p>
-
-              <!-- Submission summary -->
-              <p style="margin:0 0 0;font-family:'Courier New',monospace;font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:#aaaaaa;border-top:1px solid #e5e1d8;padding-top:20px;">
-                Your submission
-              </p>
-              <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-bottom:32px;">
-                ${summaryRows}
-              </table>
-
-              <!-- Footer note -->
-              <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:13px;line-height:1.7;color:#aaaaaa;border-top:1px solid #e5e1d8;padding-top:24px;">
-                If anything above looks wrong, just reply to this email and let us know.
-              </p>
-
-            </td>
-          </tr>
-
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`
+  const html = emailShell({ bodyHtml, maxWidth: 560 })
 
   if (!process.env.RESEND_API_KEY) {
     throw new Error('RESEND_API_KEY is not set — confirmation email cannot be sent')
