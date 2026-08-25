@@ -322,6 +322,7 @@ export type Database = {
           brief_id: string
           created_at: string
           description: string | null
+          display_order: number | null
           id: string
           link_url: string
           status: string
@@ -332,6 +333,7 @@ export type Database = {
           brief_id: string
           created_at?: string
           description?: string | null
+          display_order?: number | null
           id?: string
           link_url: string
           status?: string
@@ -342,6 +344,7 @@ export type Database = {
           brief_id?: string
           created_at?: string
           description?: string | null
+          display_order?: number | null
           id?: string
           link_url?: string
           status?: string
