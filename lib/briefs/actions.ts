@@ -106,7 +106,7 @@ export async function submitFaqAnswer(
     question,
     author_user_id: user.id,
     body: trimmed,
-    // rich_content (migration 040) is the Lexical editorState.toJSON() tree
+    // rich_content (migration 042) is the Lexical editorState.toJSON() tree
     // from the same shared editor Explainer subsections use (Part 0b);
     // `body` stays the not-null plain-text mirror the fallback render path
     // and any plain-text consumers read.

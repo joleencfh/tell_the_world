@@ -23,7 +23,7 @@ export interface FaqAnswer {
   id: string
   question: string
   body: string
-  // Lexical editorState.toJSON() tree (migration 040) — see lib/richtext's
+  // Lexical editorState.toJSON() tree (migration 042) — see lib/richtext's
   // read-side contract. Null for answers submitted before Part 6, or an
   // author who didn't add any links/bold.
   rich_content: unknown

@@ -12,6 +12,7 @@ import {
   getPendingBriefFeedback,
   getBriefReviews,
   getBriefProposals,
+  getWaitlistSignups,
 } from '@/lib/admin/actions'
 import AdminScreen from './AdminScreen'
 
@@ -45,9 +46,10 @@ export default async function AdminPage({
   const reviewsPage = toPage(raw.reviewsPage)
   const proposalsPage = toPage(raw.proposalsPage)
   const approvedPage = toPage(raw.approvedPage)
+  const waitlistPage = toPage(raw.waitlistPage)
 
   // Fetch data with the service-role client (bypasses RLS)
-  const [pendingResult, approvedResult, questionsResult, correctionProposalsResult, faqAnswersResult, ctasResult, quotesResult, coverageResult, feedbackResult, reviewsResult, proposalsResult] = await Promise.all([
+  const [pendingResult, approvedResult, questionsResult, correctionProposalsResult, faqAnswersResult, ctasResult, quotesResult, coverageResult, feedbackResult, reviewsResult, proposalsResult, waitlistResult] = await Promise.all([
     getPendingApplications(pendingPage),
     getRecentlyApproved(approvedPage),
     getPendingQuestions(questionsPage),
@@ -59,6 +61,7 @@ export default async function AdminPage({
     getPendingBriefFeedback(feedbackPage),
     getBriefReviews(reviewsPage),
     getBriefProposals(proposalsPage),
+    getWaitlistSignups(waitlistPage),
   ])
 
   return (
@@ -97,6 +100,9 @@ export default async function AdminPage({
       briefProposals={proposalsResult.data}
       briefProposalsCount={proposalsResult.count}
       proposalsPage={proposalsPage}
+      waitlistSignups={waitlistResult.data}
+      waitlistSignupsCount={waitlistResult.count}
+      waitlistPage={waitlistPage}
     />
   )
 }

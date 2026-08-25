@@ -2,91 +2,13 @@
 
 import { useState } from 'react'
 
-// ---------------------------------------------------------------------------
-// Content parsers
-// ---------------------------------------------------------------------------
-
-export interface SourceItem {
-  title: string
-  description: string
-  url: string | null
-  summary?: string
-  takeaways?: string[]
-}
-
-type ParseMode = 'desc' | 'summary' | 'takeaways'
-
-export function parseSources(content: string): SourceItem[] | null {
-  const lines = content.split('\n')
-  const items: SourceItem[] = []
-  let current: {
-    titleLine: string
-    descLines: string[]
-    url: string | null
-    summaryLines: string[]
-    takeaways: string[]
-    mode: ParseMode
-  } | null = null
-
-  for (const line of lines) {
-    const trimmed = line.trim()
-    // Only '•' starts a new source item — '- ' is reserved for takeaway bullets
-    if (line.startsWith('•')) {
-      if (current) items.push(buildSourceItem(current))
-      current = { titleLine: trimmed.replace(/^•\s*/, ''), descLines: [], url: null, summaryLines: [], takeaways: [], mode: 'desc' }
-    } else if (current) {
-      if (trimmed.match(/^https?:\/\//)) {
-        current.url = trimmed
-        current.mode = 'desc'
-      } else if (trimmed.toLowerCase().startsWith('summary:')) {
-        current.mode = 'summary'
-        const rest = trimmed.replace(/^summary:\s*/i, '')
-        if (rest) current.summaryLines.push(rest)
-      } else if (trimmed.toLowerCase().match(/^(key )?takeaways?:/)) {
-        current.mode = 'takeaways'
-      } else if (current.mode === 'takeaways' && trimmed.startsWith('- ')) {
-        current.takeaways.push(trimmed.replace(/^-\s*/, ''))
-      } else if (current.mode === 'summary' && trimmed) {
-        current.summaryLines.push(trimmed)
-      } else if (current.mode === 'desc' && trimmed) {
-        current.descLines.push(trimmed)
-      }
-    }
-  }
-  if (current) items.push(buildSourceItem(current))
-  return items.length >= 2 ? items : null
-}
-
-function buildSourceItem(raw: {
-  titleLine: string
-  descLines: string[]
-  url: string | null
-  summaryLines: string[]
-  takeaways: string[]
-}): SourceItem {
-  let title = raw.titleLine
-  let description = raw.descLines.join(' ')
-
-  const quotedMatch = raw.titleLine.match(/^[""""](.+?)[""""](.*)/)
-  if (quotedMatch) {
-    title = quotedMatch[1]
-    const rest = quotedMatch[2].replace(/^\s*[—–-]\s*/, '')
-    description = (rest + ' ' + description).trim()
-  } else {
-    const dashMatch = raw.titleLine.match(/^(.+?)\s+[—–-]\s+(.+)/)
-    if (dashMatch) {
-      title = dashMatch[1]
-      description = (dashMatch[2] + ' ' + description).trim()
-    }
-  }
-  return {
-    title: title.trim(),
-    description: description.trim(),
-    url: raw.url,
-    summary: raw.summaryLines.length > 0 ? raw.summaryLines.join(' ') : undefined,
-    takeaways: raw.takeaways.length > 0 ? raw.takeaways : undefined,
-  }
-}
+// Parsing lives in lib/briefs/parse-sources.ts (plain module, no 'use
+// client') so lib/admin/brief-actions.ts's save-time validation (Part 5
+// step 5: a source with no Publisher line is a save-blocking error, not a
+// silent gap) can import the exact same parser instead of duplicating it.
+export { parseSources } from '@/lib/briefs/parse-sources'
+export type { SourceItem } from '@/lib/briefs/parse-sources'
+import type { SourceItem } from '@/lib/briefs/parse-sources'
 
 // ---------------------------------------------------------------------------
 // Source card — clickable, opens detail drawer
@@ -112,7 +34,7 @@ function SourceCard({
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClick() }}
       style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-      className={`group flex cursor-pointer select-none flex-col gap-3 border border-line border-l-[3px] bg-paper p-5 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-blue
+      className={`group flex cursor-pointer select-none flex-col gap-2.5 border border-line border-l-[3px] bg-paper p-3.5 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-blue
         ${isSelected
           ? 'border-l-blue ring-1 ring-blue/20'
           : isOtherSelected
@@ -135,6 +57,12 @@ function SourceCard({
           ↓
         </span>
       </div>
+      {/* Publisher — provenance (Part 5 step 5), required at authoring time
+          (lib/admin/brief-actions.ts's saveBrief rejects a source with no
+          Publisher line) so every card can show one. */}
+      {item.publisher && (
+        <p className="pl-8 font-mono text-[10px] uppercase tracking-[0.1em] text-ink-faint">{item.publisher}</p>
+      )}
       {item.description && (
         <p className="pl-8 font-body text-sm leading-relaxed text-ink-soft">{item.description}</p>
       )}
@@ -192,6 +120,9 @@ function SourceDrawer({
             <h3 className="font-display text-xl uppercase leading-tight text-ink">
               {item.title}
             </h3>
+            {item.publisher && (
+              <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.15em] text-ink-faint">{item.publisher}</p>
+            )}
           </div>
           <button
             type="button"
@@ -260,18 +191,28 @@ function SourceDrawer({
 // Sources grid — manages open drawer per row
 // ---------------------------------------------------------------------------
 
+// Renders only the first PAGE_SIZE sources by default (Part 5 step 4) — a
+// brief with a long source list no longer dumps every card onto the page
+// at once. "Show N more" is a plain reveal (no pagination state to persist,
+// no re-fetch), matching the rest of this page's client-only interactions.
+const PAGE_SIZE = 6
+
 export function SourcesGrid({ items }: { items: SourceItem[] }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
+  const [showAll, setShowAll] = useState(false)
 
   function toggle(i: number) {
     setOpenIndex((prev) => (prev === i ? null : i))
   }
 
+  const visibleItems = showAll ? items : items.slice(0, PAGE_SIZE)
+  const remaining = items.length - visibleItems.length
+
   // Group into rows of 2 so the drawer appears below the correct row
   const rows: { item: SourceItem; globalIndex: number }[][] = []
-  for (let i = 0; i < items.length; i += 2) {
-    const row: { item: SourceItem; globalIndex: number }[] = [{ item: items[i], globalIndex: i }]
-    if (items[i + 1]) row.push({ item: items[i + 1], globalIndex: i + 1 })
+  for (let i = 0; i < visibleItems.length; i += 2) {
+    const row: { item: SourceItem; globalIndex: number }[] = [{ item: visibleItems[i], globalIndex: i }]
+    if (visibleItems[i + 1]) row.push({ item: visibleItems[i + 1], globalIndex: i + 1 })
     rows.push(row)
   }
 
@@ -304,6 +245,16 @@ export function SourcesGrid({ items }: { items: SourceItem[] }) {
           </div>
         )
       })}
+      {remaining > 0 && (
+        <button
+          type="button"
+          onClick={() => setShowAll(true)}
+          style={{ touchAction: 'manipulation' }}
+          className="w-full border-[1.5px] border-line-strong bg-paper px-4 py-2.5 font-mono text-[0.68rem] uppercase tracking-[0.1em] text-ink-soft outline-none transition-colors hover:border-blue hover:text-blue-ink focus-visible:ring-2 focus-visible:ring-blue"
+        >
+          Show {remaining} more source{remaining === 1 ? '' : 's'}
+        </button>
+      )}
     </div>
   )
 }

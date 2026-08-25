@@ -1252,6 +1252,42 @@ export type Database = {
         }
         Relationships: []
       }
+      waitlist_signups: {
+        Row: {
+          additional_info: string | null
+          affiliation: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          linkedin_or_website_url: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          wants_early_access: boolean
+        }
+        Insert: {
+          additional_info?: string | null
+          affiliation?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          linkedin_or_website_url?: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          wants_early_access?: boolean
+        }
+        Update: {
+          additional_info?: string | null
+          affiliation?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          linkedin_or_website_url?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          wants_early_access?: boolean
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

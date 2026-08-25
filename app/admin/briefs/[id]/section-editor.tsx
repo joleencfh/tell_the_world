@@ -69,8 +69,10 @@ const SECTION_HELP: Record<BriefSection['section_type'], { instructions: ReactNo
     instructions: (
       <>
         One source per block, starting with a line beginning{' '}
-        <code className="font-mono text-[11px]">•</code>. Optionally followed by a URL line, a{' '}
-        <code className="font-mono text-[11px]">Summary:</code> line, and a{' '}
+        <code className="font-mono text-[11px]">•</code>. Followed by a required{' '}
+        <code className="font-mono text-[11px]">Publisher:</code> line naming the outlet or organisation behind the
+        source — <strong className="text-ink">a source without one is rejected on save.</strong> Optionally also a
+        URL line, a <code className="font-mono text-[11px]">Summary:</code> line, and a{' '}
         <code className="font-mono text-[11px]">Key takeaways:</code> line with{' '}
         <code className="font-mono text-[11px]">- </code> bullets below it. Separate sources with a blank line —
         needs at least 2 sources to render. Renders folded into the Explainer section&apos;s Sources block on the
@@ -78,7 +80,7 @@ const SECTION_HELP: Record<BriefSection['section_type'], { instructions: ReactNo
       </>
     ),
     placeholder:
-      '• "Quoted title" — a short description of the source\nhttps://example.com/article\nSummary: A longer summary of the source.\nKey takeaways:\n- First takeaway\n- Second takeaway\n\n• Another source — description',
+      '• "Quoted title" — a short description of the source\nPublisher: Example News\nhttps://example.com/article\nSummary: A longer summary of the source.\nKey takeaways:\n- First takeaway\n- Second takeaway\n\n• Another source — description\nPublisher: Another Outlet',
     rows: 12,
   },
   explainer: {

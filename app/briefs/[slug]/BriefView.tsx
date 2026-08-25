@@ -102,9 +102,11 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
   const [suggestCtaOpen, setSuggestCtaOpen] = useState(false)
   const [addCoverageOpen, setAddCoverageOpen] = useState(false)
   const [tldrFeedbackOpen, setTldrFeedbackOpen] = useState(false)
+  const [explainerFeedbackOpen, setExplainerFeedbackOpen] = useState(false)
   // FAQ's "give feedback" (Part 6 step 1) needs to carry which question it's
-  // about, unlike TL;DR's single fixed trigger above — one FeedbackModal
-  // instance here, its context built from whichever question set this.
+  // about, unlike TL;DR/Explainer's single fixed trigger above — one
+  // FeedbackModal instance here, its context built from whichever question
+  // set this.
   const [faqFeedbackQuestion, setFaqFeedbackQuestion] = useState<string | null>(null)
   const [reviewersModalOpen, setReviewersModalOpen] = useState(false)
   const [addQuoteOpen, setAddQuoteOpen] = useState(false)
@@ -164,6 +166,17 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
               <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-ink-faint">
                 Brief No. {getBriefNumber(brief.id)} — {getBriefCategory(brief.topic_tag)}
               </span>
+              {/* Admin-only entry point into the existing brief editor (Part 5
+                  step 3) — no new editing capability, just a visible link
+                  into /admin/briefs/[id] from the live page. */}
+              {currentUser?.role === 'admin' && (
+                <Link
+                  href={`/admin/briefs/${brief.id}`}
+                  className="shrink-0 font-mono text-[10px] tracking-[0.3em] uppercase text-ink-faint hover:text-ink transition-colors"
+                >
+                  Edit this brief →
+                </Link>
+              )}
             </div>
 
             {/* Title/subtitle block + Contribute — flex row so the hero's
@@ -294,16 +307,29 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
                             description={meta.description}
                             numTone={type === 'faq' ? 'blue' : 'ink'}
                             action={
-                              // Opens the shared feedback mechanism (Part 0c)
-                              // rather than a role-gated submission, so —
-                              // unlike canContribute's other gated controls —
-                              // it's safe to also preview for admin.
                               type === 'faq' && (canContribute || currentUser?.role === 'admin') ? (
+                                // Opens the shared feedback mechanism (Part 0c)
+                                // rather than a role-gated submission, so —
+                                // unlike canContribute's other gated controls —
+                                // it's safe to also preview for admin.
                                 <button
                                   type="button" onClick={() => setActiveContributeModal('faq-question')} style={{ touchAction: 'manipulation' }}
                                   className="border-[1.5px] border-ink bg-paper px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.06em] text-ink transition-colors hover:border-blue hover:text-blue"
                                 >
                                   + Suggest question
+                                </button>
+                              ) : type === 'explainer' && (canContribute || currentUser?.role === 'admin') ? (
+                                // Part 5 step 6 — same slot pattern and role
+                                // gate as TL;DR's own "Suggest changes"
+                                // button, just a different feedback section
+                                // key ('explainer' vs 'tldr').
+                                <button
+                                  type="button"
+                                  onClick={() => setExplainerFeedbackOpen(true)}
+                                  style={{ touchAction: 'manipulation' }}
+                                  className="border-[1.5px] border-blue bg-paper px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.06em] text-blue-ink outline-none transition-colors hover:bg-blue hover:text-white focus-visible:ring-2 focus-visible:ring-blue"
+                                >
+                                  Suggest changes
                                 </button>
                               ) : undefined
                             }
@@ -312,10 +338,13 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
                             <ExplainerSections
                               sections={sections}
                               sourceSections={goingDeeperSections}
+                              timelineEvents={brief.brief_timeline_events}
                               briefId={brief.id}
                               briefSlug={brief.slug}
                               canContribute={canContribute}
                               contributions={explainerContributions}
+                              showGiveFeedback={isLoggedIn}
+                              onGiveFeedback={() => setExplainerFeedbackOpen(true)}
                             />
                           ) : (
                             <FAQSection
@@ -508,8 +537,7 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
           currentUser={currentUser}
           isLoggedIn={isLoggedIn}
           myReviewStatus={myReviewStatus}
-          reviewers={endorsementDetail.reviewers}
-          endorsers={endorsementDetail.endorsers}
+          endorsementDetail={endorsementDetail}
           proposeCorrectionOpen={proposeCorrectionOpen}
           onCloseProposeCorrection={() => setProposeCorrectionOpen(false)}
           proposeBriefOpen={proposeBriefOpen}
@@ -520,12 +548,14 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
           onCloseAddCoverage={() => setAddCoverageOpen(false)}
           tldrFeedbackOpen={tldrFeedbackOpen}
           onCloseTldrFeedback={() => setTldrFeedbackOpen(false)}
+          explainerFeedbackOpen={explainerFeedbackOpen}
+          onCloseExplainerFeedback={() => setExplainerFeedbackOpen(false)}
           faqFeedbackQuestion={faqFeedbackQuestion}
           onCloseFaqFeedback={() => setFaqFeedbackQuestion(null)}
           addQuoteOpen={addQuoteOpen}
           onCloseAddQuote={() => setAddQuoteOpen(false)}
           selectedQuote={selectedQuote}
-          onCloseQuoteDetail={() => setSelectedQuote(null)}
+          onCloseSelectedQuote={() => setSelectedQuote(null)}
           activeContributeModal={activeContributeModal}
           onCloseContributeModal={() => setActiveContributeModal(null)}
           reviewersModalOpen={reviewersModalOpen}

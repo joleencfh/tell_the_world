@@ -4,7 +4,7 @@ import RichTextEditor from '@/lib/richtext/editor'
 import type { UserOption } from '@/lib/admin/brief-actions'
 
 // ---------------------------------------------------------------------------
-// FAQ per-question metadata (Part 6, brief_faq_meta migration 039) — the
+// FAQ per-question metadata (Part 6, brief_faq_meta migration 041) — the
 // primary Q:/A: answer above (SectionEditor's plain textarea, SECTION_HELP.faq)
 // stays the source of truth for question/answer text; this editor attaches
 // collaborator/feedback-giver bylines and an optional rich-text override to

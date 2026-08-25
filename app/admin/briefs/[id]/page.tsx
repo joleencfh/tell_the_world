@@ -18,7 +18,7 @@ export default async function EditBriefPage({ params }: Props) {
     redirect('/login')
   }
 
-  const [{ brief, sections, faqMeta, error }, mediaOptions, userOptions] = await Promise.all([
+  const [{ brief, sections, faqMeta, timelineEvents, error }, mediaOptions, userOptions] = await Promise.all([
     getBrief(id),
     getMediaPickerOptions(),
     getUserOptions(),
@@ -31,6 +31,7 @@ export default async function EditBriefPage({ params }: Props) {
       adminEmail={user.email!}
       brief={brief}
       sections={sections}
+      timelineEvents={timelineEvents}
       mediaOptions={mediaOptions}
       userOptions={userOptions}
       faqMeta={faqMeta}

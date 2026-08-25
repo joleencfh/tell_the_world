@@ -4,9 +4,10 @@ import { useState, useCallback } from 'react'
 import Link from 'next/link'
 import Logo from '@/components/ui/Logo'
 import { saveBrief, deleteBrief } from '@/lib/admin/brief-actions'
-import type { Brief, BriefSection, MediaPickerOption, UserOption, FaqMetaRow } from '@/lib/admin/brief-actions'
+import type { Brief, BriefSection, MediaPickerOption, TimelineEvent, UserOption, FaqMetaRow } from '@/lib/admin/brief-actions'
 import { plainTextToRichContent } from '@/lib/richtext/types'
 import { SectionEditor, type EditableSection } from './section-editor'
+import { TimelineEditor, type EditableTimelineEvent } from './timeline-editor'
 import { FaqMetaEditor, DEFAULT_FAQ_META, type EditableFaqMeta } from './faq-meta-editor'
 import { parseFAQ } from '@/lib/briefs/parse-faq'
 
@@ -18,12 +19,13 @@ interface Props {
   adminEmail: string
   brief: Brief
   sections: BriefSection[]
+  timelineEvents: TimelineEvent[]
   mediaOptions: MediaPickerOption[]
   userOptions: UserOption[]
   faqMeta: FaqMetaRow[]
 }
 
-export default function EditBriefScreen({ adminEmail, brief, sections: initialSections, mediaOptions, userOptions, faqMeta: initialFaqMeta }: Props) {
+export default function EditBriefScreen({ adminEmail, brief, sections: initialSections, timelineEvents: initialTimelineEvents, mediaOptions, userOptions, faqMeta: initialFaqMeta }: Props) {
   const [title, setTitle]           = useState(brief.title)
   const [subtitle, setSubtitle]     = useState(brief.subtitle ?? '')
   const [topicTag, setTopicTag]     = useState(brief.topic_tag ?? '')
@@ -34,6 +36,11 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
     [...initialSections]
       .sort((a, b) => a.display_order - b.display_order)
       .map(s => ({ ...s, clientKey: s.id }))
+  )
+  const [timelineEvents, setTimelineEvents] = useState<EditableTimelineEvent[]>(
+    [...initialTimelineEvents]
+      .sort((a, b) => a.display_order - b.display_order)
+      .map(e => ({ clientKey: e.id, event_name: e.event_name, event_date: e.event_date, display_order: e.display_order }))
   )
   const [saving, setSaving]         = useState(false)
   const [saveError, setSaveError]   = useState<string | null>(null)
@@ -119,6 +126,39 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
     )
   }
 
+  function addTimelineEvent() {
+    setTimelineEvents(prev => [
+      ...prev,
+      { clientKey: crypto.randomUUID(), event_name: '', event_date: '', display_order: prev.length + 1 },
+    ])
+  }
+
+  function removeTimelineEvent(key: string) {
+    setTimelineEvents(prev =>
+      prev.filter(e => e.clientKey !== key).map((e, i) => ({ ...e, display_order: i + 1 })),
+    )
+  }
+
+  function moveTimelineEvent(key: string, dir: 'up' | 'down') {
+    setTimelineEvents(prev => {
+      const idx = prev.findIndex(e => e.clientKey === key)
+      if (dir === 'up' && idx === 0) return prev
+      if (dir === 'down' && idx === prev.length - 1) return prev
+      const next = [...prev]
+      const swap = dir === 'up' ? idx - 1 : idx + 1
+      ;[next[idx], next[swap]] = [next[swap], next[idx]]
+      return next.map((e, i) => ({ ...e, display_order: i + 1 }))
+    })
+  }
+
+  function handleTimelineNameChange(key: string, event_name: string) {
+    setTimelineEvents(prev => prev.map(e => e.clientKey === key ? { ...e, event_name } : e))
+  }
+
+  function handleTimelineDateChange(key: string, event_date: string) {
+    setTimelineEvents(prev => prev.map(e => e.clientKey === key ? { ...e, event_date } : e))
+  }
+
   async function handleSave() {
     setSaving(true)
     setSaveError(null)
@@ -143,6 +183,11 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
         question,
         ...(faqMeta[question] ?? DEFAULT_FAQ_META),
       })),
+      timelineEvents: timelineEvents.map(e => ({
+        event_name: e.event_name,
+        event_date: e.event_date,
+        display_order: e.display_order,
+      })),
     })
 
     setSaving(false)
@@ -157,6 +202,13 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
           [...result.sections]
             .sort((a, b) => a.display_order - b.display_order)
             .map(s => ({ ...s, clientKey: s.id })),
+        )
+      }
+      if (result.timelineEvents) {
+        setTimelineEvents(
+          [...result.timelineEvents]
+            .sort((a, b) => a.display_order - b.display_order)
+            .map(e => ({ clientKey: e.id, event_name: e.event_name, event_date: e.event_date, display_order: e.display_order })),
         )
       }
       setSaved(true)
@@ -193,12 +245,26 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
           {/* Page title + back link */}
           <div className="flex items-center justify-between">
             <div>
-              <Link
-                href="/admin"
-                className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors"
-              >
-                ← Back to admin
-              </Link>
+              <div className="flex items-center gap-4">
+                <Link
+                  href="/admin"
+                  className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors"
+                >
+                  ← Back to admin
+                </Link>
+                {/* Opens in a new tab — an admin checking their save (or
+                    just reading the live page) shouldn't lose this form's
+                    state, which a same-tab navigation away and back would
+                    otherwise discard. */}
+                <Link
+                  href={`/briefs/${brief.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-mono text-[9px] tracking-[0.18em] uppercase text-blue-ink hover:text-blue transition-colors"
+                >
+                  View brief →
+                </Link>
+              </div>
               <h1 className="font-display uppercase text-[2rem] tracking-tight text-ink leading-none mt-1">
                 Edit Brief
               </h1>
@@ -366,6 +432,16 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
               + Add explainer subsection
             </button>
           </div>
+
+          <TimelineEditor
+            events={timelineEvents}
+            onNameChange={handleTimelineNameChange}
+            onDateChange={handleTimelineDateChange}
+            onMoveUp={(key) => moveTimelineEvent(key, 'up')}
+            onMoveDown={(key) => moveTimelineEvent(key, 'down')}
+            onRemove={removeTimelineEvent}
+            onAdd={addTimelineEvent}
+          />
 
           {/* FAQ per-question meta — collaborators/feedback-givers/rich-text
               override (Part 6), one row per question currently parsed out of

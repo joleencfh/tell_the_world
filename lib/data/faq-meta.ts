@@ -1,7 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/lib/database.types'
 
-// Data-access layer for brief_faq_meta reads (migration 039, Part 6). See
+// Data-access layer for brief_faq_meta reads (migration 041, Part 6). See
 // lib/data/briefs.ts for the pattern.
 
 type DB = SupabaseClient<Database>

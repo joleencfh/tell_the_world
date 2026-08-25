@@ -147,3 +147,125 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .anim-drawer { animation: none; }
 }
+
+/* ── Landing page: hero eyebrow dot (app/page.tsx) ───────────────── */
+
+/* Cycles through the brand's two inks instead of a plain grey pulse —
+   pink, through the existing light-pink/light-blue wash tokens, to blue,
+   and back (alternate direction avoids a jump-cut at the loop point). */
+@keyframes eyebrow-dot-cycle {
+  0%   { background-color: var(--color-pink); }
+  33%  { background-color: var(--color-pink-soft); }
+  67%  { background-color: var(--color-blue-soft); }
+  100% { background-color: var(--color-blue); }
+}
+
+.eyebrow-dot {
+  background-color: var(--color-pink);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .eyebrow-dot {
+    animation: eyebrow-dot-cycle 3.6s ease-in-out infinite alternate;
+  }
+}
+
+/* ── Landing page: two-circles section (app/page.tsx) ───────────── */
+
+/* The wordmark's two circles, blown up, tracking scroll position rather
+   than playing a fire-once entrance animation — TwoCirclesSection.tsx
+   sets --meet (0 = apart, 1 = met) on the circle pair's container on
+   every scroll/resize tick, so scrolling back up pulls them apart again
+   instead of the motion only ever running forward once. Reduced-motion
+   users get --meet fixed at 1 (met, static) straight from the JS, so
+   this rule only ever sees the moving case. */
+.circle-meet-pink {
+  transform: translate(calc(-3.25rem * (1 - var(--meet, 0))), -50%);
+}
+.circle-meet-blue {
+  transform: translate(calc(3.25rem * (1 - var(--meet, 0))), -50%);
+}
+
+/* One continuous wash behind hero + two-circles + closing (applied to
+   <main> in app/page.tsx, which stops before <Footer /> — the footer
+   stays plain paper on purpose). Previously two separate per-section
+   washes, which left a visible seam at the boundary between them; this
+   is one gradient painted across all three so there's no handoff. The
+   two radial layers are soft blooms pooled behind the circle graphic and
+   the closing headline; the linear layer underneath is the base sweep
+   from white through pink through blue. Blue holds as a plateau (not a
+   single point) through the closing section's actual content, and only
+   fades back to white in a fixed 8rem stretch at the very end — that
+   8rem matches ClosingSection's own bottom padding (pb-32), so the fade
+   happens entirely in that trailing whitespace, not across the title or
+   buttons, and lands on pure white right at the footer boundary
+   regardless of how tall the page is above it (a percentage-only stop
+   here previously made blue fade out well before reaching the footer on
+   most real viewport heights). Values are light-mode literals (see the
+   dark-mode note above on --color-paper etc.) since dark mode is off
+   sitewide for now. */
+.page-wash {
+  background-image:
+    radial-gradient(46rem 30rem at 50% 40%, rgba(240, 25, 126, 0.11), rgba(240, 25, 126, 0) 70%),
+    radial-gradient(46rem 30rem at 50% 84%, rgba(30, 79, 235, 0.12), rgba(30, 79, 235, 0) 70%),
+    linear-gradient(
+      180deg,
+      #FFFFFF 0%,
+      var(--color-paper-sunken) 42%,
+      var(--color-paper-sunken-blue) 78%,
+      var(--color-paper-sunken-blue) calc(100% - 8rem),
+      #FFFFFF 100%
+    );
+}
+
+/* ── Landing page: closing section down arrow ────────────────────── */
+
+@keyframes nudge {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
+}
+
+.anim-nudge {
+  animation: nudge 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-nudge { animation: none; }
+}
+
+/* ── Landing page: WaitlistModal open/close + step transition ───── */
+
+/* Enter plays on mount (unconditional class); exit is driven by
+   WaitlistModal.tsx setting a "closing" state and swapping the class
+   before delaying the actual unmount by CLOSE_ANIMATION_MS, so the
+   fade/scale-out is visible instead of the modal just vanishing. */
+@keyframes modal-backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes modal-backdrop-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes modal-panel-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes modal-panel-out {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(6px) scale(0.97); }
+}
+
+.anim-modal-backdrop-in { animation: modal-backdrop-in 0.18s ease-out both; }
+.anim-modal-backdrop-out { animation: modal-backdrop-out 0.16s ease-in both; }
+.anim-modal-panel-in { animation: modal-panel-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.anim-modal-panel-out { animation: modal-panel-out 0.16s ease-in both; }
+
+/* Content swap inside the modal (intro → form, form → success) — keyed
+   by step in WaitlistModal.tsx so React remounts the fragment and this
+   replays each time, instead of only ever running once. */
+@keyframes step-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.anim-step-in { animation: step-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-modal-backdrop-in, .anim-modal-backdrop-out,
+  .anim-modal-panel-in, .anim-modal-panel-out,
+  .anim-step-in { animation: none; }
+}
