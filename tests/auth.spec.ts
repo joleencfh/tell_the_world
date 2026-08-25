@@ -63,10 +63,13 @@ test.describe('Login page', () => {
     ).toBeEnabled()
   })
 
-  test('links to /apply for non-members', async ({ page }) => {
+  test('links to the waitlist for non-members', async ({ page }) => {
+    // Silent launch: the waitlist is the only intended entry point for new
+    // people, so this links to / rather than the old /apply flow — see
+    // app/login/page.tsx's footer-note comment.
     await expect(
-      page.getByRole('link', { name: /apply to join/i })
-    ).toHaveAttribute('href', '/apply')
+      page.getByRole('link', { name: /join the waitlist/i })
+    ).toHaveAttribute('href', '/')
   })
 })
 
