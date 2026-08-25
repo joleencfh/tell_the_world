@@ -1,23 +1,34 @@
 'use client'
 
-import { useId, useRef, useState, useTransition } from 'react'
+import { useState, useTransition } from 'react'
 import Link from 'next/link'
-import { submitCoverage, likeCoverage } from '@/lib/briefs/actions'
+import { likeCoverage } from '@/lib/briefs/actions'
 import DuotonePlaceholder from '@/components/ui/DuotonePlaceholder'
 import { Carousel } from '@/components/ui/Carousel'
-import { HeaderChip } from './section-content'
 import { formatDate } from './helpers'
 import type { Coverage } from '@/lib/data/coverage'
 
+// Card/carousel split out of coverage-modals.tsx (AddCoverageModal, and Part
+// 9's new CoverageDetailModal) — mirrors quotes.tsx/quote-modals.tsx's split,
+// both to stay under the repo's ~500-line convention and because the detail
+// modal has to be rendered from brief-modals.tsx, not nested in here (see
+// BriefView.tsx's own comment on why every top-level modal lives there:
+// position:fixed modals get trapped as a containing block by a completed
+// anim-rise transform otherwise).
+
 // ---------------------------------------------------------------------------
-// Like button — any logged-in member, true toggle (mirrors voteQuestion's
-// shape in lib/briefs/actions.ts / qa-votes.tsx's VoteButton). A logged-out
-// visitor sees a static count with a link to /login instead of a button —
-// Covered By is visible to logged-out visitors on public briefs (unlike
-// Community Q&A, which is members-only and never renders this case).
+// Like button — any logged-in member, true toggle (mirrors quotes.tsx's
+// LikeButton, which this predates — kept independent rather than merged
+// since Coverage's logged-out state renders pink, not ink-faint, and the
+// two already diverged before Part 9). A logged-out visitor sees a static
+// count with a link to /login instead of a button — Covered By is visible
+// to logged-out visitors on public briefs (unlike Community Q&A, which is
+// members-only and never renders this case). Exported so
+// CoverageDetailModal (coverage-modals.tsx) can reuse it instead of
+// duplicating.
 // ---------------------------------------------------------------------------
 
-function LikeButton({
+export function LikeButton({
   coverageId,
   briefSlug,
   initialCount,
@@ -39,6 +50,7 @@ function LikeButton({
     return (
       <Link
         href="/login"
+        onClick={(e) => e.stopPropagation()}
         className="inline-flex items-center gap-1.5 font-mono text-[11px] tabular-nums text-coverage-fg/50 transition-colors hover:text-coverage-fg"
       >
         <HeartIcon filled={false} />
@@ -47,7 +59,8 @@ function LikeButton({
     )
   }
 
-  function handleClick() {
+  function handleClick(e: React.MouseEvent) {
+    e.stopPropagation()
     setError(null)
     const nextLiked = !liked
     setLiked(nextLiked)
@@ -103,21 +116,44 @@ function HeartIcon({ filled }: { filled: boolean }) {
 // ---------------------------------------------------------------------------
 // Coverage card — a link-preview card: image (real og:image, or Part 0's
 // duotone placeholder when none was found/the site had no OG tags), outlet
-// name, title, score badge (only if admin set one at approval), like
-// button, and a bare arrow to the article — same "arrow, not button
-// chrome" link treatment as CtaCard, and for the same reason: the whole
-// card can't itself be the <a> because the like button is another
-// interactive element and <button> can't nest inside <a>.
+// name, title, like button, and a bare arrow to the article. The whole card
+// is now a click target opening the detail modal (Part 9) — same "click
+// card, not a nested interactive element" handling as sources.tsx's
+// SourceCard/quotes.tsx's QuoteCard: the arrow keeps its own
+// stopPropagation (pre-existing), and the like button now stops
+// propagation too (added above) so it doesn't also trigger the modal.
 // ---------------------------------------------------------------------------
 
-function CoverageCard({ coverage, briefSlug, isLoggedIn }: { coverage: Coverage; briefSlug: string; isLoggedIn: boolean }) {
+function CoverageCard({
+  coverage,
+  briefSlug,
+  isLoggedIn,
+  onOpen,
+}: {
+  coverage: Coverage
+  briefSlug: string
+  isLoggedIn: boolean
+  onOpen: () => void
+}) {
   const [imgFailed, setImgFailed] = useState(false)
   const showImage = coverage.image_url && !imgFailed
   const dateLabel = coverage.published_date ? formatDate(coverage.published_date) : formatDate(coverage.created_at)
 
   return (
     <div className="w-[300px] shrink-0 snap-start pt-1 first:pl-1">
-      <div className="flex h-full flex-col border border-coverage-fg/15 bg-coverage-bg transition-all duration-150 motion-reduce:transition-none hover:-translate-x-0.5 hover:-translate-y-0.5 hover:border-pink hover:shadow-[4px_4px_0_0_var(--color-pink)]">
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={onOpen}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            onOpen()
+          }
+        }}
+        style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+        className="flex h-full cursor-pointer select-none flex-col border border-coverage-fg/15 bg-coverage-bg outline-none transition-all duration-150 motion-reduce:transition-none hover:-translate-x-0.5 hover:-translate-y-0.5 hover:border-pink hover:shadow-[4px_4px_0_0_var(--color-pink)] focus-visible:ring-2 focus-visible:ring-pink"
+      >
         <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden border-b border-coverage-fg/15 bg-coverage-fg/5">
           {showImage ? (
             // Arbitrary third-party host — can't be allow-listed for next/image (Avatar.tsx has the same tradeoff).
@@ -131,11 +167,6 @@ function CoverageCard({ coverage, briefSlug, isLoggedIn }: { coverage: Coverage;
             />
           ) : (
             <DuotonePlaceholder id={coverage.id} className="h-full w-full" />
-          )}
-          {coverage.score !== null && (
-            <div className="absolute right-2 top-2">
-              <HeaderChip tone="blue">Score {coverage.score}</HeaderChip>
-            </div>
           )}
         </div>
 
@@ -164,6 +195,7 @@ function CoverageCard({ coverage, briefSlug, isLoggedIn }: { coverage: Coverage;
                 aria-label={`Read “${coverage.title}” at ${coverage.outlet_name}`}
                 style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
                 className="group/link flex h-6 w-6 shrink-0 items-center justify-center rounded-sm text-coverage-fg/50 outline-none transition-colors hover:text-pink focus-visible:ring-2 focus-visible:ring-pink"
+                onClick={(e) => e.stopPropagation()}
               >
                 <svg
                   viewBox="0 0 20 20"
@@ -188,7 +220,17 @@ function CoverageCard({ coverage, briefSlug, isLoggedIn }: { coverage: Coverage;
 // when there's nothing to show yet.
 // ---------------------------------------------------------------------------
 
-export function CoverageCarousel({ coverage, briefSlug, isLoggedIn }: { coverage: Coverage[]; briefSlug: string; isLoggedIn: boolean }) {
+export function CoverageCarousel({
+  coverage,
+  briefSlug,
+  isLoggedIn,
+  onOpenCoverage,
+}: {
+  coverage: Coverage[]
+  briefSlug: string
+  isLoggedIn: boolean
+  onOpenCoverage: (coverage: Coverage) => void
+}) {
   if (coverage.length === 0) {
     return <p className="font-mono text-xs text-coverage-fg/50">No coverage yet.</p>
   }
@@ -199,138 +241,15 @@ export function CoverageCarousel({ coverage, briefSlug, isLoggedIn }: { coverage
       <Carousel.NextButton />
       <Carousel.Track fadeColor="var(--color-coverage-bg)" ariaLabel="Press coverage">
         {coverage.map((c) => (
-          <CoverageCard key={c.id} coverage={c} briefSlug={briefSlug} isLoggedIn={isLoggedIn} />
+          <CoverageCard
+            key={c.id}
+            coverage={c}
+            briefSlug={briefSlug}
+            isLoggedIn={isLoggedIn}
+            onOpen={() => onOpenCoverage(c)}
+          />
         ))}
       </Carousel.Track>
     </Carousel.Provider>
-  )
-}
-
-// ---------------------------------------------------------------------------
-// Add coverage — URL-only propose-then-pending form (any logged-in member,
-// unlike SuggestCtaModal's expert/org gate). outlet name, title, and image
-// are extracted server-side from the URL's Open Graph tags in submitCoverage
-// (lib/briefs/actions.ts) — there's nothing else for the submitter to fill
-// in, so unlike SuggestCtaModal this form has exactly one field.
-// ---------------------------------------------------------------------------
-
-export function AddCoverageModal({
-  briefId,
-  briefSlug,
-  briefTitle,
-  onClose,
-}: {
-  briefId: string
-  briefSlug: string
-  briefTitle: string
-  onClose: () => void
-}) {
-  const [url, setUrl] = useState('')
-  const [isPending, startTransition] = useTransition()
-  const [feedback, setFeedback] = useState<{ type: 'error' | 'success'; message: string } | null>(null)
-  const urlRef = useRef<HTMLInputElement>(null)
-  const urlId = useId()
-
-  const isSubmitted = feedback?.type === 'success'
-  const canSubmit = url.trim().length > 0
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setFeedback(null)
-    startTransition(async () => {
-      const result = await submitCoverage(briefId, briefSlug, url)
-      if (result.error) {
-        setFeedback({ type: 'error', message: result.error })
-        urlRef.current?.focus()
-      } else {
-        setUrl('')
-        setFeedback({ type: 'success', message: 'Coverage submitted for review — it will appear here once approved.' })
-      }
-    })
-  }
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center sm:p-6"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Add coverage"
-    >
-      <div className="absolute inset-0 bg-ink/60 backdrop-blur-sm" onClick={onClose} aria-hidden />
-
-      <div className="relative w-full max-w-xl overflow-hidden border border-line bg-paper">
-        <div className="flex items-start justify-between border-b border-line px-7 pb-5 pt-7">
-          <div>
-            <p className="mb-1 font-mono text-[9px] uppercase tracking-[0.2em] text-pink-ink">Covered by</p>
-            <h2 className="font-display text-xl uppercase leading-tight text-ink">Add coverage</h2>
-            <p className="mt-1.5 font-body text-xs italic leading-snug text-ink-soft">For: {briefTitle}</p>
-          </div>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            style={{ touchAction: 'manipulation' }}
-            className="ml-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-paper-raised text-lg leading-none text-ink-soft outline-none transition-colors hover:bg-line hover:text-ink focus-visible:ring-2 focus-visible:ring-pink"
-          >
-            ×
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4 px-7 py-6">
-          <div>
-            <label htmlFor={urlId} className="mb-2 block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
-              Article URL
-            </label>
-            <input
-              id={urlId}
-              ref={urlRef}
-              type="url"
-              inputMode="url"
-              autoComplete="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              maxLength={500}
-              placeholder="https://…"
-              disabled={isPending || isSubmitted}
-              className="w-full border border-line bg-paper px-4 py-2.5 font-body text-sm text-ink placeholder:text-ink-faint/70 transition focus:outline-none focus:ring-2 focus:ring-pink disabled:opacity-50"
-            />
-            <p className="mt-2 font-body text-xs text-ink-faint">
-              We’ll pull the outlet name, title, and image straight from the article.
-            </p>
-          </div>
-
-          {feedback && (
-            <p
-              role={feedback.type === 'error' ? 'alert' : undefined}
-              aria-live="polite"
-              className={`font-mono text-[10px] tracking-[0.1em] leading-relaxed ${
-                feedback.type === 'error' ? 'text-pink-ink' : 'text-blue-ink'
-              }`}
-            >
-              {feedback.message}
-            </p>
-          )}
-
-          <div className="flex items-center gap-4 pt-1">
-            {!isSubmitted && (
-              <button
-                type="submit"
-                disabled={isPending || !canSubmit}
-                style={{ touchAction: 'manipulation' }}
-                className="bg-ink px-6 py-3 font-mono text-xs uppercase tracking-widest text-paper transition-opacity hover:opacity-90 disabled:opacity-40"
-              >
-                {isPending ? 'Adding…' : 'Submit for review'}
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={onClose}
-              className="font-mono text-[10px] uppercase tracking-[0.15em] text-ink-faint transition-colors hover:text-ink"
-            >
-              {isSubmitted ? 'Close' : 'Cancel'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
   )
 }
