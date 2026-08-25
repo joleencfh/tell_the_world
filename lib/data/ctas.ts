@@ -34,12 +34,19 @@ const CTA_SELECT =
 // Published CTAs for a brief, most recent first — this is a small "what's
 // new/featured" carousel, not an evergreen reference list like FAQ answers,
 // so newest-first reads better than the oldest-first convention used there.
+//
+// display_order (043_brief_ctas_display_order.sql) lets an admin promote a
+// specific CTA ahead of this default: nulls sort last (nullsFirst: false),
+// so untouched rows fall straight through to the created_at tiebreaker and
+// the order is unchanged from before that column existed. A lower
+// display_order value sorts earlier — set it to promote a CTA.
 export async function getPublishedCtas(db: DB, briefId: string): Promise<Cta[]> {
   const { data } = await db
     .from('brief_ctas')
     .select(CTA_SELECT)
     .eq('brief_id', briefId)
     .eq('status', 'published')
+    .order('display_order', { ascending: true, nullsFirst: false })
     .order('created_at', { ascending: false })
 
   return (data ?? []) as unknown as Cta[]
