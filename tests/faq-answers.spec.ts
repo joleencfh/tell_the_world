@@ -86,7 +86,8 @@ test.describe('FAQ "Add an answer" — authenticated expert', () => {
     await expect(trigger).toHaveAttribute('aria-expanded', 'true')
 
     await page.getByRole('button', { name: /add an answer/i }).click()
-    await page.getByPlaceholder(/share your own answer/i).fill(body)
+    await page.locator('[contenteditable="true"]').click()
+    await page.keyboard.type(body)
     await page.getByRole('button', { name: /submit answer/i }).click()
 
     await expect(page.getByText(/submitted for review/i)).toBeVisible({ timeout: 10000 })
@@ -105,7 +106,8 @@ test.describe('FAQ "Add an answer" — authenticated expert', () => {
     await page.goto(`/briefs/${BRIEF_SLUG}`)
     await page.getByRole('button', { name: QUESTION }).click()
     await page.getByRole('button', { name: /add an answer/i }).click()
-    await page.getByPlaceholder(/share your own answer/i).fill(body)
+    await page.locator('[contenteditable="true"]').click()
+    await page.keyboard.type(body)
     await page.getByRole('button', { name: /submit answer/i }).click()
     await expect(page.getByText(/submitted for review/i)).toBeVisible({ timeout: 10000 })
 
@@ -114,7 +116,7 @@ test.describe('FAQ "Add an answer" — authenticated expert', () => {
     await expect(page.getByRole('button', { name: /more answers/i })).not.toBeVisible()
   })
 
-  test('the submit button is disabled until the textarea has content', async ({ page }) => {
+  test('the submit button is disabled until the editor has content', async ({ page }) => {
     await page.goto(`/briefs/${BRIEF_SLUG}`)
     await page.getByRole('button', { name: QUESTION }).click()
     await page.getByRole('button', { name: /add an answer/i }).click()
@@ -122,7 +124,8 @@ test.describe('FAQ "Add an answer" — authenticated expert', () => {
     const submit = page.getByRole('button', { name: /submit answer/i })
     await expect(submit).toBeDisabled()
 
-    await page.getByPlaceholder(/share your own answer/i).fill('x')
+    await page.locator('[contenteditable="true"]').click()
+    await page.keyboard.type('x')
     await expect(submit).toBeEnabled()
   })
 })
@@ -207,7 +210,8 @@ test.describe('FAQ answer moderation — full loop (expert submits, admin approv
       await expertPage.goto(`/briefs/${BRIEF_SLUG}`)
       await expertPage.getByRole('button', { name: QUESTION }).click()
       await expertPage.getByRole('button', { name: /add an answer/i }).click()
-      await expertPage.getByPlaceholder(/share your own answer/i).fill(body)
+      await expertPage.locator('[contenteditable="true"]').click()
+      await expertPage.keyboard.type(body)
       await expertPage.getByRole('button', { name: /submit answer/i }).click()
       await expect(expertPage.getByText(/submitted for review/i)).toBeVisible({ timeout: 10000 })
     } finally {
