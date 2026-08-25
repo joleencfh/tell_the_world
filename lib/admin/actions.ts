@@ -535,6 +535,29 @@ export async function markBriefFeedbackReviewed(feedbackId: string): Promise<{ s
 }
 
 // ---------------------------------------------------------------------------
+// Waitlist signups (docs/design/landing-page/temp-landing-page-plan.md §2,
+// Part 1) — silent-launch landing page's "Join Waitlist" form. Read-only
+// list, no approve/reject/convert-to-user step in this part.
+// ---------------------------------------------------------------------------
+
+export interface WaitlistSignup {
+  id: string
+  role: UserRole
+  email: string
+  full_name: string
+  affiliation: string | null
+  linkedin_or_website_url: string | null
+  additional_info: string | null
+  wants_early_access: boolean
+  created_at: string
+}
+
+export async function getWaitlistSignups(page = 1): Promise<PagedResult<WaitlistSignup>> {
+  await requireAdmin()
+  return adminData.getWaitlistSignups(getAdminClient(), page)
+}
+
+// ---------------------------------------------------------------------------
 // Reviews & endorsements — read-only, unlike every queue above. These
 // publish immediately (setReviewStatus in lib/briefs/actions.ts never sets
 // a pending status), so there's nothing to approve/dismiss here; this tab

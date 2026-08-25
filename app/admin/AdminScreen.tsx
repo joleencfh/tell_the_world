@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { createBrief } from '@/lib/admin/brief-actions'
-import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingCta, PendingCoverage, PendingBriefFeedback, PendingQuote, BriefReview } from '@/lib/admin/actions'
+import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingCta, PendingCoverage, PendingBriefFeedback, PendingQuote, BriefReview, WaitlistSignup } from '@/lib/admin/actions'
 import { ADMIN_PAGE_SIZE } from '@/lib/data/admin'
 import Pagination from '@/components/ui/Pagination'
 import Logo from '@/components/ui/Logo'
@@ -14,12 +14,13 @@ import { QuoteCard } from './quote-card'
 import { CoverageCard } from './coverage-card'
 import { FeedbackCard } from './feedback-card'
 import { ReviewCard } from './review-card'
+import { WaitlistCard } from './waitlist-card'
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-type Tab = 'pending' | 'questions' | 'correctionProposals' | 'faqAnswers' | 'ctas' | 'quotes' | 'coverage' | 'feedback' | 'reviews' | 'proposals' | 'approved'
+type Tab = 'pending' | 'questions' | 'correctionProposals' | 'faqAnswers' | 'ctas' | 'quotes' | 'coverage' | 'feedback' | 'reviews' | 'proposals' | 'approved' | 'waitlist'
 
 interface Props {
   adminEmail: string
@@ -56,6 +57,9 @@ interface Props {
   briefProposals: BriefProposal[]
   briefProposalsCount: number
   proposalsPage: number
+  waitlistSignups: WaitlistSignup[]
+  waitlistSignupsCount: number
+  waitlistPage: number
 }
 
 // ---------------------------------------------------------------------------
@@ -97,6 +101,9 @@ export default function AdminScreen({
   briefProposals,
   briefProposalsCount,
   proposalsPage,
+  waitlistSignups,
+  waitlistSignupsCount,
+  waitlistPage,
 }: Props) {
   const [tab, setTab] = useState<Tab>('pending')
   // The tab row outgrew a single line (10 tabs) — split across two pages
@@ -147,7 +154,7 @@ export default function AdminScreen({
             </form>
           </div>
 
-          {/* Tabs — 11 of them now, split across two pages (see tabPage's
+          {/* Tabs — 12 of them now, split across two pages (see tabPage's
               own comment above) rather than one overcrowded row. */}
           {(() => {
             const tabDefs: { key: Tab; label: string; count?: number }[] = [
@@ -161,9 +168,10 @@ export default function AdminScreen({
               { key: 'feedback', label: 'Feedback', count: pendingBriefFeedbackCount },
               { key: 'reviews', label: 'Reviews & endorsements', count: briefReviewsCount },
               { key: 'proposals', label: 'Brief proposals', count: briefProposalsCount },
+              { key: 'waitlist', label: 'Waitlist', count: waitlistSignupsCount },
               { key: 'approved', label: 'Recently approved' },
             ]
-            const tabPages = [tabDefs.slice(0, 5), tabDefs.slice(5)]
+            const tabPages = [tabDefs.slice(0, 6), tabDefs.slice(6)]
 
             return (
               <div className="flex items-center justify-between gap-4 border-b border-line mb-6">
@@ -428,6 +436,29 @@ export default function AdminScreen({
                 pageSize={ADMIN_PAGE_SIZE}
                 total={briefProposalsCount}
                 buildHref={(p) => buildPageHref('proposalsPage', p)}
+              />
+            </>
+          )}
+
+          {/* Waitlist tab — read-only, no approve/reject state */}
+          {tab === 'waitlist' && (
+            <>
+              {waitlistSignups.length === 0 ? (
+                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
+                  No waitlist signups yet.
+                </p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {waitlistSignups.map(w => (
+                    <WaitlistCard key={w.id} signup={w} />
+                  ))}
+                </div>
+              )}
+              <Pagination
+                page={waitlistPage}
+                pageSize={ADMIN_PAGE_SIZE}
+                total={waitlistSignupsCount}
+                buildHref={(p) => buildPageHref('waitlistPage', p)}
               />
             </>
           )}
