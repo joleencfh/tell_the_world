@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, Suspense } from 'react'
+import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { signInWithGoogle, signInWithLinkedIn, signInWithMagicLink } from '@/lib/auth/actions'
 
@@ -32,10 +33,13 @@ function LinkedInIcon() {
 function LoginForm() {
   const searchParams = useSearchParams()
   const hasAuthError = searchParams.get('error') === 'auth'
+  const isNotApproved = searchParams.get('error') === 'not_approved'
 
   const [email, setEmail] = useState('')
+  const [honeypot, setHoneypot] = useState('')
   const [loading, setLoading] = useState<'google' | 'linkedin' | 'magic' | null>(null)
   const [magicLinkSent, setMagicLinkSent] = useState(false)
+  const [showFormAnyway, setShowFormAnyway] = useState(false)
   const [error, setError] = useState<string | null>(
     hasAuthError ? 'Sign-in failed. Please try again, or use a different method.' : null
   )
@@ -69,7 +73,7 @@ function LoginForm() {
     if (!email.trim()) return
     setLoading('magic')
     setError(null)
-    const result = await signInWithMagicLink(email.trim())
+    const result = await signInWithMagicLink(email.trim(), honeypot)
     if (result.success) {
       setMagicLinkSent(true)
     } else {
@@ -110,8 +114,42 @@ function LoginForm() {
           </div>
         )}
 
-        {/* Magic link sent state */}
-        {magicLinkSent ? (
+        {/* Gated state — Tell The World is in a silent launch, sign-in is
+            restricted to approved members. Replaces the sign-in options
+            rather than sitting alongside them, so the message reads as
+            the actual wall rather than a dismissible error under buttons
+            that don't work anyway. "Try a different account" stays
+            available since someone may have just picked the wrong Google
+            account, not actually be unapproved. */}
+        {isNotApproved && !showFormAnyway ? (
+          <div className="text-center py-4">
+            <div className="w-10 h-10 rounded-full bg-ink/10 flex items-center justify-center mx-auto mb-4">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                <rect x="3.5" y="8" width="11" height="7.5" rx="1.5" className="stroke-ink" strokeWidth="1.4" />
+                <path d="M5.75 8V5.5a3.25 3.25 0 0 1 6.5 0V8" className="stroke-ink" strokeWidth="1.4" strokeLinecap="round" />
+              </svg>
+            </div>
+            <p className="font-body text-ink mb-1.5">
+              Approved members only
+            </p>
+            <p className="font-body italic text-sm text-ink-soft leading-relaxed mb-6">
+              Tell The World is in a private, invite-only phase right now.
+              Join the waitlist and we&rsquo;ll reach out when we open up.
+            </p>
+            <Link
+              href="/"
+              className="font-body flex items-center justify-center w-full h-11 bg-ink text-paper text-sm rounded-sm hover:opacity-90 transition-opacity mb-4"
+            >
+              Join the waitlist
+            </Link>
+            <button
+              onClick={() => setShowFormAnyway(true)}
+              className="font-mono text-xs text-ink-soft underline underline-offset-2 hover:text-ink transition-colors"
+            >
+              Try a different account
+            </button>
+          </div>
+        ) : magicLinkSent ? (
           <div className="text-center py-4">
             <div className="w-10 h-10 rounded-full bg-ink/10 flex items-center justify-center mx-auto mb-4">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
@@ -175,6 +213,19 @@ function LoginForm() {
 
             {/* Magic link form */}
             <form onSubmit={handleMagicLink} className="flex flex-col gap-3">
+              {/* Honeypot — hidden from real users via CSS, bots fill it anyway */}
+              <div className="hidden" aria-hidden="true">
+                <label>
+                  Leave this field empty
+                  <input
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={honeypot}
+                    onChange={(e) => setHoneypot(e.target.value)}
+                  />
+                </label>
+              </div>
               <input
                 type="email"
                 value={email}
@@ -196,12 +247,15 @@ function LoginForm() {
         )}
       </div>
 
-      {/* Footer note */}
+      {/* Footer note — links to the waitlist, not /apply: during the silent
+          launch, the waitlist is the only intended entry point for new
+          people, and "Apply to join" right under a members-only wall was
+          a contradictory leftover from the pre-launch flow. */}
       <p className="font-mono mt-8 text-xs text-ink-soft text-center max-w-xs">
         Not a member?{' '}
-        <a href="/apply" className="underline underline-offset-2 hover:text-ink transition-colors">
-          Apply to join
-        </a>
+        <Link href="/" className="underline underline-offset-2 hover:text-ink transition-colors">
+          Join the waitlist
+        </Link>
       </p>
     </div>
   )

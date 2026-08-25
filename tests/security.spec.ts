@@ -103,6 +103,25 @@ test.describe('Admin routes — admin session', () => {
 })
 
 // ---------------------------------------------------------------------------
+// Silent-launch sign-in wall
+// ---------------------------------------------------------------------------
+
+test.describe('Sign-in gate', () => {
+  test('not_approved error replaces sign-in options with the gated message', async ({ page }) => {
+    await page.goto('/login?error=not_approved')
+    await expect(page.getByText('Approved members only', { exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Continue with Google' })).not.toBeVisible()
+    await expect(page.getByRole('link', { name: 'Join the waitlist' }).first()).toBeVisible()
+  })
+
+  test('"Try a different account" reveals the normal sign-in options', async ({ page }) => {
+    await page.goto('/login?error=not_approved')
+    await page.getByRole('button', { name: 'Try a different account' }).click()
+    await expect(page.getByRole('button', { name: 'Continue with Google' })).toBeVisible()
+  })
+})
+
+// ---------------------------------------------------------------------------
 // Application form spam controls
 // ---------------------------------------------------------------------------
 
