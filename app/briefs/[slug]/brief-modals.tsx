@@ -6,9 +6,9 @@ import { AddQuoteModal, QuoteDetailModal } from './quote-modals'
 import { ContributeModals, type ContributeModalKind } from './contribute'
 import { ProposeCorrectionModal } from './qa'
 import { SuggestCtaModal } from './ctas'
-import { AddCoverageModal } from './coverage'
+import { AddCoverageModal, CoverageDetailModal } from './coverage-modals'
 import { FeedbackModal } from './feedback'
-import type { Brief, CurrentUser, Quote, ContributionStatus, EndorsementBarDetail } from './page'
+import type { Brief, CurrentUser, Quote, Coverage, ContributionStatus, EndorsementBarDetail } from './page'
 
 // Every modal BriefView.tsx can open, gathered in one place — pulled out of
 // that file (mirrors how ContributeModals was already split out) to keep it
@@ -43,6 +43,8 @@ export interface BriefModalsProps {
   onCloseAddQuote: () => void
   selectedQuote: Quote | null
   onCloseSelectedQuote: () => void
+  selectedCoverage: Coverage | null
+  onCloseSelectedCoverage: () => void
   activeContributeModal: ContributeModalKind | null
   onCloseContributeModal: () => void
   reviewersModalOpen: boolean
@@ -73,6 +75,8 @@ export function BriefModals({
   onCloseAddQuote,
   selectedQuote,
   onCloseSelectedQuote,
+  selectedCoverage,
+  onCloseSelectedCoverage,
   activeContributeModal,
   onCloseContributeModal,
   reviewersModalOpen,
@@ -148,6 +152,13 @@ export function BriefModals({
           available logged out too (like/copy just adapt). */}
       {selectedQuote && (
         <QuoteDetailModal quote={selectedQuote} briefSlug={brief.slug} isLoggedIn={isLoggedIn} onClose={onCloseSelectedQuote} />
+      )}
+
+      {/* No currentUser gate: viewing a coverage item's detail (Part 9) is
+          informational, available logged out too (like/comment/vote just
+          adapt — CoverageDetailModal itself gates those). */}
+      {selectedCoverage && (
+        <CoverageDetailModal coverage={selectedCoverage} briefSlug={brief.slug} isLoggedIn={isLoggedIn} onClose={onCloseSelectedCoverage} />
       )}
 
       {/* activeContributeModal can only be set by ContributeMenu, which only
