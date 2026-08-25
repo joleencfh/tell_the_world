@@ -119,6 +119,18 @@ test.describe('Sign-in gate', () => {
     await page.getByRole('button', { name: 'Try a different account' }).click()
     await expect(page.getByRole('button', { name: 'Continue with Google' })).toBeVisible()
   })
+
+  test('magic link with an email that has never signed in shows the same gated message', async ({ page }) => {
+    // shouldCreateUser: false rejects this with a distinct error code
+    // (otp_disabled) rather than the generic "check your inbox" state —
+    // lib/auth/actions.ts maps that to the same notApproved signal the
+    // OAuth callback uses.
+    await page.goto('/login')
+    await page.getByPlaceholder('your@email.com').fill('definitely-not-a-real-ttw-member-xyz123@example.com')
+    await page.getByRole('button', { name: 'Send magic link' }).click()
+    await expect(page.getByText('Approved members only', { exact: true })).toBeVisible()
+    await expect(page.getByText('Check your inbox')).not.toBeVisible()
+  })
 })
 
 // ---------------------------------------------------------------------------

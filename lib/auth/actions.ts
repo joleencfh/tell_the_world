@@ -92,6 +92,13 @@ export async function signInWithMagicLink(email: string, honeypot?: string) {
   })
 
   if (error) {
+    // shouldCreateUser: false makes Supabase reject an email with no
+    // existing Auth identity with this specific code, rather than silently
+    // no-oping — surface it as the same "not approved" signal the OAuth
+    // callback uses, instead of leaking Supabase's internal error text.
+    if (error.code === 'otp_disabled') {
+      return { notApproved: true }
+    }
     return { error: error.message }
   }
 

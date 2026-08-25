@@ -33,13 +33,17 @@ function LinkedInIcon() {
 function LoginForm() {
   const searchParams = useSearchParams()
   const hasAuthError = searchParams.get('error') === 'auth'
-  const isNotApproved = searchParams.get('error') === 'not_approved'
 
   const [email, setEmail] = useState('')
   const [honeypot, setHoneypot] = useState('')
   const [loading, setLoading] = useState<'google' | 'linkedin' | 'magic' | null>(null)
   const [magicLinkSent, setMagicLinkSent] = useState(false)
   const [showFormAnyway, setShowFormAnyway] = useState(false)
+  // Reached either via the OAuth callback's redirect (?error=not_approved,
+  // for an unapproved Google/LinkedIn sign-in) or directly from
+  // handleMagicLink below (an email with no Supabase Auth identity yet) —
+  // same gated message either way.
+  const [gated, setGated] = useState(searchParams.get('error') === 'not_approved')
   const [error, setError] = useState<string | null>(
     hasAuthError ? 'Sign-in failed. Please try again, or use a different method.' : null
   )
@@ -76,6 +80,8 @@ function LoginForm() {
     const result = await signInWithMagicLink(email.trim(), honeypot)
     if (result.success) {
       setMagicLinkSent(true)
+    } else if (result.notApproved) {
+      setGated(true)
     } else {
       setError(result.error ?? 'Something went wrong. Please try again.')
     }
@@ -121,7 +127,7 @@ function LoginForm() {
             that don't work anyway. "Try a different account" stays
             available since someone may have just picked the wrong Google
             account, not actually be unapproved. */}
-        {isNotApproved && !showFormAnyway ? (
+        {gated && !showFormAnyway ? (
           <div className="text-center py-4">
             <div className="w-10 h-10 rounded-full bg-ink/10 flex items-center justify-center mx-auto mb-4">
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
