@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/lib/database.types'
-import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingQuestionAnswer, PendingCta, PendingCoverage, PendingBriefFeedback, PendingQuote, BriefReview, WaitlistSignup } from '@/lib/admin/actions'
+import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingQuestionAnswer, PendingCta, PublishedCta, PendingCoverage, PendingBriefFeedback, PendingQuote, BriefReview, WaitlistSignup } from '@/lib/admin/actions'
 
 // Data-access layer for admin queue reads. See lib/data/briefs.ts for the
 // pattern. No auth here — callers (lib/admin/actions.ts) call requireAdmin()
@@ -99,6 +99,22 @@ export async function getPendingCtas(db: DB, page = 1): Promise<PagedResult<Pend
     .range(...range(page))
 
   return { data: error ? [] : (data as unknown as PendingCta[]) ?? [], count: count ?? 0 }
+}
+
+// Published CTAs, for the admin reorder control (brief-page-part2-plan.md
+// §2, Part 8) — sorted the same way the public carousel is (getPublishedCtas
+// in lib/data/ctas.ts) so the list an admin sees is exactly the resulting
+// order, across every brief rather than scoped to one.
+export async function getPublishedCtasAdmin(db: DB, page = 1): Promise<PagedResult<PublishedCta>> {
+  const { data, error, count } = await db
+    .from('brief_ctas')
+    .select('id, title, display_order, created_at, brief_id, briefs(title, slug)', { count: 'exact' })
+    .eq('status', 'published')
+    .order('display_order', { ascending: true, nullsFirst: false })
+    .order('created_at', { ascending: false })
+    .range(...range(page))
+
+  return { data: error ? [] : (data as unknown as PublishedCta[]) ?? [], count: count ?? 0 }
 }
 
 export async function getPendingQuotes(db: DB, page = 1): Promise<PagedResult<PendingQuote>> {

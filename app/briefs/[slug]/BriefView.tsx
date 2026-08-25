@@ -116,6 +116,7 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
   const [reviewersModalOpen, setReviewersModalOpen] = useState(false)
   const [addQuoteOpen, setAddQuoteOpen] = useState(false)
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null)
+  const [selectedCoverage, setSelectedCoverage] = useState<Coverage | null>(null)
   const [activeContributeModal, setActiveContributeModal] = useState<ContributeModalKind | null>(null)
   const sortedSections = [...brief.brief_sections].sort(
     (a, b) => a.display_order - b.display_order,
@@ -489,7 +490,7 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
                   ) : undefined
                 }
               />
-              <CoverageCarousel coverage={coverage} briefSlug={brief.slug} isLoggedIn={isLoggedIn} />
+              <CoverageCarousel coverage={coverage} briefSlug={brief.slug} isLoggedIn={isLoggedIn} onOpenCoverage={setSelectedCoverage} />
             </div>
           </DarkBand>
         )}
@@ -567,6 +568,8 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
           onCloseAddQuote={() => setAddQuoteOpen(false)}
           selectedQuote={selectedQuote}
           onCloseSelectedQuote={() => setSelectedQuote(null)}
+          selectedCoverage={selectedCoverage}
+          onCloseSelectedCoverage={() => setSelectedCoverage(null)}
           activeContributeModal={activeContributeModal}
           onCloseContributeModal={() => setActiveContributeModal(null)}
           reviewersModalOpen={reviewersModalOpen}

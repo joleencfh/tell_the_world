@@ -8,6 +8,7 @@ import {
   getPendingFaqAnswers,
   getPendingQuestionAnswers,
   getPendingCtas,
+  getPublishedCtasAdmin,
   getPendingQuotes,
   getPendingCoverage,
   getPendingBriefFeedback,
@@ -43,6 +44,7 @@ export default async function AdminPage({
   const faqAnswersPage = toPage(raw.faqAnswersPage)
   const questionAnswersPage = toPage(raw.questionAnswersPage)
   const ctasPage = toPage(raw.ctasPage)
+  const publishedCtasPage = toPage(raw.publishedCtasPage)
   const quotesPage = toPage(raw.quotesPage)
   const coveragePage = toPage(raw.coveragePage)
   const feedbackPage = toPage(raw.feedbackPage)
@@ -52,7 +54,7 @@ export default async function AdminPage({
   const waitlistPage = toPage(raw.waitlistPage)
 
   // Fetch data with the service-role client (bypasses RLS)
-  const [pendingResult, approvedResult, questionsResult, correctionProposalsResult, faqAnswersResult, questionAnswersResult, ctasResult, quotesResult, coverageResult, feedbackResult, reviewsResult, proposalsResult, briefOptions, waitlistResult] = await Promise.all([
+  const [pendingResult, approvedResult, questionsResult, correctionProposalsResult, faqAnswersResult, questionAnswersResult, ctasResult, publishedCtasResult, quotesResult, coverageResult, feedbackResult, reviewsResult, proposalsResult, briefOptions, waitlistResult] = await Promise.all([
     getPendingApplications(pendingPage),
     getRecentlyApproved(approvedPage),
     getPendingQuestions(questionsPage),
@@ -60,6 +62,7 @@ export default async function AdminPage({
     getPendingFaqAnswers(faqAnswersPage),
     getPendingQuestionAnswers(questionAnswersPage),
     getPendingCtas(ctasPage),
+    getPublishedCtasAdmin(publishedCtasPage),
     getPendingQuotes(quotesPage),
     getPendingCoverage(coveragePage),
     getPendingBriefFeedback(feedbackPage),
@@ -93,6 +96,9 @@ export default async function AdminPage({
       pendingCtas={ctasResult.data}
       pendingCtasCount={ctasResult.count}
       ctasPage={ctasPage}
+      publishedCtas={publishedCtasResult.data}
+      publishedCtasCount={publishedCtasResult.count}
+      publishedCtasPage={publishedCtasPage}
       pendingQuotes={quotesResult.data}
       pendingQuotesCount={quotesResult.count}
       quotesPage={quotesPage}

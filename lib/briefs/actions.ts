@@ -6,6 +6,8 @@ import { getAdminClient } from '@/lib/supabase/admin'
 import { sendBriefProposalEmail } from '@/lib/email/send-brief-proposal'
 import { getMaxContentVersion } from '@/lib/data/contributions'
 import { fetchLinkPreview } from '@/lib/links/link-preview'
+import { getCoverageComments, getCoverageLikers } from '@/lib/data/coverage'
+import type { CoverageComment, CoverageAuthor } from '@/lib/data/coverage'
 import type { UserRole } from '@/lib/types'
 import type { Json } from '@/lib/database.types'
 
@@ -367,6 +369,95 @@ export async function likeCoverage(coverageId: string, briefSlug: string): Promi
 
   revalidatePath(`/briefs/${briefSlug}`)
   return { liked: !existing }
+}
+
+// ---------------------------------------------------------------------------
+// Part 9: Covered By click-through modal — comments (any logged-in member,
+// no moderation queue, posts immediately) and their up/down votes. No
+// revalidatePath on these two: comments/votes aren't part of the page's
+// initial SSR data (Coverage doesn't carry them, see lib/data/coverage.ts),
+// so there's nothing cached on /briefs/[slug] for either to invalidate —
+// the modal manages its own state entirely client-side once opened.
+// ---------------------------------------------------------------------------
+
+export async function submitCoverageComment(coverageId: string, body: string): Promise<{ error?: string; success?: boolean }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return { error: 'You must be logged in to comment.' }
+
+  const trimmed = body.trim()
+  if (!trimmed) return { error: 'Comment cannot be empty.' }
+  if (trimmed.length > 1000) return { error: 'Comment must be under 1000 characters.' }
+
+  const { error } = await supabase.from('brief_coverage_comments').insert({
+    coverage_id: coverageId,
+    user_id: user.id,
+    body: trimmed,
+  })
+
+  if (error) return { error: 'Failed to post your comment. Please try again.' }
+  return { success: true }
+}
+
+// A member's up/down vote on a coverage comment — unlike likeCoverage's
+// plain toggle, this is directional: casting the vote you already hold
+// removes it, casting the other one switches it (migration 045's update
+// policy lets this happen in one round trip instead of delete-then-insert).
+export async function voteCoverageComment(
+  commentId: string,
+  direction: 'up' | 'down',
+): Promise<{ error?: string; myVote?: 'up' | 'down' | null }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return { error: 'You must be logged in to vote.' }
+
+  const { data: existing } = await supabase
+    .from('brief_coverage_comment_votes')
+    .select('id, direction')
+    .eq('comment_id', commentId)
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  let writeError
+  let myVote: 'up' | 'down' | null
+  if (existing?.direction === direction) {
+    ;({ error: writeError } = await supabase.from('brief_coverage_comment_votes').delete().eq('id', existing.id))
+    myVote = null
+  } else if (existing) {
+    ;({ error: writeError } = await supabase.from('brief_coverage_comment_votes').update({ direction }).eq('id', existing.id))
+    myVote = direction
+  } else {
+    ;({ error: writeError } = await supabase.from('brief_coverage_comment_votes').insert({ comment_id: commentId, user_id: user.id, direction }))
+    myVote = direction
+  }
+
+  if (writeError) return { error: 'Failed to record your vote. Please try again.' }
+  return { myVote }
+}
+
+// The click-through modal's data: comments (with vote tallies) and "who
+// liked this" — fetched together on demand when a viewer opens the modal,
+// not bundled into the page's initial load (mirrors getVoters below). No
+// login required: Covered By, and everything in this modal, is visible to
+// logged-out visitors on public briefs.
+export async function getCoverageDetail(coverageId: string): Promise<{ comments: CoverageComment[]; likers: CoverageAuthor[] }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  const [comments, likers] = await Promise.all([
+    getCoverageComments(supabase, coverageId, user?.id ?? null),
+    getCoverageLikers(supabase, coverageId),
+  ])
+
+  return { comments, likers }
 }
 
 // Part 5: a member's vote on a Community Q&A question — one row per

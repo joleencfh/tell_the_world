@@ -410,6 +410,38 @@ export async function getPendingCtas(page = 1): Promise<PagedResult<PendingCta>>
   return adminData.getPendingCtas(getAdminClient(), page)
 }
 
+// Published CTAs + the reorder control (brief-page-part2-plan.md §2, Part
+// 8) — display_order is nullable and only overrides the default
+// created_at-descending order when explicitly set, see migration 043.
+export interface PublishedCta {
+  id: string
+  title: string
+  display_order: number | null
+  created_at: string
+  brief_id: string
+  briefs: { title: string; slug: string }
+}
+
+export async function getPublishedCtasAdmin(page = 1): Promise<PagedResult<PublishedCta>> {
+  await requireAdmin()
+  return adminData.getPublishedCtasAdmin(getAdminClient(), page)
+}
+
+export async function setCtaDisplayOrder(ctaId: string, briefSlug: string, displayOrder: number | null): Promise<{ success?: boolean; error?: string }> {
+  await requireAdmin()
+
+  const { error } = await getAdminClient()
+    .from('brief_ctas')
+    .update({ display_order: displayOrder })
+    .eq('id', ctaId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/admin')
+  revalidatePath(`/briefs/${briefSlug}`)
+  return { success: true }
+}
+
 export async function approveCta(ctaId: string): Promise<{ success?: boolean; error?: string }> {
   await requireAdmin()
 
