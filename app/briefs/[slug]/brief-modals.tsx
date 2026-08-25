@@ -1,3 +1,5 @@
+'use client'
+
 import ProposeBriefModal from '@/components/ProposeBriefModal'
 import { ReviewersModal } from './section-content'
 import { AddQuoteModal, QuoteDetailModal } from './quote-modals'
@@ -32,6 +34,11 @@ export interface BriefModalsProps {
   onCloseTldrFeedback: () => void
   explainerFeedbackOpen: boolean
   onCloseExplainerFeedback: () => void
+  // FAQ's "give feedback" (Part 6) needs to carry which question it's about,
+  // unlike TL;DR/Explainer's single fixed trigger above — context is built
+  // from whichever question set this.
+  faqFeedbackQuestion: string | null
+  onCloseFaqFeedback: () => void
   addQuoteOpen: boolean
   onCloseAddQuote: () => void
   selectedQuote: Quote | null
@@ -60,6 +67,8 @@ export function BriefModals({
   onCloseTldrFeedback,
   explainerFeedbackOpen,
   onCloseExplainerFeedback,
+  faqFeedbackQuestion,
+  onCloseFaqFeedback,
   addQuoteOpen,
   onCloseAddQuote,
   selectedQuote,
@@ -113,6 +122,19 @@ export function BriefModals({
         <FeedbackModal
           context={{ briefId: brief.id, briefTitle: brief.title, section: 'explainer', sectionLabel: 'Explainer' }}
           onClose={onCloseExplainerFeedback}
+        />
+      )}
+
+      {/* FAQ "give feedback" (Part 6) — per-question context. */}
+      {faqFeedbackQuestion && currentUser && (
+        <FeedbackModal
+          context={{
+            briefId: brief.id,
+            briefTitle: brief.title,
+            section: `faq:${faqFeedbackQuestion}`,
+            sectionLabel: faqFeedbackQuestion,
+          }}
+          onClose={onCloseFaqFeedback}
         />
       )}
 

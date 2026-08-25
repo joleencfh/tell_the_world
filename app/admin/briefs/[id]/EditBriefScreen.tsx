@@ -4,10 +4,12 @@ import { useState, useCallback } from 'react'
 import Link from 'next/link'
 import Logo from '@/components/ui/Logo'
 import { saveBrief, deleteBrief } from '@/lib/admin/brief-actions'
-import type { Brief, BriefSection, MediaPickerOption, TimelineEvent } from '@/lib/admin/brief-actions'
+import type { Brief, BriefSection, MediaPickerOption, TimelineEvent, UserOption, FaqMetaRow } from '@/lib/admin/brief-actions'
 import { plainTextToRichContent } from '@/lib/richtext/types'
 import { SectionEditor, type EditableSection } from './section-editor'
 import { TimelineEditor, type EditableTimelineEvent } from './timeline-editor'
+import { FaqMetaEditor, DEFAULT_FAQ_META, type EditableFaqMeta } from './faq-meta-editor'
+import { parseFAQ } from '@/lib/briefs/parse-faq'
 
 // ---------------------------------------------------------------------------
 // Main screen
@@ -19,9 +21,11 @@ interface Props {
   sections: BriefSection[]
   timelineEvents: TimelineEvent[]
   mediaOptions: MediaPickerOption[]
+  userOptions: UserOption[]
+  faqMeta: FaqMetaRow[]
 }
 
-export default function EditBriefScreen({ adminEmail, brief, sections: initialSections, timelineEvents: initialTimelineEvents, mediaOptions }: Props) {
+export default function EditBriefScreen({ adminEmail, brief, sections: initialSections, timelineEvents: initialTimelineEvents, mediaOptions, userOptions, faqMeta: initialFaqMeta }: Props) {
   const [title, setTitle]           = useState(brief.title)
   const [subtitle, setSubtitle]     = useState(brief.subtitle ?? '')
   const [topicTag, setTopicTag]     = useState(brief.topic_tag ?? '')
@@ -43,6 +47,26 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
   const [saved, setSaved]           = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting]     = useState(false)
+  const [faqMeta, setFaqMeta] = useState<Record<string, EditableFaqMeta>>(() =>
+    Object.fromEntries(initialFaqMeta.map((m) => [m.question, {
+      collaboratorUserIds: m.collaboratorUserIds,
+      feedbackGiverUserIds: m.feedbackGiverUserIds,
+      richContent: m.richContent,
+    }])),
+  )
+
+  // Re-derived from the FAQ section(s)' current content on every render, so
+  // the meta editor's row list tracks live edits to the Q:/A: text above —
+  // same parser the public page uses (lib/briefs/parse-faq.ts).
+  const faqQuestions = sections
+    .filter((s) => s.section_type === 'faq')
+    .flatMap((s) => parseFAQ(s.content) ?? [])
+    .map((item) => item.question)
+    .filter((question, i, all) => all.indexOf(question) === i)
+
+  const handleFaqMetaChange = useCallback((question: string, patch: Partial<EditableFaqMeta>) => {
+    setFaqMeta((prev) => ({ ...prev, [question]: { ...(prev[question] ?? DEFAULT_FAQ_META), ...patch } }))
+  }, [])
 
   const handleContentChange = useCallback((key: string, content: string) => {
     setSections(prev => prev.map(s => s.clientKey === key ? { ...s, content } : s))
@@ -154,6 +178,10 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
         content: s.content,
         rich_content: s.rich_content,
         display_order: s.display_order,
+      })),
+      faqMeta: faqQuestions.map((question) => ({
+        question,
+        ...(faqMeta[question] ?? DEFAULT_FAQ_META),
       })),
       timelineEvents: timelineEvents.map(e => ({
         event_name: e.event_name,
@@ -413,6 +441,16 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
             onMoveDown={(key) => moveTimelineEvent(key, 'down')}
             onRemove={removeTimelineEvent}
             onAdd={addTimelineEvent}
+          />
+
+          {/* FAQ per-question meta — collaborators/feedback-givers/rich-text
+              override (Part 6), one row per question currently parsed out of
+              the FAQ section(s) above. */}
+          <FaqMetaEditor
+            questions={faqQuestions}
+            metaByQuestion={faqMeta}
+            userOptions={userOptions}
+            onChange={handleFaqMetaChange}
           />
 
           {/* Bottom save */}

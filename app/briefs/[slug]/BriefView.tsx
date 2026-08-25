@@ -40,6 +40,7 @@ import type {
   Coverage,
   RelatedBrief,
 } from './page'
+import type { FaqMeta } from '@/lib/data/faq-meta'
 
 // ---------------------------------------------------------------------------
 // Main component
@@ -57,6 +58,7 @@ interface BriefViewProps {
   myReviewStatus: ContributionStatus
   explainerContributions: ExplainerContributionInfo[]
   faqAnswersByQuestion: Record<string, FaqAnswer[]>
+  faqMetaByQuestion: Record<string, FaqMeta>
   ctas: Cta[]
   coverage: Coverage[]
   relatedBriefs: RelatedBrief[]
@@ -66,7 +68,7 @@ interface BriefViewProps {
 // dropping Media from the page was a deliberate call, but the data query
 // itself is out of scope for this change) but isn't destructured here since
 // nothing renders it anymore.
-export default function BriefView({ brief, quotes, endorsementBar, endorsementDetail, questions, answersByQuestion, currentUser, myReviewStatus, explainerContributions, faqAnswersByQuestion, ctas, coverage, relatedBriefs }: BriefViewProps) {
+export default function BriefView({ brief, quotes, endorsementBar, endorsementDetail, questions, answersByQuestion, currentUser, myReviewStatus, explainerContributions, faqAnswersByQuestion, faqMetaByQuestion, ctas, coverage, relatedBriefs }: BriefViewProps) {
   const isLoggedIn = !!currentUser
   const showSections = isLoggedIn || brief.visibility === 'public'
   const canContribute = currentUser?.role === 'expert' || currentUser?.role === 'organisation'
@@ -101,6 +103,11 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
   const [addCoverageOpen, setAddCoverageOpen] = useState(false)
   const [tldrFeedbackOpen, setTldrFeedbackOpen] = useState(false)
   const [explainerFeedbackOpen, setExplainerFeedbackOpen] = useState(false)
+  // FAQ's "give feedback" (Part 6 step 1) needs to carry which question it's
+  // about, unlike TL;DR/Explainer's single fixed trigger above — one
+  // FeedbackModal instance here, its context built from whichever question
+  // set this.
+  const [faqFeedbackQuestion, setFaqFeedbackQuestion] = useState<string | null>(null)
   const [reviewersModalOpen, setReviewersModalOpen] = useState(false)
   const [addQuoteOpen, setAddQuoteOpen] = useState(false)
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null)
@@ -301,9 +308,10 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
                             numTone={type === 'faq' ? 'blue' : 'ink'}
                             action={
                               type === 'faq' && (canContribute || currentUser?.role === 'admin') ? (
-                                // Visual-only button (no onClick), so — unlike
-                                // canContribute's other gated controls — it's
-                                // safe to also preview for admin.
+                                // Opens the shared feedback mechanism (Part 0c)
+                                // rather than a role-gated submission, so —
+                                // unlike canContribute's other gated controls —
+                                // it's safe to also preview for admin.
                                 <button
                                   type="button" onClick={() => setActiveContributeModal('faq-question')} style={{ touchAction: 'manipulation' }}
                                   className="border-[1.5px] border-ink bg-paper px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.06em] text-ink transition-colors hover:border-blue hover:text-blue"
@@ -343,8 +351,11 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
                               sections={sections}
                               briefId={brief.id}
                               briefSlug={brief.slug}
-                              canSubmit={canContribute}
+                              canSubmit={canContribute || currentUser?.role === 'admin'}
                               answersByQuestion={faqAnswersByQuestion}
+                              faqMetaByQuestion={faqMetaByQuestion}
+                              onGiveFeedback={setFaqFeedbackQuestion}
+                              isLoggedIn={isLoggedIn}
                             />
                           )}
                         </div>
@@ -515,7 +526,12 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
           </div>
         )}
 
-        {/* ── Every modal this page can open ───────────────────────────── */}
+        {/* ── Every top-level modal — extracted to brief-modals.tsx to keep
+            this file under the repo's max-lines budget (CONTRIBUTING.md).
+            Rendered here (not nested in any anim-rise-wrapped section
+            above) so position:fixed modals aren't trapped as a containing
+            block by a completed anim-rise transform — see ReviewersModal's
+            own comment in section-content.tsx. ─────────────────────────── */}
         <BriefModals
           brief={brief}
           currentUser={currentUser}
@@ -534,6 +550,8 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
           onCloseTldrFeedback={() => setTldrFeedbackOpen(false)}
           explainerFeedbackOpen={explainerFeedbackOpen}
           onCloseExplainerFeedback={() => setExplainerFeedbackOpen(false)}
+          faqFeedbackQuestion={faqFeedbackQuestion}
+          onCloseFaqFeedback={() => setFaqFeedbackQuestion(null)}
           addQuoteOpen={addQuoteOpen}
           onCloseAddQuote={() => setAddQuoteOpen(false)}
           selectedQuote={selectedQuote}
