@@ -82,6 +82,25 @@ export interface UserCorrectionProposal {
   briefs: { title: string; slug: string }
 }
 
+// Part 10 (docs/design/brief-feature/brief-page-part2-plan.md §2) — the
+// submitter's own home dashboard status card.
+export interface UserBriefProposal {
+  id: string
+  topic_title: string
+  status: 'pending' | 'approved' | 'declined'
+  minor_changes_flag: boolean
+  published_brief_slug: string | null
+  created_at: string
+}
+
+// Part 10 — BriefView.tsx hero's Contributors list, populated from
+// converted/linked proposals (published_brief_id set, status 'approved').
+export interface BriefContributor {
+  id: string
+  display_name: string
+  avatar_url: string | null
+}
+
 // Full brief + sections for the brief page. Returns null when the brief does
 // not exist. When called with the RLS client, a logged-out visitor receives a
 // members-only brief's metadata but no sections (policies 008/013).
@@ -158,4 +177,50 @@ export async function getUserCorrectionProposals(
     .order('created_at', { ascending: false })
 
   return (data ?? []) as unknown as UserCorrectionProposal[]
+}
+
+// Brief proposals submitted by a user, for their home dashboard status card
+// (Part 10 step 1) — same "own rows, any status" shape as
+// getUserCorrectionProposals above. published_brief_id is a nullable FK, so
+// PostgREST left-joins briefs — null until an admin converts/links it.
+export async function getUserBriefProposals(
+  db: DB,
+  userId: string,
+): Promise<UserBriefProposal[]> {
+  const { data } = await db
+    .from('brief_proposals')
+    .select('id, topic_title, status, minor_changes_flag, published_brief_id, created_at, briefs(slug)')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    topic_title: row.topic_title,
+    status: row.status as 'pending' | 'approved' | 'declined',
+    minor_changes_flag: row.minor_changes_flag,
+    published_brief_slug: (row.briefs as { slug: string } | null)?.slug ?? null,
+    created_at: row.created_at,
+  }))
+}
+
+// Contributors for a brief's hero (Part 10 step 3) — everyone whose
+// proposal was converted/linked into this brief. user_id is a nullable FK
+// (proposals can be submitted without an account, in principle), so this
+// filters those out rather than rendering a contributor with no profile to
+// link to.
+export async function getBriefContributors(
+  db: DB,
+  briefId: string,
+): Promise<BriefContributor[]> {
+  const { data } = await db
+    .from('brief_proposals')
+    .select('user_id, users(id, display_name, avatar_url)')
+    .eq('published_brief_id', briefId)
+    .eq('status', 'approved')
+    .not('user_id', 'is', null)
+    .order('created_at', { ascending: true })
+
+  return (data ?? [])
+    .map((row) => row.users)
+    .filter((u): u is BriefContributor => u !== null)
 }

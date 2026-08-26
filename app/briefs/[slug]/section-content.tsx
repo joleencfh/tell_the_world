@@ -5,6 +5,7 @@ import type { ReactNode } from 'react'
 import Avatar from '@/components/ui/Avatar'
 import { getDisplayName, formatDate } from './helpers'
 import type { Reviewer } from '@/lib/data/contributions'
+import type { BriefContributor } from './page'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -360,6 +361,36 @@ export function HeroChipBar({
         </div>
       )}
     </>
+  )
+}
+
+// Section 01's Contributors list (Part 10 step 3) — names of members whose
+// proposed-brief submission got converted/linked into this brief, each
+// linking to their profile. Strictly additive: no empty-state chip, this
+// just doesn't render when there are none (same convention as the home
+// dashboard's matching "Your Proposals" card).
+export function ContributorsList({ contributors }: { contributors: BriefContributor[] }) {
+  if (contributors.length === 0) return null
+
+  return (
+    <div className="flex flex-wrap items-center gap-3 mt-4 anim-rise" style={{ animationDelay: '175ms' }}>
+      <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-ink-faint">Contributors</span>
+      <div className="flex flex-wrap gap-3">
+        {contributors.map((c) => {
+          const name = getDisplayName({ display_name: c.display_name })
+          return (
+            <Link
+              key={c.id}
+              href={`/profile/${c.id}`}
+              className="inline-flex items-center gap-1.5 font-mono text-[10px] text-ink-soft hover:text-ink transition-colors"
+            >
+              <Avatar name={name} avatarUrl={c.avatar_url} size="2xs" />
+              {name}
+            </Link>
+          )
+        })}
+      </div>
+    </div>
   )
 }
 
