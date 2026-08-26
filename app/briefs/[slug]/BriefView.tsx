@@ -24,6 +24,7 @@ import { CtaCarousel } from './ctas'
 import { CoverageCarousel } from './coverage'
 import { RelatedBriefsCarousel } from './related-briefs'
 import { BriefModals } from './brief-modals'
+import { SectionNav, buildNavSections } from './section-nav'
 import { computeReadTimeMinutes, getBriefNumber, getBriefCategory } from './helpers'
 import type {
   Brief,
@@ -132,6 +133,17 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
   // §3 Part 3 step 5).
   const goingDeeperSections = sortedSections.filter((s) => s.section_type === 'going_deeper')
 
+  // Section nav (Part 11) — see section-nav.tsx's buildNavSections for the
+  // per-section visibility logic.
+  const navSections = buildNavSections({
+    tldr,
+    showSections,
+    hasQuotes: quotes.length > 0 || canAddQuote,
+    isLoggedIn,
+    sortedSections,
+    hasRelated: relatedBriefs.length > 0,
+  })
+
   return (
     <div className="min-h-screen bg-paper text-ink">
 
@@ -159,7 +171,7 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
       <main>
 
         {/* ── Hero — neutral ink, no blue/pink tint (§1.1) ─────────────── */}
-        <div className="grid-texture relative overflow-hidden border-b border-line px-6 pt-12 pb-14">
+        <div id="section-top" className="grid-texture relative overflow-hidden border-b border-line px-6 pt-12 pb-14">
           {/* Bottom fade to next section */}
           <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent to-paper pointer-events-none" />
 
@@ -258,7 +270,7 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
 
         {/* ── TL;DR ─────────────────────────────────────────────────────── */}
         {tldr.trim() && (
-          <div className="border-t-4 border-line border-b border-line bg-paper px-6 py-16">
+          <div id="section-tldr" className="scroll-mt-20 border-t-4 border-line border-b border-line bg-paper px-6 py-16">
             <div className="mx-auto max-w-4xl anim-rise" style={{ animationDelay: '0ms' }}>
               <SectionHeader
                 num={SECTION_META.tldr.num}
@@ -287,7 +299,7 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
             block rather than threaded through the SECTION_ORDER loop below,
             same pattern as CTA/Covered By/Related Briefs further down. ─── */}
         {showSections && (quotes.length > 0 || canAddQuote) && (
-          <div className="border-t-4 border-t-blue border-b border-b-line bg-paper-sunken-blue px-6 py-16">
+          <div id="section-quotes" className="scroll-mt-20 border-t-4 border-t-blue border-b border-b-line bg-paper-sunken-blue px-6 py-16">
             <div className="mx-auto max-w-4xl anim-rise" style={{ animationDelay: '0ms' }}>
               <QuotesCarousel quotes={quotes} briefSlug={brief.slug} isLoggedIn={isLoggedIn} canAddQuote={canAddQuote} onAddQuote={() => setAddQuoteOpen(true)} onOpenQuote={setSelectedQuote} />
             </div>
@@ -310,7 +322,7 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
                     const meta = SECTION_META[type]
                     const bgClass = SECTION_BG[i] ?? 'bg-paper'
                     return (
-                      <div className={`${bgClass} border-t-4 border-t-blue border-b border-b-line px-6 py-16`}>
+                      <div id={`section-${type}`} className={`${bgClass} scroll-mt-20 border-t-4 border-t-blue border-b border-b-line px-6 py-16`}>
                         <div className="mx-auto max-w-4xl anim-rise" style={{ animationDelay: '100ms' }}>
                           <SectionHeader
                             num={meta.num}
@@ -411,7 +423,7 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
 
         {/* ── Q&A — members only ───────────────────────────────────────── */}
         {isLoggedIn && (
-          <div className="border-t-4 border-t-pink border-b border-b-line bg-paper-sunken px-6 py-16">
+          <div id="section-qa" className="scroll-mt-20 border-t-4 border-t-pink border-b border-b-line bg-paper-sunken px-6 py-16">
             <div className="mx-auto max-w-4xl">
               <SectionHeader
                 num="06"
@@ -442,7 +454,7 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
 
         {/* ── Calls to Action ──────────────────────────────────────────── */}
         {showSections && (
-          <div className="border-t-4 border-t-pink border-b border-b-line bg-paper px-6 py-16">
+          <div id="section-cta" className="scroll-mt-20 border-t-4 border-t-pink border-b border-b-line bg-paper px-6 py-16">
             <div className="mx-auto max-w-4xl">
               <SectionHeader
                 num="07"
@@ -469,7 +481,7 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
 
         {/* ── Covered By — fixed dark band in both themes (§1.3) ───────── */}
         {showSections && (
-          <DarkBand className="border-t-4 border-t-pink border-b border-b-line px-6 py-16">
+          <DarkBand id="section-coverage" className="scroll-mt-20 border-t-4 border-t-pink border-b border-b-line px-6 py-16">
             <div className="mx-auto max-w-4xl">
               <SectionHeader
                 num="08"
@@ -501,7 +513,7 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
             near-empty-state convention as Quotes above, don't render an
             empty section (§3 Part 8). ─────────────────────────────────── */}
         {showSections && relatedBriefs.length > 0 && (
-          <div className="border-t-4 border-line bg-paper-raised px-6 py-16">
+          <div id="section-related" className="scroll-mt-20 border-t-4 border-line bg-paper-raised px-6 py-16">
             <div className="mx-auto max-w-4xl">
               <SectionHeader
                 num="09"
@@ -575,6 +587,8 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
           reviewersModalOpen={reviewersModalOpen}
           onCloseReviewersModal={() => setReviewersModalOpen(false)}
         />
+
+        <SectionNav sections={navSections} />
 
       </main>
 
