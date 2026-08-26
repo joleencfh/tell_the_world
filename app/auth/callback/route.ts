@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { isApprovedMember } from '@/lib/auth/approval'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
@@ -8,9 +9,16 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = await createClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
+      if (await isApprovedMember(supabase, data.user?.email)) {
+        return NextResponse.redirect(`${origin}${next}`)
+      }
+      // Authenticated with Supabase but not an approved member — don't
+      // leave them signed in with nowhere approved to go.
+      await supabase.auth.signOut()
+      return NextResponse.redirect(`${origin}/login?error=not_approved`)
     }
   }
 
