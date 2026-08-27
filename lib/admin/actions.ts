@@ -13,6 +13,7 @@ import { slugify, uniqueSlug } from './slug'
 import * as adminData from '@/lib/data/admin'
 import type { PagedResult } from '@/lib/data/admin'
 import type { TablesInsert, UserRole, PrimaryPlatform, OrgSize } from '@/lib/types'
+import type { Json } from '@/lib/database.types'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -644,6 +645,27 @@ export interface WaitlistSignup {
 export async function getWaitlistSignups(page = 1): Promise<PagedResult<WaitlistSignup>> {
   await requireAdmin()
   return adminData.getWaitlistSignups(getAdminClient(), page)
+}
+
+// ---------------------------------------------------------------------------
+// Analytics — read-only activity feed written by lib/analytics/log.ts
+// (login, question/comment/like submissions, brief views). Nothing to
+// moderate here, same shape as the reviews feed below.
+// ---------------------------------------------------------------------------
+
+export interface AnalyticsEventRow {
+  id: string
+  event_type: string
+  target_type: string | null
+  target_id: string | null
+  metadata: Json
+  created_at: string
+  users: { display_name: string | null; email: string } | null
+}
+
+export async function getAnalyticsEvents(page = 1): Promise<PagedResult<AnalyticsEventRow>> {
+  await requireAdmin()
+  return adminData.getRecentAnalyticsEvents(getAdminClient(), page)
 }
 
 // ---------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/lib/database.types'
-import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingQuestionAnswer, PendingCta, PublishedCta, PendingCoverage, PendingBriefFeedback, PendingQuote, BriefReview, WaitlistSignup } from '@/lib/admin/actions'
+import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingQuestionAnswer, PendingCta, PublishedCta, PendingCoverage, PendingBriefFeedback, PendingQuote, BriefReview, WaitlistSignup, AnalyticsEventRow } from '@/lib/admin/actions'
 import type { PendingContentiousPoint } from '@/lib/admin/explainer-actions'
 
 // Data-access layer for admin queue reads. See lib/data/briefs.ts for the
@@ -210,4 +210,17 @@ export async function getBriefProposals(db: DB, page = 1): Promise<PagedResult<B
     .range(...range(page))
 
   return { data: error ? [] : (data as BriefProposal[]) ?? [], count: count ?? 0 }
+}
+
+// Basic activity log — everything lib/analytics/log.ts writes, newest
+// first. Read-only feed, no moderation state, same shape as getBriefReviews
+// above. users is nullable since the FK is ON DELETE SET NULL.
+export async function getRecentAnalyticsEvents(db: DB, page = 1): Promise<PagedResult<AnalyticsEventRow>> {
+  const { data, error, count } = await db
+    .from('analytics_events')
+    .select('id, event_type, target_type, target_id, metadata, created_at, users(display_name, email)', { count: 'exact' })
+    .order('created_at', { ascending: false })
+    .range(...range(page))
+
+  return { data: error ? [] : (data as unknown as AnalyticsEventRow[]) ?? [], count: count ?? 0 }
 }

@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      analytics_events: {
+        Row: {
+          created_at: string
+          dedupe_key: string | null
+          event_type: string
+          id: string
+          metadata: Json
+          target_id: string | null
+          target_type: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          dedupe_key?: string | null
+          event_type: string
+          id?: string
+          metadata?: Json
+          target_id?: string | null
+          target_type?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          dedupe_key?: string | null
+          event_type?: string
+          id?: string
+          metadata?: Json
+          target_id?: string | null
+          target_type?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       applications: {
         Row: {
           additional_info: string | null
@@ -808,12 +849,15 @@ export type Database = {
           created_at: string
           id: string
           post_type: Database["public"]["Enums"]["post_type"]
+          quote_source: string
+          source_detail: string | null
+          source_name: string | null
           status: string
           title: string
           topic_tags: string[]
           updated_at: string
           url: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           body?: string | null
@@ -821,12 +865,15 @@ export type Database = {
           created_at?: string
           id?: string
           post_type: Database["public"]["Enums"]["post_type"]
+          quote_source?: string
+          source_detail?: string | null
+          source_name?: string | null
           status?: string
           title: string
           topic_tags?: string[]
           updated_at?: string
           url?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           body?: string | null
@@ -834,12 +881,15 @@ export type Database = {
           created_at?: string
           id?: string
           post_type?: Database["public"]["Enums"]["post_type"]
+          quote_source?: string
+          source_detail?: string | null
+          source_name?: string | null
           status?: string
           title?: string
           topic_tags?: string[]
           updated_at?: string
           url?: string | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {

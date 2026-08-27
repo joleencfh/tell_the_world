@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { createBrief } from '@/lib/admin/brief-actions'
 import type { BriefOption } from '@/lib/admin/brief-actions'
-import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingQuestionAnswer, PendingCta, PublishedCta, PendingCoverage, PendingBriefFeedback, PendingQuote, BriefReview, WaitlistSignup } from '@/lib/admin/actions'
+import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingQuestionAnswer, PendingCta, PublishedCta, PendingCoverage, PendingBriefFeedback, PendingQuote, BriefReview, WaitlistSignup, AnalyticsEventRow } from '@/lib/admin/actions'
 import type { PendingContentiousPoint } from '@/lib/admin/explainer-actions'
 import { ADMIN_PAGE_SIZE } from '@/lib/data/admin'
 import Pagination from '@/components/ui/Pagination'
@@ -20,12 +20,13 @@ import { CoverageCard } from './coverage-card'
 import { FeedbackCard } from './feedback-card'
 import { ReviewCard } from './review-card'
 import { WaitlistCard } from './waitlist-card'
+import { AnalyticsEventRowItem } from './analytics-tab'
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-type Tab = 'pending' | 'questions' | 'correctionProposals' | 'faqAnswers' | 'contentiousPoints' | 'questionAnswers' | 'ctas' | 'quotes' | 'coverage' | 'feedback' | 'reviews' | 'proposals' | 'approved' | 'waitlist'
+type Tab = 'pending' | 'questions' | 'correctionProposals' | 'faqAnswers' | 'contentiousPoints' | 'questionAnswers' | 'ctas' | 'quotes' | 'coverage' | 'feedback' | 'reviews' | 'proposals' | 'approved' | 'waitlist' | 'analytics'
 
 interface Props {
   adminEmail: string
@@ -75,6 +76,9 @@ interface Props {
   waitlistSignups: WaitlistSignup[]
   waitlistSignupsCount: number
   waitlistPage: number
+  analyticsEvents: AnalyticsEventRow[]
+  analyticsEventsCount: number
+  analyticsPage: number
 }
 
 // ---------------------------------------------------------------------------
@@ -129,6 +133,9 @@ export default function AdminScreen({
   waitlistSignups,
   waitlistSignupsCount,
   waitlistPage,
+  analyticsEvents,
+  analyticsEventsCount,
+  analyticsPage,
 }: Props) {
   const [tab, setTab] = useState<Tab>('pending')
   // The tab row outgrew a single line (10 tabs) — split across two pages
@@ -200,6 +207,7 @@ export default function AdminScreen({
               { key: 'proposals', label: 'Brief proposals', count: briefProposalsCount },
               { key: 'waitlist', label: 'Waitlist', count: waitlistSignupsCount },
               { key: 'approved', label: 'Recently approved' },
+              { key: 'analytics', label: 'Analytics' },
             ]
             const tabPages = [tabDefs.slice(0, 6), tabDefs.slice(6)]
 
@@ -589,6 +597,30 @@ export default function AdminScreen({
                 pageSize={ADMIN_PAGE_SIZE}
                 total={approvedCount}
                 buildHref={(p) => buildPageHref('approvedPage', p)}
+              />
+            </>
+          )}
+
+          {/* Analytics tab — read-only activity feed (logins, questions,
+              comments, likes, brief views) written by lib/analytics/log.ts */}
+          {tab === 'analytics' && (
+            <>
+              {analyticsEvents.length === 0 ? (
+                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
+                  No activity recorded yet.
+                </p>
+              ) : (
+                <div className="bg-paper-raised border border-line px-5 py-1">
+                  {analyticsEvents.map((event) => (
+                    <AnalyticsEventRowItem key={event.id} event={event} />
+                  ))}
+                </div>
+              )}
+              <Pagination
+                page={analyticsPage}
+                pageSize={ADMIN_PAGE_SIZE}
+                total={analyticsEventsCount}
+                buildHref={(p) => buildPageHref('analyticsPage', p)}
               />
             </>
           )}

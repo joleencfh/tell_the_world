@@ -7,6 +7,7 @@ import { sendBriefProposalEmail } from '@/lib/email/send-brief-proposal'
 import { getMaxContentVersion } from '@/lib/data/contributions'
 import { fetchLinkPreview } from '@/lib/links/link-preview'
 import { getCoverageComments, getCoverageLikers } from '@/lib/data/coverage'
+import { logEvent } from '@/lib/analytics/log'
 import type { CoverageComment, CoverageAuthor } from '@/lib/data/coverage'
 import type { UserRole } from '@/lib/types'
 import type { Json } from '@/lib/database.types'
@@ -71,6 +72,8 @@ export async function submitQuestion(
     .insert({ brief_id: briefId, user_id: user.id, question_text: trimmed })
 
   if (error) return { error: 'Failed to submit question. Please try again.' }
+
+  await logEvent({ eventType: 'question_submitted', userId: user.id, targetType: 'brief', targetId: briefId })
 
   revalidatePath(`/briefs/${briefSlug}`)
   return { success: true }
@@ -321,6 +324,10 @@ export async function likeQuote(contentPostId: string, briefSlug: string): Promi
 
   if (error) return { error: 'Failed to record your like. Please try again.' }
 
+  if (!existing) {
+    await logEvent({ eventType: 'like_added', userId: user.id, targetType: 'quote', targetId: contentPostId })
+  }
+
   revalidatePath(`/briefs/${briefSlug}`)
   return { liked: !existing }
 }
@@ -399,6 +406,9 @@ export async function submitCoverageComment(coverageId: string, body: string): P
   })
 
   if (error) return { error: 'Failed to post your comment. Please try again.' }
+
+  await logEvent({ eventType: 'comment_submitted', userId: user.id, targetType: 'coverage_comment', targetId: coverageId })
+
   return { success: true }
 }
 
