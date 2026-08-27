@@ -30,12 +30,20 @@ export default function LandingPage() {
       <header className="sticky top-0 z-10 bg-paper/95 backdrop-blur-sm border-b-2 border-ink px-6">
         <div className="mx-auto flex max-w-5xl items-center justify-between py-4">
           <Logo href="/" />
-          <Link
-            href="/login"
-            className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors"
-          >
-            Sign in
-          </Link>
+          <div className="flex items-center gap-5">
+            <Link
+              href="/apply"
+              className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink border border-ink px-3 py-1.5 hover:bg-ink hover:text-paper transition-colors"
+            >
+              Apply
+            </Link>
+            <Link
+              href="/login"
+              className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors"
+            >
+              Sign in
+            </Link>
+          </div>
         </div>
       </header>
 
