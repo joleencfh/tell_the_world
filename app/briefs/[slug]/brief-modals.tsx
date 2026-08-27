@@ -179,7 +179,8 @@ export function BriefModals({
 
       {addQuoteOpen && currentUser && (
         <AddQuoteModal
-          briefId={brief.id} briefSlug={brief.slug} briefTitle={brief.title} defaultTags={brief.topic_tags} onClose={onCloseAddQuote}
+          briefId={brief.id} briefSlug={brief.slug} briefTitle={brief.title} defaultTags={brief.topic_tags}
+          isAdmin={currentUser.role === 'admin'} onClose={onCloseAddQuote}
         />
       )}
 

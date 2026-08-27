@@ -92,16 +92,21 @@ export interface QuoteAuthor {
   org_name: string | null
 }
 
+export type QuoteSource = 'member' | 'person' | 'document' | 'ai'
+
 export interface Quote {
   id: string
   title: string
   body: string | null
   url: string | null
-  user_id: string
+  user_id: string | null
+  quote_source: QuoteSource
+  source_name: string | null
+  source_detail: string | null
   created_at: string
   updated_at: string
   topic_tags: string[]
-  users: QuoteAuthor
+  users: QuoteAuthor | null
   likeCount: number
   myLike: boolean
 }

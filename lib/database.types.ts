@@ -808,12 +808,15 @@ export type Database = {
           created_at: string
           id: string
           post_type: Database["public"]["Enums"]["post_type"]
+          quote_source: string
+          source_detail: string | null
+          source_name: string | null
           status: string
           title: string
           topic_tags: string[]
           updated_at: string
           url: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           body?: string | null
@@ -821,12 +824,15 @@ export type Database = {
           created_at?: string
           id?: string
           post_type: Database["public"]["Enums"]["post_type"]
+          quote_source?: string
+          source_detail?: string | null
+          source_name?: string | null
           status?: string
           title: string
           topic_tags?: string[]
           updated_at?: string
           url?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           body?: string | null
@@ -834,12 +840,15 @@ export type Database = {
           created_at?: string
           id?: string
           post_type?: Database["public"]["Enums"]["post_type"]
+          quote_source?: string
+          source_detail?: string | null
+          source_name?: string | null
           status?: string
           title?: string
           topic_tags?: string[]
           updated_at?: string
           url?: string | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
