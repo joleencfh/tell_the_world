@@ -249,7 +249,7 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
               <div className="min-w-0 flex-1">
                 {/* Title — large, dominant */}
                 <h1
-                  className="font-display uppercase font-extrabold text-ink anim-rise break-words"
+                  className="font-display font-extrabold text-ink anim-rise break-words"
                   style={{
                     fontSize: 'clamp(1.98rem, 4.99vw, 4.22rem)',
                     lineHeight: '0.96',
