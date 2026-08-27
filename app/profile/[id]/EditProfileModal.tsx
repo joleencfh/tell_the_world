@@ -5,8 +5,7 @@ import { useRouter } from 'next/navigation'
 import { updateProfile } from './actions'
 import type { ProfileUser, AvailabilityStatus, PrimaryPlatform, OrgSize } from './page'
 import type { ProfileUpdatePayload } from './actions'
-import Avatar from '@/components/ui/Avatar'
-import RoleBadge from '@/components/ui/RoleBadge'
+import AvatarEditor from './AvatarEditor'
 
 // ---------------------------------------------------------------------------
 // Utilities
@@ -170,6 +169,8 @@ export default function EditProfileModal({ user, onClose }: EditProfileModalProp
   const initial = useRef(buildInitialState(user))
   const [form, setForm] = useState<ProfileUpdatePayload>(() => buildInitialState(user))
 
+  const [avatarUrl, setAvatarUrl] = useState(user.avatar_url)
+
   const displayName = getDisplayName(user)
 
   const handleClose = useCallback(() => {
@@ -232,13 +233,13 @@ export default function EditProfileModal({ user, onClose }: EditProfileModalProp
       <div className="bg-white rounded-xl w-full max-w-lg overflow-y-auto max-h-[90vh] shadow-xl">
         {/* Header */}
         <div className="flex items-center gap-3 px-6 py-5 border-b border-gray-100 sticky top-0 bg-white rounded-t-xl">
-          <Avatar name={displayName} avatarUrl={user.avatar_url} size="xl" />
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-gray-900 truncate">{displayName}</p>
-            <div className="mt-0.5">
-              <RoleBadge role={user.role} />
-            </div>
-          </div>
+          <AvatarEditor
+            userId={user.id}
+            displayName={displayName}
+            role={user.role}
+            avatarUrl={avatarUrl}
+            onAvatarChange={setAvatarUrl}
+          />
           <button
             type="button"
             onClick={handleClose}
