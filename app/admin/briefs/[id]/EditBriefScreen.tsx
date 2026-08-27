@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react'
 import Link from 'next/link'
 import Logo from '@/components/ui/Logo'
+import SignOutButton from '@/components/ui/SignOutButton'
 import { saveBrief, deleteBrief } from '@/lib/admin/brief-actions'
 import type { Brief, BriefSection, MediaPickerOption, TimelineEvent, UserOption, FaqMetaRow } from '@/lib/admin/brief-actions'
 import { plainTextToRichContent } from '@/lib/richtext/types'
@@ -235,7 +236,10 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
             </span>
             <span className="font-mono text-[9px] text-ink-soft hidden sm:block">/ Edit Brief</span>
           </div>
-          <span className="font-mono text-[9px] text-ink-soft hidden sm:block">{adminEmail}</span>
+          <div className="flex items-center gap-4">
+            <span className="font-mono text-[9px] text-ink-soft hidden sm:block">{adminEmail}</span>
+            <SignOutButton className="font-mono text-[9px] tracking-[0.2em] uppercase text-ink-soft hover:text-ink transition-colors" />
+          </div>
         </div>
       </header>
 

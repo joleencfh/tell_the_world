@@ -7,6 +7,7 @@ import UserCard from './UserCard'
 import QuoteCard from './QuoteCard'
 import Pagination from '@/components/ui/Pagination'
 import Logo from '@/components/ui/Logo'
+import SignOutButton from '@/components/ui/SignOutButton'
 import { DIRECTORY_PAGE_SIZE } from '@/lib/directory/queries'
 import type { UserResult, QuoteResult, SearchParams } from '@/lib/directory/queries'
 
@@ -187,6 +188,7 @@ export default function DirectoryView({ users, usersCount, quotes, quotesCount, 
             >
               Profile
             </Link>
+            <SignOutButton className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors" />
           </nav>
         </div>
       </header>
