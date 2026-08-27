@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { getExplainerUsefulLikers as getExplainerUsefulLikersData } from '@/lib/data/explainer-engagement'
 import type { EngagementAuthor } from '@/lib/data/explainer-engagement'
+import { logEvent } from '@/lib/analytics/log'
 
 // Server actions backing the Explainer section's engagement mechanisms —
 // split out of lib/briefs/actions.ts (already at the repo's max-lines
@@ -136,6 +137,8 @@ export async function submitExplainerComment(
 
   if (error) return { error: 'Failed to post your comment. Please try again.' }
 
+  await logEvent({ eventType: 'comment_submitted', userId: user.id, targetType: 'explainer_comment', targetId: briefId })
+
   revalidatePath(`/briefs/${briefSlug}`)
   return { success: true }
 }
@@ -206,6 +209,10 @@ export async function submitExplainerUsefulVote(
     : await supabase.from('explainer_useful_votes').insert({ brief_id: briefId, user_id: user.id })
 
   if (error) return { error: 'Failed to record your vote. Please try again.' }
+
+  if (!existing) {
+    await logEvent({ eventType: 'like_added', userId: user.id, targetType: 'explainer_useful', targetId: briefId })
+  }
 
   revalidatePath(`/briefs/${briefSlug}`)
   return { liked: !existing }

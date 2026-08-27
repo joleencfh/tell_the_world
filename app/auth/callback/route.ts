@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { isApprovedMember } from '@/lib/auth/approval'
+import { logEvent } from '@/lib/analytics/log'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
@@ -13,6 +14,9 @@ export async function GET(request: Request) {
 
     if (!error) {
       if (await isApprovedMember(supabase, data.user?.email)) {
+        if (data.user) {
+          await logEvent({ eventType: 'login', userId: data.user.id, metadata: { email: data.user.email ?? null } })
+        }
         return NextResponse.redirect(`${origin}${next}`)
       }
       // Authenticated with Supabase but not an approved member — don't

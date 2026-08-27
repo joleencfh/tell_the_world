@@ -25,6 +25,7 @@ import { getPublishedFaqAnswers, type FaqAnswer } from '@/lib/data/faq-answers'
 import { getFaqMeta, type FaqMeta } from '@/lib/data/faq-meta'
 import { getPublishedCtas, type Cta } from '@/lib/data/ctas'
 import { getPublishedCoverage, type Coverage } from '@/lib/data/coverage'
+import { logBriefView } from '@/lib/analytics/log'
 import BriefView from './BriefView'
 
 // ---------------------------------------------------------------------------
@@ -142,6 +143,15 @@ export default async function BriefPage({
   // (policies in 008 and 013). The lock UI in BriefView is presentation only.
   const brief = await getBriefWithSectionsBySlug(supabase, slug)
   if (!brief) notFound()
+
+  // Logged-in views only for now — deduped to one row per user per brief
+  // per day. Anonymous view tracking would need a stable per-visitor
+  // session id, which a Server Component can't set (no cookie writes
+  // outside Server Actions/Route Handlers) — a fair follow-up once this
+  // foundation is in, not needed for the initial "who's doing what" cut.
+  if (user) {
+    await logBriefView(user.id, brief.id)
+  }
 
   const [quotes, media, endorsementBar, myReviewStatus, contentiousPoints, explainerComments, explainerUsefulness, faqAnswersMap, faqMetaMap, ctas, coverage, relatedBriefs, contributors] = await Promise.all([
     getQuotesForBrief(supabase, brief.id, brief.topic_tags, 4, user?.id ?? null),

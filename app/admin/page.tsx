@@ -15,6 +15,7 @@ import {
   getBriefReviews,
   getBriefProposals,
   getWaitlistSignups,
+  getAnalyticsEvents,
 } from '@/lib/admin/actions'
 import { getPendingContentiousPoints } from '@/lib/admin/explainer-actions'
 import { getBriefOptions } from '@/lib/admin/brief-actions'
@@ -54,9 +55,10 @@ export default async function AdminPage({
   const proposalsPage = toPage(raw.proposalsPage)
   const approvedPage = toPage(raw.approvedPage)
   const waitlistPage = toPage(raw.waitlistPage)
+  const analyticsPage = toPage(raw.analyticsPage)
 
   // Fetch data with the service-role client (bypasses RLS)
-  const [pendingResult, approvedResult, questionsResult, correctionProposalsResult, faqAnswersResult, contentiousPointsResult, questionAnswersResult, ctasResult, publishedCtasResult, quotesResult, coverageResult, feedbackResult, reviewsResult, proposalsResult, briefOptions, waitlistResult] = await Promise.all([
+  const [pendingResult, approvedResult, questionsResult, correctionProposalsResult, faqAnswersResult, contentiousPointsResult, questionAnswersResult, ctasResult, publishedCtasResult, quotesResult, coverageResult, feedbackResult, reviewsResult, proposalsResult, briefOptions, waitlistResult, analyticsResult] = await Promise.all([
     getPendingApplications(pendingPage),
     getRecentlyApproved(approvedPage),
     getPendingQuestions(questionsPage),
@@ -73,6 +75,7 @@ export default async function AdminPage({
     getBriefProposals(proposalsPage),
     getBriefOptions(),
     getWaitlistSignups(waitlistPage),
+    getAnalyticsEvents(analyticsPage),
   ])
 
   return (
@@ -124,6 +127,9 @@ export default async function AdminPage({
       waitlistSignups={waitlistResult.data}
       waitlistSignupsCount={waitlistResult.count}
       waitlistPage={waitlistPage}
+      analyticsEvents={analyticsResult.data}
+      analyticsEventsCount={analyticsResult.count}
+      analyticsPage={analyticsPage}
     />
   )
 }
