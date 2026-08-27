@@ -4,6 +4,7 @@ import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { getAdminClient } from '@/lib/supabase/admin'
 import { sendApplicationConfirmation } from '@/lib/email/send-application-confirmation'
+import { sendApplicationNotificationEmail } from '@/lib/email/send-application-notification'
 import type { ApplicationRole, TablesInsert } from '@/lib/types'
 
 // ---------------------------------------------------------------------------
@@ -241,6 +242,16 @@ export async function submitApplication(form: ApplicationInput): Promise<SubmitR
   const { error: insertError } = await supabase.from('applications').insert(payload)
 
   if (insertError) return { error: insertError.message }
+
+  // Notify the admin — fire and forget (the applications queue is the
+  // source of truth; a failed notification shouldn't fail the submission).
+  sendApplicationNotificationEmail({
+    full_name: `${form.first_name.trim()} ${form.last_name.trim()}`,
+    email,
+    desired_role: form.desired_role,
+    desired_role_other: form.desired_role_other.trim() || undefined,
+    bio: form.bio.trim(),
+  }).catch((err) => console.error('Application notification email failed:', err))
 
   try {
     await sendApplicationConfirmation({
