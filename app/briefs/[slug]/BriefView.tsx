@@ -245,13 +245,13 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
             {/* Title/subtitle block + Contribute — flex row so the hero's
                 role-gated dropdown (Part 9) sits top-right of the title,
                 matching the reference artifact's .hero-top layout. */}
-            <div className="flex flex-wrap items-start justify-between gap-6">
+            <div className="flex flex-wrap items-start justify-between gap-10">
               <div className="min-w-0 flex-1">
                 {/* Title — large, dominant */}
                 <h1
-                  className="font-display uppercase font-extrabold text-ink anim-rise"
+                  className="font-display font-extrabold text-ink anim-rise break-words"
                   style={{
-                    fontSize: 'clamp(2.48rem, 6.24vw, 5.28rem)',
+                    fontSize: 'clamp(1.98rem, 4.99vw, 4.22rem)',
                     lineHeight: '0.96',
                     letterSpacing: '-0.035em',
                     animationDelay: '80ms',
@@ -263,7 +263,7 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
                 {/* Subtitle — one sentence, allowed a point of view */}
                 {brief.subtitle && (
                   <p
-                    className="font-body text-base sm:text-lg text-ink-soft italic mt-4 max-w-2xl anim-rise"
+                    className="font-body text-base sm:text-lg text-ink-soft italic mt-6 max-w-2xl anim-rise"
                     style={{ animationDelay: '120ms' }}
                   >
                     {brief.subtitle}
