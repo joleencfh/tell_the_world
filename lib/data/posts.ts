@@ -37,16 +37,24 @@ export interface QuoteAuthor {
   org_name: string | null
 }
 
+// Discriminates a quote's attribution — a checked text column, not a
+// Postgres enum (matches content_posts.status's own convention), so this
+// is a hand-written union rather than derived from Database.
+export type QuoteSource = 'member' | 'person' | 'document' | 'ai'
+
 export interface Quote {
   id: string
   title: string
   body: string | null
   url: string | null
-  user_id: string
+  user_id: string | null
+  quote_source: QuoteSource
+  source_name: string | null
+  source_detail: string | null
   created_at: string
   updated_at: string
   topic_tags: string[]
-  users: QuoteAuthor
+  users: QuoteAuthor | null
   likeCount: number
   myLike: boolean
 }
@@ -77,18 +85,21 @@ const MEDIA_SELECT =
   'id, post_type, title, body, url, user_id, created_at, users(id, display_name, avatar_url, role, affiliation, org_name)'
 
 const QUOTE_SELECT =
-  'id, title, body, url, user_id, created_at, updated_at, topic_tags, users(id, display_name, avatar_url, role, affiliation, org_name)'
+  'id, title, body, url, user_id, quote_source, source_name, source_detail, created_at, updated_at, topic_tags, users!left(id, display_name, avatar_url, role, affiliation, org_name)'
 
 interface QuoteRow {
   id: string
   title: string
   body: string | null
   url: string | null
-  user_id: string
+  user_id: string | null
+  quote_source: QuoteSource
+  source_name: string | null
+  source_detail: string | null
   created_at: string
   updated_at: string
   topic_tags: string[]
-  users: QuoteAuthor
+  users: QuoteAuthor | null
 }
 
 // Attaches each row's like count and whether the given viewer has liked it

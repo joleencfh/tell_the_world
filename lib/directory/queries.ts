@@ -136,6 +136,11 @@ export async function searchQuotes(
     .from('content_posts')
     .select('id, body, topic_tags, created_at, users(id, display_name, avatar_url, role, affiliation, org_name)', { count: 'exact' })
     .eq('post_type', 'quote')
+    // Quotes attributed to a non-member (external person/document/AI) have
+    // no users row to join — this listing's QuoteCard renders the author
+    // unconditionally, so keep them out rather than crash. See
+    // app/briefs/[slug]/quotes.tsx for the listing that does support them.
+    .not('user_id', 'is', null)
 
   if (params.q) {
     const q = sanitizeSearchTerm(params.q)

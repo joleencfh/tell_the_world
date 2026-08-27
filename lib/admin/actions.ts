@@ -528,6 +528,74 @@ export async function dismissQuote(quoteId: string): Promise<{ success?: boolean
 }
 
 // ---------------------------------------------------------------------------
+// Sourced quotes (attribution to a non-platform-member) — migration
+// 052_content_posts_external_quote_attribution.sql. Unlike submitQuote
+// (lib/briefs/actions.ts), which always goes into the pending queue above,
+// there's no other member to moderate here — an admin-authored quote
+// publishes immediately.
+// ---------------------------------------------------------------------------
+
+export interface CreateSourcedQuoteInput {
+  quoteSource: 'person' | 'document' | 'ai'
+  sourceName: string
+  sourceDetail: string
+  sourceUrl: string
+  body: string
+  tags: string[]
+}
+
+export async function createSourcedQuote(
+  briefId: string,
+  briefSlug: string,
+  input: CreateSourcedQuoteInput,
+): Promise<{ error?: string; success?: boolean }> {
+  await requireAdmin()
+
+  const trimmedBody = input.body.trim()
+  if (!trimmedBody) return { error: 'Quote cannot be empty.' }
+  if (trimmedBody.length > 500) return { error: 'Quote must be under 500 characters.' }
+
+  const sourceName = input.sourceName.trim()
+  if (!sourceName) return { error: 'Name is required.' }
+  if (sourceName.length > 200) return { error: 'Name must be under 200 characters.' }
+
+  const sourceDetail = input.sourceDetail.trim()
+  if (sourceDetail.length > 200) return { error: 'Title / detail must be under 200 characters.' }
+
+  const sourceUrl = input.sourceUrl.trim()
+  let parsedUrl: URL
+  try {
+    parsedUrl = new URL(sourceUrl)
+  } catch {
+    return { error: 'Source link must be a valid URL.' }
+  }
+  if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+    return { error: 'Source link must start with http:// or https://.' }
+  }
+
+  const cleanTags = [...new Set(input.tags.map((t) => t.trim()).filter(Boolean))].slice(0, 10)
+
+  const { error } = await getAdminClient().from('content_posts').insert({
+    user_id: null,
+    post_type: 'quote',
+    title: trimmedBody,
+    brief_id: briefId,
+    topic_tags: cleanTags,
+    status: 'published',
+    quote_source: input.quoteSource,
+    source_name: sourceName,
+    source_detail: sourceDetail || null,
+    url: sourceUrl,
+  })
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/admin')
+  revalidatePath(`/briefs/${briefSlug}`)
+  return { success: true }
+}
+
+// ---------------------------------------------------------------------------
 // Covered By moderation (two-ink-bold-plan.md Part 7) — url/outlet/title/
 // image were extracted server-side from the submitted URL's Open Graph
 // tags at submission time (lib/links/link-preview.ts), so there's nothing
