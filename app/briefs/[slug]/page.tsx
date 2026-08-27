@@ -6,12 +6,18 @@ import { getQuotesForBrief, getMediaSection, type MediaPost } from '@/lib/data/p
 import {
   getEndorsementBar,
   getMyContributionStatus,
-  getMyContributionStatuses,
-  getSectionContributionCounts,
   type EndorsementBarCounts,
   type EndorsementBarDetail,
   type ContributionStatus,
 } from '@/lib/data/contributions'
+import {
+  getPublishedContentiousPoints,
+  getExplainerComments,
+  getExplainerUsefulness,
+  type ContentiousPoint,
+  type ExplainerComment,
+  type ExplainerUsefulness,
+} from '@/lib/data/explainer-engagement'
 import { getApprovedQuestions, type Question, type QuestionAuthor, type VoteSplit } from '@/lib/data/questions'
 import { getQuestionAnswers, type QuestionAnswer } from '@/lib/data/question-answers'
 import { getUserBasic } from '@/lib/data/users'
@@ -44,6 +50,9 @@ export type {
   QuestionAnswer,
   BriefTimelineEvent,
   BriefContributor,
+  ContentiousPoint,
+  ExplainerComment,
+  ExplainerUsefulness,
 }
 
 export interface BriefSection {
@@ -54,16 +63,6 @@ export interface BriefSection {
   rich_content: unknown
   content_version: number
   display_order: number
-}
-
-// Per-Explainer-subsection reviewed/endorsed state (Part 3) — a plain array
-// of plain objects rather than a Map, since this crosses the server/client
-// boundary into BriefView ('use client').
-export interface ExplainerContributionInfo {
-  sectionId: string
-  status: ContributionStatus
-  reviewedCount: number
-  endorsedCount: number
 }
 
 export interface Brief {
@@ -139,21 +138,16 @@ export default async function BriefPage({
   const brief = await getBriefWithSectionsBySlug(supabase, slug)
   if (!brief) notFound()
 
-  const explainerSectionIds = brief.brief_sections
-    .filter((s) => s.section_type === 'explainer')
-    .map((s) => s.id)
-
-  const [quotes, media, endorsementBar, myReviewStatus, sectionCounts, myExplainerStatuses, faqAnswersMap, faqMetaMap, ctas, coverage, relatedBriefs, contributors] = await Promise.all([
+  const [quotes, media, endorsementBar, myReviewStatus, contentiousPoints, explainerComments, explainerUsefulness, faqAnswersMap, faqMetaMap, ctas, coverage, relatedBriefs, contributors] = await Promise.all([
     getQuotesForBrief(supabase, brief.id, brief.topic_tags, 4, user?.id ?? null),
     getMediaSection(supabase, brief.topic_tag, brief.pinned_media_post_id, 6),
     getEndorsementBar(supabase, brief.id, brief.brief_sections),
     user
       ? getMyContributionStatus(supabase, brief.id, null, user.id)
       : Promise.resolve<ContributionStatus>('none'),
-    getSectionContributionCounts(supabase, brief.id, brief.brief_sections),
-    user
-      ? getMyContributionStatuses(supabase, brief.id, explainerSectionIds, user.id)
-      : Promise.resolve(new Map<string, ContributionStatus>()),
+    getPublishedContentiousPoints(supabase, brief.id, user?.id ?? null),
+    getExplainerComments(supabase, brief.id, user?.id ?? null),
+    getExplainerUsefulness(supabase, brief.id, user?.id ?? null),
     getPublishedFaqAnswers(supabase, brief.id),
     getFaqMeta(supabase, brief.id),
     getPublishedCtas(supabase, brief.id),
@@ -163,20 +157,9 @@ export default async function BriefPage({
   ])
 
   // Converted from a Map to a plain object — Map doesn't round-trip cleanly
-  // across the server/client boundary into 'use client' BriefView, matching
-  // how ExplainerContributionInfo below is a plain array for the same reason.
+  // across the server/client boundary into 'use client' BriefView.
   const faqAnswersByQuestion: Record<string, FaqAnswer[]> = Object.fromEntries(faqAnswersMap)
   const faqMetaByQuestion: Record<string, FaqMeta> = Object.fromEntries(faqMetaMap)
-
-  const explainerContributions: ExplainerContributionInfo[] = explainerSectionIds.map((sectionId) => {
-    const counts = sectionCounts.get(sectionId)
-    return {
-      sectionId,
-      status: myExplainerStatuses.get(sectionId) ?? 'none',
-      reviewedCount: counts?.reviewedCount ?? 0,
-      endorsedCount: counts?.endorsedCount ?? 0,
-    }
-  })
 
   let questions: Question[] = []
   let answersByQuestion: Record<string, QuestionAnswer[]> = {}
@@ -206,7 +189,9 @@ export default async function BriefPage({
       answersByQuestion={answersByQuestion}
       currentUser={currentUser}
       myReviewStatus={myReviewStatus}
-      explainerContributions={explainerContributions}
+      contentiousPoints={contentiousPoints}
+      explainerComments={explainerComments}
+      explainerUsefulness={explainerUsefulness}
       faqAnswersByQuestion={faqAnswersByQuestion}
       faqMetaByQuestion={faqMetaByQuestion}
       ctas={ctas}

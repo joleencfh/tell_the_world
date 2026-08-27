@@ -36,13 +36,16 @@ import type {
   EndorsementBarCounts,
   EndorsementBarDetail,
   ContributionStatus,
-  ExplainerContributionInfo,
   FaqAnswer,
   Cta,
   Coverage,
   RelatedBrief,
   BriefContributor,
+  ContentiousPoint,
+  ExplainerComment,
+  ExplainerUsefulness,
 } from './page'
+import type { EngagementAuthor } from '@/lib/data/explainer-engagement'
 import type { FaqMeta } from '@/lib/data/faq-meta'
 
 // ---------------------------------------------------------------------------
@@ -59,7 +62,9 @@ interface BriefViewProps {
   answersByQuestion: Record<string, QuestionAnswer[]>
   currentUser: CurrentUser | null
   myReviewStatus: ContributionStatus
-  explainerContributions: ExplainerContributionInfo[]
+  contentiousPoints: ContentiousPoint[]
+  explainerComments: ExplainerComment[]
+  explainerUsefulness: ExplainerUsefulness
   faqAnswersByQuestion: Record<string, FaqAnswer[]>
   faqMetaByQuestion: Record<string, FaqMeta>
   ctas: Cta[]
@@ -72,7 +77,7 @@ interface BriefViewProps {
 // dropping Media from the page was a deliberate call, but the data query
 // itself is out of scope for this change) but isn't destructured here since
 // nothing renders it anymore.
-export default function BriefView({ brief, quotes, endorsementBar, endorsementDetail, questions, answersByQuestion, currentUser, myReviewStatus, explainerContributions, faqAnswersByQuestion, faqMetaByQuestion, ctas, coverage, relatedBriefs, contributors }: BriefViewProps) {
+export default function BriefView({ brief, quotes, endorsementBar, endorsementDetail, questions, answersByQuestion, currentUser, myReviewStatus, contentiousPoints, explainerComments, explainerUsefulness, faqAnswersByQuestion, faqMetaByQuestion, ctas, coverage, relatedBriefs, contributors }: BriefViewProps) {
   const isLoggedIn = !!currentUser
   const showSections = isLoggedIn || brief.visibility === 'public'
   const canContribute = currentUser?.role === 'expert' || currentUser?.role === 'organisation'
@@ -103,12 +108,44 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
       : currentUser?.role === 'creator' || currentUser?.role === 'journalist'
         ? 'pink'
         : null
+  // Explainer engagement (Explainer Engagement Options design pass,
+  // 2026-08-26): flagging a contentious point is expert/organisation, and
+  // the usefulness vote is creator/journalist — but unlike canContribute's
+  // other gated controls, admin is included in *both* here (confirmed with
+  // the user 2026-08-26; RLS widened to match in migration
+  // 048_explainer_engagement_admin.sql), so admin can preview every
+  // Explainer engagement mechanism without needing a second test account.
+  // engagementAuthor reshapes CurrentUser into the fuller EngagementAuthor
+  // shape ExplainerEngagement needs for its comment form's optimistic local
+  // append (job_title/affiliation/org_name aren't on CurrentUser, so
+  // they're left null — a real page load fills them in).
+  const canFlagContentious = canContribute || currentUser?.role === 'admin'
+  const canVoteUseful = currentUser?.role === 'creator' || currentUser?.role === 'journalist' || currentUser?.role === 'admin'
+  const engagementAuthor: EngagementAuthor | null = currentUser
+    ? {
+        id: currentUser.id,
+        display_name: currentUser.display_name,
+        avatar_url: currentUser.avatar_url,
+        role: currentUser.role,
+        job_title: null,
+        affiliation: null,
+        org_name: null,
+      }
+    : null
   const [proposeCorrectionOpen, setProposeCorrectionOpen] = useState(false)
   const [proposeBriefOpen, setProposeBriefOpen] = useState(false)
   const [suggestCtaOpen, setSuggestCtaOpen] = useState(false)
   const [addCoverageOpen, setAddCoverageOpen] = useState(false)
   const [tldrFeedbackOpen, setTldrFeedbackOpen] = useState(false)
   const [explainerFeedbackOpen, setExplainerFeedbackOpen] = useState(false)
+  // Both hoisted to this top level (not managed inside ExplainerSections/
+  // ExplainerEngagement) for the same reason every other modal on this page
+  // is: the Explainer section's own wrapper carries `anim-rise`, and a
+  // completed anim-rise transform makes its element a containing block for
+  // `position: fixed` descendants — see ReviewersModal's comment in
+  // section-content.tsx for the full explanation. Rendered via BriefModals.
+  const [flagContentiousOpen, setFlagContentiousOpen] = useState(false)
+  const [usefulLikersOpen, setUsefulLikersOpen] = useState(false)
   // FAQ's "give feedback" (Part 6 step 1) needs to carry which question it's
   // about, unlike TL;DR/Explainer's single fixed trigger above — one
   // FeedbackModal instance here, its context built from whichever question
@@ -132,6 +169,12 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
   // now folds into Explainer as its final subsection (two-ink-bold-plan.md
   // §3 Part 3 step 5).
   const goingDeeperSections = sortedSections.filter((s) => s.section_type === 'going_deeper')
+  // For the "Give feedback" modal's optional "which part is this about?"
+  // dropdown (feedback.tsx) — same subsection list ExplainerSections itself
+  // derives for the contentious-point flag modal.
+  const explainerSubsectionOptions = sortedSections
+    .filter((s) => s.section_type === 'explainer' && s.title)
+    .map((s) => ({ id: s.id, title: s.title! }))
 
   // Section nav (Part 11) — see section-nav.tsx's buildNavSections for the
   // per-section visibility logic.
@@ -171,7 +214,7 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
       <main>
 
         {/* ── Hero — neutral ink, no blue/pink tint (§1.1) ─────────────── */}
-        <div id="section-top" className="grid-texture relative overflow-hidden border-b border-line px-6 pt-12 pb-14">
+        <div id="section-top" className="relative overflow-hidden border-b border-line px-6 pt-12 pb-14">
           {/* Bottom fade to next section */}
           <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent to-paper pointer-events-none" />
 
@@ -341,18 +384,23 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
                                 >
                                   + Suggest question
                                 </button>
-                              ) : type === 'explainer' && (canContribute || currentUser?.role === 'admin') ? (
-                                // Part 5 step 6 — same slot pattern and role
-                                // gate as TL;DR's own "Suggest changes"
-                                // button, just a different feedback section
-                                // key ('explainer' vs 'tldr').
+                              ) : type === 'explainer' && isLoggedIn ? (
+                                // Renamed from "Suggest changes" and opened to
+                                // every logged-in role (Explainer Engagement
+                                // Options design pass, 2026-08-26) — this is
+                                // now the Explainer's only feedback trigger
+                                // (the old bottom-of-section "Give feedback on
+                                // this section" link is gone; the public
+                                // contentious-point/comment mechanisms in
+                                // ExplainerEngagement below replace what that
+                                // link's open-to-everyone reach used to cover).
                                 <button
                                   type="button"
                                   onClick={() => setExplainerFeedbackOpen(true)}
                                   style={{ touchAction: 'manipulation' }}
                                   className="border-[1.5px] border-blue bg-paper px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.06em] text-blue-ink outline-none transition-colors hover:bg-blue hover:text-white focus-visible:ring-2 focus-visible:ring-blue"
                                 >
-                                  Suggest changes
+                                  Give feedback
                                 </button>
                               ) : undefined
                             }
@@ -364,10 +412,14 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
                               timelineEvents={brief.brief_timeline_events}
                               briefId={brief.id}
                               briefSlug={brief.slug}
-                              canContribute={canContribute}
-                              contributions={explainerContributions}
-                              showGiveFeedback={isLoggedIn}
-                              onGiveFeedback={() => setExplainerFeedbackOpen(true)}
+                              contentiousPoints={contentiousPoints}
+                              comments={explainerComments}
+                              usefulness={explainerUsefulness}
+                              currentUser={engagementAuthor}
+                              canFlagContentious={canFlagContentious}
+                              canVoteUseful={canVoteUseful}
+                              onFlagContentious={() => setFlagContentiousOpen(true)}
+                              onShowUsefulLikers={() => setUsefulLikersOpen(true)}
                             />
                           ) : (
                             <FAQSection
@@ -574,6 +626,11 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
           onCloseTldrFeedback={() => setTldrFeedbackOpen(false)}
           explainerFeedbackOpen={explainerFeedbackOpen}
           onCloseExplainerFeedback={() => setExplainerFeedbackOpen(false)}
+          explainerSubsectionOptions={explainerSubsectionOptions}
+          flagContentiousOpen={flagContentiousOpen}
+          onCloseFlagContentious={() => setFlagContentiousOpen(false)}
+          usefulLikersOpen={usefulLikersOpen}
+          onCloseUsefulLikers={() => setUsefulLikersOpen(false)}
           faqFeedbackQuestion={faqFeedbackQuestion}
           onCloseFaqFeedback={() => setFaqFeedbackQuestion(null)}
           addQuoteOpen={addQuoteOpen}

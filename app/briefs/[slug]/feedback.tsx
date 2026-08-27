@@ -25,34 +25,52 @@ export interface FeedbackContext {
   briefId: string
   briefTitle: string
   /** Loose, caller-defined key — e.g. 'tldr', 'faq:<question>',
-   *  'explainer:<section id>'. Omit for brief-level feedback. */
+   *  'explainer'. Omit for brief-level feedback. */
   section?: string
   /** Human-readable label shown in the modal, e.g. "TL;DR" or the FAQ
    *  question text. Falls back to the brief title alone when omitted. */
   sectionLabel?: string
 }
 
+// A subsection the "which part is this about?" dropdown can point at
+// (Explainer's own feedback trigger only — TL;DR/FAQ callers simply don't
+// pass `subsections`). Selecting one appends its id to context.section
+// ('explainer:<id>') and its title to the label shown once submitted,
+// rather than requiring a specific subsection up front — same optional,
+// denormalized-at-write-time tagging shape as a contentious point's own
+// subsectionLabel (see explainer-engagement.tsx).
+export interface FeedbackSubsectionOption {
+  id: string
+  title: string
+}
+
 export function FeedbackModal({
   context,
+  subsections,
   onClose,
 }: {
   context: FeedbackContext
+  subsections?: FeedbackSubsectionOption[]
   onClose: () => void
 }) {
   const [body, setBody] = useState('')
+  const [subsectionId, setSubsectionId] = useState('')
   const [isPending, startTransition] = useTransition()
   const [feedback, setFeedback] = useState<{ type: 'error' | 'success'; message: string } | null>(null)
   const bodyRef = useRef<HTMLTextAreaElement>(null)
   const bodyId = useId()
+  const subsectionFieldId = useId()
 
   const isSubmitted = feedback?.type === 'success'
   const canSubmit = body.trim().length > 0
+  const selectedSubsection = subsections?.find((s) => s.id === subsectionId)
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setFeedback(null)
+    const section = selectedSubsection ? `${context.section}:${selectedSubsection.id}` : (context.section ?? null)
     startTransition(async () => {
-      const result = await submitBriefFeedback(context.briefId, context.section ?? null, body)
+      const result = await submitBriefFeedback(context.briefId, section, body)
       if (result.error) {
         setFeedback({ type: 'error', message: result.error })
         bodyRef.current?.focus()
@@ -82,10 +100,10 @@ export function FeedbackModal({
               Feedback
             </p>
             <h2 className="font-display text-xl uppercase leading-tight text-ink">
-              Send feedback
+              Feedback to the editorial team
             </h2>
             <p className="mt-1.5 font-body text-xs italic leading-snug text-ink-soft">
-              For: {context.sectionLabel ? `${context.sectionLabel} — ` : ''}
+              For: {selectedSubsection ? `${selectedSubsection.title} (${context.sectionLabel}) — ` : context.sectionLabel ? `${context.sectionLabel} — ` : ''}
               {context.briefTitle}
             </p>
           </div>
@@ -101,9 +119,35 @@ export function FeedbackModal({
 
         {/* Body */}
         <form onSubmit={handleSubmit} className="space-y-4 px-7 py-6">
+          <p className="border-l-2 border-line bg-paper-raised px-3 py-2.5 font-body text-xs leading-relaxed text-ink-soft">
+            Use this for a correction to a specific line or subsection, a factual concern, something you noticed
+            that doesn&rsquo;t belong in public discussion, or just a general thought.{' '}
+            <strong className="font-semibold text-ink">If it doesn&rsquo;t fit a category, that&rsquo;s fine — tell us anyway.</strong>
+          </p>
+
+          {subsections && subsections.length > 0 && (
+            <div>
+              <label htmlFor={subsectionFieldId} className="mb-2 block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
+                Which part is this about? (optional)
+              </label>
+              <select
+                id={subsectionFieldId}
+                value={subsectionId}
+                onChange={(e) => setSubsectionId(e.target.value)}
+                disabled={isPending || isSubmitted}
+                className="w-full border border-line bg-paper px-4 py-2.5 font-body text-sm text-ink transition focus:outline-none focus:ring-2 focus:ring-blue disabled:opacity-50"
+              >
+                <option value="">General — not about one subsection</option>
+                {subsections.map((s) => (
+                  <option key={s.id} value={s.id}>{s.title}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div>
             <label htmlFor={bodyId} className="mb-2 block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
-              Your feedback
+              Your message
             </label>
             <textarea
               id={bodyId}

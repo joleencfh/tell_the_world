@@ -1,11 +1,11 @@
 import { Fragment } from 'react'
-import { HeaderChip } from './section-content'
-import { ReviewEndorseControl } from './review-endorse'
 import { parseSources, SourcesGrid } from './sources'
 import { TimelineGraphic } from './timeline'
+import { ExplainerEngagement, ExplainerHeaderWidgets, ContributorsStrip } from './explainer-engagement'
 import { parseRichContent } from '@/lib/richtext/types'
 import { renderRichText } from '@/lib/richtext/render'
-import type { ExplainerContributionInfo, BriefTimelineEvent } from './page'
+import type { BriefTimelineEvent, ContentiousPoint, ExplainerComment, ExplainerUsefulness } from './page'
+import type { EngagementAuthor } from '@/lib/data/explainer-engagement'
 
 // ---------------------------------------------------------------------------
 // Keyterm tooltips — authoring convention: {{term|definition}} inline in an
@@ -118,9 +118,12 @@ function ExplainerBody({
 }
 
 // ---------------------------------------------------------------------------
-// Subsection — title (sub-head style, §1.2) + reviewed/endorsed badge and
-// control (Part 1's brief-level mechanism, scoped to this section_id
-// instead — §2 "Reusing brief_contributions") + body.
+// Subsection — title (sub-head style, §1.2) + body. No per-subsection
+// review/endorse/feedback chrome anymore (Explainer Engagement Options
+// design pass, 2026-08-26): those mechanisms, plus contentious points, open
+// comments, and a usefulness vote, now live once at the end of the whole
+// Explainer section (ExplainerEngagement, rendered by ExplainerSections
+// below) rather than repeated per subsection.
 // ---------------------------------------------------------------------------
 
 interface ExplainerSectionRow {
@@ -130,43 +133,11 @@ interface ExplainerSectionRow {
   rich_content: unknown
 }
 
-function ExplainerSubsection({
-  section,
-  briefId,
-  briefSlug,
-  canContribute,
-  contribution,
-}: {
-  section: ExplainerSectionRow
-  briefId: string
-  briefSlug: string
-  canContribute: boolean
-  contribution?: ExplainerContributionInfo
-}) {
-  const showBadgeRow = canContribute || (contribution && (contribution.reviewedCount > 0 || contribution.endorsedCount > 0))
-
+function ExplainerSubsection({ section }: { section: ExplainerSectionRow }) {
   return (
     <div className="space-y-4">
       {section.title && (
         <h3 className="font-body text-[1.28rem] font-medium italic text-ink-soft">{section.title}</h3>
-      )}
-      {showBadgeRow && (
-        <div className="flex flex-wrap items-center gap-3" aria-live="polite">
-          {contribution && contribution.reviewedCount > 0 && (
-            <HeaderChip tone="blue">✓ Reviewed · {contribution.reviewedCount}</HeaderChip>
-          )}
-          {contribution && contribution.endorsedCount > 0 && (
-            <HeaderChip tone="blue">★ Endorsed · {contribution.endorsedCount}</HeaderChip>
-          )}
-          {canContribute && (
-            <ReviewEndorseControl
-              briefId={briefId}
-              briefSlug={briefSlug}
-              sectionId={section.id}
-              initialStatus={contribution?.status ?? 'none'}
-            />
-          )}
-        </div>
       )}
       <ExplainerBody sectionId={section.id} content={section.content} richContent={section.rich_content} />
     </div>
@@ -176,8 +147,8 @@ function ExplainerSubsection({
 // ---------------------------------------------------------------------------
 // Full Explainer section — every explainer subsection, then going_deeper's
 // existing Sources rendering folded in as the final subsection (Part 3 step
-// 5) instead of its own top-level section. Restyled with the blue accent,
-// parseSources/SourcesGrid's own logic is untouched.
+// 5) instead of its own top-level section, then the consolidated engagement
+// footer (contentious points, comments, usefulness vote, contributors).
 // ---------------------------------------------------------------------------
 
 export function ExplainerSections({
@@ -186,42 +157,51 @@ export function ExplainerSections({
   timelineEvents,
   briefId,
   briefSlug,
-  canContribute,
-  contributions,
-  showGiveFeedback,
-  onGiveFeedback,
+  contentiousPoints,
+  comments,
+  usefulness,
+  currentUser,
+  canFlagContentious,
+  canVoteUseful,
+  onFlagContentious,
+  onShowUsefulLikers,
 }: {
   sections: ExplainerSectionRow[]
   sourceSections: { id: string; content: string }[]
   timelineEvents: BriefTimelineEvent[]
   briefId: string
   briefSlug: string
-  canContribute: boolean
-  contributions: ExplainerContributionInfo[]
-  // Part 5 step 6 — "Give feedback" is open to any logged-in user (no role
-  // check, admin included by construction), unlike the SectionHeader's
-  // "Suggest changes" button (BriefView.tsx, org/expert/admin only). Both
-  // trigger the same feedback modal/context; only who can see the trigger
-  // differs.
-  showGiveFeedback: boolean
-  onGiveFeedback: () => void
+  contentiousPoints: ContentiousPoint[]
+  comments: ExplainerComment[]
+  usefulness: ExplainerUsefulness
+  currentUser: EngagementAuthor | null
+  canFlagContentious: boolean
+  canVoteUseful: boolean
+  onFlagContentious: () => void
+  onShowUsefulLikers: () => void
 }) {
-  const contributionBySection = new Map(contributions.map((c) => [c.sectionId, c]))
   const sourceGroups = sourceSections
     .map((section) => ({ id: section.id, items: parseSources(section.content) }))
     .filter((group): group is { id: string; items: NonNullable<ReturnType<typeof parseSources>> } => group.items !== null)
 
   return (
     <div className="space-y-10">
+      <div className="space-y-4">
+        <ContributorsStrip points={contentiousPoints} comments={comments} />
+        <ExplainerHeaderWidgets
+          briefId={briefId}
+          briefSlug={briefSlug}
+          usefulness={usefulness}
+          canVoteUseful={canVoteUseful}
+          isLoggedIn={!!currentUser}
+          commentsCount={comments.length}
+          contentiousCount={contentiousPoints.length}
+          onShowUsefulLikers={onShowUsefulLikers}
+        />
+      </div>
       {sections.map((section, i) => (
         <Fragment key={section.id}>
-          <ExplainerSubsection
-            section={section}
-            briefId={briefId}
-            briefSlug={briefSlug}
-            canContribute={canContribute}
-            contribution={contributionBySection.get(section.id)}
-          />
+          <ExplainerSubsection section={section} />
           {/* Timeline graphic (Part 5 step 2) — after the first subsection,
               signed off with the user 2026-08-22, rather than at the end or
               admin-configurable. */}
@@ -236,15 +216,15 @@ export function ExplainerSections({
           ))}
         </div>
       )}
-      {showGiveFeedback && (
-        <button
-          type="button"
-          onClick={onGiveFeedback}
-          className="font-mono text-[10px] tracking-[0.15em] uppercase text-ink-soft hover:text-ink transition-colors inline-flex items-center gap-2"
-        >
-          <span aria-hidden>→</span> Give feedback on this section
-        </button>
-      )}
+      <ExplainerEngagement
+        briefId={briefId}
+        briefSlug={briefSlug}
+        contentiousPoints={contentiousPoints}
+        comments={comments}
+        currentUser={currentUser}
+        canFlagContentious={canFlagContentious}
+        onFlagContentious={onFlagContentious}
+      />
     </div>
   )
 }

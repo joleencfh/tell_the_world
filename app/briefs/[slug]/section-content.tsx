@@ -48,13 +48,15 @@ export const SECTION_META: Record<'tldr' | ActiveSectionType, { label: string; n
     },
   }
 
-// Section background: alternates between paper (with texture) and paper-raised
+// Section background: alternates between paper and paper-raised (the grid
+// texture that used to sit on the paper indices was removed sitewide,
+// 2026-08-27 — plain white throughout, per the user's request).
 export const SECTION_BG: Record<number, string> = {
-  0: 'bg-paper grid-texture',
+  0: 'bg-paper',
   1: 'bg-paper-raised',
-  2: 'bg-paper grid-texture',
+  2: 'bg-paper',
   3: 'bg-paper-raised',
-  4: 'bg-paper grid-texture',
+  4: 'bg-paper',
   5: 'bg-paper-raised',
 }
 

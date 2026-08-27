@@ -16,6 +16,7 @@ import {
   getBriefProposals,
   getWaitlistSignups,
 } from '@/lib/admin/actions'
+import { getPendingContentiousPoints } from '@/lib/admin/explainer-actions'
 import { getBriefOptions } from '@/lib/admin/brief-actions'
 import AdminScreen from './AdminScreen'
 
@@ -42,6 +43,7 @@ export default async function AdminPage({
   const questionsPage = toPage(raw.questionsPage)
   const correctionProposalsPage = toPage(raw.correctionProposalsPage)
   const faqAnswersPage = toPage(raw.faqAnswersPage)
+  const contentiousPointsPage = toPage(raw.contentiousPointsPage)
   const questionAnswersPage = toPage(raw.questionAnswersPage)
   const ctasPage = toPage(raw.ctasPage)
   const publishedCtasPage = toPage(raw.publishedCtasPage)
@@ -54,12 +56,13 @@ export default async function AdminPage({
   const waitlistPage = toPage(raw.waitlistPage)
 
   // Fetch data with the service-role client (bypasses RLS)
-  const [pendingResult, approvedResult, questionsResult, correctionProposalsResult, faqAnswersResult, questionAnswersResult, ctasResult, publishedCtasResult, quotesResult, coverageResult, feedbackResult, reviewsResult, proposalsResult, briefOptions, waitlistResult] = await Promise.all([
+  const [pendingResult, approvedResult, questionsResult, correctionProposalsResult, faqAnswersResult, contentiousPointsResult, questionAnswersResult, ctasResult, publishedCtasResult, quotesResult, coverageResult, feedbackResult, reviewsResult, proposalsResult, briefOptions, waitlistResult] = await Promise.all([
     getPendingApplications(pendingPage),
     getRecentlyApproved(approvedPage),
     getPendingQuestions(questionsPage),
     getPendingCorrectionProposals(correctionProposalsPage),
     getPendingFaqAnswers(faqAnswersPage),
+    getPendingContentiousPoints(contentiousPointsPage),
     getPendingQuestionAnswers(questionAnswersPage),
     getPendingCtas(ctasPage),
     getPublishedCtasAdmin(publishedCtasPage),
@@ -90,6 +93,9 @@ export default async function AdminPage({
       pendingFaqAnswers={faqAnswersResult.data}
       pendingFaqAnswersCount={faqAnswersResult.count}
       faqAnswersPage={faqAnswersPage}
+      pendingContentiousPoints={contentiousPointsResult.data}
+      pendingContentiousPointsCount={contentiousPointsResult.count}
+      contentiousPointsPage={contentiousPointsPage}
       pendingQuestionAnswers={questionAnswersResult.data}
       pendingQuestionAnswersCount={questionAnswersResult.count}
       questionAnswersPage={questionAnswersPage}
