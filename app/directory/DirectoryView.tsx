@@ -194,7 +194,7 @@ export default function DirectoryView({ users, usersCount, quotes, quotesCount, 
       <main>
 
         {/* ── Hero: search + filters ───────────────────────────────── */}
-        <div className="grid-texture relative overflow-hidden px-6 pt-14 pb-16">
+        <div className="relative overflow-hidden px-6 pt-14 pb-16">
           <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-b from-transparent to-paper pointer-events-none" />
 
           <div className="mx-auto max-w-4xl relative">

@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.1"
+    PostgrestVersion: "14.17"
   }
   public: {
     Tables: {
@@ -922,6 +922,218 @@ export type Database = {
             columns: ["brief_id"]
             isOneToOne: false
             referencedRelation: "briefs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      explainer_comment_likes: {
+        Row: {
+          comment_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "explainer_comment_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "explainer_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "explainer_comment_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      explainer_comments: {
+        Row: {
+          body: string
+          brief_id: string
+          contentious_point_id: string | null
+          created_at: string
+          id: string
+          parent_comment_id: string | null
+          user_id: string
+        }
+        Insert: {
+          body: string
+          brief_id: string
+          contentious_point_id?: string | null
+          created_at?: string
+          id?: string
+          parent_comment_id?: string | null
+          user_id: string
+        }
+        Update: {
+          body?: string
+          brief_id?: string
+          contentious_point_id?: string | null
+          created_at?: string
+          id?: string
+          parent_comment_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "explainer_comments_brief_id_fkey"
+            columns: ["brief_id"]
+            isOneToOne: false
+            referencedRelation: "briefs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "explainer_comments_contentious_point_id_fkey"
+            columns: ["contentious_point_id"]
+            isOneToOne: false
+            referencedRelation: "explainer_contentious_points"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "explainer_comments_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "explainer_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "explainer_comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      explainer_contentious_point_likes: {
+        Row: {
+          contentious_point_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          contentious_point_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          contentious_point_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "explainer_contentious_point_likes_contentious_point_id_fkey"
+            columns: ["contentious_point_id"]
+            isOneToOne: false
+            referencedRelation: "explainer_contentious_points"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "explainer_contentious_point_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      explainer_contentious_points: {
+        Row: {
+          author_user_id: string
+          body: string
+          brief_id: string
+          created_at: string
+          id: string
+          status: string
+          subsection_label: string | null
+        }
+        Insert: {
+          author_user_id: string
+          body: string
+          brief_id: string
+          created_at?: string
+          id?: string
+          status?: string
+          subsection_label?: string | null
+        }
+        Update: {
+          author_user_id?: string
+          body?: string
+          brief_id?: string
+          created_at?: string
+          id?: string
+          status?: string
+          subsection_label?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "explainer_contentious_points_author_user_id_fkey"
+            columns: ["author_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "explainer_contentious_points_brief_id_fkey"
+            columns: ["brief_id"]
+            isOneToOne: false
+            referencedRelation: "briefs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      explainer_useful_votes: {
+        Row: {
+          brief_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          brief_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          brief_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "explainer_useful_votes_brief_id_fkey"
+            columns: ["brief_id"]
+            isOneToOne: false
+            referencedRelation: "briefs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "explainer_useful_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]

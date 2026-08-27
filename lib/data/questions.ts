@@ -69,7 +69,7 @@ export function bucketRole(role: UserRole | null | undefined): 'pink' | 'blue' |
 // Approved questions for a brief, oldest first, with their askers and the
 // question-level vote split (react-best-practices' async-parallel: one bulk
 // query for votes rather than one per question, aggregated in JS, matching
-// getSectionContributionCounts' shape in lib/data/contributions.ts).
+// getExplainerUsefulness's shape in lib/data/explainer-engagement.ts).
 export async function getApprovedQuestions(db: DB, briefId: string, userId: string): Promise<Question[]> {
   const { data: rows } = await db
     .from('questions')

@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/lib/database.types'
 import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingQuestionAnswer, PendingCta, PublishedCta, PendingCoverage, PendingBriefFeedback, PendingQuote, BriefReview, WaitlistSignup } from '@/lib/admin/actions'
+import type { PendingContentiousPoint } from '@/lib/admin/explainer-actions'
 
 // Data-access layer for admin queue reads. See lib/data/briefs.ts for the
 // pattern. No auth here — callers (lib/admin/actions.ts) call requireAdmin()
@@ -73,6 +74,20 @@ export async function getPendingFaqAnswers(db: DB, page = 1): Promise<PagedResul
     .range(...range(page))
 
   return { data: error ? [] : (data as unknown as PendingFaqAnswer[]) ?? [], count: count ?? 0 }
+}
+
+// Contentious points moderation — same pending -> published shape as FAQ
+// answers above. See lib/admin/explainer-actions.ts (split out of
+// lib/admin/actions.ts, which is already at the repo's max-lines budget).
+export async function getPendingContentiousPoints(db: DB, page = 1): Promise<PagedResult<PendingContentiousPoint>> {
+  const { data, error, count } = await db
+    .from('explainer_contentious_points')
+    .select('id, subsection_label, body, created_at, brief_id, briefs(title, slug), users(id, display_name, email, role)', { count: 'exact' })
+    .eq('status', 'pending')
+    .order('created_at', { ascending: true })
+    .range(...range(page))
+
+  return { data: error ? [] : (data as unknown as PendingContentiousPoint[]) ?? [], count: count ?? 0 }
 }
 
 // Part 7: Community Q&A answers moderation — question_answers has no

@@ -8,6 +8,7 @@ import { ProposeCorrectionModal } from './qa'
 import { SuggestCtaModal } from './ctas'
 import { AddCoverageModal, CoverageDetailModal } from './coverage-modals'
 import { FeedbackModal } from './feedback'
+import { FlagContentiousPointModal, UsefulLikersModal } from './explainer-engagement'
 import type { Brief, CurrentUser, Quote, Coverage, ContributionStatus, EndorsementBarDetail } from './page'
 
 // Every modal BriefView.tsx can open, gathered in one place — pulled out of
@@ -34,6 +35,11 @@ export interface BriefModalsProps {
   onCloseTldrFeedback: () => void
   explainerFeedbackOpen: boolean
   onCloseExplainerFeedback: () => void
+  explainerSubsectionOptions: { id: string; title: string }[]
+  flagContentiousOpen: boolean
+  onCloseFlagContentious: () => void
+  usefulLikersOpen: boolean
+  onCloseUsefulLikers: () => void
   // FAQ's "give feedback" (Part 6) needs to carry which question it's about,
   // unlike TL;DR/Explainer's single fixed trigger above — context is built
   // from whichever question set this.
@@ -69,6 +75,11 @@ export function BriefModals({
   onCloseTldrFeedback,
   explainerFeedbackOpen,
   onCloseExplainerFeedback,
+  explainerSubsectionOptions,
+  flagContentiousOpen,
+  onCloseFlagContentious,
+  usefulLikersOpen,
+  onCloseUsefulLikers,
   faqFeedbackQuestion,
   onCloseFaqFeedback,
   addQuoteOpen,
@@ -118,15 +129,39 @@ export function BriefModals({
         />
       )}
 
-      {/* Shared by both of Part 5 step 6's triggers ("Suggest changes" in the
-          Explainer SectionHeader's action slot, "Give feedback" at the end of
-          ExplainerSections) — same context, only who can see the trigger
-          differs. */}
+      {/* Explainer's "Give feedback" (header action slot, BriefView.tsx) —
+          the section's sole feedback trigger now (Explainer Engagement
+          Options design pass, 2026-08-26 superseded Part 5 step 6's
+          restricted-header/open-footer pair with this one, open to every
+          logged-in role). Carries the subsection dropdown so a correction
+          request can still point at a specific paragraph. */}
       {explainerFeedbackOpen && currentUser && (
         <FeedbackModal
           context={{ briefId: brief.id, briefTitle: brief.title, section: 'explainer', sectionLabel: 'Explainer' }}
+          subsections={explainerSubsectionOptions}
           onClose={onCloseExplainerFeedback}
         />
+      )}
+
+      {/* Explainer engagement — flag-a-contentious-point (expert/org/admin)
+          and the "who found this useful" likers modal, both triggered from
+          inside ExplainerSections/explainer-engagement.tsx but rendered
+          here for the same anim-rise containing-block reason as every other
+          modal on this page. */}
+      {flagContentiousOpen && currentUser && (
+        <FlagContentiousPointModal
+          briefId={brief.id}
+          briefSlug={brief.slug}
+          briefTitle={brief.title}
+          subsections={explainerSubsectionOptions}
+          onClose={onCloseFlagContentious}
+        />
+      )}
+
+      {/* No currentUser gate: seeing who found the Explainer useful is
+          informational, available logged out too. */}
+      {usefulLikersOpen && (
+        <UsefulLikersModal briefId={brief.id} onClose={onCloseUsefulLikers} />
       )}
 
       {/* FAQ "give feedback" (Part 6) — per-question context. */}

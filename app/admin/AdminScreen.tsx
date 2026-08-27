@@ -5,11 +5,13 @@ import { usePathname, useSearchParams } from 'next/navigation'
 import { createBrief } from '@/lib/admin/brief-actions'
 import type { BriefOption } from '@/lib/admin/brief-actions'
 import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingQuestionAnswer, PendingCta, PublishedCta, PendingCoverage, PendingBriefFeedback, PendingQuote, BriefReview, WaitlistSignup } from '@/lib/admin/actions'
+import type { PendingContentiousPoint } from '@/lib/admin/explainer-actions'
 import { ADMIN_PAGE_SIZE } from '@/lib/data/admin'
 import Pagination from '@/components/ui/Pagination'
 import Logo from '@/components/ui/Logo'
 import { ApplicationCard, QuestionCard, CorrectionProposalCard, BriefProposalCard, ApprovedRow } from './cards'
 import { FaqAnswerCard } from './faq-answer-card'
+import { ContentiousPointCard } from './contentious-point-card'
 import { QuestionAnswerCard } from './question-answer-card'
 import { CtaCard, PublishedCtaCard } from './cta-card'
 import { QuoteCard } from './quote-card'
@@ -22,7 +24,7 @@ import { WaitlistCard } from './waitlist-card'
 // Types
 // ---------------------------------------------------------------------------
 
-type Tab = 'pending' | 'questions' | 'correctionProposals' | 'faqAnswers' | 'questionAnswers' | 'ctas' | 'quotes' | 'coverage' | 'feedback' | 'reviews' | 'proposals' | 'approved' | 'waitlist'
+type Tab = 'pending' | 'questions' | 'correctionProposals' | 'faqAnswers' | 'contentiousPoints' | 'questionAnswers' | 'ctas' | 'quotes' | 'coverage' | 'feedback' | 'reviews' | 'proposals' | 'approved' | 'waitlist'
 
 interface Props {
   adminEmail: string
@@ -41,6 +43,9 @@ interface Props {
   pendingFaqAnswers: PendingFaqAnswer[]
   pendingFaqAnswersCount: number
   faqAnswersPage: number
+  pendingContentiousPoints: PendingContentiousPoint[]
+  pendingContentiousPointsCount: number
+  contentiousPointsPage: number
   pendingQuestionAnswers: PendingQuestionAnswer[]
   pendingQuestionAnswersCount: number
   questionAnswersPage: number
@@ -92,6 +97,9 @@ export default function AdminScreen({
   pendingFaqAnswers,
   pendingFaqAnswersCount,
   faqAnswersPage,
+  pendingContentiousPoints,
+  pendingContentiousPointsCount,
+  contentiousPointsPage,
   pendingQuestionAnswers,
   pendingQuestionAnswersCount,
   questionAnswersPage,
@@ -178,6 +186,7 @@ export default function AdminScreen({
               { key: 'questions', label: 'Questions', count: pendingQuestionsCount },
               { key: 'correctionProposals', label: 'Correction proposals', count: pendingCorrectionProposalsCount },
               { key: 'faqAnswers', label: 'FAQ answers', count: pendingFaqAnswersCount },
+              { key: 'contentiousPoints', label: 'Contentious points', count: pendingContentiousPointsCount },
               { key: 'questionAnswers', label: 'Q&A answers', count: pendingQuestionAnswersCount },
               { key: 'ctas', label: 'Calls to action', count: pendingCtasCount },
               { key: 'quotes', label: 'Quotes', count: pendingQuotesCount },
@@ -315,6 +324,29 @@ export default function AdminScreen({
                 pageSize={ADMIN_PAGE_SIZE}
                 total={pendingFaqAnswersCount}
                 buildHref={(p) => buildPageHref('faqAnswersPage', p)}
+              />
+            </>
+          )}
+
+          {/* Pending contentious points tab (Explainer engagement redesign) */}
+          {tab === 'contentiousPoints' && (
+            <>
+              {pendingContentiousPoints.length === 0 ? (
+                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
+                  No pending contentious points.
+                </p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {pendingContentiousPoints.map(p => (
+                    <ContentiousPointCard key={p.id} point={p} />
+                  ))}
+                </div>
+              )}
+              <Pagination
+                page={contentiousPointsPage}
+                pageSize={ADMIN_PAGE_SIZE}
+                total={pendingContentiousPointsCount}
+                buildHref={(p) => buildPageHref('contentiousPointsPage', p)}
               />
             </>
           )}
