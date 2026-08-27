@@ -9,6 +9,7 @@ import type { PendingContentiousPoint } from '@/lib/admin/explainer-actions'
 import { ADMIN_PAGE_SIZE } from '@/lib/data/admin'
 import Pagination from '@/components/ui/Pagination'
 import Logo from '@/components/ui/Logo'
+import SignOutButton from '@/components/ui/SignOutButton'
 import { ApplicationCard, QuestionCard, CorrectionProposalCard, BriefProposalCard, ApprovedRow } from './cards'
 import { FaqAnswerCard } from './faq-answer-card'
 import { ContentiousPointCard } from './contentious-point-card'
@@ -156,7 +157,10 @@ export default function AdminScreen({
               Admin
             </span>
           </div>
-          <span className="font-mono text-[9px] text-ink-soft hidden sm:block">{adminEmail}</span>
+          <div className="flex items-center gap-4">
+            <span className="font-mono text-[9px] text-ink-soft hidden sm:block">{adminEmail}</span>
+            <SignOutButton className="font-mono text-[9px] tracking-[0.2em] uppercase text-ink-soft hover:text-ink transition-colors" />
+          </div>
         </div>
       </header>
 

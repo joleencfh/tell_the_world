@@ -9,6 +9,7 @@ import Avatar from '@/components/ui/Avatar'
 import RoleBadge from '@/components/ui/RoleBadge'
 import Logo from '@/components/ui/Logo'
 import Footer from '@/components/ui/Footer'
+import SignOutButton from '@/components/ui/SignOutButton'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -297,6 +298,7 @@ export default async function HomePage() {
                 Profile
               </Link>
             )}
+            <SignOutButton className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors" />
           </nav>
         </div>
       </header>

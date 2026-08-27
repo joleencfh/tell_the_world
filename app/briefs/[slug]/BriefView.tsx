@@ -4,6 +4,7 @@ import { useState, Fragment } from 'react'
 import Link from 'next/link'
 import Logo from '@/components/ui/Logo'
 import DarkBand from '@/components/ui/DarkBand'
+import SignOutButton from '@/components/ui/SignOutButton'
 import {
   SECTION_ORDER,
   SECTION_META,
@@ -200,6 +201,7 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
                 <Link href="/directory" className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint hover:text-ink transition-colors hidden sm:block">Directory</Link>
                 <Link href="/briefs" className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint hover:text-ink transition-colors hidden sm:block">Briefs</Link>
                 <Link href={`/profile/${currentUser.id}`} className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint hover:text-ink transition-colors">Profile</Link>
+                <SignOutButton className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint hover:text-ink transition-colors" />
               </>
             ) : (
               <>

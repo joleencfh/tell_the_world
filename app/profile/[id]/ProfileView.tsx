@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { signOut } from '@/lib/auth/actions'
 import EditProfileModal from './EditProfileModal'
 import PostModal from '@/components/PostModal'
 import ContactModal from '@/components/ContactModal'
@@ -12,6 +11,7 @@ import type { ProfileUser, ProfilePost, ProfileCorrectionProposal, ProfileReview
 import Avatar from '@/components/ui/Avatar'
 import RoleBadge from '@/components/ui/RoleBadge'
 import Logo from '@/components/ui/Logo'
+import SignOutButton from '@/components/ui/SignOutButton'
 import { PostCard, CorrectionProposalCard, ReviewHistoryCard } from './cards'
 import { RoleDetails, extractDomain } from './RoleDetails'
 
@@ -95,11 +95,6 @@ export default function ProfileView({
     router.refresh()
   }
 
-  async function handleSignOut() {
-    await signOut()
-    router.push('/login')
-  }
-
   const showsAvailability =
     profileUser?.role === 'creator' || profileUser?.role === 'journalist'
 
@@ -130,12 +125,7 @@ export default function ProfileView({
             >
               Profile
             </Link>
-            <button
-              onClick={handleSignOut}
-              className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors"
-            >
-              Sign out
-            </button>
+            <SignOutButton className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors" />
           </nav>
         </div>
       </header>
