@@ -138,11 +138,11 @@ export default function AdminScreen({
   analyticsPage,
 }: Props) {
   const [tab, setTab] = useState<Tab>('pending')
-  // The tab row outgrew a single line (10 tabs) — split across two pages
-  // rather than wrapping or scrolling, toggled by the ‹ › control next to
-  // it. Independent of `tab` itself: paging just changes which button row
-  // is visible, it doesn't change the active tab or its content below.
-  const [tabPage, setTabPage] = useState<0 | 1>(0)
+  // The tab row outgrew a single line — split into fixed-size pages rather
+  // than wrapping or scrolling, toggled by the ‹ › control next to it.
+  // Independent of `tab` itself: paging just changes which button row is
+  // visible, it doesn't change the active tab or its content below.
+  const [tabPage, setTabPage] = useState(0)
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
@@ -152,6 +152,28 @@ export default function AdminScreen({
     p.set(paramName, String(page))
     return `${pathname}?${p.toString()}`
   }
+
+  const tabDefs: { key: Tab; label: string; count?: number }[] = [
+    { key: 'pending', label: 'Applications', count: pendingCount },
+    { key: 'questions', label: 'Questions', count: pendingQuestionsCount },
+    { key: 'correctionProposals', label: 'Correction proposals', count: pendingCorrectionProposalsCount },
+    { key: 'faqAnswers', label: 'FAQ answers', count: pendingFaqAnswersCount },
+    { key: 'contentiousPoints', label: 'Contentious points', count: pendingContentiousPointsCount },
+    { key: 'questionAnswers', label: 'Q&A answers', count: pendingQuestionAnswersCount },
+    { key: 'ctas', label: 'Calls to action', count: pendingCtasCount },
+    { key: 'quotes', label: 'Quotes', count: pendingQuotesCount },
+    { key: 'coverage', label: 'Coverage', count: pendingCoverageCount },
+    { key: 'feedback', label: 'Feedback', count: pendingBriefFeedbackCount },
+    { key: 'reviews', label: 'Reviews & endorsements', count: briefReviewsCount },
+    { key: 'proposals', label: 'Brief proposals', count: briefProposalsCount },
+    { key: 'waitlist', label: 'Waitlist', count: waitlistSignupsCount },
+    { key: 'approved', label: 'Recently approved' },
+    { key: 'analytics', label: 'Analytics' },
+  ]
+  const TAB_PAGE_SIZE = 6
+  const tabPages: (typeof tabDefs)[] = []
+  for (let i = 0; i < tabDefs.length; i += TAB_PAGE_SIZE) tabPages.push(tabDefs.slice(i, i + TAB_PAGE_SIZE))
+  const activeTabLabel = tabDefs.find((t) => t.key === tab)?.label ?? 'Applications'
 
   return (
     <div className="min-h-screen bg-paper text-ink">
@@ -177,7 +199,7 @@ export default function AdminScreen({
           {/* Page title */}
           <div className="flex items-center justify-between mb-8">
             <h1 className="font-display uppercase text-[2rem] tracking-tight text-ink leading-none">
-              Applications
+              {activeTabLabel}
             </h1>
             <form action={createBrief}>
               <button
@@ -189,64 +211,41 @@ export default function AdminScreen({
             </form>
           </div>
 
-          {/* Tabs — 12 of them now, split across two pages (see tabPage's
-              own comment above) rather than one overcrowded row. */}
-          {(() => {
-            const tabDefs: { key: Tab; label: string; count?: number }[] = [
-              { key: 'pending', label: 'Applications', count: pendingCount },
-              { key: 'questions', label: 'Questions', count: pendingQuestionsCount },
-              { key: 'correctionProposals', label: 'Correction proposals', count: pendingCorrectionProposalsCount },
-              { key: 'faqAnswers', label: 'FAQ answers', count: pendingFaqAnswersCount },
-              { key: 'contentiousPoints', label: 'Contentious points', count: pendingContentiousPointsCount },
-              { key: 'questionAnswers', label: 'Q&A answers', count: pendingQuestionAnswersCount },
-              { key: 'ctas', label: 'Calls to action', count: pendingCtasCount },
-              { key: 'quotes', label: 'Quotes', count: pendingQuotesCount },
-              { key: 'coverage', label: 'Coverage', count: pendingCoverageCount },
-              { key: 'feedback', label: 'Feedback', count: pendingBriefFeedbackCount },
-              { key: 'reviews', label: 'Reviews & endorsements', count: briefReviewsCount },
-              { key: 'proposals', label: 'Brief proposals', count: briefProposalsCount },
-              { key: 'waitlist', label: 'Waitlist', count: waitlistSignupsCount },
-              { key: 'approved', label: 'Recently approved' },
-              { key: 'analytics', label: 'Analytics' },
-            ]
-            const tabPages = [tabDefs.slice(0, 6), tabDefs.slice(6)]
-
-            return (
-              <div className="flex items-center justify-between gap-4 border-b border-line mb-6">
-                <div className="flex gap-0">
-                  {tabPages[tabPage].map((t) => (
-                    <TabButton key={t.key} active={tab === t.key} onClick={() => setTab(t.key)}>
-                      {t.label}
-                      {!!t.count && t.count > 0 && (
-                        <span className="ml-2 font-mono text-[9px] bg-blue text-white px-1.5 py-0.5">{t.count}</span>
-                      )}
-                    </TabButton>
-                  ))}
-                </div>
-                <div className="flex items-center gap-2 pb-2 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => setTabPage(0)}
-                    disabled={tabPage === 0}
-                    aria-label="Previous tabs"
-                    className="font-mono text-xs text-ink-soft hover:text-ink disabled:opacity-30 disabled:cursor-default"
-                  >
-                    ‹
-                  </button>
-                  <span className="font-mono text-[9px] text-ink-faint tabular-nums">{tabPage + 1}/2</span>
-                  <button
-                    type="button"
-                    onClick={() => setTabPage(1)}
-                    disabled={tabPage === 1}
-                    aria-label="More tabs"
-                    className="font-mono text-xs text-ink-soft hover:text-ink disabled:opacity-30 disabled:cursor-default"
-                  >
-                    ›
-                  </button>
-                </div>
-              </div>
-            )
-          })()}
+          {/* Tabs — 15 of them now, split across fixed-size pages (see
+              tabPage's own comment above) rather than one overcrowded row. */}
+          <div className="flex items-center justify-between gap-4 border-b border-line mb-6">
+            <div className="flex gap-0">
+              {tabPages[tabPage].map((t) => (
+                <TabButton key={t.key} active={tab === t.key} onClick={() => setTab(t.key)}>
+                  {t.label}
+                  {!!t.count && t.count > 0 && (
+                    <span className="ml-2 font-mono text-[9px] bg-blue text-white px-1.5 py-0.5">{t.count}</span>
+                  )}
+                </TabButton>
+              ))}
+            </div>
+            <div className="flex items-center gap-2 pb-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => setTabPage((p) => Math.max(0, p - 1))}
+                disabled={tabPage === 0}
+                aria-label="Previous tabs"
+                className="font-mono text-xs text-ink-soft hover:text-ink disabled:opacity-30 disabled:cursor-default"
+              >
+                ‹
+              </button>
+              <span className="font-mono text-[9px] text-ink-faint tabular-nums">{tabPage + 1}/{tabPages.length}</span>
+              <button
+                type="button"
+                onClick={() => setTabPage((p) => Math.min(tabPages.length - 1, p + 1))}
+                disabled={tabPage === tabPages.length - 1}
+                aria-label="More tabs"
+                className="font-mono text-xs text-ink-soft hover:text-ink disabled:opacity-30 disabled:cursor-default"
+              >
+                ›
+              </button>
+            </div>
+          </div>
 
           {/* Pending applications tab */}
           {tab === 'pending' && (
