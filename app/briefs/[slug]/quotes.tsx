@@ -327,6 +327,34 @@ const QUOTE_FILTERS: { value: 'all' | 'expert' | 'organisation'; label: string }
   { value: 'organisation', label: 'Orgs only' },
 ]
 
+// Empty-state copy is role-aware (brief-page onboarding pass, 2026-08-28):
+// with the platform launching on a single draft brief, this carousel will
+// be the first thing many members see with nothing in it, and adding a
+// quote is gated to expert/organisation/admin — so a visitor or a
+// creator/journalist member needs reassurance, not a button that would
+// reject them.
+function QuotesEmptyState({ canAddQuote, isLoggedIn }: { canAddQuote: boolean; isLoggedIn: boolean }) {
+  if (canAddQuote) {
+    return (
+      <p className="font-mono text-xs text-ink-faint">
+        Add the first quote, from yourself, a colleague, or a source document.
+      </p>
+    )
+  }
+  if (isLoggedIn) {
+    return (
+      <p className="font-mono text-xs text-ink-faint">
+        No quotes yet. Experts and organisations will add them as this brief develops.
+      </p>
+    )
+  }
+  return (
+    <p className="font-mono text-xs text-ink-faint">
+      Quotes from experts and organisations will appear here as this brief develops.
+    </p>
+  )
+}
+
 export function QuotesCarousel({
   quotes,
   briefSlug,
@@ -398,10 +426,10 @@ export function QuotesCarousel({
             ))}
           </Carousel.Track>
         </Carousel.Provider>
+      ) : quotes.length === 0 ? (
+        <QuotesEmptyState canAddQuote={canAddQuote} isLoggedIn={isLoggedIn} />
       ) : (
-        <p className="font-mono text-xs text-ink-faint">
-          {quotes.length === 0 ? 'No quotes yet.' : 'No quotes match this filter.'}
-        </p>
+        <p className="font-mono text-xs text-ink-faint">No quotes match this filter.</p>
       )}
     </>
   )

@@ -128,9 +128,19 @@ function CtaCard({ cta }: { cta: Cta }) {
 // the fade/prev/next affordances would just be decorative noise.
 // ---------------------------------------------------------------------------
 
-export function CtaCarousel({ ctas }: { ctas: Cta[] }) {
+// canSuggestCta branches the empty copy (brief-page onboarding pass,
+// 2026-08-28): only expert/organisation/admin can suggest a CTA, so
+// everyone else gets an explanation of what this section is for instead of
+// a bare "yet" that doesn't say what's coming or why it's blank.
+export function CtaCarousel({ ctas, canSuggestCta }: { ctas: Cta[]; canSuggestCta: boolean }) {
   if (ctas.length === 0) {
-    return <p className="font-mono text-xs text-ink-faint">No calls to action yet.</p>
+    return (
+      <p className="font-mono text-xs text-ink-faint">
+        {canSuggestCta
+          ? 'No calls to action yet. Suggest one: sign a petition, contact someone, share a resource.'
+          : 'No calls to action yet.'}
+      </p>
+    )
   }
 
   return (

@@ -528,7 +528,7 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
                   ) : undefined
                 }
               />
-              <CtaCarousel ctas={ctas} />
+              <CtaCarousel ctas={ctas} canSuggestCta={canSuggestCta} />
             </div>
           </div>
         )}
@@ -540,7 +540,7 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
               <SectionHeader
                 num="08"
                 label="Covered By"
-                description="Press coverage of this topic"
+                description="How this topic is being covered elsewhere"
                 numTone="pink"
                 onDark
                 action={

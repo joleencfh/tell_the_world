@@ -185,6 +185,12 @@ function QuestionCard({
 // nothing (§1.4).
 // ---------------------------------------------------------------------------
 
+// This section only ever renders for logged-in members (BriefView gates it
+// on isLoggedIn), so the empty state doesn't need a visitor branch. It does
+// fully branch on canSubmitAnswer (brief-page onboarding pass, 2026-08-28,
+// revised same day): an expert/organisation isn't the one asking here, so
+// the asker-facing "ask something" copy is the wrong message for them
+// entirely, not just missing a footnote.
 export function QuestionsList({
   questions,
   answersByQuestion,
@@ -203,7 +209,9 @@ export function QuestionsList({
   if (questions.length === 0) {
     return (
       <p className="font-mono text-xs text-ink-faint mb-6">
-        No questions yet — be the first to ask below.
+        {canSubmitAnswer
+          ? "No questions yet. When creators or journalists ask something, you can answer it here."
+          : "Ask something you're curious about. An expert or organisation will answer."}
       </p>
     )
   }

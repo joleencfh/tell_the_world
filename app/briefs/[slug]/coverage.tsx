@@ -217,7 +217,11 @@ function CoverageCard({
 // ---------------------------------------------------------------------------
 // Coverage band — explicit empty state rather than an empty carousel shell
 // (§1.4), styled for the dark band since it's the section's only content
-// when there's nothing to show yet.
+// when there's nothing to show yet. Copy branches on isLoggedIn (brief-page
+// onboarding pass, 2026-08-28): adding coverage is open to any logged-in
+// member, not gated to expert/organisation like Quotes/CTAs, so this is the
+// one of the four onboarding sections where the empty state can put a real,
+// achievable action in front of almost anyone reading it.
 // ---------------------------------------------------------------------------
 
 export function CoverageCarousel({
@@ -232,7 +236,13 @@ export function CoverageCarousel({
   onOpenCoverage: (coverage: Coverage) => void
 }) {
   if (coverage.length === 0) {
-    return <p className="font-mono text-xs text-coverage-fg/50">No coverage yet.</p>
+    return (
+      <p className="font-mono text-xs text-coverage-fg/50">
+        {isLoggedIn
+          ? 'Coverage of this topic goes here, from mainstream articles to independent newsletters.'
+          : 'Coverage of this topic will appear here.'}
+      </p>
+    )
   }
 
   return (
