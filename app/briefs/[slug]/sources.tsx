@@ -38,12 +38,12 @@ function SourceCard({
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClick() }}
       style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-      className={`group flex cursor-pointer select-none items-center gap-3.5 border border-line border-l-[3px] bg-paper px-4 py-3 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-blue
+      className={`group flex cursor-pointer select-none items-center gap-3.5 border border-line border-l-[3px] bg-paper px-4 py-3 outline-none transition-all duration-150 motion-reduce:transition-none focus-visible:ring-2 focus-visible:ring-blue
         ${isSelected
           ? 'border-l-blue ring-1 ring-blue/20'
           : isOtherSelected
             ? 'border-l-blue/20 opacity-50'
-            : 'border-l-blue/50 hover:border-l-blue'
+            : 'border-l-blue/50 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:border-blue hover:shadow-[3px_3px_0_0_var(--color-blue)]'
         }`}
     >
       <span className="shrink-0 font-mono text-xs font-bold tabular-nums tracking-[0.15em] text-blue-ink">
@@ -70,14 +70,6 @@ function SourceCard({
           </p>
         )}
       </div>
-
-      {/* Expand indicator */}
-      <span
-        className={`shrink-0 text-xs text-blue/50 transition-transform duration-300 motion-reduce:transition-none ${isSelected ? 'rotate-180' : ''}`}
-        aria-hidden
-      >
-        ↓
-      </span>
 
       {item.url && (
         <a
