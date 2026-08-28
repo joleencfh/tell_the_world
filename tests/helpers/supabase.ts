@@ -96,15 +96,28 @@ export interface FaqAnswerRecord {
   created_at: string
 }
 
-/** All brief_faq_answers rows for a given (brief, question) pair, any status. */
-export async function findFaqAnswers(briefId: string, question: string): Promise<FaqAnswerRecord[]> {
+/**
+ * brief_faq_answers rows for a given (brief, question) pair, any status.
+ * Pass `body` (tests always give their rows a unique, timestamped body) to
+ * scope to this test's own row(s) — the question text itself is shared,
+ * fixed fixture content, so without it concurrent CI runs against the same
+ * brief would see each other's rows.
+ */
+export async function findFaqAnswers(
+  briefId: string,
+  question: string,
+  body?: string,
+): Promise<FaqAnswerRecord[]> {
   const client = getTestAdminClient()
-  const { data, error } = await client
+  let query = client
     .from('brief_faq_answers')
     .select('id, brief_id, question, author_user_id, body, status, created_at')
     .eq('brief_id', briefId)
     .eq('question', question)
-    .order('created_at', { ascending: false })
+  if (body !== undefined) {
+    query = query.eq('body', body)
+  }
+  const { data, error } = await query.order('created_at', { ascending: false })
 
   if (error) {
     throw new Error(`Failed to query brief_faq_answers: ${error.message}`)
@@ -134,14 +147,19 @@ export async function insertPublishedFaqAnswer(
   return data as FaqAnswerRecord
 }
 
-/** Delete all brief_faq_answers rows for a (brief, question) pair. Call in afterEach/afterAll. */
-export async function deleteFaqAnswers(briefId: string, question: string): Promise<void> {
+/**
+ * Delete brief_faq_answers rows for a (brief, question) pair. Call in
+ * afterEach/afterAll. Pass `body` to delete only this test's own row(s) —
+ * without it, a blanket delete on the shared question text would also wipe
+ * out any concurrent CI run's still-in-flight row for the same question.
+ */
+export async function deleteFaqAnswers(briefId: string, question: string, body?: string): Promise<void> {
   const client = getTestAdminClient()
-  const { error } = await client
-    .from('brief_faq_answers')
-    .delete()
-    .eq('brief_id', briefId)
-    .eq('question', question)
+  let query = client.from('brief_faq_answers').delete().eq('brief_id', briefId).eq('question', question)
+  if (body !== undefined) {
+    query = query.eq('body', body)
+  }
+  const { error } = await query
 
   if (error) {
     console.warn(`Failed to clean up test brief_faq_answers: ${error.message}`)
