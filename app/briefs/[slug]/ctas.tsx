@@ -137,8 +137,8 @@ export function CtaCarousel({ ctas, canSuggestCta }: { ctas: Cta[]; canSuggestCt
     return (
       <p className="font-mono text-xs text-ink-faint">
         {canSuggestCta
-          ? 'No calls to action yet. Suggest the first one: sign a petition, contact a representative, share a resource.'
-          : 'Calls to action are specific things experts and organisations ask you to do in response to this brief: sign something, contact someone, share a resource. None have been suggested yet.'}
+          ? 'No calls to action yet. Suggest one: sign a petition, contact someone, share a resource.'
+          : 'Things experts and organisations want you to do about this brief, like sign a petition or contact someone. None yet.'}
       </p>
     )
   }

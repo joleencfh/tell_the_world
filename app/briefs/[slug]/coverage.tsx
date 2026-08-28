@@ -239,8 +239,8 @@ export function CoverageCarousel({
     return (
       <p className="font-mono text-xs text-coverage-fg/50">
         {isLoggedIn
-          ? "This is where press coverage of the topic gets collected: articles, segments, reports from elsewhere. Seen something relevant? Add it below."
-          : "Press coverage of this topic will be collected here as it's published elsewhere."}
+          ? 'Press coverage goes here: articles, segments, reports from elsewhere. Seen something? Add it below.'
+          : "Press coverage will appear here as it's published elsewhere."}
       </p>
     )
   }

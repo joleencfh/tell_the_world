@@ -337,20 +337,20 @@ function QuotesEmptyState({ canAddQuote, isLoggedIn }: { canAddQuote: boolean; i
   if (canAddQuote) {
     return (
       <p className="font-mono text-xs text-ink-faint">
-        Be the first to add a quote, from yourself, a colleague, or a source document.
+        Add the first quote, from yourself, a colleague, or a source document.
       </p>
     )
   }
   if (isLoggedIn) {
     return (
       <p className="font-mono text-xs text-ink-faint">
-        No quotes yet. Quotes from vetted experts and organisations will be added here as this brief develops.
+        No quotes yet. Experts and organisations will add them as this brief develops.
       </p>
     )
   }
   return (
     <p className="font-mono text-xs text-ink-faint">
-      Quotes from experts and organisations will appear here as they weigh in on this brief.
+      Quotes from experts and organisations will appear here as this brief develops.
     </p>
   )
 }

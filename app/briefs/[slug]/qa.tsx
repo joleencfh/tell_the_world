@@ -208,9 +208,8 @@ export function QuestionsList({
   if (questions.length === 0) {
     return (
       <p className="font-mono text-xs text-ink-faint mb-6">
-        Ask something you&apos;re curious about after reading this brief. An expert or organisation on the platform
-        will follow up with an answer.
-        {canSubmitAnswer && ' As an expert, you can also answer questions members ask here.'}
+        Ask something you&apos;re curious about. An expert or organisation will answer.
+        {canSubmitAnswer && ' You can also answer questions here.'}
       </p>
     )
   }
