@@ -540,7 +540,7 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
               <SectionHeader
                 num="08"
                 label="Covered By"
-                description="Press coverage of this topic"
+                description="How this topic is being covered elsewhere"
                 numTone="pink"
                 onDark
                 action={

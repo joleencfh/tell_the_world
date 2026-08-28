@@ -187,9 +187,10 @@ function QuestionCard({
 
 // This section only ever renders for logged-in members (BriefView gates it
 // on isLoggedIn), so the empty state doesn't need a visitor branch. It does
-// still branch on canSubmitAnswer (brief-page onboarding pass, 2026-08-28):
-// experts/organisations can answer questions here too, and that's worth
-// naming for them, not just the ask-a-question mechanic every member sees.
+// fully branch on canSubmitAnswer (brief-page onboarding pass, 2026-08-28,
+// revised same day): an expert/organisation isn't the one asking here, so
+// the asker-facing "ask something" copy is the wrong message for them
+// entirely, not just missing a footnote.
 export function QuestionsList({
   questions,
   answersByQuestion,
@@ -208,8 +209,9 @@ export function QuestionsList({
   if (questions.length === 0) {
     return (
       <p className="font-mono text-xs text-ink-faint mb-6">
-        Ask something you&apos;re curious about. An expert or organisation will answer.
-        {canSubmitAnswer && ' You can also answer questions here.'}
+        {canSubmitAnswer
+          ? "No questions yet. When creators or journalists ask something, you can answer it here."
+          : "Ask something you're curious about. An expert or organisation will answer."}
       </p>
     )
   }
