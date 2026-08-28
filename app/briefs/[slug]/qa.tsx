@@ -185,6 +185,11 @@ function QuestionCard({
 // nothing (§1.4).
 // ---------------------------------------------------------------------------
 
+// This section only ever renders for logged-in members (BriefView gates it
+// on isLoggedIn), so the empty state doesn't need a visitor branch. It does
+// still branch on canSubmitAnswer (brief-page onboarding pass, 2026-08-28):
+// experts/organisations can answer questions here too, and that's worth
+// naming for them, not just the ask-a-question mechanic every member sees.
 export function QuestionsList({
   questions,
   answersByQuestion,
@@ -203,7 +208,9 @@ export function QuestionsList({
   if (questions.length === 0) {
     return (
       <p className="font-mono text-xs text-ink-faint mb-6">
-        No questions yet — be the first to ask below.
+        Ask something you&apos;re curious about after reading this brief. An expert or organisation on the platform
+        will follow up with an answer.
+        {canSubmitAnswer && ' As an expert, you can also answer questions members ask here.'}
       </p>
     )
   }

@@ -528,7 +528,7 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
                   ) : undefined
                 }
               />
-              <CtaCarousel ctas={ctas} />
+              <CtaCarousel ctas={ctas} canSuggestCta={canSuggestCta} />
             </div>
           </div>
         )}
