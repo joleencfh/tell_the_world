@@ -475,27 +475,33 @@ export async function dismissCta(ctaId: string): Promise<{ success?: boolean; er
 }
 
 // ---------------------------------------------------------------------------
-// Quote moderation (brief-page-part2-plan.md §2, Part 4) — a quote posted
-// straight to a brief via "+ Add quote" (content_posts.brief_id), pending →
-// published via admin approval, same shape as CTA moderation above. Only
-// ever non-empty for brief-scoped submissions (submitQuote in lib/briefs/
-// actions.ts) — the profile's own "share something" flow never sets
-// status: 'pending', so nothing else ever lands in this queue.
+// Content post moderation (brief-page-part2-plan.md §2, Part 4, widened by
+// the deterministic clarity check — lib/clarity/check.ts) — pending →
+// published via admin approval, same shape as CTA moderation above. A row
+// lands here from either submitQuote (lib/briefs/actions.ts, brief_id set,
+// post_type always 'quote') or createPost (lib/posts/actions.ts, brief_id
+// null, any post_type) — a row is 'pending' only when the clarity check
+// actually flagged it (or, for submitQuote specifically, unconditionally
+// for an admin submitter — a pre-existing quirk unrelated to the check).
+// flagged_terms records why, so a reviewer doesn't need the check re-run.
 // ---------------------------------------------------------------------------
 
-export interface PendingQuote {
+export interface PendingContentPost {
   id: string
+  post_type: string
   title: string
+  body: string | null
   topic_tags: string[]
+  flagged_terms: Json | null
   created_at: string
   brief_id: string | null
   briefs: { title: string; slug: string } | null
   users: { id: string; display_name: string | null; email: string; role: string }
 }
 
-export async function getPendingQuotes(page = 1): Promise<PagedResult<PendingQuote>> {
+export async function getPendingContentPosts(page = 1): Promise<PagedResult<PendingContentPost>> {
   await requireAdmin()
-  return adminData.getPendingQuotes(getAdminClient(), page)
+  return adminData.getPendingContentPosts(getAdminClient(), page)
 }
 
 export async function approveQuote(quoteId: string): Promise<{ success?: boolean; error?: string }> {

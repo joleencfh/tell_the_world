@@ -2,21 +2,26 @@
 
 import { useState } from 'react'
 import { approveQuote, dismissQuote } from '@/lib/admin/actions'
-import type { PendingQuote } from '@/lib/admin/actions'
+import type { PendingContentPost } from '@/lib/admin/actions'
+import type { FlaggedTerm } from '@/lib/clarity/check'
 
-// Split out of cards.tsx to keep that file under the project's ~500-line
-// convention (CONTRIBUTING.md) — same card shape as CtaCard in
-// app/admin/cta-card.tsx, just for content_posts pending quote rows
-// (brief-page-part2-plan.md §2, Part 4).
+// Renamed from quote-card.tsx / QuoteCard — this queue now holds any
+// pending content_posts row (brief-attached quotes from submitQuote, or
+// any-post_type profile posts from createPost, lib/data/admin.ts's
+// getPendingContentPosts), not just brief-scoped quotes, so the old name
+// actively misled once a flagged profile post could show up here. Also
+// disambiguates from the unrelated public-facing app/directory/QuoteCard.tsx.
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
-export function QuoteCard({ quote }: { quote: PendingQuote }) {
+export function ContentPostCard({ quote }: { quote: PendingContentPost }) {
   const [loading, setLoading] = useState<'approving' | 'dismissing' | null>(null)
   const [error, setError] = useState<string | null>(null)
   const submitterName = quote.users.display_name || quote.users.email.split('@')[0]
+  const isQuote = quote.post_type === 'quote'
+  const flaggedTerms = (quote.flagged_terms as FlaggedTerm[] | null) ?? []
 
   async function handleApprove() {
     setLoading('approving')
@@ -37,7 +42,7 @@ export function QuoteCard({ quote }: { quote: PendingQuote }) {
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="space-y-0.5">
           <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-blue-ink">
-            {quote.briefs?.title ?? 'Unknown brief'}
+            {quote.briefs?.title ?? 'Profile post'}
           </p>
           <p className="font-mono text-[9px] text-ink-soft">
             {submitterName}
@@ -49,9 +54,30 @@ export function QuoteCard({ quote }: { quote: PendingQuote }) {
         </div>
       </div>
       <div>
-        <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft mb-1">Quote</p>
-        <p className="font-body text-sm text-ink font-semibold leading-snug">&ldquo;{quote.title}&rdquo;</p>
+        <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft mb-1">
+          {isQuote ? 'Quote' : 'Post'}
+        </p>
+        <p className="font-body text-sm text-ink font-semibold leading-snug">
+          {isQuote ? <>&ldquo;{quote.title}&rdquo;</> : quote.title}
+        </p>
+        {!isQuote && quote.body && (
+          <p className="mt-1 font-body text-xs text-ink-soft leading-snug">{quote.body}</p>
+        )}
       </div>
+      {flaggedTerms.length > 0 && (
+        <div>
+          <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-pink-ink mb-1">
+            Flagged — {flaggedTerms.length === 1 ? '1 term' : `${flaggedTerms.length} terms`}
+          </p>
+          <ul className="space-y-1">
+            {flaggedTerms.map((term) => (
+              <li key={term.id} className="font-body text-xs text-ink-soft leading-snug">
+                <span className="font-semibold text-ink">&ldquo;{term.matchedText}&rdquo;</span> — {term.explanation}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       {quote.topic_tags.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {quote.topic_tags.map((tag) => (

@@ -10,9 +10,16 @@ import { getCoverageComments, getCoverageLikers } from '@/lib/data/coverage'
 import { logEvent } from '@/lib/analytics/log'
 import type { CoverageComment, CoverageAuthor } from '@/lib/data/coverage'
 import type { UserRole } from '@/lib/types'
-import type { Json } from '@/lib/database.types'
+import { CONTRIBUTOR_ROLES } from '@/lib/types'
+import type { Database, Json } from '@/lib/database.types'
+import { checkClarity } from '@/lib/clarity/check'
 
-const CONTRIBUTOR_ROLES = ['expert', 'organisation']
+// TODO: drop this once supabase/055_content_posts_flagged_terms.sql is
+// applied and lib/database.types.ts is regenerated — flagged_terms will
+// then be a real column on the generated Insert type.
+type ContentPostInsertWithFlags = Database['public']['Tables']['content_posts']['Insert'] & {
+  flagged_terms?: Json | null
+}
 
 export async function submitCorrectionProposal(
   briefId: string,
@@ -262,7 +269,7 @@ export async function submitQuote(
   briefSlug: string,
   body: string,
   tags: string[],
-): Promise<{ error?: string; success?: boolean }> {
+): Promise<{ error?: string; success?: boolean; status?: 'published' | 'pending' }> {
   const supabase = await createClient()
   const {
     data: { user },
@@ -282,23 +289,47 @@ export async function submitQuote(
 
   const cleanTags = [...new Set(tags.map((t) => t.trim()).filter(Boolean))].slice(0, 10)
 
+  // Deterministic clarity check (lib/clarity/check.ts) — server-side,
+  // authoritative (defense in depth: server actions are public HTTP
+  // endpoints, the client-side check in useClarityGate.ts is UX only).
+  // Admin keeps its pre-existing unconditional 'pending' status (see the
+  // comment above this function) — that's an existing quirk unrelated to
+  // this feature, not something the clarity check should change.
+  let status: 'published' | 'pending' = 'published'
+  let flaggedTerms: Json | null = null
+  if (role === 'admin') {
+    status = 'pending'
+  } else {
+    const { flaggedTerms: flags, isClean } = checkClarity(trimmed)
+    if (!isClean) {
+      status = 'pending'
+      flaggedTerms = flags as unknown as Json
+    }
+  }
+
   // title holds the quote text itself (content_posts.title is not null;
   // QuoteCard renders `body || title`, so leaving body null here falls
   // straight back to what was just typed — same shape a bare-title quote
-  // authored any other way already renders as).
-  const { error } = await supabase.from('content_posts').insert({
+  // authored any other way already renders as). flagged_terms is only
+  // ever included when the clarity check actually flagged something
+  // (never for admin's unconditional pending, and never when clean) — so
+  // the common case's insert is byte-for-byte what it was before this
+  // column existed, and doesn't depend on flagged_terms being present.
+  const insertPayload: ContentPostInsertWithFlags = {
     user_id: user.id,
     post_type: 'quote',
     title: trimmed,
     brief_id: briefId,
     topic_tags: cleanTags,
-    status: 'pending',
-  })
+    status,
+    ...(flaggedTerms !== null ? { flagged_terms: flaggedTerms } : {}),
+  }
+  const { error } = await supabase.from('content_posts').insert(insertPayload)
 
   if (error) return { error: 'Failed to submit quote. Please try again.' }
 
   revalidatePath(`/briefs/${briefSlug}`)
-  return { success: true }
+  return { success: true, status }
 }
 
 // A member's like on a quote — any logged-in member, true toggle, same
