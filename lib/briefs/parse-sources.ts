@@ -16,7 +16,13 @@ export interface SourceItem {
 
 type ParseMode = 'desc' | 'summary' | 'takeaways'
 
-export function parseSources(content: string): SourceItem[] | null {
+// Ungated variant of parseSources — returns whatever it can parse regardless
+// of count, including zero or one items. Used by the admin form editor
+// (app/admin/briefs/[id]/sources-editor.tsx) to seed its structured fields
+// from a going_deeper section's existing plain-text content; parseSources
+// itself keeps the >=2 gate since that's also the public page's render
+// threshold.
+export function parseSourcesRaw(content: string): SourceItem[] {
   const lines = content.split('\n')
   const items: SourceItem[] = []
   let current: {
@@ -58,6 +64,11 @@ export function parseSources(content: string): SourceItem[] | null {
     }
   }
   if (current) items.push(buildSourceItem(current))
+  return items
+}
+
+export function parseSources(content: string): SourceItem[] | null {
+  const items = parseSourcesRaw(content)
   return items.length >= 2 ? items : null
 }
 

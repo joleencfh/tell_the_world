@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import type { BriefSection } from '@/lib/admin/brief-actions'
 import RichTextEditor from '@/lib/richtext/editor'
+import { SourcesFormEditor } from './sources-editor'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -68,20 +69,13 @@ const SECTION_HELP: Record<BriefSection['section_type'], { instructions: ReactNo
   going_deeper: {
     instructions: (
       <>
-        One source per block, starting with a line beginning{' '}
-        <code className="font-mono text-[11px]">•</code>. Followed by a required{' '}
-        <code className="font-mono text-[11px]">Publisher:</code> line naming the outlet or organisation behind the
-        source — <strong className="text-ink">a source without one is rejected on save.</strong> Optionally also a
-        URL line, a <code className="font-mono text-[11px]">Summary:</code> line, and a{' '}
-        <code className="font-mono text-[11px]">Key takeaways:</code> line with{' '}
-        <code className="font-mono text-[11px]">- </code> bullets below it. Separate sources with a blank line —
-        needs at least 2 sources to render. Renders folded into the Explainer section&apos;s Sources block on the
-        public page.
+        One card per source. <strong className="text-ink">Publisher is required</strong> — a source without one is
+        rejected on save. Needs at least 2 sources to render, folded into the Explainer section&apos;s Sources block
+        on the public page.
       </>
     ),
-    placeholder:
-      '• "Quoted title" — a short description of the source\nPublisher: Example News\nhttps://example.com/article\nSummary: A longer summary of the source.\nKey takeaways:\n- First takeaway\n- Second takeaway\n\n• Another source — description\nPublisher: Another Outlet',
-    rows: 12,
+    placeholder: '',
+    rows: 0,
   },
   explainer: {
     instructions: (
@@ -148,6 +142,7 @@ export function SectionEditor({
   onSwitchToRichText,
 }: SectionEditorProps) {
   const isExplainer = section.section_type === 'explainer'
+  const isGoingDeeper = section.section_type === 'going_deeper'
   const help = SECTION_HELP[section.section_type]
   // A brand-new, still-empty subsection goes straight to the rich text
   // editor (nothing legacy to preserve); an existing plain-text subsection
@@ -217,7 +212,13 @@ export function SectionEditor({
         </p>
       </div>
 
-      {useRichEditor && onRichContentChange ? (
+      {isGoingDeeper ? (
+        <SourcesFormEditor
+          key={section.clientKey}
+          initialContent={section.content}
+          onChange={(content) => onContentChange(section.clientKey, content)}
+        />
+      ) : useRichEditor && onRichContentChange ? (
         <RichTextEditor
           key={section.clientKey}
           initialValue={section.rich_content}
