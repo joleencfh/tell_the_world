@@ -4,15 +4,8 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { checkClarity } from '@/lib/clarity/check'
 import { CONTRIBUTOR_ROLES } from '@/lib/types'
-import type { UserRole } from '@/lib/types'
-import type { Database, Json } from '@/lib/database.types'
-
-// TODO: drop this once supabase/055_content_posts_flagged_terms.sql is
-// applied and lib/database.types.ts is regenerated — flagged_terms will
-// then be a real column on the generated Insert type.
-type ContentPostInsertWithFlags = Database['public']['Tables']['content_posts']['Insert'] & {
-  flagged_terms?: Json | null
-}
+import type { UserRole, TablesInsert } from '@/lib/types'
+import type { Json } from '@/lib/database.types'
 
 export type PostType = 'video' | 'article' | 'paper' | 'quote' | 'resource'
 
@@ -58,7 +51,7 @@ export async function createPost(
     }
   }
 
-  const insertPayload: ContentPostInsertWithFlags = {
+  const insertPayload: TablesInsert<'content_posts'> = {
     user_id: user.id,
     post_type: payload.post_type,
     title,

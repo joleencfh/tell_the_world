@@ -9,17 +9,10 @@ import { fetchLinkPreview } from '@/lib/links/link-preview'
 import { getCoverageComments, getCoverageLikers } from '@/lib/data/coverage'
 import { logEvent } from '@/lib/analytics/log'
 import type { CoverageComment, CoverageAuthor } from '@/lib/data/coverage'
-import type { UserRole } from '@/lib/types'
+import type { UserRole, TablesInsert } from '@/lib/types'
 import { CONTRIBUTOR_ROLES } from '@/lib/types'
-import type { Database, Json } from '@/lib/database.types'
+import type { Json } from '@/lib/database.types'
 import { checkClarity } from '@/lib/clarity/check'
-
-// TODO: drop this once supabase/055_content_posts_flagged_terms.sql is
-// applied and lib/database.types.ts is regenerated — flagged_terms will
-// then be a real column on the generated Insert type.
-type ContentPostInsertWithFlags = Database['public']['Tables']['content_posts']['Insert'] & {
-  flagged_terms?: Json | null
-}
 
 export async function submitCorrectionProposal(
   briefId: string,
@@ -315,7 +308,7 @@ export async function submitQuote(
   // (never for admin's unconditional pending, and never when clean) — so
   // the common case's insert is byte-for-byte what it was before this
   // column existed, and doesn't depend on flagged_terms being present.
-  const insertPayload: ContentPostInsertWithFlags = {
+  const insertPayload: TablesInsert<'content_posts'> = {
     user_id: user.id,
     post_type: 'quote',
     title: trimmed,
