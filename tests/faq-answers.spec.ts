@@ -67,17 +67,22 @@ test.describe('FAQ "Add an answer" — authenticated expert', () => {
 
   let expert: TestUser
   let brief: TestBrief
+  // Set by each test before it submits, so afterEach can delete only this
+  // test's own row. QUESTION is shared, fixed fixture text (it has to match
+  // the seeded accordion trigger), so deleting by question alone would also
+  // wipe out a concurrent CI run's in-flight row on the same brief.
+  let currentBody = ''
 
   test.beforeAll(async () => {
     ;[expert, brief] = await Promise.all([getTestUser(expertEmail), getTestBrief(BRIEF_SLUG)])
   })
 
   test.afterEach(async () => {
-    await deleteFaqAnswers(brief.id, QUESTION)
+    if (currentBody) await deleteFaqAnswers(brief.id, QUESTION, currentBody)
   })
 
   test('submitting an answer creates a pending brief_faq_answers row', async ({ page }) => {
-    const body = `Playwright test answer ${Date.now()}`
+    const body = (currentBody = `Playwright test answer ${Date.now()}`)
 
     await page.goto(`/briefs/${BRIEF_SLUG}`)
 
@@ -92,7 +97,7 @@ test.describe('FAQ "Add an answer" — authenticated expert', () => {
 
     await expect(page.getByText(/submitted for review/i)).toBeVisible({ timeout: 10000 })
 
-    const rows = await findFaqAnswers(brief.id, QUESTION)
+    const rows = await findFaqAnswers(brief.id, QUESTION, body)
     expect(rows).toHaveLength(1)
     expect(rows[0].author_user_id).toBe(expert.id)
     expect(rows[0].body).toBe(body)
@@ -101,7 +106,7 @@ test.describe('FAQ "Add an answer" — authenticated expert', () => {
 
   test('a pending answer does not appear under "More answers"', async ({ page }) => {
     // Submit, then reload fresh — the pending row must not be readable.
-    const body = `Playwright pending-visibility test ${Date.now()}`
+    const body = (currentBody = `Playwright pending-visibility test ${Date.now()}`)
 
     await page.goto(`/briefs/${BRIEF_SLUG}`)
     await page.getByRole('button', { name: QUESTION }).click()
@@ -137,13 +142,18 @@ test.describe('FAQ "Add an answer" — authenticated expert', () => {
 test.describe('FAQ "More answers" — published answers, logged-out visitor', () => {
   let expert: TestUser
   let brief: TestBrief
+  // Deleted individually in afterEach (rather than a blanket delete by
+  // QUESTION) so a concurrent CI run's own published row on this shared
+  // question isn't wiped out mid-test.
+  let currentBodies: string[] = []
 
   test.beforeAll(async () => {
     ;[expert, brief] = await Promise.all([getTestUser(expertEmail), getTestBrief(BRIEF_SLUG)])
   })
 
   test.afterEach(async () => {
-    await deleteFaqAnswers(brief.id, QUESTION)
+    await Promise.all(currentBodies.map((body) => deleteFaqAnswers(brief.id, QUESTION, body)))
+    currentBodies = []
   })
 
   test('a question with zero answers shows no "More answers" toggle', async ({ page }) => {
@@ -153,8 +163,9 @@ test.describe('FAQ "More answers" — published answers, logged-out visitor', ()
   })
 
   test('published answers render under "More answers (N)" with author and body', async ({ page }) => {
-    const bodyOne = 'The metric that matters is usable compute per run, not aggregate capacity.'
-    const bodyTwo = 'We track this quarterly and the gap has narrowed but not closed.'
+    const bodyOne = `The metric that matters is usable compute per run, not aggregate capacity. ${Date.now()}`
+    const bodyTwo = `We track this quarterly and the gap has narrowed but not closed. ${Date.now()}`
+    currentBodies = [bodyOne, bodyTwo]
     await insertPublishedFaqAnswer(brief.id, QUESTION, expert.id, bodyOne)
     await insertPublishedFaqAnswer(brief.id, QUESTION, expert.id, bodyTwo)
 
@@ -185,13 +196,16 @@ test.describe('FAQ "More answers" — published answers, logged-out visitor', ()
 
 test.describe('FAQ answer moderation — full loop (expert submits, admin approves)', () => {
   let brief: TestBrief
+  // Scoped to this test's own row (not a blanket delete by QUESTION) so a
+  // concurrent CI run's in-flight row on the same shared question survives.
+  let currentBody = ''
 
   test.beforeAll(async () => {
     brief = await getTestBrief(BRIEF_SLUG)
   })
 
   test.afterEach(async () => {
-    await deleteFaqAnswers(brief.id, QUESTION)
+    if (currentBody) await deleteFaqAnswers(brief.id, QUESTION, currentBody)
   })
 
   test('expert submits, admin approves via Approve button, then a logged-out visitor sees it under "More answers"', async ({ browser }) => {
@@ -200,7 +214,7 @@ test.describe('FAQ answer moderation — full loop (expert submits, admin approv
       'playwright/.auth/admin.json not generated — set TEST_ADMIN_EMAIL and rerun the suite',
     )
 
-    const body = `Playwright moderation-loop test ${Date.now()}`
+    const body = (currentBody = `Playwright moderation-loop test ${Date.now()}`)
 
     // 1. Submit as expert — same flow as the submission tests above, in its
     //    own context so it doesn't share state with the admin/visitor steps.
@@ -218,7 +232,7 @@ test.describe('FAQ answer moderation — full loop (expert submits, admin approv
       await expertContext.close()
     }
 
-    const rows = await findFaqAnswers(brief.id, QUESTION)
+    const rows = await findFaqAnswers(brief.id, QUESTION, body)
     expect(rows).toHaveLength(1)
     expect(rows[0].status).toBe('pending')
 
@@ -249,7 +263,7 @@ test.describe('FAQ answer moderation — full loop (expert submits, admin approv
       await adminContext.close()
     }
 
-    const rowsAfterApproval = await findFaqAnswers(brief.id, QUESTION)
+    const rowsAfterApproval = await findFaqAnswers(brief.id, QUESTION, body)
     expect(rowsAfterApproval[0]?.status).toBe('published')
 
     // 3. Confirm it renders for a logged-out visitor.
