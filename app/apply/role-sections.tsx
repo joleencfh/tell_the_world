@@ -265,7 +265,7 @@ export function CommsSpecialistFields({ form, errors, set, handleBlur }: Section
     <FormSection legend="Your communications work">
       <Field
         label="Affiliation"
-        hint="Where you currently do (or have done) communications work — an agency, org, or 'Independent'."
+        hint="Where you currently do (or have done) communications work, e.g. an agency, org, or 'Independent'."
         error={errors.affiliation}
         fieldId="affiliation"
       >
@@ -290,7 +290,7 @@ export function CommsSpecialistFields({ form, errors, set, handleBlur }: Section
 
       <Field
         label="Work sample"
-        hint="Link to a piece of comms work you're proud of — a campaign, a piece of messaging, coverage you helped land."
+        hint="Link to a piece of comms work you're proud of, e.g. a campaign, a piece of messaging, coverage you helped land."
         error={errors.sample_work_url}
         fieldId="sample_work_url"
       >

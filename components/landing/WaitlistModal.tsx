@@ -253,7 +253,7 @@ export default function WaitlistModal({ mode, onClose }: WaitlistModalProps) {
                   type="text"
                   value={affiliation}
                   onChange={(e) => setAffiliation(e.target.value)}
-                  placeholder={isCreator ? 'e.g. YouTube — Jordan’s AI Corner' : 'Where you work, publish, or post'}
+                  placeholder={isCreator ? 'e.g. YouTube, Jordan’s AI Corner' : 'Where you work, publish, or post'}
                   className={inputCls}
                   required={isCreator}
                   disabled={isPending}
