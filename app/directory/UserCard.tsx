@@ -17,6 +17,8 @@ const ROLE_BORDER: Record<UserRole, string> = {
   expert:       'border-l-blue/40',
   organisation: 'border-l-blue/40',
   admin:        'border-l-line-strong',
+  comms_specialist: 'border-l-line-strong',
+  other:        'border-l-line-strong',
 }
 
 // ---------------------------------------------------------------------------

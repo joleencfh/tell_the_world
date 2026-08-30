@@ -28,8 +28,10 @@ interface WaitlistModalProps {
 const ROLE_OPTIONS: { value: UserRole; label: string }[] = [
   { value: 'creator', label: 'Creator' },
   { value: 'journalist', label: 'Journalist' },
-  { value: 'expert', label: 'AI safety expert interested in comms' },
+  { value: 'expert', label: 'Researcher/Expert' },
   { value: 'organisation', label: 'Organisation' },
+  { value: 'comms_specialist', label: 'Communications Specialist' },
+  { value: 'other', label: 'Other' },
 ]
 
 const inputCls =
@@ -54,6 +56,8 @@ export default function WaitlistModal({ mode, onClose }: WaitlistModalProps) {
   const [honeypot, setHoneypot] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+
+  const isCreator = role === 'creator'
 
   function handleClose() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -241,27 +245,33 @@ export default function WaitlistModal({ mode, onClose }: WaitlistModalProps) {
               </div>
 
               <div className="mb-4">
-                <label className={labelCls} htmlFor="wl-affiliation">Affiliation</label>
+                <label className={labelCls} htmlFor="wl-affiliation">
+                  {isCreator ? 'Platform & channel name' : 'Affiliation'}
+                </label>
                 <input
                   id="wl-affiliation"
                   type="text"
                   value={affiliation}
                   onChange={(e) => setAffiliation(e.target.value)}
-                  placeholder="Where you work, publish, or post"
+                  placeholder={isCreator ? 'e.g. YouTube — Jordan’s AI Corner' : 'Where you work, publish, or post'}
                   className={inputCls}
+                  required={isCreator}
                   disabled={isPending}
                 />
               </div>
 
               <div className="mb-4">
-                <label className={labelCls} htmlFor="wl-link">LinkedIn or personal site</label>
+                <label className={labelCls} htmlFor="wl-link">
+                  {isCreator ? 'Channel link' : 'LinkedIn or personal site'}
+                </label>
                 <input
                   id="wl-link"
                   type="text"
                   value={link}
                   onChange={(e) => setLink(e.target.value)}
-                  placeholder="linkedin.com/in/…"
+                  placeholder={isCreator ? 'youtube.com/@…' : 'linkedin.com/in/…'}
                   className={inputCls}
+                  required={isCreator}
                   disabled={isPending}
                 />
               </div>
@@ -287,7 +297,12 @@ export default function WaitlistModal({ mode, onClose }: WaitlistModalProps) {
 
               <button
                 type="submit"
-                disabled={isPending || !fullName.trim() || !email.trim()}
+                disabled={
+                  isPending ||
+                  !fullName.trim() ||
+                  !email.trim() ||
+                  (isCreator && (!affiliation.trim() || !link.trim()))
+                }
                 className="w-full font-display uppercase tracking-widest text-sm bg-pink-ink text-white px-6 py-3.5 hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {isPending ? 'Joining…' : wantsEarlyAccess ? 'Count me in' : 'Join the waitlist'}

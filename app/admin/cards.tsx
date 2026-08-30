@@ -19,6 +19,7 @@ const ROLE_LABELS: Record<string, string> = {
   journalist:   'Journalist',
   expert:       'Expert',
   organisation: 'Organisation',
+  comms_specialist: 'Comms Specialist',
   other:        'Other',
 }
 
@@ -27,6 +28,7 @@ const ROLE_COLORS: Record<string, string> = {
   journalist:   'bg-blue-100 text-blue-800',
   expert:       'bg-green-100 text-green-800',
   organisation: 'bg-purple-100 text-purple-800',
+  comms_specialist: 'bg-pink-100 text-pink-800',
   other:        'bg-gray-100 text-gray-600',
 }
 
@@ -91,7 +93,6 @@ export function ApplicationCard({ app }: { app: Application }) {
   const [loading, setLoading] = useState<'approving' | 'rejecting' | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const isOther = app.desired_role === 'other'
   const displayName = app.full_name || [app.first_name, app.last_name].filter(Boolean).join(' ') || app.email
 
   async function handleApprove() {
@@ -190,6 +191,14 @@ export function ApplicationCard({ app }: { app: Application }) {
               </>
             )}
 
+            {/* Communications specialist */}
+            {app.desired_role === 'comms_specialist' && (
+              <>
+                <Field label="Affiliation" value={app.affiliation} />
+                <Field label="Job title" value={app.job_title} />
+              </>
+            )}
+
             {/* Organisation */}
             {app.desired_role === 'organisation' && (
               <>
@@ -208,14 +217,6 @@ export function ApplicationCard({ app }: { app: Application }) {
             <Field label="Additional info" value={app.additional_info} />
           </div>
 
-          {/* Warning for "other" role */}
-          {isOther && (
-            <div className="mb-4 px-4 py-3 border border-amber-300 bg-amber-50 font-body text-xs text-amber-800 leading-relaxed">
-              This applicant selected &ldquo;other&rdquo; as their role. To approve, assign a specific role
-              directly in the Supabase dashboard, then return here to approve.
-            </div>
-          )}
-
           {/* Error */}
           {error && (
             <p className="mb-3 font-mono text-[10px] text-red-600" role="alert">{error}</p>
@@ -225,7 +226,7 @@ export function ApplicationCard({ app }: { app: Application }) {
           <div className="flex gap-3">
             <button
               onClick={handleApprove}
-              disabled={loading !== null || isOther}
+              disabled={loading !== null}
               className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 bg-ink text-paper hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {loading === 'approving' ? 'Approving…' : 'Approve'}

@@ -58,8 +58,17 @@ function isRateLimited(key: string): boolean {
 // Validation
 // ---------------------------------------------------------------------------
 
-// Reuses the existing user_role enum (no 'other') — see plan §0 for why.
-const ROLES: ReadonlySet<UserRole> = new Set(['creator', 'expert', 'organisation', 'journalist'])
+// Reuses the existing user_role enum — see plan §0 for why, and
+// 056_user_role_comms_specialist_and_other.sql for the two roles added
+// specifically so this set (and the modal's ROLE_OPTIONS) could offer them.
+const ROLES: ReadonlySet<UserRole> = new Set([
+  'creator',
+  'expert',
+  'organisation',
+  'journalist',
+  'comms_specialist',
+  'other',
+])
 
 const MAX_SHORT = 300
 const MAX_LONG = 2000
@@ -84,6 +93,13 @@ function validate(f: WaitlistInput): string | null {
   if (!f.email.trim() || !isValidEmail(f.email.trim())) return 'A valid email address is required.'
   if (!isValidUrl(f.linkedin_or_website_url))
     return 'Please enter a valid LinkedIn or website URL (e.g. https://example.com).'
+
+  // Content creators must name their platform/channel and link it —
+  // mirrors the modal's isCreator-gated required fields.
+  if (f.role === 'creator') {
+    if (!f.affiliation.trim()) return 'Please tell us your platform and channel name.'
+    if (!f.linkedin_or_website_url.trim()) return 'Please add a link to your channel.'
+  }
 
   const shortFields = [f.full_name, f.email, f.affiliation, f.linkedin_or_website_url]
   if (shortFields.some((v) => v.length > MAX_SHORT)) return 'One of the fields is too long.'

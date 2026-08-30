@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import type { UserRole } from '@/lib/types'
 
 // ---------------------------------------------------------------------------
 // Search params
@@ -30,7 +31,7 @@ export type UserResult = {
   display_name: string | null
   bio: string | null
   avatar_url: string | null
-  role: 'creator' | 'expert' | 'organisation' | 'journalist' | 'admin'
+  role: UserRole
   availability: 'open' | 'limited' | 'unavailable' | null
   affiliation: string | null
   org_name: string | null
@@ -43,7 +44,7 @@ export type QuoteAuthor = {
   id: string
   display_name: string | null
   avatar_url: string | null
-  role: 'creator' | 'expert' | 'organisation' | 'journalist' | 'admin'
+  role: UserRole
   affiliation: string | null
   org_name: string | null
 }

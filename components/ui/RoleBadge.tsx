@@ -13,13 +13,15 @@ export type RoleBadgeVariant = 'pill' | 'outline'
 
 // Two-Ink Bold semantic tone, same split as OUTLINE_TONE_CLASSES below:
 // blue = expert/org verification, pink = creator/journalist engagement,
-// neutral ink for admin.
+// neutral ink for admin/comms specialist/other (no dedicated tone yet).
 const PILL_COLORS: Record<UserRole, string> = {
   creator: 'bg-pink-soft text-pink-ink',
   journalist: 'bg-pink-soft text-pink-ink',
   expert: 'bg-blue-soft text-blue-ink',
   organisation: 'bg-blue-soft text-blue-ink',
   admin: 'bg-paper-raised text-ink-soft',
+  comms_specialist: 'bg-paper-raised text-ink-soft',
+  other: 'bg-paper-raised text-ink-soft',
 }
 
 const PILL_LABELS: Record<UserRole, string> = {
@@ -28,6 +30,8 @@ const PILL_LABELS: Record<UserRole, string> = {
   expert: 'Expert',
   organisation: 'Organisation',
   admin: 'Admin',
+  comms_specialist: 'Communications Specialist',
+  other: 'Other',
 }
 
 // (padding, text size, letter spacing) per token — every distinct pill
@@ -56,6 +60,8 @@ const OUTLINE_TONE_CLASSES: Record<UserRole, string> = {
   expert: 'text-blue border-blue/20',
   organisation: 'text-blue border-blue/20',
   admin: 'text-ink-soft border-line-strong',
+  comms_specialist: 'text-ink-soft border-line-strong',
+  other: 'text-ink-soft border-line-strong',
 }
 
 export interface RoleBadgeProps {

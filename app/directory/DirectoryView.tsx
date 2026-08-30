@@ -278,6 +278,8 @@ export default function DirectoryView({ users, usersCount, quotes, quotesCount, 
                   <option value="expert">Expert</option>
                   <option value="organisation">Organisation</option>
                   <option value="journalist">Journalist</option>
+                  <option value="comms_specialist">Communications Specialist</option>
+                  <option value="other">Other</option>
                 </select>
                 <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-soft/50">
                   <ChevronDown />
