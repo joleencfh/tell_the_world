@@ -4,6 +4,7 @@ import { useState, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { signInWithGoogle, signInWithLinkedIn, signInWithMagicLink } from '@/lib/auth/actions'
+import Footer from '@/components/ui/Footer'
 
 // ─── Icons ───────────────────────────────────────────────────────────────────
 
@@ -91,7 +92,8 @@ function LoginForm() {
   const isAnyLoading = loading !== null
 
   return (
-    <div className="min-h-screen bg-paper flex flex-col items-center justify-center px-4 py-16">
+    <div className="min-h-screen bg-paper flex flex-col">
+    <div className="flex-1 flex flex-col items-center justify-center px-4 py-16">
 
       {/* Wordmark */}
       <div className="mb-10 text-center">
@@ -263,6 +265,8 @@ function LoginForm() {
           Join the waitlist
         </Link>
       </p>
+    </div>
+    <Footer />
     </div>
   )
 }

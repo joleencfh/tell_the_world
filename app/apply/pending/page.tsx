@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Logo from "@/components/ui/Logo";
+import Footer from "@/components/ui/Footer";
 
 export default function PendingPage() {
   return (
@@ -70,6 +71,8 @@ export default function PendingPage() {
           </Link>
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 }

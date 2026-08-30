@@ -59,11 +59,14 @@ test.describe('Landing page', () => {
     await expect(page.getByRole('heading', { name: 'Tell us who you are' })).toBeVisible()
   })
 
-  test('footer — brand mark, no links', async ({ page }) => {
+  test('footer — brand mark, privacy and contact links', async ({ page }) => {
     const footer = page.getByRole('contentinfo')
     await expect(footer).toContainText('Tell The World')
-    // The footer is deliberately link-free — Sign in lives in the nav instead.
-    await expect(footer.getByRole('link')).toHaveCount(0)
+    // Sign in lives in the nav, not the footer — the footer only links to
+    // the legally-required privacy policy and the contact form.
+    await expect(footer.getByRole('link')).toHaveCount(2)
+    await expect(footer.getByRole('link', { name: 'Privacy Policy' })).toHaveAttribute('href', '/privacy')
+    await expect(footer.getByRole('link', { name: 'Contact' })).toHaveAttribute('href', '/contact')
   })
 
   test('mobile — page renders without layout errors', async ({ page }) => {

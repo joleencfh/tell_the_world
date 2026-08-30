@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Logo from "@/components/ui/Logo";
+import Footer from "@/components/ui/Footer";
 
 export default function RejectedPage() {
   return (
@@ -80,6 +81,8 @@ export default function RejectedPage() {
           </Link>
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 }

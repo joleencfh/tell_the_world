@@ -12,6 +12,7 @@ import Avatar from '@/components/ui/Avatar'
 import RoleBadge from '@/components/ui/RoleBadge'
 import Logo from '@/components/ui/Logo'
 import SignOutButton from '@/components/ui/SignOutButton'
+import Footer from '@/components/ui/Footer'
 import { PostCard, CorrectionProposalCard, ReviewHistoryCard } from './cards'
 import { RoleDetails, extractDomain } from './RoleDetails'
 
@@ -320,13 +321,7 @@ export default function ProfileView({
         </div>
       </main>
 
-      <footer className="border-t border-line px-6 py-6 mt-16">
-        <div className="mx-auto max-w-3xl flex items-center justify-between">
-          <span className="font-body text-sm font-bold text-ink-soft/60 tracking-tight">
-            Tell <em className="italic">The</em> World
-          </span>
-        </div>
-      </footer>
+      <Footer />
 
       {/* Edit profile modal */}
       {editOpen && profileUser && (

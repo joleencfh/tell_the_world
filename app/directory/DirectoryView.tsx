@@ -8,6 +8,7 @@ import QuoteCard from './QuoteCard'
 import Pagination from '@/components/ui/Pagination'
 import Logo from '@/components/ui/Logo'
 import SignOutButton from '@/components/ui/SignOutButton'
+import Footer from '@/components/ui/Footer'
 import { DIRECTORY_PAGE_SIZE } from '@/lib/directory/queries'
 import type { UserResult, QuoteResult, SearchParams } from '@/lib/directory/queries'
 
@@ -488,20 +489,7 @@ export default function DirectoryView({ users, usersCount, quotes, quotesCount, 
 
       </main>
 
-      {/* ── Footer ───────────────────────────────────────────────────── */}
-      <footer className="border-t border-line px-6 py-6">
-        <div className="mx-auto max-w-5xl flex items-center justify-between">
-          <span className="font-body text-sm font-bold text-ink-soft/60 tracking-tight">
-            Tell <em className="italic">The</em> World
-          </span>
-          <Link
-            href="/home"
-            className="font-mono text-[9px] tracking-[0.15em] uppercase text-ink-soft/60 hover:text-ink-soft transition-colors"
-          >
-            ← Back to home
-          </Link>
-        </div>
-      </footer>
+      <Footer />
 
     </div>
   )
