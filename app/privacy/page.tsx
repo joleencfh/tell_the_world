@@ -4,7 +4,7 @@ import Logo from '@/components/ui/Logo'
 import Footer from '@/components/ui/Footer'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy — Tell The World',
+  title: 'Privacy Policy | Tell The World',
   description: 'How Tell The World collects, uses, and protects your personal data.',
 }
 
@@ -208,17 +208,17 @@ export default function PrivacyPolicyPage() {
               </p>
               <List
                 items={[
-                  <><strong>Supabase</strong> — database, authentication, and file storage. Hosted in the EU (Ireland).</>,
-                  <><strong>Vercel</strong> — application hosting.</>,
-                  <><strong>Resend</strong> — transactional email delivery (approval notices, contact request emails).</>,
-                  <><strong>Google / LinkedIn</strong> — only if you choose to sign in using one of these; they act as identity providers for that sign-in.</>,
+                  <><strong>Supabase</strong>: database, authentication, and file storage. Hosted in the EU (Ireland).</>,
+                  <><strong>Vercel</strong>: application hosting.</>,
+                  <><strong>Resend</strong>: transactional email delivery (approval notices, contact request emails).</>,
+                  <><strong>Google / LinkedIn</strong>: only if you choose to sign in using one of these; they act as identity providers for that sign-in.</>,
                 ]}
               />
               <p>
                 <strong>Visible to other users:</strong> your profile information and anything you
                 publish (posts, Q&amp;A, quotes) is visible to other approved members (and, for
-                public briefs, to logged-out visitors) as a core function of the Platform — this
-                is not third-party sharing, it&rsquo;s the service itself.
+                public briefs, to logged-out visitors) as a core function of the Platform. This
+                is not third-party sharing; it&rsquo;s the service itself.
               </p>
               <p>We do not sell your personal data, and we do not share it with advertisers.</p>
             </Section>
@@ -226,9 +226,9 @@ export default function PrivacyPolicyPage() {
             <Section id="transfers" num="05" title="International data transfers">
               <p>
                 Our database, authentication, and file storage (Supabase) are hosted in the EU
-                (Ireland). Some of our other processors — Vercel, Resend, Google, and LinkedIn —
+                (Ireland). Some of our other processors (Vercel, Resend, Google, and LinkedIn)
                 may store or process data outside the EU/EEA, including in the United States.
-                Where this happens, we rely on appropriate safeguards such as the EU&ndash;US
+                Where this happens, we rely on appropriate safeguards such as the EU-US
                 Data Privacy Framework or Standard Contractual Clauses (SCCs), as provided by
                 these vendors.
               </p>
@@ -239,7 +239,7 @@ export default function PrivacyPolicyPage() {
                 items={[
                   <><strong>Rejected applications:</strong> deleted or anonymised after 12 months, kept only long enough to handle appeals or repeat applications.</>,
                   <><strong>Approved member profiles:</strong> kept for as long as your account is active, plus 30 days after you delete your account, to handle immediate recovery requests.</>,
-                  <><strong>Content posts, Q&amp;A, quotes:</strong> kept until you delete them or your account is closed, since they form part of the Platform&rsquo;s shared knowledge base — removal on account deletion is handled on request (see Section 7).</>,
+                  <><strong>Content posts, Q&amp;A, quotes:</strong> kept until you delete them or your account is closed, since they form part of the Platform&rsquo;s shared knowledge base. Removal on account deletion is handled on request (see Section 7).</>,
                   <><strong>Messages:</strong> kept for as long as either party&rsquo;s account is active.</>,
                   <><strong>Server/access logs:</strong> kept for 90 days for security purposes, then deleted.</>,
                 ]}
@@ -254,12 +254,12 @@ export default function PrivacyPolicyPage() {
                   <><strong>Rectify</strong> inaccurate or incomplete data</>,
                   <><strong>Erase</strong> your data (&ldquo;right to be forgotten&rdquo;), subject to legal or legitimate-interest exceptions</>,
                   <><strong>Restrict</strong> processing in certain circumstances</>,
-                  <><strong>Data portability</strong> — receive your data in a structured, machine-readable format</>,
+                  <><strong>Data portability</strong>: receive your data in a structured, machine-readable format</>,
                   <><strong>Object</strong> to processing based on legitimate interest</>,
                   <><strong>Withdraw consent</strong> at any time, where processing is based on consent (e.g. OAuth sign-in), without affecting prior processing</>,
                   <>
-                    <strong>Lodge a complaint</strong> with a supervisory authority — either your
-                    own country&rsquo;s data protection authority, or ours: the{' '}
+                    <strong>Lodge a complaint</strong> with a supervisory authority: either your
+                    own country&rsquo;s data protection authority, or ours, the{' '}
                     <em>Landesbeauftragte für den Datenschutz und die Informationsfreiheit
                     Rheinland-Pfalz</em> (Rhineland-Palatinate, Germany), since that&rsquo;s where
                     the Platform is operated from
@@ -294,7 +294,7 @@ export default function PrivacyPolicyPage() {
 
             <Section id="children" num="10" title="Children">
               <p>
-                Tell The World is intended for professional use by adults — content creators,
+                Tell The World is intended for professional use by adults: content creators,
                 journalists, researchers, and organisations. It is not directed at, and we do not
                 knowingly collect data from, anyone under 16.
               </p>

@@ -98,7 +98,7 @@ export default function ContactPage() {
             Contact us
           </h1>
           <p className="font-body text-base leading-[1.7] text-ink-soft mb-10 max-w-md">
-            Questions, feedback, or a data privacy request — send us a message
+            Questions, feedback, or a data privacy request: send us a message
             and we&rsquo;ll get back to you. See our{' '}
             <Link href="/privacy" className="text-ink underline underline-offset-2 hover:text-ink-soft transition-colors">
               privacy policy

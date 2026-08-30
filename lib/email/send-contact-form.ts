@@ -46,7 +46,7 @@ export async function sendContactFormEmail(data: ContactFormEmailData) {
 
   return sendEmail({
     to: adminEmail,
-    subject: `[Contact form] ${data.topic} — ${data.name}`,
+    subject: `[Contact form] ${data.topic} from ${data.name}`,
     html: emailShell({ bodyHtml }),
     replyTo: data.email,
   })
