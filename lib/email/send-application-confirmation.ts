@@ -57,6 +57,7 @@ const ROLE_LABELS: Record<string, string> = {
   journalist:   'Journalist',
   expert:       'Expert / Researcher',
   organisation: 'Organisation',
+  comms_specialist: 'Communications Specialist',
   other:        'Other',
 }
 

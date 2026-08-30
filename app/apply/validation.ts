@@ -9,7 +9,7 @@ import type { ApplicationInput } from "@/lib/applications/actions";
 // the server re-validates everything (this form's validation is UX only).
 export type FormValues = ApplicationInput;
 
-export type Role = "creator" | "expert" | "organisation" | "journalist" | "other";
+export type Role = "creator" | "expert" | "organisation" | "journalist" | "comms_specialist" | "other";
 
 export type Errors = Partial<Record<keyof FormValues, string>>;
 

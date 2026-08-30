@@ -6,7 +6,7 @@ import Link from "next/link";
 import Logo from "@/components/ui/Logo";
 import { submitApplication } from "@/lib/applications/actions";
 import { Field, FormSection, SelectInput, TextareaInput, TextInput } from "./form-fields";
-import { CreatorFields, JournalistFields, ExpertFields, OrganisationFields, ExtrasFields } from "./role-sections";
+import { CreatorFields, JournalistFields, ExpertFields, OrganisationFields, CommsSpecialistFields, ExtrasFields } from "./role-sections";
 import {
   EMPTY,
   EMAIL_ERROR,
@@ -212,6 +212,7 @@ export default function ApplyPage() {
                   <option value="journalist">Journalist</option>
                   <option value="expert">Expert / Researcher</option>
                   <option value="organisation">Organisation</option>
+                  <option value="comms_specialist">Communications Specialist</option>
                   <option value="other">Other</option>
                 </SelectInput>
               </Field>
@@ -279,6 +280,9 @@ export default function ApplyPage() {
             )}
             {role === "organisation" && (
               <OrganisationFields form={form} errors={errors} set={set} />
+            )}
+            {role === "comms_specialist" && (
+              <CommsSpecialistFields form={form} errors={errors} set={set} handleBlur={handleBlur} />
             )}
 
             {/* ── Universal bottom section ──────────────────────────────── */}

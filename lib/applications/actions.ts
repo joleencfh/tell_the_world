@@ -78,7 +78,7 @@ function isRateLimited(key: string): boolean {
 // Validation
 // ---------------------------------------------------------------------------
 
-const ROLES = new Set(['creator', 'expert', 'organisation', 'journalist', 'other'])
+const ROLES = new Set(['creator', 'expert', 'organisation', 'journalist', 'comms_specialist', 'other'])
 
 // Generous ceilings — these exist to stop abuse, not to constrain real users.
 // The form enforces its own, tighter UX-level rules.
@@ -234,6 +234,11 @@ export async function submitApplication(form: ApplicationInput): Promise<SubmitR
     if (form.org_size) payload.org_size = form.org_size
     // Bio doubles as mission for orgs — mirror it into org_mission for admin queries
     payload.org_mission = form.bio.trim()
+  }
+
+  if (role === 'comms_specialist') {
+    if (form.affiliation.trim()) payload.affiliation = form.affiliation.trim()
+    if (form.job_title.trim()) payload.job_title = form.job_title.trim()
   }
 
   // Insert through the RLS client — the anon insert policy (003) only allows

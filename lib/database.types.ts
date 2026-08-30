@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.17"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -847,6 +847,7 @@ export type Database = {
           body: string | null
           brief_id: string | null
           created_at: string
+          flagged_terms: Json | null
           id: string
           post_type: Database["public"]["Enums"]["post_type"]
           quote_source: string
@@ -863,6 +864,7 @@ export type Database = {
           body?: string | null
           brief_id?: string | null
           created_at?: string
+          flagged_terms?: Json | null
           id?: string
           post_type: Database["public"]["Enums"]["post_type"]
           quote_source?: string
@@ -879,6 +881,7 @@ export type Database = {
           body?: string | null
           brief_id?: string | null
           created_at?: string
+          flagged_terms?: Json | null
           id?: string
           post_type?: Database["public"]["Enums"]["post_type"]
           quote_source?: string
@@ -1659,6 +1662,7 @@ export type Database = {
         | "organisation"
         | "journalist"
         | "other"
+        | "comms_specialist"
       application_status: "pending" | "approved" | "rejected"
       availability_status: "open" | "limited" | "unavailable"
       brief_contribution_status: "pending" | "published" | "archived"
@@ -1676,7 +1680,14 @@ export type Database = {
       org_size: "small" | "medium" | "large"
       post_type: "video" | "article" | "paper" | "quote" | "resource"
       primary_platform: "youtube" | "podcast" | "instagram" | "tiktok" | "other"
-      user_role: "creator" | "expert" | "organisation" | "journalist" | "admin"
+      user_role:
+        | "creator"
+        | "expert"
+        | "organisation"
+        | "journalist"
+        | "admin"
+        | "comms_specialist"
+        | "other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1810,6 +1821,7 @@ export const Constants = {
         "organisation",
         "journalist",
         "other",
+        "comms_specialist",
       ],
       application_status: ["pending", "approved", "rejected"],
       availability_status: ["open", "limited", "unavailable"],
@@ -1829,7 +1841,15 @@ export const Constants = {
       org_size: ["small", "medium", "large"],
       post_type: ["video", "article", "paper", "quote", "resource"],
       primary_platform: ["youtube", "podcast", "instagram", "tiktok", "other"],
-      user_role: ["creator", "expert", "organisation", "journalist", "admin"],
+      user_role: [
+        "creator",
+        "expert",
+        "organisation",
+        "journalist",
+        "admin",
+        "comms_specialist",
+        "other",
+      ],
     },
   },
 } as const

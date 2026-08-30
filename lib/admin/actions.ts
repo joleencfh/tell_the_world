@@ -25,7 +25,7 @@ export interface Application {
   first_name: string | null
   last_name: string | null
   email: string
-  desired_role: 'creator' | 'expert' | 'organisation' | 'journalist' | 'other'
+  desired_role: 'creator' | 'expert' | 'organisation' | 'journalist' | 'comms_specialist' | 'other'
   desired_role_other: string | null
   bio: string
   website_url: string | null
@@ -97,9 +97,6 @@ export async function approveApplication(applicationId: string): Promise<{ succe
 
   if (fetchError || !app) return { error: 'Application not found.' }
   if (app.status !== 'pending') return { error: 'This application is no longer pending.' }
-  if (app.desired_role === 'other') {
-    return { error: 'Cannot approve an "other" role application from the admin screen. Assign a specific role manually in Supabase first, then approve.' }
-  }
 
   // 2. Create auth user (email already confirmed — we handle the email ourselves)
   const { data: authData, error: authError } = await getAdminClient().auth.admin.createUser({
@@ -123,9 +120,9 @@ export async function approveApplication(applicationId: string): Promise<{ succe
   const displayName = app.full_name || [app.first_name, app.last_name].filter(Boolean).join(' ') || app.email
 
   // 4. Insert into users table — the service role bypasses RLS.
-  // Cast: role/platform/size are validated above (the 'other' role is rejected
-  // earlier, platform and size are mapped to their enums), but arrive typed as
-  // the wider application column types.
+  // Cast: application_role and user_role share every value (056), so this
+  // is a safe direct mapping; platform and size are mapped to their enums
+  // above, but arrive typed as the wider application column types.
   const newUser: TablesInsert<'users'> = {
     id: userId,
     email: app.email,

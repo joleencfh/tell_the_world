@@ -260,6 +260,53 @@ export function ExpertFields({ form, errors, set, handleBlur }: SectionProps) {
   );
 }
 
+export function CommsSpecialistFields({ form, errors, set, handleBlur }: SectionProps) {
+  return (
+    <FormSection legend="Your communications work">
+      <Field
+        label="Affiliation"
+        hint="Where you currently do (or have done) communications work, e.g. an agency, org, or 'Independent'."
+        error={errors.affiliation}
+        fieldId="affiliation"
+      >
+        <TextInput
+          type="text"
+          value={form.affiliation}
+          onChange={(v) => set("affiliation", v)}
+          placeholder="e.g. Independent, or an org/agency name"
+          hasError={!!errors.affiliation}
+        />
+      </Field>
+
+      <Field label="Job title" error={errors.job_title} fieldId="job_title">
+        <TextInput
+          type="text"
+          value={form.job_title}
+          onChange={(v) => set("job_title", v)}
+          placeholder="e.g. Communications Lead"
+          hasError={!!errors.job_title}
+        />
+      </Field>
+
+      <Field
+        label="Work sample"
+        hint="Link to a piece of comms work you're proud of, e.g. a campaign, a piece of messaging, coverage you helped land."
+        error={errors.sample_work_url}
+        fieldId="sample_work_url"
+      >
+        <TextInput
+          type="url"
+          value={form.sample_work_url}
+          onChange={(v) => set("sample_work_url", v)}
+          onBlur={() => handleBlur("sample_work_url")}
+          placeholder="https://"
+          hasError={!!errors.sample_work_url}
+        />
+      </Field>
+    </FormSection>
+  );
+}
+
 export function OrganisationFields({ form, errors, set }: Omit<SectionProps, "handleBlur">) {
   return (
     <FormSection legend="Your organisation">
