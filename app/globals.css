@@ -262,3 +262,37 @@ body {
   .anim-modal-panel-in, .anim-modal-panel-out,
   .anim-step-in { animation: none; }
 }
+
+/* ── Home dashboard: shadow-block frame (components/ui, app/home) ──── */
+
+/* A solid-color rectangle offset behind its sibling frame, poster-style —
+   used once, on the Highlighted module's outer wrapper. The wrapper itself
+   only owns the offset block; the frame's own border/background is the
+   consumer's concern, so this stays a pure positioning utility rather than
+   baking in Highlighted-specific chrome.
+   Reference: "Two-Ink Bold Dashboard" artifact .spotlight-wrap.variant-shadow. */
+.shadow-block {
+  position: relative;
+  padding: 0 10px 10px 0;
+}
+.shadow-block::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--color-blue);
+  transform: translate(10px, 10px);
+  z-index: 0;
+}
+.shadow-block > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Home dashboard: sliding tab track (app/home/sliding-tabs.tsx) ──── */
+
+.slide-track {
+  transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .slide-track { transition: none; }
+}
