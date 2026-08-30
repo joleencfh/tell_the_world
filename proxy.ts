@@ -8,6 +8,8 @@ const PUBLIC_ROUTES = new Set([
   '/apply',
   '/apply/pending',
   '/apply/rejected',
+  '/privacy',
+  '/contact',
 ])
 
 function isPublicRoute(pathname: string): boolean {
