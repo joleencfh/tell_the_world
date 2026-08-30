@@ -53,17 +53,17 @@ function FAQBlock({
           aria-controls={panelId}
           onClick={() => setIsOpen((v) => !v)}
           style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-          className="flex w-full items-center justify-between gap-4 py-[1.15rem] text-left outline-none focus-visible:ring-2 focus-visible:ring-blue"
+          className="flex w-full items-center justify-between gap-4 py-[0.85rem] sm:py-[1.15rem] text-left outline-none focus-visible:ring-2 focus-visible:ring-blue"
         >
           <span
-            className="font-display font-extrabold text-ink"
-            style={{ fontSize: '1.04rem', letterSpacing: '-0.005em' }}
+            className="font-display font-extrabold text-ink text-[0.875rem] sm:text-[1.04rem]"
+            style={{ letterSpacing: '-0.005em' }}
           >
             {item.question}
           </span>
           <span
             aria-hidden
-            className={`shrink-0 font-mono text-[1.1rem] font-bold text-blue transition-transform duration-300 motion-reduce:transition-none ${
+            className={`shrink-0 font-mono text-[0.95rem] sm:text-[1.1rem] font-bold text-blue transition-transform duration-300 motion-reduce:transition-none ${
               isOpen ? 'rotate-45' : ''
             }`}
           >
@@ -73,7 +73,7 @@ function FAQBlock({
       </h3>
       <div id={panelId} role="region" aria-labelledby={triggerId} hidden={!isOpen}>
         {isOpen && (
-          <div className="anim-drawer max-w-[68ch] space-y-4 pb-[1.3rem]">
+          <div className="anim-drawer max-w-[68ch] space-y-2.5 sm:space-y-4 pb-[1rem] sm:pb-[1.3rem]">
             <div>
               {/* Primary-answer byline (Part 6 step 1) — was previously
                   unlabeled, unlike expert-submitted "More answers" cards
@@ -86,10 +86,11 @@ function FAQBlock({
               </div>
               {(() => {
                 const doc = parseRichContent(meta?.richContent)
+                const answerClassName = 'font-body text-[0.8125rem] sm:text-[0.96rem] leading-[1.5] sm:leading-[1.68] text-ink'
                 return doc ? (
-                  renderRichText(doc, { paragraphClassName: () => 'font-body text-[0.96rem] leading-[1.68] text-ink' })
+                  renderRichText(doc, { paragraphClassName: () => answerClassName })
                 ) : (
-                  <p className="font-body text-[0.96rem] leading-[1.68] text-ink">{item.answer}</p>
+                  <p className={answerClassName}>{item.answer}</p>
                 )
               })()}
             </div>

@@ -145,7 +145,7 @@ function QuestionCard({
       <AuthorBar author={question.users} date={question.created_at} />
 
       <div className="flex items-start gap-3">
-        <p className="min-w-0 flex-1 break-words font-display text-xl font-extrabold text-ink [text-wrap:balance]">
+        <p className="min-w-0 flex-1 break-words font-display text-base sm:text-xl font-extrabold text-ink [text-wrap:balance]">
           {question.question_text}
         </p>
         <ExpandToggle isOpen={isOpen} onToggle={() => setIsOpen((v) => !v)} panelId={panelId} />

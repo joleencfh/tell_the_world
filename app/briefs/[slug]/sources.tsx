@@ -38,7 +38,7 @@ function SourceCard({
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClick() }}
       style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-      className={`group flex cursor-pointer select-none items-center gap-3.5 border border-line border-l-[3px] bg-paper px-4 py-3 outline-none transition-all duration-150 motion-reduce:transition-none focus-visible:ring-2 focus-visible:ring-blue
+      className={`group flex cursor-pointer select-none items-center gap-2.5 sm:gap-3.5 border border-line border-l-[3px] bg-paper px-3 py-2 sm:px-4 sm:py-3 outline-none transition-all duration-150 motion-reduce:transition-none focus-visible:ring-2 focus-visible:ring-blue
         ${isSelected
           ? 'border-l-blue ring-1 ring-blue/20'
           : isOtherSelected
@@ -46,26 +46,31 @@ function SourceCard({
             : 'border-l-blue/50 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:border-blue hover:shadow-[3px_3px_0_0_var(--color-blue)]'
         }`}
     >
-      <span className="shrink-0 font-mono text-xs font-bold tabular-nums tracking-[0.15em] text-blue-ink">
+      <span className="shrink-0 font-mono text-[11px] sm:text-xs font-bold tabular-nums tracking-[0.15em] text-blue-ink">
         {String(index + 1).padStart(2, '0')}
       </span>
 
       <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-baseline gap-x-2.5">
-          <p className={`font-body text-[0.9rem] font-bold leading-snug transition-colors ${isSelected ? 'text-blue-ink' : 'text-ink group-hover:text-blue-ink'}`}>
+        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-baseline gap-x-2.5">
+          <p className={`font-body text-[0.8rem] sm:text-[0.9rem] font-bold leading-snug transition-colors ${isSelected ? 'text-blue-ink' : 'text-ink group-hover:text-blue-ink'}`}>
             {item.title}
           </p>
           {/* Publisher — provenance (Part 5 step 5), required at authoring
               time (lib/admin/brief-actions.ts's saveBrief rejects a source
-              with no Publisher line) so every card can show one. */}
+              with no Publisher line) so every card can show one. Its own
+              line on mobile (not sharing the title's line) keeps the card
+              thin without crowding a long title — sm+ reverts to the
+              original inline-wrap treatment. */}
           {item.publisher && (
-            <span className="shrink-0 font-mono text-[10px] uppercase tracking-[0.1em] text-ink-faint">
+            <span className="shrink-0 font-mono text-[9px] sm:text-[10px] uppercase tracking-[0.1em] text-ink-faint mt-0.5 sm:mt-0">
               {item.publisher}
             </span>
           )}
         </div>
+        {/* Description hidden on mobile — it's what made the collapsed row
+            tall on a phone; sm+ still shows it since there's room there. */}
         {item.description && (
-          <p className="mt-0.5 line-clamp-2 font-body text-sm leading-snug text-ink-soft">
+          <p className="mt-0.5 line-clamp-2 font-body text-sm leading-snug text-ink-soft hidden sm:block">
             {item.description}
           </p>
         )}
@@ -78,10 +83,10 @@ function SourceCard({
           rel="noopener noreferrer"
           aria-label={`Visit source: ${item.title}`}
           style={{ touchAction: 'manipulation' }}
-          className="group/link flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-soft text-blue-ink transition-all hover:bg-blue hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue"
+          className="group/link flex h-6 w-6 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-blue-soft text-blue-ink transition-all hover:bg-blue hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue"
           onClick={(e) => e.stopPropagation()}
         >
-          <span className="text-sm transition-transform group-hover/link:translate-x-0.5" aria-hidden>→</span>
+          <span className="text-xs sm:text-sm transition-transform group-hover/link:translate-x-0.5" aria-hidden>→</span>
         </a>
       )}
     </div>
@@ -224,7 +229,7 @@ export function SourcesGrid({ items }: { items: SourceItem[] }) {
   const canCollapse = showAll && items.length > PAGE_SIZE
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2 sm:space-y-3">
       {visibleItems.map((item, i) => (
         <div key={i}>
           <SourceCard
