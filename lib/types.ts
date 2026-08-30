@@ -30,6 +30,14 @@ type Enums<T extends keyof PublicSchema['Enums']> = PublicSchema['Enums'][T]
 // ─── Enums (from the Postgres enum types) ──────────────────────────────────
 
 export type UserRole = Enums<'user_role'>
+
+// Roles the deterministic clarity check (lib/clarity/check.ts) applies to,
+// and the same set allowed to submit brief-attached quotes (submitQuote,
+// lib/briefs/actions.ts) — lives here (a plain module, not a 'use server'
+// action file) so both lib/briefs/actions.ts and lib/posts/actions.ts can
+// import it without pulling one 'use server' file's whole export surface
+// into the other.
+export const CONTRIBUTOR_ROLES: UserRole[] = ['expert', 'organisation']
 export type ApplicationRole = Enums<'application_role'>
 export type AvailabilityStatus = Enums<'availability_status'>
 export type PrimaryPlatform = Enums<'primary_platform'>

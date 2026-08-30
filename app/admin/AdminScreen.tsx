@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { createBrief } from '@/lib/admin/brief-actions'
 import type { BriefOption } from '@/lib/admin/brief-actions'
-import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingQuestionAnswer, PendingCta, PublishedCta, PendingCoverage, PendingBriefFeedback, PendingQuote, BriefReview, WaitlistSignup, AnalyticsEventRow } from '@/lib/admin/actions'
+import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingQuestionAnswer, PendingCta, PublishedCta, PendingCoverage, PendingBriefFeedback, PendingContentPost, BriefReview, WaitlistSignup, AnalyticsEventRow } from '@/lib/admin/actions'
 import type { PendingContentiousPoint } from '@/lib/admin/explainer-actions'
 import { ADMIN_PAGE_SIZE } from '@/lib/data/admin'
 import Pagination from '@/components/ui/Pagination'
@@ -15,7 +15,7 @@ import { FaqAnswerCard } from './faq-answer-card'
 import { ContentiousPointCard } from './contentious-point-card'
 import { QuestionAnswerCard } from './question-answer-card'
 import { CtaCard, PublishedCtaCard } from './cta-card'
-import { QuoteCard } from './quote-card'
+import { ContentPostCard } from './content-post-card'
 import { CoverageCard } from './coverage-card'
 import { FeedbackCard } from './feedback-card'
 import { ReviewCard } from './review-card'
@@ -57,8 +57,8 @@ interface Props {
   publishedCtas: PublishedCta[]
   publishedCtasCount: number
   publishedCtasPage: number
-  pendingQuotes: PendingQuote[]
-  pendingQuotesCount: number
+  pendingContentPosts: PendingContentPost[]
+  pendingContentPostsCount: number
   quotesPage: number
   pendingCoverage: PendingCoverage[]
   pendingCoverageCount: number
@@ -114,8 +114,8 @@ export default function AdminScreen({
   publishedCtas,
   publishedCtasCount,
   publishedCtasPage,
-  pendingQuotes,
-  pendingQuotesCount,
+  pendingContentPosts,
+  pendingContentPostsCount,
   quotesPage,
   pendingCoverage,
   pendingCoverageCount,
@@ -161,7 +161,7 @@ export default function AdminScreen({
     { key: 'contentiousPoints', label: 'Contentious points', count: pendingContentiousPointsCount },
     { key: 'questionAnswers', label: 'Q&A answers', count: pendingQuestionAnswersCount },
     { key: 'ctas', label: 'Calls to action', count: pendingCtasCount },
-    { key: 'quotes', label: 'Quotes', count: pendingQuotesCount },
+    { key: 'quotes', label: 'Contributor submissions', count: pendingContentPostsCount },
     { key: 'coverage', label: 'Coverage', count: pendingCoverageCount },
     { key: 'feedback', label: 'Feedback', count: pendingBriefFeedbackCount },
     { key: 'reviews', label: 'Reviews & endorsements', count: briefReviewsCount },
@@ -439,24 +439,28 @@ export default function AdminScreen({
             </>
           )}
 
-          {/* Pending quotes tab */}
+          {/* Pending contributor submissions tab — brief-attached quotes
+              (submitQuote) and profile posts (createPost) both land here,
+              only when the deterministic clarity check flagged them (see
+              lib/clarity/check.ts and lib/data/admin.ts's
+              getPendingContentPosts). */}
           {tab === 'quotes' && (
             <>
-              {pendingQuotes.length === 0 ? (
+              {pendingContentPosts.length === 0 ? (
                 <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-                  No pending quotes.
+                  No pending submissions.
                 </p>
               ) : (
                 <div className="flex flex-col gap-2">
-                  {pendingQuotes.map(q => (
-                    <QuoteCard key={q.id} quote={q} />
+                  {pendingContentPosts.map(q => (
+                    <ContentPostCard key={q.id} quote={q} />
                   ))}
                 </div>
               )}
               <Pagination
                 page={quotesPage}
                 pageSize={ADMIN_PAGE_SIZE}
-                total={pendingQuotesCount}
+                total={pendingContentPostsCount}
                 buildHref={(p) => buildPageHref('quotesPage', p)}
               />
             </>

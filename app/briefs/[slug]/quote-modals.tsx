@@ -5,7 +5,10 @@ import { submitQuote } from '@/lib/briefs/actions'
 import { createSourcedQuote } from '@/lib/admin/actions'
 import { formatDate } from './helpers'
 import { LikeButton, CopyButton, QuoteAuthorFooter } from './quotes'
+import { useClarityGate } from '@/lib/clarity/useClarityGate'
+import { ClarityFlagsPanel } from '@/components/ClarityFlagsPanel'
 import type { Quote } from './page'
+import type { UserRole } from '@/lib/types'
 
 type AttributeTo = 'myself' | 'person' | 'document' | 'ai'
 
@@ -89,6 +92,7 @@ export function AddQuoteModal({
   briefTitle,
   defaultTags,
   isAdmin,
+  userRole,
   onClose,
 }: {
   briefId: string
@@ -96,6 +100,7 @@ export function AddQuoteModal({
   briefTitle: string
   defaultTags: string[]
   isAdmin: boolean
+  userRole: UserRole
   onClose: () => void
 }) {
   const [attributeTo, setAttributeTo] = useState<AttributeTo>('myself')
@@ -113,9 +118,26 @@ export function AddQuoteModal({
   const isSubmitted = feedback?.type === 'success'
   const canSubmit = body.trim().length > 0 && (!isSourced || (sourceName.trim().length > 0 && sourceUrl.trim().length > 0))
 
+  // Clarity check only applies to the non-sourced (submitQuote) path, and
+  // only for expert/organisation — admin's own submitQuote path keeps its
+  // pre-existing unconditional pending status regardless (see
+  // lib/briefs/actions.ts), so gating the fix-it loop for admin here would
+  // just be friction with no effect on the outcome.
+  const isGated = !isSourced && (userRole === 'expert' || userRole === 'organisation')
+  const clarityGate = useClarityGate(body, isGated)
+  const needsFlagReview = isGated && clarityGate.status === 'flagged' && !clarityGate.confirmedAnyway
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setFeedback(null)
+
+    // First submit attempt while flagged: show the flags instead of
+    // publishing/queuing anything yet.
+    if (needsFlagReview) {
+      clarityGate.confirmAnyway()
+      return
+    }
+
     startTransition(async () => {
       const result = isSourced
         ? await createSourcedQuote(briefId, briefSlug, {
@@ -140,7 +162,9 @@ export function AddQuoteModal({
           type: 'success',
           message: isSourced
             ? 'Quote published.'
-            : 'Quote submitted for review — it will appear here once approved.',
+            : 'status' in result && result.status === 'pending'
+              ? 'Quote submitted for review — it will appear here once approved.'
+              : 'Quote published.',
         })
       }
     })
@@ -274,6 +298,8 @@ export function AddQuoteModal({
             </p>
           </div>
 
+          {isGated && <ClarityFlagsPanel flaggedTerms={clarityGate.flaggedTerms} variant="ink" />}
+
           {feedback && (
             <p
               role={feedback.type === 'error' ? 'alert' : undefined}
@@ -294,7 +320,15 @@ export function AddQuoteModal({
                 style={{ touchAction: 'manipulation' }}
                 className="bg-ink px-6 py-3 font-mono text-xs uppercase tracking-widest text-paper transition-opacity hover:opacity-90 disabled:opacity-40"
               >
-                {isPending ? 'Submitting…' : isSourced ? 'Publish quote' : 'Submit for review'}
+                {isPending
+                  ? 'Submitting…'
+                  : isSourced
+                    ? 'Publish quote'
+                    : needsFlagReview
+                      ? 'Review flags'
+                      : isGated && clarityGate.status === 'flagged'
+                        ? 'Submit anyway'
+                        : 'Publish quote'}
               </button>
             )}
             <button

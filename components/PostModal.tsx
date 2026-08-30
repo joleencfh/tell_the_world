@@ -3,6 +3,9 @@
 import { useEffect, useState, useTransition } from 'react'
 import { createPost, updatePost, deletePost } from '@/lib/posts/actions'
 import type { PostType } from '@/lib/posts/actions'
+import { useClarityGate } from '@/lib/clarity/useClarityGate'
+import { ClarityFlagsPanel } from '@/components/ClarityFlagsPanel'
+import type { UserRole } from '@/lib/types'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -19,6 +22,8 @@ export interface PostData {
 
 interface PostModalProps {
   currentUserId: string
+  /** Gates the clarity-check fix-it loop — only expert/organisation, and only in create mode (see useClarityGate wiring below). */
+  currentUserRole?: UserRole
   /** Pass an existing post to open in edit mode; omit or null for create mode */
   existingPost?: PostData | null
   onClose: () => void
@@ -102,6 +107,7 @@ function TagInput({ tags, onChange }: { tags: string[]; onChange: (tags: string[
 
 export default function PostModal({
   currentUserId,
+  currentUserRole,
   existingPost,
   onClose,
   onSuccess,
@@ -118,6 +124,13 @@ export default function PostModal({
   const [body, setBody] = useState(existingPost?.body ?? '')
   const [url, setUrl] = useState(existingPost?.url ?? '')
   const [topicTags, setTopicTags] = useState<string[]>(existingPost?.topic_tags ?? [])
+
+  // Clarity check only applies to new expert/org submissions (createPost) —
+  // updatePost isn't checked (see lib/posts/actions.ts), so the gate stays
+  // off in edit mode. Server-side re-checks independently either way.
+  const isGated = !isEditMode && (currentUserRole === 'expert' || currentUserRole === 'organisation')
+  const clarityGate = useClarityGate(`${title}\n\n${body}`, isGated)
+  const needsFlagReview = isGated && clarityGate.status === 'flagged' && !clarityGate.confirmedAnyway
 
   // Close on Escape
   useEffect(() => {
@@ -137,6 +150,14 @@ export default function PostModal({
   function handleSave(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
+
+    // First submit attempt while flagged: show the flags instead of
+    // publishing/queuing anything yet. A second click (button now reads
+    // "Submit anyway") re-enters here with confirmedAnyway already true.
+    if (needsFlagReview) {
+      clarityGate.confirmAnyway()
+      return
+    }
 
     startTransition(async () => {
       const payload = {
@@ -318,6 +339,8 @@ export default function PostModal({
               <p className="text-xs text-gray-400">Press Enter or comma to add a tag</p>
             </div>
 
+            {isGated && <ClarityFlagsPanel flaggedTerms={clarityGate.flaggedTerms} />}
+
             {error && (
               <p className="text-sm text-red-600 border border-red-200 rounded-lg px-3 py-2 bg-red-50">
                 {error}
@@ -355,10 +378,16 @@ export default function PostModal({
                   {isPending
                     ? isEditMode
                       ? 'Saving…'
-                      : 'Publishing…'
+                      : clarityGate.confirmedAnyway
+                        ? 'Submitting…'
+                        : 'Publishing…'
                     : isEditMode
                       ? 'Save changes'
-                      : 'Publish post'}
+                      : needsFlagReview
+                        ? 'Review flags'
+                        : isGated && clarityGate.status === 'flagged'
+                          ? 'Submit anyway'
+                          : 'Publish post'}
                 </button>
               </div>
             </div>

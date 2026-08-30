@@ -340,6 +340,7 @@ export default function ProfileView({
       {postModalOpen && (
         <PostModal
           currentUserId={currentUserId}
+          currentUserRole={currentUser?.role}
           existingPost={editingPost}
           onClose={() => setPostModalOpen(false)}
           onSuccess={handlePostSuccess}

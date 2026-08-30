@@ -9,7 +9,7 @@ import {
   getPendingQuestionAnswers,
   getPendingCtas,
   getPublishedCtasAdmin,
-  getPendingQuotes,
+  getPendingContentPosts,
   getPendingCoverage,
   getPendingBriefFeedback,
   getBriefReviews,
@@ -68,7 +68,7 @@ export default async function AdminPage({
     getPendingQuestionAnswers(questionAnswersPage),
     getPendingCtas(ctasPage),
     getPublishedCtasAdmin(publishedCtasPage),
-    getPendingQuotes(quotesPage),
+    getPendingContentPosts(quotesPage),
     getPendingCoverage(coveragePage),
     getPendingBriefFeedback(feedbackPage),
     getBriefReviews(reviewsPage),
@@ -108,8 +108,8 @@ export default async function AdminPage({
       publishedCtas={publishedCtasResult.data}
       publishedCtasCount={publishedCtasResult.count}
       publishedCtasPage={publishedCtasPage}
-      pendingQuotes={quotesResult.data}
-      pendingQuotesCount={quotesResult.count}
+      pendingContentPosts={quotesResult.data}
+      pendingContentPostsCount={quotesResult.count}
       quotesPage={quotesPage}
       pendingCoverage={coverageResult.data}
       pendingCoverageCount={coverageResult.count}

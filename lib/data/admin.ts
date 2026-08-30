@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/lib/database.types'
-import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingQuestionAnswer, PendingCta, PublishedCta, PendingCoverage, PendingBriefFeedback, PendingQuote, BriefReview, WaitlistSignup, AnalyticsEventRow } from '@/lib/admin/actions'
+import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingQuestionAnswer, PendingCta, PublishedCta, PendingCoverage, PendingBriefFeedback, PendingContentPost, BriefReview, WaitlistSignup, AnalyticsEventRow } from '@/lib/admin/actions'
 import type { PendingContentiousPoint } from '@/lib/admin/explainer-actions'
 
 // Data-access layer for admin queue reads. See lib/data/briefs.ts for the
@@ -132,7 +132,14 @@ export async function getPublishedCtasAdmin(db: DB, page = 1): Promise<PagedResu
   return { data: error ? [] : (data as unknown as PublishedCta[]) ?? [], count: count ?? 0 }
 }
 
-export async function getPendingQuotes(db: DB, page = 1): Promise<PagedResult<PendingQuote>> {
+// Any pending content_posts row — not just quotes, and not just
+// brief-scoped ones. Under the deterministic clarity check
+// (lib/clarity/check.ts), a submission only lands here when it was
+// actually flagged: brief-attached quotes (submitQuote) and profile posts
+// of any post_type (createPost) both feed the same queue now, so this
+// selects flagged_terms too (the reason it's here) and post_type/body
+// (needed to render a non-quote post generically — see ContentPostCard).
+export async function getPendingContentPosts(db: DB, page = 1): Promise<PagedResult<PendingContentPost>> {
   // content_posts has two FK paths to briefs (this row's own brief_id, and
   // briefs.pinned_media_post_id pointing back at a content_posts row) — the
   // bare `briefs(...)` embed PostgREST shorthand every other query in this
@@ -140,13 +147,12 @@ export async function getPendingQuotes(db: DB, page = 1): Promise<PagedResult<Pe
   // name the specific constraint (030_content_posts_brief_id.sql).
   const { data, error, count } = await db
     .from('content_posts')
-    .select('id, title, topic_tags, created_at, brief_id, briefs!content_posts_brief_id_fkey(title, slug), users(id, display_name, email, role)', { count: 'exact' })
-    .eq('post_type', 'quote')
+    .select('id, post_type, title, body, topic_tags, flagged_terms, created_at, brief_id, briefs!content_posts_brief_id_fkey(title, slug), users(id, display_name, email, role)', { count: 'exact' })
     .eq('status', 'pending')
     .order('created_at', { ascending: true })
     .range(...range(page))
 
-  return { data: error ? [] : (data as unknown as PendingQuote[]) ?? [], count: count ?? 0 }
+  return { data: error ? [] : (data as unknown as PendingContentPost[]) ?? [], count: count ?? 0 }
 }
 
 export async function getPendingCoverage(db: DB, page = 1): Promise<PagedResult<PendingCoverage>> {
