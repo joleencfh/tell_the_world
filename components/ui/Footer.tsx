@@ -1,9 +1,22 @@
 import Link from 'next/link'
 
-export default function Footer() {
+interface FooterProps {
+  // 'bold' matches the Brief page's reference-artifact footer (2px
+  // border-ink on the inner wrapper, tighter max-width) — see
+  // tests/two-ink-bold-11g-remnants.spec.ts, which regression-tests that
+  // exact treatment. Every other page uses the plain 1px border-line look.
+  variant?: 'default' | 'bold'
+}
+
+export default function Footer({ variant = 'default' }: FooterProps) {
+  const isBold = variant === 'bold'
   return (
-    <footer className="border-t border-line px-6 py-8 mt-16">
-      <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4">
+    <footer className={isBold ? 'px-6 pt-8 pb-12' : 'border-t border-line px-6 py-8 mt-16'}>
+      <div
+        className={`mx-auto flex flex-wrap items-center justify-between gap-4 ${
+          isBold ? 'max-w-4xl border-t-2 border-ink pt-6' : 'max-w-5xl'
+        }`}
+      >
         <span className="inline-flex items-center gap-[0.55rem] font-body text-sm font-bold text-ink-soft tracking-tight opacity-80">
           <span className="relative inline-block h-3 w-3 shrink-0" aria-hidden>
             <span className="absolute inset-0 rounded-full bg-pink" />

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Logo from '@/components/ui/Logo'
 import DarkBand from '@/components/ui/DarkBand'
 import SignOutButton from '@/components/ui/SignOutButton'
+import Footer from '@/components/ui/Footer'
 import {
   SECTION_ORDER,
   SECTION_META,
@@ -651,20 +652,7 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
 
       </main>
 
-      {/* ── Footer ───────────────────────────────────────────────────── */}
-      <footer className="px-6 pt-8 pb-12">
-        <div className="mx-auto flex max-w-4xl items-center justify-between border-t-2 border-ink pt-6">
-          <span className="font-body text-sm font-bold text-ink-soft/60 tracking-tight">
-            Tell <em className="italic">The</em> World
-          </span>
-          <Link
-            href={isLoggedIn ? '/home' : '/'}
-            className="font-mono text-[9px] tracking-[0.15em] uppercase text-ink-soft/60 hover:text-ink-soft transition-colors"
-          >
-            ← Back to home
-          </Link>
-        </div>
-      </footer>
+      <Footer variant="bold" />
 
     </div>
   )

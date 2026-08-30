@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Logo from "@/components/ui/Logo";
+import Footer from "@/components/ui/Footer";
 import { submitApplication } from "@/lib/applications/actions";
 import { Field, FormSection, SelectInput, TextareaInput, TextInput } from "./form-fields";
 import { CreatorFields, JournalistFields, ExpertFields, OrganisationFields, ExtrasFields } from "./role-sections";
@@ -335,6 +336,8 @@ export default function ApplyPage() {
           </form>
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 }
