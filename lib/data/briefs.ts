@@ -120,6 +120,21 @@ export async function getBriefWithSectionsBySlug(
   return { ...data, topic_tag: data.topic_tags[0] ?? null } as BriefWithSections
 }
 
+// The dashboard's Highlighted brief (home-dashboard Part 1 step 1) — admin-
+// curated via briefs.dashboard_featured (migration 057), enforced to at most
+// one true row by a partial unique index. Returns null when no brief has
+// been marked featured yet; Part 3's UI must treat that as "render nothing"
+// rather than an error.
+export async function getFeaturedBrief(db: DB): Promise<string | null> {
+  const { data } = await db
+    .from('briefs')
+    .select('id')
+    .eq('dashboard_featured', true)
+    .maybeSingle()
+
+  return data?.id ?? null
+}
+
 export async function getRecentBriefs(db: DB, limit = 5): Promise<BriefListItem[]> {
   const { data } = await db
     .from('briefs')

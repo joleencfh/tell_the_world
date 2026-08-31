@@ -28,6 +28,11 @@ export interface Brief {
   last_reviewed_at: string | null
   tldr_teaser: string | null
   visibility: 'public' | 'members_only'
+  // Home dashboard Part 1 step 1 (migration 057) — admin-curated Highlighted
+  // brief. At most one row can be true at a time (partial unique index);
+  // saveBrief below enforces the "only one" invariant at the app layer too,
+  // since a unique-index violation would otherwise surface as a raw DB error.
+  dashboard_featured: boolean | null
   created_at: string
   updated_at: string
 }
@@ -236,6 +241,7 @@ export async function saveBrief(
     tldrTeaser: string
     pinnedMediaPostId: string | null
     visibility: 'public' | 'members_only'
+    dashboardFeatured: boolean
     sections: Array<{
       id: string | null
       section_type: BriefSectionType
@@ -280,6 +286,18 @@ export async function saveBrief(
   // so the underlying column stays the source of truth.
   const topicTagTrimmed = data.topicTag.trim()
 
+  // At most one brief can be dashboard_featured (partial unique index,
+  // migration 057) — clear any other true row first so setting this one
+  // never trips the index and surfaces a raw DB error to the admin.
+  if (data.dashboardFeatured) {
+    const { error: clearError } = await getAdminClient()
+      .from('briefs')
+      .update({ dashboard_featured: false })
+      .eq('dashboard_featured', true)
+      .neq('id', briefId)
+    if (clearError) return { error: clearError.message }
+  }
+
   const updates: Record<string, unknown> = {
     title: data.title,
     subtitle: data.subtitle.trim() || null,
@@ -287,6 +305,7 @@ export async function saveBrief(
     tldr_teaser: data.tldrTeaser.trim() || null,
     pinned_media_post_id: data.pinnedMediaPostId,
     visibility: data.visibility,
+    dashboard_featured: data.dashboardFeatured,
   }
 
   // Replace the placeholder slug with a title-derived one on the first save

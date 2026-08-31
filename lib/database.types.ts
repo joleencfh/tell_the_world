@@ -759,6 +759,7 @@ export type Database = {
       briefs: {
         Row: {
           created_at: string
+          dashboard_featured: boolean | null
           id: string
           last_reviewed_at: string | null
           pinned_media_post_id: string | null
@@ -772,6 +773,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          dashboard_featured?: boolean | null
           id?: string
           last_reviewed_at?: string | null
           pinned_media_post_id?: string | null
@@ -785,6 +787,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          dashboard_featured?: boolean | null
           id?: string
           last_reviewed_at?: string | null
           pinned_media_post_id?: string | null
