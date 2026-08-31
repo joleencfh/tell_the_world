@@ -106,11 +106,17 @@ export function TLDRList({ content }: { content: string }) {
 // Header chip — endorsement bar / last-reviewed / read-time pills
 // ---------------------------------------------------------------------------
 
-const CHIP_TONE_CLASSES: Record<'blue' | 'pink' | 'default' | 'tag', string> = {
+const CHIP_TONE_CLASSES: Record<'blue' | 'pink' | 'default' | 'tag' | 'spotlight', string> = {
   blue: 'bg-blue-soft text-blue-ink border-blue/30',
   pink: 'bg-pink-soft text-pink-ink border-pink/30',
   default: 'bg-paper-raised text-ink-soft border-line',
   tag: 'bg-paper-raised text-ink border-line',
+  // Solid-filled variant — home dashboard's Highlighted section eyebrow
+  // (home-dashboard-plan.md §2 Part 0 step 4), used nowhere else. Extending
+  // this component rather than adding a dashboard-local one since it's a
+  // pure color/fill reskin of the same chip shape, not a different markup
+  // shape.
+  spotlight: 'bg-blue text-paper border-blue',
 }
 
 export function HeaderChip({
@@ -118,7 +124,7 @@ export function HeaderChip({
   tone = 'default',
 }: {
   children: ReactNode
-  tone?: 'blue' | 'pink' | 'default' | 'tag'
+  tone?: 'blue' | 'pink' | 'default' | 'tag' | 'spotlight'
 }) {
   return (
     <span
