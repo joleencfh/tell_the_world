@@ -6,11 +6,13 @@ import { getRecentBriefs, getUserBriefProposals, type UserBriefProposal } from '
 import { getUserBasic, getRecentUsers, getExpertOrgIds } from '@/lib/data/users'
 import { getPostsByAuthors } from '@/lib/data/posts'
 import { getHeroDigest } from '@/lib/data/home'
+import { getThisWeekActivity } from '@/lib/data/activity'
 import Avatar from '@/components/ui/Avatar'
 import RoleBadge from '@/components/ui/RoleBadge'
 import Logo from '@/components/ui/Logo'
 import Footer from '@/components/ui/Footer'
 import SignOutButton from '@/components/ui/SignOutButton'
+import ThisWeek from './this-week'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -257,13 +259,14 @@ export default async function HomePage() {
   if (!user) redirect('/login')
 
   // Round 1 — parallel: current user, briefs, recently joined, expert/org IDs
-  const [currentUser, briefs, recentUsers, expertOrgIds, myProposals, heroDigest] = await Promise.all([
+  const [currentUser, briefs, recentUsers, expertOrgIds, myProposals, heroDigest, thisWeekItems] = await Promise.all([
     getUserBasic(supabase, user.id),
     getRecentBriefs(supabase, 5),
     getRecentUsers(supabase, user.id, 8),
     getExpertOrgIds(supabase),
     getUserBriefProposals(supabase, user.id),
     getHeroDigest(supabase, user.id),
+    getThisWeekActivity(supabase),
   ])
 
   // Round 2 — posts filtered by expert/org user IDs
@@ -342,6 +345,14 @@ export default async function HomePage() {
               </p>
             </div>
           )}
+
+          {/* This Week — a chronological river mixing internal items (new/
+              updated briefs, quotes) with external items (coverage, posts
+              linking out) instead of splitting them into separate feeds
+              (home-dashboard-plan.md §2, Part 4). No placeholder when
+              there's nothing this week, same empty-state convention as
+              every other additive section on this page. */}
+          {thisWeekItems.length > 0 && <ThisWeek items={thisWeekItems} />}
 
           {/* Your Proposals — only shown to members who've actually
               proposed a brief; no empty-state fallback for everyone else,
