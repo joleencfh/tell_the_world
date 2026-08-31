@@ -5,6 +5,7 @@ import type { UserRole } from '@/lib/types'
 import { getRecentBriefs, getUserBriefProposals, type UserBriefProposal } from '@/lib/data/briefs'
 import { getUserBasic, getRecentUsers, getExpertOrgIds } from '@/lib/data/users'
 import { getPostsByAuthors } from '@/lib/data/posts'
+import { getHeroDigest } from '@/lib/data/home'
 import Avatar from '@/components/ui/Avatar'
 import RoleBadge from '@/components/ui/RoleBadge'
 import Logo from '@/components/ui/Logo'
@@ -256,12 +257,13 @@ export default async function HomePage() {
   if (!user) redirect('/login')
 
   // Round 1 — parallel: current user, briefs, recently joined, expert/org IDs
-  const [currentUser, briefs, recentUsers, expertOrgIds, myProposals] = await Promise.all([
+  const [currentUser, briefs, recentUsers, expertOrgIds, myProposals, heroDigest] = await Promise.all([
     getUserBasic(supabase, user.id),
     getRecentBriefs(supabase, 5),
     getRecentUsers(supabase, user.id, 8),
     getExpertOrgIds(supabase),
     getUserBriefProposals(supabase, user.id),
+    getHeroDigest(supabase, user.id),
   ])
 
   // Round 2 — posts filtered by expert/org user IDs
@@ -316,18 +318,17 @@ export default async function HomePage() {
               <br />
               {welcomeName}
             </h1>
+            {heroDigest && (
+              <p className="font-body text-base text-ink-soft leading-relaxed max-w-xl mb-6">
+                {heroDigest}
+              </p>
+            )}
             <div className="flex items-center gap-6 flex-wrap">
               <Link
                 href="/directory"
                 className="font-display uppercase tracking-widest text-xs bg-ink text-paper px-6 py-3 hover:opacity-90 transition-opacity"
               >
                 Browse Directory
-              </Link>
-              <Link
-                href="/briefs"
-                className="font-mono text-[10px] tracking-[0.2em] uppercase text-ink-soft hover:text-ink transition-colors inline-flex items-center gap-2"
-              >
-                View Briefs <span aria-hidden>→</span>
               </Link>
             </div>
           </section>
