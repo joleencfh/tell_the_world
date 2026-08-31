@@ -33,6 +33,7 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
   const [tldrTeaser, setTldrTeaser] = useState(brief.tldr_teaser ?? '')
   const [pinnedMediaPostId, setPinnedMediaPostId] = useState(brief.pinned_media_post_id ?? '')
   const [visibility, setVisibility] = useState<Brief['visibility']>(brief.visibility)
+  const [dashboardFeatured, setDashboardFeatured] = useState(brief.dashboard_featured ?? false)
   const [sections, setSections]     = useState<EditableSection[]>(
     [...initialSections]
       .sort((a, b) => a.display_order - b.display_order)
@@ -172,6 +173,7 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
       tldrTeaser,
       pinnedMediaPostId: pinnedMediaPostId || null,
       visibility,
+      dashboardFeatured,
       sections: sections.map(s => ({
         id: s.id,
         section_type: s.section_type,
@@ -406,6 +408,45 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
                 Public
               </button>
             </div>
+          </div>
+
+          {/* Dashboard featured — the home dashboard's Highlighted section
+              (home-dashboard-part1). At most one brief can be featured at a
+              time (partial unique index, migration 057); saveBrief clears
+              any other featured brief when this one is turned on. */}
+          <div className="space-y-1.5">
+            <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">
+              Dashboard
+            </span>
+            <div className="flex gap-0">
+              <button
+                type="button"
+                onClick={() => setDashboardFeatured(false)}
+                className={[
+                  'px-5 py-2.5 font-mono text-[10px] tracking-[0.18em] uppercase border transition-colors',
+                  !dashboardFeatured
+                    ? 'border-ink bg-ink text-paper'
+                    : 'border-line text-ink-soft hover:border-ink hover:text-ink',
+                ].join(' ')}
+              >
+                Not featured
+              </button>
+              <button
+                type="button"
+                onClick={() => setDashboardFeatured(true)}
+                className={[
+                  'px-5 py-2.5 font-mono text-[10px] tracking-[0.18em] uppercase border border-l-0 transition-colors',
+                  dashboardFeatured
+                    ? 'border-ink bg-ink text-paper'
+                    : 'border-line text-ink-soft hover:border-ink hover:text-ink',
+                ].join(' ')}
+              >
+                Featured on dashboard
+              </button>
+            </div>
+            <p className="font-body text-xs text-ink-soft/70">
+              Shown in the home dashboard&apos;s Highlighted section. Turning this on for this brief turns it off for any other featured brief.
+            </p>
           </div>
 
           {/* Sections */}
