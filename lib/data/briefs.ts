@@ -135,6 +135,39 @@ export async function getFeaturedBrief(db: DB): Promise<string | null> {
   return data?.id ?? null
 }
 
+// Just enough of the featured brief for the Highlighted module (home-
+// dashboard-plan.md §2, Part 3 step 2) — title/slug/topic_tags plus the
+// section rows needed for read-time (helpers.ts's computeReadTimeMinutes)
+// and endorsement-bar (lib/data/contributions.ts's getEndorsementBar)
+// computation. Lighter than getBriefWithSectionsBySlug on purpose: this
+// skips subtitle, tldr_teaser, visibility, rich_content and timeline
+// events, none of which the dashboard card renders.
+export interface FeaturedBriefDetailSection {
+  id: string
+  section_type: BriefSectionType
+  content: string
+  content_version: number
+}
+
+export interface FeaturedBriefDetail {
+  id: string
+  title: string
+  slug: string
+  topic_tags: string[]
+  brief_sections: FeaturedBriefDetailSection[]
+}
+
+export async function getFeaturedBriefDetail(db: DB, briefId: string): Promise<FeaturedBriefDetail | null> {
+  const { data, error } = await db
+    .from('briefs')
+    .select('id, title, slug, topic_tags, brief_sections(id, section_type, content, content_version)')
+    .eq('id', briefId)
+    .single()
+
+  if (error || !data) return null
+  return data as FeaturedBriefDetail
+}
+
 export async function getRecentBriefs(db: DB, limit = 5): Promise<BriefListItem[]> {
   const { data } = await db
     .from('briefs')
