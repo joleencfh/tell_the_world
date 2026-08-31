@@ -899,7 +899,7 @@ function UsefulWidget({
         : 'Mark as useful'
 
   return (
-    <div className="flex items-center gap-1.5" aria-live="polite">
+    <div className="flex items-center gap-1 sm:gap-1.5 border sm:border-0 border-line px-1 py-1 sm:px-0 sm:py-0" aria-live="polite">
       <Tooltip label={iconTooltip}>
         <button
           type="button"
@@ -908,10 +908,10 @@ function UsefulWidget({
           aria-pressed={liked}
           aria-label={liked ? 'Unlike' : 'Like'}
           style={{ touchAction: 'manipulation' }}
-          className={`flex h-7 w-7 items-center justify-center border outline-none transition-colors focus-visible:ring-2 focus-visible:ring-blue disabled:cursor-default ${
+          className={`flex h-7 w-7 items-center justify-center border-0 sm:border outline-none transition-colors focus-visible:ring-2 focus-visible:ring-blue disabled:cursor-default ${
             liked
-              ? 'border-blue bg-blue-soft text-blue-ink'
-              : 'border-line-strong bg-paper text-ink-faint hover:border-blue hover:text-blue-ink disabled:hover:border-line-strong disabled:hover:text-ink-faint'
+              ? 'sm:border-blue sm:bg-blue-soft text-blue-ink'
+              : 'sm:border-line-strong bg-paper text-ink-faint hover:text-blue-ink sm:hover:border-blue disabled:hover:text-ink-faint sm:disabled:hover:border-line-strong'
           }`}
         >
           <ThumbsUpIcon filled={liked} />
@@ -922,7 +922,7 @@ function UsefulWidget({
           type="button"
           onClick={onShowLikers}
           style={{ touchAction: 'manipulation' }}
-          className="font-mono text-sm font-semibold text-ink-soft underline decoration-dotted underline-offset-2 outline-none transition-colors hover:text-blue-ink focus-visible:ring-2 focus-visible:ring-blue"
+          className="font-mono text-xs sm:text-sm font-semibold text-ink-soft no-underline sm:underline sm:decoration-dotted sm:underline-offset-2 outline-none transition-colors hover:text-blue-ink focus-visible:ring-2 focus-visible:ring-blue"
         >
           {count}
         </button>
@@ -937,10 +937,10 @@ function ScrollWidget({ href, icon, count, label }: { href: string; icon: string
       <a
         href={href}
         style={{ touchAction: 'manipulation' }}
-        className="inline-flex items-center gap-1.5 font-mono text-ink-soft no-underline outline-none transition-colors hover:text-blue-ink focus-visible:ring-2 focus-visible:ring-blue"
+        className="inline-flex items-center gap-1 sm:gap-1.5 border sm:border-0 border-line px-1 py-1 sm:px-0 sm:py-0 font-mono text-ink-soft no-underline outline-none transition-colors hover:text-blue-ink focus-visible:ring-2 focus-visible:ring-blue"
       >
-        <span aria-hidden className="text-[0.95rem] leading-none">{icon}</span>
-        <span className="text-sm font-semibold">{count}</span>
+        <span aria-hidden className="text-[0.85rem] sm:text-[0.95rem] leading-none">{icon}</span>
+        <span className="text-xs sm:text-sm font-semibold">{count}</span>
       </a>
     </Tooltip>
   )
@@ -966,7 +966,7 @@ export function ExplainerHeaderWidgets({
   onShowUsefulLikers: () => void
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-6">
+    <div className="flex flex-wrap items-center gap-2.5 sm:gap-6">
       <UsefulWidget
         briefId={briefId}
         briefSlug={briefSlug}
