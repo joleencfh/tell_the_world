@@ -14,6 +14,9 @@ import Footer from '@/components/ui/Footer'
 import SignOutButton from '@/components/ui/SignOutButton'
 import ThisWeek from './this-week'
 import Highlighted, { getHighlightedSectionData } from './highlighted'
+import Thumb from '@/components/ui/Thumb'
+import CardGoLink from '@/components/ui/CardGoLink'
+import DashboardCarousel from './dashboard-carousel'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -127,21 +130,21 @@ const PROPOSAL_STATUS_LABEL: Record<UserBriefProposal['status'], string> = {
   declined: 'Declined',
 }
 
-const PROPOSAL_STATUS_CLASS: Record<UserBriefProposal['status'], string> = {
-  pending: 'bg-amber-100 text-amber-700',
-  approved: 'bg-green-100 text-green-700',
-  declined: 'bg-gray-100 text-gray-600',
-}
+// Two-Ink Bold treats proposal status as a status axis, not a role axis —
+// one neutral bordered mono chip for every status rather than borrowing
+// blue/pink or a stock traffic-light palette (home-dashboard-plan.md §2
+// Part 5 step 4).
+const PROPOSAL_STATUS_CLASS = 'border border-ink-faint text-ink-soft'
 
 function ProposalCard({ proposal }: { proposal: UserBriefProposal }) {
   return (
-    <article className="bg-paper-raised border border-line rounded-xl p-5 flex flex-col gap-3">
+    <article className="bg-paper-raised border border-line p-5 flex flex-col gap-3">
       <div className="flex items-start justify-between gap-3">
         <h3 className="font-body text-sm font-bold text-ink leading-snug flex-1">
           {proposal.topic_title}
         </h3>
         <span
-          className={`shrink-0 inline-block px-2 py-0.5 rounded-full font-mono text-[9px] tracking-[0.1em] uppercase ${PROPOSAL_STATUS_CLASS[proposal.status]}`}
+          className={`shrink-0 inline-block px-2 py-0.5 font-mono text-[9px] tracking-[0.1em] uppercase ${PROPOSAL_STATUS_CLASS}`}
         >
           {PROPOSAL_STATUS_LABEL[proposal.status]}
         </span>
@@ -163,70 +166,83 @@ function ProposalCard({ proposal }: { proposal: UserBriefProposal }) {
 
 function BriefCard({ brief }: { brief: Brief }) {
   return (
-    <article className="bg-paper-raised border border-line rounded-xl p-5 flex flex-col gap-3">
-      <h3 className="font-body text-sm font-bold text-ink leading-snug">
-        {brief.title}
-      </h3>
-      <p className="font-body text-sm text-ink-soft leading-relaxed flex-1">
-        {truncate(brief.tldr, 120)}
-      </p>
-      <Link
-        href={`/briefs/${brief.slug}`}
-        className="font-mono text-[9px] tracking-[0.15em] uppercase text-ink-soft hover:text-ink transition-colors inline-flex items-center gap-1 group mt-auto"
-      >
-        Read brief{' '}
-        <span className="group-hover:translate-x-0.5 transition-transform" aria-hidden>
-          →
-        </span>
-      </Link>
-    </article>
+    <div className="w-[250px] shrink-0 snap-start pt-1 first:pl-1">
+      <article className="flex h-full flex-col border border-line border-t-[3px] border-t-ink bg-paper">
+        <Thumb id={brief.id} className="h-[92px] w-full" />
+        <div className="flex flex-1 flex-col gap-3 p-4">
+          <h3 className="font-body text-sm font-bold text-ink leading-snug">
+            {brief.title}
+          </h3>
+          <p className="font-body text-sm text-ink-soft leading-relaxed flex-1">
+            {truncate(brief.tldr, 120)}
+          </p>
+          <CardGoLink href={`/briefs/${brief.slug}`} ariaLabel={`Read ${brief.title}`} />
+        </div>
+      </article>
+    </div>
   )
 }
 
-function PostCard({ post }: { post: ContentPost }) {
+// Two of every three cards get a Thumb (home-dashboard-plan.md §2 Part 5
+// step 2) — not all, since not every post has an attached image; the
+// middle card of each group of three is left text-only.
+function PostCard({ post, showThumb }: { post: ContentPost; showThumb: boolean }) {
   const authorName = getDisplayName(post.users)
   return (
-    <article className="bg-paper-raised border border-line rounded-xl p-5 flex flex-col gap-3">
-      <div className="flex items-center gap-3">
-        <Avatar name={authorName} avatarUrl={post.users.avatar_url} size="xs" />
-        <div className="min-w-0 flex-1">
-          <Link
-            href={`/profile/${post.user_id}`}
-            className="font-body text-xs font-semibold text-ink hover:text-blue-ink transition-colors block truncate"
-          >
-            {authorName}
-          </Link>
-          <div className="mt-0.5">
-            <RoleBadge role={post.users.role} size="sm" />
+    <div className="w-[260px] shrink-0 snap-start pt-1 first:pl-1">
+      <article className="flex h-full flex-col gap-3 border border-line border-t-[3px] border-t-blue bg-paper">
+        <div className="flex items-center gap-3 px-4 pt-4">
+          <Avatar name={authorName} avatarUrl={post.users.avatar_url} size="xs" />
+          <div className="min-w-0 flex-1">
+            <Link
+              href={`/profile/${post.user_id}`}
+              className="font-body text-xs font-semibold text-ink hover:text-blue-ink transition-colors block truncate"
+            >
+              {authorName}
+            </Link>
+            <div className="mt-0.5">
+              <RoleBadge role={post.users.role} size="sm" />
+            </div>
           </div>
+          <PostTypeBadge type={post.post_type} />
         </div>
-        <PostTypeBadge type={post.post_type} />
-      </div>
-      <div>
-        <p className="font-body text-sm font-semibold text-ink leading-snug mb-1">
-          {post.title}
-        </p>
-        {post.body && (
-          <p className="font-body text-sm text-ink-soft leading-relaxed">
-            {truncate(post.body, 180)}
+        {showThumb && <Thumb id={post.id} className="h-[100px] w-full" />}
+        <div className="flex-1 px-4">
+          <p className="font-body text-sm font-semibold text-ink leading-snug mb-1">
+            {post.title}
           </p>
+          {post.body && (
+            <p className="font-body text-sm text-ink-soft leading-relaxed">
+              {truncate(post.body, 180)}
+            </p>
+          )}
+        </div>
+        {post.url && (
+          <div className="flex justify-end px-4 pb-4">
+            <CardGoLink
+              href={post.url}
+              ariaLabel={`View source: ${post.title}`}
+              variant="external"
+              tone="blue"
+            />
+          </div>
         )}
-      </div>
-      {post.url && (
-        <a
-          href={post.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-mono text-[9px] tracking-[0.15em] uppercase text-blue-ink hover:opacity-75 transition-opacity inline-flex items-center gap-1 group mt-auto"
-        >
-          View source{' '}
-          <span className="group-hover:translate-x-0.5 transition-transform" aria-hidden>
-            →
-          </span>
-        </a>
-      )}
-    </article>
+      </article>
+    </div>
   )
+}
+
+// Left-border accent per role, same split as app/directory/UserCard.tsx's
+// ROLE_BORDER: blue = expert/org, pink = creator/journalist, neutral for
+// admin/comms_specialist/other.
+const ROLE_BORDER: Record<UserRole, string> = {
+  creator: 'border-l-pink/40',
+  journalist: 'border-l-pink/40',
+  expert: 'border-l-blue/40',
+  organisation: 'border-l-blue/40',
+  admin: 'border-l-line-strong',
+  comms_specialist: 'border-l-line-strong',
+  other: 'border-l-line-strong',
 }
 
 function UserChip({ user }: { user: RecentUser }) {
@@ -234,7 +250,7 @@ function UserChip({ user }: { user: RecentUser }) {
   return (
     <Link
       href={`/profile/${user.id}`}
-      className="flex items-center gap-2.5 bg-paper-raised border border-line rounded-full px-3 py-2 hover:border-ink-soft transition-colors shrink-0"
+      className={`flex items-center gap-2.5 bg-paper border border-line border-l-[3px] ${ROLE_BORDER[user.role]} px-3 py-2 hover:bg-paper-raised transition-colors shrink-0`}
     >
       <Avatar name={name} avatarUrl={user.avatar_url} size="xs" />
       <div className="min-w-0">
@@ -319,7 +335,7 @@ export default async function HomePage() {
         <div className="mx-auto max-w-5xl space-y-16">
 
           {/* Welcome */}
-          <section>
+          <section className="anim-rise" style={{ animationDelay: '0ms' }}>
             <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-ink-soft mb-3">
               Dashboard
             </p>
@@ -345,8 +361,8 @@ export default async function HomePage() {
 
           {/* Profile not set up yet */}
           {!currentUser && (
-            <div className="border border-amber-200 bg-amber-50 rounded-xl p-5">
-              <p className="font-body text-sm text-amber-900">
+            <div className="border-2 border-ink bg-paper-raised p-5 anim-rise" style={{ animationDelay: '60ms' }}>
+              <p className="font-body text-sm text-ink">
                 Your profile isn&rsquo;t set up yet. Contact the platform admin to
                 complete your onboarding.
               </p>
@@ -372,7 +388,7 @@ export default async function HomePage() {
               same "additive, no empty-state chip" spirit as the
               Contributors list this pairs with on BriefView.tsx. */}
           {myProposals.length > 0 && (
-            <section>
+            <section className="anim-rise" style={{ animationDelay: '100ms' }}>
               <SectionHeader title="Your Proposals" />
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {myProposals.map((p) => (
@@ -383,37 +399,39 @@ export default async function HomePage() {
           )}
 
           {/* Active Briefs */}
-          <section>
+          <section className="anim-rise" style={{ animationDelay: '140ms' }}>
             <SectionHeader title="Active Briefs" href="/briefs" linkLabel="View all" />
             {briefs.length > 0 ? (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <DashboardCarousel fadeColor="var(--color-paper)" ariaLabel="Active briefs">
                 {briefs.map((b) => (
                   <BriefCard key={b.id} brief={b} />
                 ))}
-              </div>
+              </DashboardCarousel>
             ) : (
               <EmptyState message="No briefs published yet — check back soon." />
             )}
           </section>
 
-          {/* Recent Posts from experts and organisations */}
-          <section>
-            <SectionHeader title="Recent Posts" />
+          {/* From Your Network — recent posts from experts and organisations */}
+          <section className="anim-rise" style={{ animationDelay: '180ms' }}>
+            <SectionHeader title="From Your Network" />
             {posts.length > 0 ? (
-              <div className="grid sm:grid-cols-2 gap-4">
-                {posts.map((p) => (
-                  <PostCard key={p.id} post={p} />
-                ))}
+              <div className="bg-paper-sunken-blue p-5 sm:p-6">
+                <DashboardCarousel fadeColor="var(--color-paper-sunken-blue)" ariaLabel="Recent posts from your network">
+                  {posts.map((p, i) => (
+                    <PostCard key={p.id} post={p} showThumb={i % 3 !== 1} />
+                  ))}
+                </DashboardCarousel>
               </div>
             ) : (
               <EmptyState message="No posts from experts and organisations yet." />
             )}
           </section>
 
-          {/* Recently Joined */}
-          <section>
+          {/* Community — recently joined members */}
+          <section className="anim-rise" style={{ animationDelay: '220ms' }}>
             <SectionHeader
-              title="Recently Joined"
+              title="Community"
               href="/directory"
               linkLabel="Browse all"
             />
