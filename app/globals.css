@@ -35,6 +35,8 @@ button:not(:disabled) {
   --color-pink-ink:          #99075A;
   --color-coverage-bg:       #0C0D0E; /* fixed dark band, both themes */
   --color-coverage-fg:       #F1F2F3; /* fixed light text for the dark band — ink/paper-raised invert between themes and would go illegible here, coverage-bg's whole point is to *not* invert */
+  --color-blue-wash:         rgba(30, 79, 235, .05);  /* This Week row tint (home-dashboard-plan.md §2, Part 4) — not derived from --color-blue via color-mix so the literal low-alpha value stays copy-pasteable from the reference artifact */
+  --color-pink-wash:         rgba(240, 25, 126, .05);
 }
 
 /* @theme inline for fonts: --font-mono references the next/font CSS variable
@@ -77,6 +79,8 @@ button:not(:disabled) {
 --color-pink-soft:         #3A1226;
 --color-pink-ink:          #FFD3E8;
 --color-coverage-bg:       #000000;
+--color-blue-wash:         rgba(91, 141, 255, .08);
+--color-pink-wash:         rgba(255, 95, 160, .08);
 */
 
 html {
