@@ -61,7 +61,8 @@ export function CoverageCard({ coverage }: { coverage: PendingCoverage }) {
 
       <div className="flex gap-3">
         {coverage.image_url && (
-          // Arbitrary third-party host — can't be allow-listed for next/image.
+          // Re-hosted on Supabase storage (lib/links/store-image.ts), same
+          // tradeoff as Avatar.tsx — plain img, not next/image.
           <img
             src={coverage.image_url}
             alt=""

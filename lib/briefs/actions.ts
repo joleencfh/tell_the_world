@@ -6,6 +6,7 @@ import { getAdminClient } from '@/lib/supabase/admin'
 import { sendBriefProposalEmail } from '@/lib/email/send-brief-proposal'
 import { getMaxContentVersion } from '@/lib/data/contributions'
 import { fetchLinkPreview } from '@/lib/links/link-preview'
+import { fetchAndStoreImage } from '@/lib/links/store-image'
 import { getCoverageComments, getCoverageLikers } from '@/lib/data/coverage'
 import { logEvent } from '@/lib/analytics/log'
 import type { CoverageComment, CoverageAuthor } from '@/lib/data/coverage'
@@ -201,6 +202,10 @@ export async function submitCta(
 // page's own Open Graph tags, fetched server-side here at submission time
 // (lib/links/link-preview.ts never throws, so this always has something
 // usable to insert even if the fetch fails or the site has no OG tags).
+// The og:image itself is re-hosted through Supabase storage
+// (lib/links/store-image.ts) rather than stored as the outlet's own CDN
+// URL — the CSP's img-src doesn't allow-list arbitrary third-party hosts,
+// so a hotlinked image_url would silently never render in the browser.
 export async function submitCoverage(
   briefId: string,
   briefSlug: string,
@@ -226,13 +231,14 @@ export async function submitCoverage(
   }
 
   const preview = await fetchLinkPreview(parsed.toString())
+  const imageUrl = preview.imageUrl ? await fetchAndStoreImage(supabase, preview.imageUrl, user.id) : null
 
   const { error } = await supabase.from('brief_coverage').insert({
     brief_id: briefId,
     url: parsed.toString(),
     outlet_name: preview.outletName,
     title: preview.title,
-    image_url: preview.imageUrl,
+    image_url: imageUrl,
     published_date: preview.publishedDate,
     submitted_by: user.id,
     status: 'pending',

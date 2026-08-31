@@ -13,6 +13,7 @@ import Logo from '@/components/ui/Logo'
 import Footer from '@/components/ui/Footer'
 import SignOutButton from '@/components/ui/SignOutButton'
 import ThisWeek from './this-week'
+import Highlighted, { getHighlightedSectionData } from './highlighted'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -269,8 +270,14 @@ export default async function HomePage() {
     getThisWeekActivity(supabase),
   ])
 
-  // Round 2 — posts filtered by expert/org user IDs
-  const posts = await getPostsByAuthors(supabase, expertOrgIds, 10)
+  // Round 2 — posts filtered by expert/org user IDs, and the Highlighted
+  // module's own bundle (returns null internally when no brief is
+  // dashboard_featured) — independent of each other, fetched together
+  // rather than one after another.
+  const [posts, highlighted] = await Promise.all([
+    getPostsByAuthors(supabase, expertOrgIds, 10),
+    getHighlightedSectionData(supabase, user.id),
+  ])
 
   const welcomeName = currentUser
     ? getDisplayName(currentUser)
@@ -345,6 +352,12 @@ export default async function HomePage() {
               </p>
             </div>
           )}
+
+          {/* Highlighted — one admin-curated brief with its quotes/coverage
+              already attached (home-dashboard-plan.md §2, Part 3). No
+              placeholder when nothing is featured yet, same convention as
+              every other empty-state on this page. */}
+          {highlighted && <Highlighted data={highlighted} />}
 
           {/* This Week — a chronological river mixing internal items (new/
               updated briefs, quotes) with external items (coverage, posts

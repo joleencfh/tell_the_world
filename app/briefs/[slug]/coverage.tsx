@@ -156,7 +156,8 @@ function CoverageCard({
       >
         <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden border-b border-coverage-fg/15 bg-coverage-fg/5">
           {showImage ? (
-            // Arbitrary third-party host — can't be allow-listed for next/image (Avatar.tsx has the same tradeoff).
+            // Re-hosted on Supabase storage (lib/links/store-image.ts), same
+            // tradeoff as Avatar.tsx — plain img, not next/image.
             <img
               src={coverage.image_url!}
               alt=""

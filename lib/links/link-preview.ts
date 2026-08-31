@@ -30,7 +30,7 @@ const MAX_BYTES = 1_000_000
 // hosts before making the request. Not exhaustive (doesn't resolve DNS to
 // catch rebinding), but blocks the easy cases for a feature whose whole
 // point is fetching URLs arbitrary logged-in members paste in.
-function isPrivateHost(hostname: string): boolean {
+export function isPrivateHost(hostname: string): boolean {
   const host = hostname.toLowerCase()
   if (host === 'localhost' || host === '::1' || host === '[::1]') return true
   if (/^127\./.test(host) || /^0\./.test(host) || /^10\./.test(host) || /^169\.254\./.test(host) || /^192\.168\./.test(host)) {
