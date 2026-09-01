@@ -90,7 +90,7 @@ function DashboardQuoteCard({ quote }: { quote: Quote }) {
       <span className="font-mono text-[0.62rem] tracking-[0.06em] text-ink-faint tabular-nums">
         {formatDate(quote.created_at)}
       </span>
-      <p className="flex-1 font-body text-base font-normal leading-[1.5] text-ink">&ldquo;{quoteText}&rdquo;</p>
+      <p className="flex-1 line-clamp-3 font-body text-base font-normal leading-[1.5] text-ink">&ldquo;{quoteText}&rdquo;</p>
       <div className="flex items-center gap-[0.65rem] border-t border-line pt-[0.85rem]">
         <QuoteAuthorFooter quote={quote} />
       </div>
@@ -124,14 +124,10 @@ export default function Highlighted({ data }: { data: HighlightedSectionData }) 
         <h2 className="mt-3 text-[1.4rem] font-extrabold uppercase tracking-[0.005em]">
           This brief is worth your time
         </h2>
-        <p className="mt-1 max-w-[40em] text-[0.88rem] italic text-ink-soft">
-          One brief, pulled forward with the quotes and press coverage already attached, instead of asking you to go
-          find them.
-        </p>
       </div>
 
       <div className="shadow-block">
-        <div className="border-2 border-ink bg-paper p-6 sm:p-8">
+        <div className="border-2 border-ink bg-paper-raised p-6 sm:p-8">
           <h3 className="font-display text-2xl font-extrabold leading-tight text-ink">{brief.title}</h3>
 
           <div className="mt-4 flex flex-wrap items-center gap-2">

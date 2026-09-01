@@ -482,3 +482,138 @@ export async function deleteTestMessages(senderId: string, subject: string): Pro
     console.warn(`Failed to clean up test messages: ${error.message}`)
   }
 }
+
+// ---------------------------------------------------------------------------
+// Home dashboard helpers (briefs.dashboard_featured, brief_coverage,
+// content_posts — home-dashboard-plan.md Parts 1/3/4)
+// ---------------------------------------------------------------------------
+
+/** The currently dashboard_featured brief's id, or null if none is set. */
+export async function getFeaturedBriefId(): Promise<string | null> {
+  const client = getTestAdminClient()
+  const { data, error } = await client.from('briefs').select('id').eq('dashboard_featured', true).maybeSingle()
+
+  if (error) {
+    throw new Error(`Failed to query dashboard_featured brief: ${error.message}`)
+  }
+
+  return (data as { id: string } | null)?.id ?? null
+}
+
+/**
+ * Set (or clear) the one dashboard_featured brief. The partial unique index
+ * on briefs.dashboard_featured allows at most one true row, so any existing
+ * true row is cleared first regardless of which brief `briefId` names — a
+ * test that seeds its own featured brief should read getFeaturedBriefId()
+ * beforehand and restore it with this function in afterAll/afterEach.
+ */
+export async function setFeaturedBrief(briefId: string | null): Promise<void> {
+  const client = getTestAdminClient()
+  const { error: clearError } = await client
+    .from('briefs')
+    .update({ dashboard_featured: null })
+    .eq('dashboard_featured', true)
+
+  if (clearError) {
+    throw new Error(`Failed to clear dashboard_featured: ${clearError.message}`)
+  }
+
+  if (briefId) {
+    const { error: setError } = await client.from('briefs').update({ dashboard_featured: true }).eq('id', briefId)
+    if (setError) {
+      throw new Error(`Failed to set dashboard_featured for brief "${briefId}": ${setError.message}`)
+    }
+  }
+}
+
+export interface CoverageRecord {
+  id: string
+  brief_id: string
+  title: string
+  url: string
+  outlet_name: string
+  status: string
+}
+
+/** Seed an already-published brief_coverage row directly (bypasses admin submission). */
+export async function insertPublishedCoverage(
+  briefId: string,
+  submittedBy: string,
+  fields: { title: string; url: string; outletName: string },
+): Promise<CoverageRecord> {
+  const client = getTestAdminClient()
+  const { data, error } = await client
+    .from('brief_coverage')
+    .insert({
+      brief_id: briefId,
+      submitted_by: submittedBy,
+      title: fields.title,
+      url: fields.url,
+      outlet_name: fields.outletName,
+      status: 'published',
+    })
+    .select('id, brief_id, title, url, outlet_name, status')
+    .single()
+
+  if (error || !data) {
+    throw new Error(`Failed to insert brief_coverage row: ${error?.message}`)
+  }
+
+  return data as CoverageRecord
+}
+
+/** Delete a brief_coverage row created with insertPublishedCoverage. Call in afterEach/afterAll. */
+export async function deleteTestCoverage(id: string): Promise<void> {
+  const client = getTestAdminClient()
+  const { error } = await client.from('brief_coverage').delete().eq('id', id)
+
+  if (error) {
+    console.warn(`Failed to clean up test brief_coverage row: ${error.message}`)
+  }
+}
+
+export interface QuotePostRecord {
+  id: string
+  brief_id: string | null
+  title: string
+  body: string | null
+  status: string
+}
+
+/** Seed an already-published quote content_posts row directly (bypasses submission UI). */
+export async function insertPublishedQuotePost(
+  briefId: string,
+  userId: string,
+  fields: { title: string; body: string },
+): Promise<QuotePostRecord> {
+  const client = getTestAdminClient()
+  const { data, error } = await client
+    .from('content_posts')
+    .insert({
+      brief_id: briefId,
+      user_id: userId,
+      post_type: 'quote',
+      quote_source: 'member',
+      title: fields.title,
+      body: fields.body,
+      status: 'published',
+    })
+    .select('id, brief_id, title, body, status')
+    .single()
+
+  if (error || !data) {
+    throw new Error(`Failed to insert content_posts row: ${error?.message}`)
+  }
+
+  return data as QuotePostRecord
+}
+
+/** Delete a content_posts row created with insertPublishedQuotePost. Call in afterEach/afterAll. */
+export async function deleteTestContentPost(id: string): Promise<void> {
+  const client = getTestAdminClient()
+  const { error } = await client.from('content_posts').delete().eq('id', id)
+
+  if (error) {
+    console.warn(`Failed to clean up test content_posts row: ${error.message}`)
+  }
+}
