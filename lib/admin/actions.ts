@@ -9,6 +9,8 @@ import { getAdminClient } from '@/lib/supabase/admin'
 import { sendApprovalEmail } from '@/lib/email/send-approval'
 import { sendRejectionEmail } from '@/lib/email/send-rejection'
 import { sendBriefProposalApprovedEmail } from '@/lib/email/send-brief-proposal-approved'
+import { fetchLinkPreview } from '@/lib/links/link-preview'
+import { fetchAndStoreImage } from '@/lib/links/store-image'
 import { slugify, uniqueSlug } from './slug'
 import * as adminData from '@/lib/data/admin'
 import type { PagedResult } from '@/lib/data/admin'
@@ -654,6 +656,40 @@ export async function dismissCoverage(coverageId: string): Promise<{ success?: b
 
   revalidatePath('/admin')
   return { success: true }
+}
+
+// Re-scrapes a coverage row's article URL for a fresh og:image and re-hosts
+// it on Supabase storage, same as submitCoverage does at submission time.
+// Exists for rows whose image never got hosted this way in the first place
+// — either the scrape/fetch failed silently at submit time (both
+// link-preview.ts and store-image.ts never throw, so a bad fetch just
+// leaves image_url null or, for rows inserted before the re-hosting fix
+// landed, pointing straight at the outlet's own CDN, which the CSP's
+// img-src then silently blocks in the browser).
+export async function backfillCoverageImage(coverageId: string): Promise<{ success?: boolean; error?: string; imageUrl?: string }> {
+  await requireAdmin()
+  const admin = getAdminClient()
+
+  const { data: row, error: fetchErr } = await admin
+    .from('brief_coverage')
+    .select('id, url, submitted_by, briefs(slug)')
+    .eq('id', coverageId)
+    .single()
+
+  if (fetchErr || !row) return { error: 'Coverage row not found.' }
+
+  const preview = await fetchLinkPreview(row.url)
+  if (!preview.imageUrl) return { error: 'No image found on the article page.' }
+
+  const hosted = await fetchAndStoreImage(admin, preview.imageUrl, row.submitted_by ?? 'admin-backfill')
+  if (!hosted) return { error: 'Could not fetch or store that image.' }
+
+  const { error: updateErr } = await admin.from('brief_coverage').update({ image_url: hosted }).eq('id', coverageId)
+  if (updateErr) return { error: updateErr.message }
+
+  revalidatePath('/admin')
+  if (row.briefs?.slug) revalidatePath(`/briefs/${row.briefs.slug}`)
+  return { success: true, imageUrl: hosted }
 }
 
 // ---------------------------------------------------------------------------

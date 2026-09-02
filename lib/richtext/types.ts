@@ -1,9 +1,17 @@
 // Shared shape for Lexical-authored rich text (brief_sections.rich_content,
 // migration 033). Deliberately a narrow subset of Lexical's serialized node
-// types, matching the editor's fixed toolbar (bold, links, paragraphs — no
-// headings/lists/images in v1, docs/design/brief-feature/brief-page-part2-plan.md
-// §2, Part 0b). Kept independent of the `lexical` package so the read-only
-// public-page renderer (render.tsx) doesn't need to import the editor.
+// types, matching the editor's toolbar (bold, links, paragraphs, two heading
+// levels, images — no lists yet). Kept independent of the `lexical` package
+// so the read-only public-page renderer (render.tsx) doesn't need to import
+// the editor.
+//
+// Heading levels (migration 059 follow-up, 2026-09-02): 'h2'/'h3' map to
+// Lexical's own HeadingNode tag names (lib/richtext/editor.tsx uses
+// $createHeadingNode('h2'|'h3') directly) rather than inventing separate
+// "section"/"subsection" labels — h2 renders as the Explainer's in-content
+// "section" header, h3 as its "subsection" header, both distinct from the
+// one-per-row brief_sections.title (rendered by explainer.tsx, unaffected
+// by this).
 
 export const RICH_TEXT_BOLD_FORMAT = 1
 
@@ -30,10 +38,26 @@ export interface RichTextParagraphNode {
   children: RichTextInlineNode[]
 }
 
+export type RichTextHeadingLevel = 'h2' | 'h3'
+
+export interface RichTextHeadingNode {
+  type: 'heading'
+  tag: RichTextHeadingLevel
+  children: RichTextInlineNode[]
+}
+
+export interface RichTextImageNode {
+  type: 'image'
+  url: string
+  alt: string
+}
+
+export type RichTextBlockNode = RichTextParagraphNode | RichTextHeadingNode | RichTextImageNode
+
 export interface RichTextRoot {
   root: {
     type: 'root'
-    children: RichTextParagraphNode[]
+    children: RichTextBlockNode[]
   }
 }
 
@@ -54,6 +78,27 @@ function isParagraphNode(value: unknown): value is RichTextParagraphNode {
   return node.type === 'paragraph' && Array.isArray(node.children) && node.children.every(isInlineNode)
 }
 
+function isHeadingNode(value: unknown): value is RichTextHeadingNode {
+  if (typeof value !== 'object' || value === null) return false
+  const node = value as Record<string, unknown>
+  return (
+    node.type === 'heading' &&
+    (node.tag === 'h2' || node.tag === 'h3') &&
+    Array.isArray(node.children) &&
+    node.children.every(isInlineNode)
+  )
+}
+
+function isImageNode(value: unknown): value is RichTextImageNode {
+  if (typeof value !== 'object' || value === null) return false
+  const node = value as Record<string, unknown>
+  return node.type === 'image' && typeof node.url === 'string' && typeof node.alt === 'string'
+}
+
+function isBlockNode(value: unknown): value is RichTextBlockNode {
+  return isParagraphNode(value) || isHeadingNode(value) || isImageNode(value)
+}
+
 // Defensive parse for data coming back from the DB (typed `unknown` since
 // it's a jsonb column) — returns null on anything that doesn't match the
 // expected shape rather than throwing, so a malformed/foreign row falls back
@@ -63,7 +108,7 @@ export function parseRichContent(value: unknown): RichTextRoot | null {
   const root = (value as { root: unknown }).root
   if (typeof root !== 'object' || root === null) return null
   const { type, children } = root as { type: unknown; children: unknown }
-  if (type !== 'root' || !Array.isArray(children) || !children.every(isParagraphNode)) return null
+  if (type !== 'root' || !Array.isArray(children) || !children.every(isBlockNode)) return null
   return { root: { type: 'root', children } }
 }
 
@@ -77,8 +122,13 @@ function inlineText(node: RichTextInlineNode): string {
   return node.children.map(inlineText).join('')
 }
 
+function blockText(node: RichTextBlockNode): string {
+  if (node.type === 'image') return node.alt
+  return node.children.map(inlineText).join('')
+}
+
 export function extractPlainText(doc: RichTextRoot): string {
-  return doc.root.children.map((p) => p.children.map(inlineText).join('')).join('\n\n')
+  return doc.root.children.map(blockText).join('\n\n')
 }
 
 // One-way conversion used by the admin editor's "Switch to rich text editor"

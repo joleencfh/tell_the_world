@@ -78,6 +78,7 @@ export interface Brief {
   pinned_media_post_id: string | null
   last_reviewed_at: string | null
   tldr_teaser: string | null
+  explainer_title: string | null
   visibility: BriefVisibility
   brief_sections: BriefSection[]
   brief_timeline_events: BriefTimelineEvent[]

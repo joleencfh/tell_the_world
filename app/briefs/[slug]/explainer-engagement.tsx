@@ -205,9 +205,6 @@ export function FlagContentiousPointModal({
               disabled={isPending || isSubmitted}
               className="w-full resize-none border border-line bg-paper px-4 py-2.5 font-body text-sm text-ink placeholder:text-ink-faint/70 transition focus:outline-none focus:ring-2 focus:ring-pink disabled:opacity-50"
             />
-            <p className="mt-2 font-body text-xs text-ink-faint">
-              Shown publicly with your name once approved — not anonymous.
-            </p>
           </div>
 
           {feedback && (

@@ -386,8 +386,8 @@ export function QuoteDetailModal({
     >
       <div className="absolute inset-0 bg-ink/60 backdrop-blur-sm" onClick={onClose} aria-hidden />
 
-      <div className="relative w-full max-w-lg overflow-hidden border-[1.5px] border-ink bg-paper">
-        <div className="flex items-start justify-between border-b-[1.5px] border-ink px-7 pb-5 pt-7">
+      <div className="relative flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden border-[1.5px] border-ink bg-paper">
+        <div className="flex shrink-0 items-start justify-between border-b-[1.5px] border-ink px-7 pb-5 pt-7">
           <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-blue-ink">Quote</p>
           <button
             onClick={onClose}
@@ -399,7 +399,7 @@ export function QuoteDetailModal({
           </button>
         </div>
 
-        <div className="flex flex-col gap-6 px-7 py-6">
+        <div className="flex flex-col gap-6 overflow-y-auto px-7 py-6">
           <p className="font-body text-lg font-normal leading-[1.5] text-ink">&ldquo;{quoteText}&rdquo;</p>
 
           <div className="flex items-center gap-[0.65rem] border-t border-line pt-4">

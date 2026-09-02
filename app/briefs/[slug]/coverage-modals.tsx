@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Avatar from '@/components/ui/Avatar'
 import RoleBadge from '@/components/ui/RoleBadge'
 import { submitCoverage, submitCoverageComment, voteCoverageComment, getCoverageDetail } from '@/lib/briefs/actions'
+import { backfillCoverageImage } from '@/lib/admin/actions'
 import DuotonePlaceholder from '@/components/ui/DuotonePlaceholder'
 import { getDisplayName, formatDate } from './helpers'
 import { LikeButton } from './coverage'
@@ -355,18 +356,37 @@ export function CoverageDetailModal({
   coverage,
   briefSlug,
   isLoggedIn,
+  isAdmin = false,
   onClose,
 }: {
   coverage: Coverage
   briefSlug: string
   isLoggedIn: boolean
+  isAdmin?: boolean
   onClose: () => void
 }) {
   const [comments, setComments] = useState<CoverageComment[] | null>(null)
   const [likers, setLikers] = useState<CoverageAuthor[] | null>(null)
   const [imgFailed, setImgFailed] = useState(false)
-  const showImage = coverage.image_url && !imgFailed
+  const [imageUrl, setImageUrl] = useState(coverage.image_url)
+  const [refetchState, setRefetchState] = useState<'idle' | 'pending' | 'error'>('idle')
+  const [, startTransition] = useTransition()
+  const showImage = imageUrl && !imgFailed
   const submitterName = coverage.submittingUser ? getDisplayName(coverage.submittingUser) : null
+
+  function handleRefetchImage() {
+    setRefetchState('pending')
+    startTransition(async () => {
+      const result = await backfillCoverageImage(coverage.id)
+      if (result.error) {
+        setRefetchState('error')
+      } else {
+        setImageUrl(result.imageUrl ?? null)
+        setImgFailed(false)
+        setRefetchState('idle')
+      }
+    })
+  }
 
   const load = useCallback(async () => {
     const result = await getCoverageDetail(coverage.id)
@@ -411,7 +431,7 @@ export function CoverageDetailModal({
           <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden border-b border-line bg-ink/5">
             {showImage ? (
               <img
-                src={coverage.image_url!}
+                src={imageUrl!}
                 alt=""
                 referrerPolicy="no-referrer"
                 onError={() => setImgFailed(true)}
@@ -426,6 +446,23 @@ export function CoverageDetailModal({
             <div>
               <span className="font-mono text-[0.65rem] font-semibold uppercase tracking-[0.03em] text-ink-faint">{coverage.outlet_name}</span>
               <h2 className="mt-1 font-display text-lg font-extrabold leading-tight text-ink">{coverage.title}</h2>
+              {isAdmin && (
+                <div className="mt-2 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleRefetchImage}
+                    disabled={refetchState === 'pending'}
+                    className="font-mono text-[9px] uppercase tracking-[0.15em] text-ink-faint underline decoration-dotted underline-offset-2 outline-none transition-colors hover:text-ink focus-visible:ring-2 focus-visible:ring-pink disabled:opacity-50"
+                  >
+                    {refetchState === 'pending' ? 'Re-fetching image…' : 'Admin: re-fetch image from article'}
+                  </button>
+                  {refetchState === 'error' && (
+                    <span role="alert" className="font-mono text-[9px] text-pink-ink">
+                      Failed — no image found or fetch error.
+                    </span>
+                  )}
+                </div>
+              )}
               {submitterName && coverage.submittingUser && (
                 <p className="mt-2 font-mono text-[10px] text-ink-faint">
                   Submitted by{' '}

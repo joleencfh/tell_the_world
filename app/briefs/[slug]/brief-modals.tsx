@@ -194,7 +194,13 @@ export function BriefModals({
           informational, available logged out too (like/comment/vote just
           adapt — CoverageDetailModal itself gates those). */}
       {selectedCoverage && (
-        <CoverageDetailModal coverage={selectedCoverage} briefSlug={brief.slug} isLoggedIn={isLoggedIn} onClose={onCloseSelectedCoverage} />
+        <CoverageDetailModal
+          coverage={selectedCoverage}
+          briefSlug={brief.slug}
+          isLoggedIn={isLoggedIn}
+          isAdmin={currentUser?.role === 'admin'}
+          onClose={onCloseSelectedCoverage}
+        />
       )}
 
       {/* activeContributeModal can only be set by ContributeMenu, which only
