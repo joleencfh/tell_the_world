@@ -17,6 +17,7 @@ import Highlighted, { getHighlightedSectionData } from './highlighted'
 import Thumb from '@/components/ui/Thumb'
 import CardGoLink from '@/components/ui/CardGoLink'
 import DashboardCarousel from './dashboard-carousel'
+import DashboardSectionHeader, { DASH_SECTION_BORDER_CLASSES, DASH_ACTION_LINK_CLASSES } from './dashboard-section-header'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -86,33 +87,6 @@ function PostTypeBadge({ type }: { type: string }) {
     >
       {type}
     </span>
-  )
-}
-
-function SectionHeader({
-  title,
-  href,
-  linkLabel,
-}: {
-  title: string
-  href?: string
-  linkLabel?: string
-}) {
-  return (
-    <div className="flex items-center gap-5 mb-7">
-      <h2 className="font-display uppercase tracking-[0.18em] text-ink text-sm shrink-0">
-        {title}
-      </h2>
-      <div className="flex-1 h-px bg-line" />
-      {href && linkLabel && (
-        <Link
-          href={href}
-          className="font-mono text-[9px] tracking-[0.15em] uppercase text-ink-soft hover:text-ink transition-colors shrink-0"
-        >
-          {linkLabel} →
-        </Link>
-      )}
-    </div>
   )
 }
 
@@ -295,9 +269,13 @@ export default async function HomePage() {
     getHighlightedSectionData(supabase, user.id),
   ])
 
-  const welcomeName = currentUser
-    ? getDisplayName(currentUser)
-    : user.email?.split('@')[0] ?? 'there'
+  // First name only in the hero heading (the user's call — a full
+  // display_name reads as an odd "Welcome back, Firstname Lastname" on a
+  // dashboard greeting; getDisplayName's full name is still used everywhere
+  // else on the page, e.g. profile chips).
+  const welcomeName = (currentUser ? getDisplayName(currentUser) : user.email?.split('@')[0] ?? 'there').split(
+    /\s+/,
+  )[0]
 
   return (
     <div className="min-h-screen bg-paper text-ink">
@@ -339,10 +317,8 @@ export default async function HomePage() {
             <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-ink-soft mb-3">
               Dashboard
             </p>
-            <h1 className="font-display uppercase leading-tight text-ink mb-6 text-[2.5rem] sm:text-[3.5rem]">
-              Welcome back,
-              <br />
-              {welcomeName}
+            <h1 className="font-display font-extrabold uppercase leading-none tracking-tight text-balance text-ink mb-6 text-[2.5rem] sm:text-[3.5rem]">
+              Welcome back, {welcomeName}
             </h1>
             {heroDigest && (
               <p className="font-body text-base text-ink-soft leading-relaxed max-w-xl mb-6">
@@ -388,8 +364,8 @@ export default async function HomePage() {
               same "additive, no empty-state chip" spirit as the
               Contributors list this pairs with on BriefView.tsx. */}
           {myProposals.length > 0 && (
-            <section className="anim-rise" style={{ animationDelay: '100ms' }}>
-              <SectionHeader title="Your Proposals" />
+            <section className={`border-t-4 ${DASH_SECTION_BORDER_CLASSES.ink} pt-8 anim-rise`} style={{ animationDelay: '100ms' }}>
+              <DashboardSectionHeader tone="ink" label="Your Proposals" title="Awaiting review" />
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {myProposals.map((p) => (
                   <ProposalCard key={p.id} proposal={p} />
@@ -399,8 +375,17 @@ export default async function HomePage() {
           )}
 
           {/* Active Briefs */}
-          <section className="anim-rise" style={{ animationDelay: '140ms' }}>
-            <SectionHeader title="Active Briefs" href="/briefs" linkLabel="View all" />
+          <section className={`border-t-4 ${DASH_SECTION_BORDER_CLASSES.ink} pt-8 anim-rise`} style={{ animationDelay: '140ms' }}>
+            <DashboardSectionHeader
+              tone="ink"
+              label="Active Briefs"
+              title="Following"
+              action={
+                <Link href="/briefs" className={DASH_ACTION_LINK_CLASSES}>
+                  View all →
+                </Link>
+              }
+            />
             {briefs.length > 0 ? (
               <DashboardCarousel fadeColor="var(--color-paper)" ariaLabel="Active briefs">
                 {briefs.map((b) => (
@@ -408,13 +393,13 @@ export default async function HomePage() {
                 ))}
               </DashboardCarousel>
             ) : (
-              <EmptyState message="No briefs published yet — check back soon." />
+              <EmptyState message="No briefs published yet. Check back soon." />
             )}
           </section>
 
           {/* From Your Network — recent posts from experts and organisations */}
-          <section className="anim-rise" style={{ animationDelay: '180ms' }}>
-            <SectionHeader title="From Your Network" />
+          <section className={`border-t-4 ${DASH_SECTION_BORDER_CLASSES.blue} pt-8 anim-rise`} style={{ animationDelay: '180ms' }}>
+            <DashboardSectionHeader tone="blue" label="From Your Network" title="Recent posts from experts & orgs" />
             {posts.length > 0 ? (
               <div className="bg-paper-sunken-blue p-5 sm:p-6">
                 <DashboardCarousel fadeColor="var(--color-paper-sunken-blue)" ariaLabel="Recent posts from your network">
@@ -429,11 +414,16 @@ export default async function HomePage() {
           </section>
 
           {/* Community — recently joined members */}
-          <section className="anim-rise" style={{ animationDelay: '220ms' }}>
-            <SectionHeader
-              title="Community"
-              href="/directory"
-              linkLabel="Browse all"
+          <section className={`border-t-4 ${DASH_SECTION_BORDER_CLASSES.ink} pt-8 anim-rise`} style={{ animationDelay: '220ms' }}>
+            <DashboardSectionHeader
+              tone="ink"
+              label="Community"
+              title="Recently joined"
+              action={
+                <Link href="/directory" className={DASH_ACTION_LINK_CLASSES}>
+                  Browse directory →
+                </Link>
+              }
             />
             {recentUsers.length > 0 ? (
               <div className="flex flex-wrap gap-3">
@@ -442,7 +432,7 @@ export default async function HomePage() {
                 ))}
               </div>
             ) : (
-              <EmptyState message="You're the first one here — others will join soon." />
+              <EmptyState message="You're the first one here. Others will join soon." />
             )}
           </section>
 
