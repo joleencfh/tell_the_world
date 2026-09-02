@@ -25,7 +25,7 @@ export function TagInput({ tags, onChange }: { tags: string[]; onChange: (tags: 
   }
 
   return (
-    <div className="w-full border border-line bg-paper-raised px-3 py-2 flex flex-wrap items-center gap-1.5 focus-within:border-ink">
+    <div className="w-full border-x border-y border-line bg-paper-raised px-3 py-2 flex flex-wrap items-center gap-1.5 focus-within:border-ink">
       {tags.map((tag) => (
         <span
           key={tag}
