@@ -19,10 +19,6 @@ export interface Brief {
   title: string
   slug: string
   subtitle: string | null
-  // Shown once above the Explainer's subsections on the public page
-  // (migration 059) — distinct from the section band's own "Explainer"
-  // label and from each subsection's own brief_sections.title.
-  explainer_title: string | null
   topic_tags: string[]
   pinned_media_post_id: string | null
   last_reviewed_at: string | null
@@ -236,7 +232,6 @@ export async function saveBrief(
   data: {
     title: string
     subtitle: string
-    explainerTitle: string
     topicTags: string[]
     tldrTeaser: string
     pinnedMediaPostId: string | null
@@ -297,7 +292,6 @@ export async function saveBrief(
   const updates: Record<string, unknown> = {
     title: data.title,
     subtitle: data.subtitle.trim() || null,
-    explainer_title: data.explainerTitle.trim() || null,
     topic_tags: cleanTopicTags,
     tldr_teaser: data.tldrTeaser.trim() || null,
     pinned_media_post_id: data.pinnedMediaPostId,
@@ -423,51 +417,6 @@ export async function saveBrief(
     sections: (freshSections ?? []) as BriefSection[],
     timelineEvents: (freshTimelineEvents ?? []) as TimelineEvent[],
   }
-}
-
-// ---------------------------------------------------------------------------
-// Explainer image upload
-// ---------------------------------------------------------------------------
-
-const EXPLAINER_IMAGE_BUCKET = 'explainer-images'
-const EXPLAINER_IMAGE_MAX_BYTES = 5 * 1024 * 1024
-const ALLOWED_EXPLAINER_IMAGE_TYPES: Record<string, string> = {
-  'image/jpeg': 'jpg',
-  'image/png': 'png',
-  'image/webp': 'webp',
-  'image/gif': 'gif',
-}
-
-// Backs the rich text editor's Image toolbar button (lib/richtext/editor.tsx,
-// allowImages) — admin-only, unlike brief_coverage's fetchAndStoreImage
-// (lib/links/store-image.ts), which any logged-in member's coverage
-// submission can trigger. Re-hosted on the same kind of public Supabase
-// storage bucket (migration 059) so the CSP's img-src, which only
-// allow-lists 'self', data:, and the Supabase storage origin, doesn't need
-// widening for whatever host the admin's image came from.
-export async function uploadExplainerImage(formData: FormData): Promise<{ url?: string; error?: string }> {
-  await requireAdmin()
-
-  const file = formData.get('file')
-  if (!(file instanceof File)) return { error: 'No file provided.' }
-
-  const ext = ALLOWED_EXPLAINER_IMAGE_TYPES[file.type]
-  if (!ext) return { error: 'Unsupported image type. Use JPEG, PNG, WebP, or GIF.' }
-  if (file.size > EXPLAINER_IMAGE_MAX_BYTES) return { error: 'Image is too large (5MB max).' }
-
-  const bytes = new Uint8Array(await file.arrayBuffer())
-  const path = `${randomUUID()}.${ext}`
-
-  const { error: uploadError } = await getAdminClient()
-    .storage.from(EXPLAINER_IMAGE_BUCKET)
-    .upload(path, bytes, { contentType: file.type, upsert: false })
-  if (uploadError) return { error: uploadError.message }
-
-  const {
-    data: { publicUrl },
-  } = getAdminClient().storage.from(EXPLAINER_IMAGE_BUCKET).getPublicUrl(path)
-
-  return { url: publicUrl }
 }
 
 // ---------------------------------------------------------------------------
