@@ -34,7 +34,7 @@ export const SECTION_META: Record<'tldr' | ActiveSectionType, { label: string; n
     tldr: {
       label: 'TL;DR',
       num: '02',
-      description: 'The three-minute version',
+      description: 'A quick summary',
     },
     explainer: {
       label: 'Explainer',
