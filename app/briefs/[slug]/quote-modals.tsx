@@ -5,12 +5,20 @@ import { submitQuote } from '@/lib/briefs/actions'
 import { createSourcedQuote } from '@/lib/admin/actions'
 import { formatDate } from './helpers'
 import { LikeButton, CopyButton, QuoteAuthorFooter } from './quotes'
+import { EditQuoteModal } from './quote-edit-modal'
 import { useClarityGate } from '@/lib/clarity/useClarityGate'
 import { ClarityFlagsPanel } from '@/components/ClarityFlagsPanel'
-import type { Quote } from './page'
+import {
+  TagInput,
+  SourcedQuoteFields,
+  useSourceOrganizations,
+  resolveSourceOrgId,
+  type SourcedType,
+} from './quote-source-fields'
+import type { Quote, QuotePlatform, CurrentUser } from './page'
 import type { UserRole } from '@/lib/types'
 
-type AttributeTo = 'myself' | 'person' | 'document' | 'ai'
+type AttributeTo = 'myself' | SourcedType
 
 const ATTRIBUTION_OPTIONS: { value: AttributeTo; label: string }[] = [
   { value: 'myself', label: 'Myself' },
@@ -19,14 +27,10 @@ const ATTRIBUTION_OPTIONS: { value: AttributeTo; label: string }[] = [
   { value: 'ai', label: 'AI' },
 ]
 
-const DETAIL_FIELD_LABEL: Record<Exclude<AttributeTo, 'myself'>, string> = {
-  person: 'Title / affiliation',
-  document: 'Publisher / year',
-  ai: 'Provider',
-}
-
 // Split out of quotes.tsx (which holds the card/carousel) to keep both
-// files under the project's ~500-line convention (CONTRIBUTING.md).
+// files under the project's ~500-line convention (CONTRIBUTING.md). The
+// name/platform/organization/detail/source-link fields shared with
+// EditQuoteModal live in quote-source-fields.tsx for the same reason.
 
 // ---------------------------------------------------------------------------
 // Add quote — propose-then-pending form (org/expert/admin), follows
@@ -36,55 +40,6 @@ const DETAIL_FIELD_LABEL: Record<Exclude<AttributeTo, 'myself'>, string> = {
 // the explicit brief_id association submitQuote sets — mirrors "the quote
 // stays searchable/showable sitewide" from Part 0a's own migration note.
 // ---------------------------------------------------------------------------
-
-function TagInput({ tags, onChange }: { tags: string[]; onChange: (tags: string[]) => void }) {
-  const [draft, setDraft] = useState('')
-
-  function addTag(raw: string) {
-    const tag = raw.trim()
-    if (tag && !tags.includes(tag)) onChange([...tags, tag])
-    setDraft('')
-  }
-
-  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Enter' || e.key === ',') {
-      e.preventDefault()
-      addTag(draft)
-    } else if (e.key === 'Backspace' && draft === '' && tags.length > 0) {
-      onChange(tags.slice(0, -1))
-    }
-  }
-
-  return (
-    <div className="flex flex-wrap items-center gap-1.5 border border-line bg-paper px-3 py-2 focus-within:ring-2 focus-within:ring-blue">
-      {tags.map((tag) => (
-        <span
-          key={tag}
-          className="inline-flex items-center gap-1 border border-line-strong bg-paper-raised px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.04em] text-ink"
-        >
-          {tag}
-          <button
-            type="button"
-            onClick={() => onChange(tags.filter((t) => t !== tag))}
-            className="leading-none text-ink-faint hover:text-ink"
-            aria-label={`Remove ${tag}`}
-          >
-            ×
-          </button>
-        </span>
-      ))}
-      <input
-        type="text"
-        value={draft}
-        onChange={(e) => setDraft(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={() => { if (draft.trim()) addTag(draft) }}
-        placeholder={tags.length === 0 ? 'Type a tag and press Enter' : ''}
-        className="min-w-[100px] flex-1 bg-transparent font-body text-sm text-ink outline-none placeholder:text-ink-faint/70"
-      />
-    </div>
-  )
-}
 
 export function AddQuoteModal({
   briefId,
@@ -109,10 +64,17 @@ export function AddQuoteModal({
   const [sourceName, setSourceName] = useState('')
   const [sourceDetail, setSourceDetail] = useState('')
   const [sourceUrl, setSourceUrl] = useState('')
+  const [platform, setPlatform] = useState<QuotePlatform | ''>('')
+  const [orgName, setOrgName] = useState('')
+  const [orgLogoFile, setOrgLogoFile] = useState<File | null>(null)
   const [isPending, startTransition] = useTransition()
   const [feedback, setFeedback] = useState<{ type: 'error' | 'success'; message: string } | null>(null)
   const bodyRef = useRef<HTMLTextAreaElement>(null)
   const bodyId = useId()
+
+  // Only admins ever see the organization field (it lives inside the
+  // isAdmin-only attribution block below), so this fetch is scoped to that.
+  const [organizations, setOrganizations] = useSourceOrganizations(isAdmin)
 
   const isSourced = attributeTo !== 'myself'
   const isSubmitted = feedback?.type === 'success'
@@ -139,12 +101,27 @@ export function AddQuoteModal({
     }
 
     startTransition(async () => {
+      let sourceOrgId: string | null = null
+
+      if (isSourced) {
+        const resolved = await resolveSourceOrgId(attributeTo, orgName, orgLogoFile, organizations, (savedOrg) =>
+          setOrganizations((prev) => [...prev.filter((o) => o.id !== savedOrg.id), savedOrg]),
+        )
+        if (resolved.error) {
+          setFeedback({ type: 'error', message: resolved.error })
+          return
+        }
+        sourceOrgId = resolved.sourceOrgId
+      }
+
       const result = isSourced
         ? await createSourcedQuote(briefId, briefSlug, {
             quoteSource: attributeTo,
             sourceName,
             sourceDetail,
             sourceUrl,
+            sourcePlatform: attributeTo === 'person' ? platform || null : null,
+            sourceOrgId,
             body,
             tags,
           })
@@ -158,6 +135,9 @@ export function AddQuoteModal({
         setSourceName('')
         setSourceDetail('')
         setSourceUrl('')
+        setPlatform('')
+        setOrgName('')
+        setOrgLogoFile(null)
         setFeedback({
           type: 'success',
           message: isSourced
@@ -222,52 +202,20 @@ export function AddQuoteModal({
 
           {isSourced && (
             <div className="space-y-4 border-l-[3px] border-blue bg-paper-sunken-blue p-4">
-              <div>
-                <label htmlFor={`${bodyId}-name`} className="mb-2 block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
-                  Name
-                </label>
-                <input
-                  id={`${bodyId}-name`}
-                  type="text"
-                  value={sourceName}
-                  onChange={(e) => setSourceName(e.target.value)}
-                  maxLength={200}
-                  placeholder={attributeTo === 'document' ? 'Document title…' : attributeTo === 'ai' ? 'Model name…' : 'Full name…'}
-                  disabled={isPending || isSubmitted}
-                  className="w-full border border-line bg-paper px-4 py-2.5 font-body text-sm text-ink placeholder:text-ink-faint/70 transition focus:outline-none focus:ring-2 focus:ring-blue disabled:opacity-50"
-                />
-              </div>
-              <div>
-                <label htmlFor={`${bodyId}-detail`} className="mb-2 block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
-                  {DETAIL_FIELD_LABEL[attributeTo]} <span className="normal-case tracking-normal text-ink-faint/70">(optional)</span>
-                </label>
-                <input
-                  id={`${bodyId}-detail`}
-                  type="text"
-                  value={sourceDetail}
-                  onChange={(e) => setSourceDetail(e.target.value)}
-                  maxLength={200}
-                  disabled={isPending || isSubmitted}
-                  className="w-full border border-line bg-paper px-4 py-2.5 font-body text-sm text-ink placeholder:text-ink-faint/70 transition focus:outline-none focus:ring-2 focus:ring-blue disabled:opacity-50"
-                />
-              </div>
-              <div>
-                <label htmlFor={`${bodyId}-url`} className="mb-2 block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
-                  Source link
-                </label>
-                <input
-                  id={`${bodyId}-url`}
-                  type="url"
-                  value={sourceUrl}
-                  onChange={(e) => setSourceUrl(e.target.value)}
-                  placeholder="https://…"
-                  disabled={isPending || isSubmitted}
-                  className="w-full border border-line bg-paper px-4 py-2.5 font-body text-sm text-ink placeholder:text-ink-faint/70 transition focus:outline-none focus:ring-2 focus:ring-blue disabled:opacity-50"
-                />
-                <p className="mt-2 font-body text-xs text-ink-faint">
-                  Required — this is what the reader taps to verify the quote.
-                </p>
-              </div>
+              <SourcedQuoteFields
+                idPrefix={bodyId}
+                sourceType={attributeTo}
+                organizations={organizations}
+                disabled={isPending || isSubmitted}
+                state={{
+                  sourceName, setSourceName,
+                  sourceDetail, setSourceDetail,
+                  sourceUrl, setSourceUrl,
+                  platform, setPlatform,
+                  orgName, setOrgName,
+                  orgLogoFile, setOrgLogoFile,
+                }}
+              />
             </div>
           )}
 
@@ -366,16 +314,37 @@ export function QuoteDetailModal({
   quote,
   briefSlug,
   isLoggedIn,
+  currentUser,
   onClose,
 }: {
   quote: Quote
   briefSlug: string
   isLoggedIn: boolean
+  // Optional so call sites that never show this modal to a logged-in
+  // viewer (there aren't any today, but future ones shouldn't be forced to
+  // thread it through) can omit it — no Edit affordance without it.
+  currentUser?: CurrentUser | null
   onClose: () => void
 }) {
+  const [editOpen, setEditOpen] = useState(false)
   const quoteText = quote.body || quote.title
   const wasUpdated = quote.updated_at !== quote.created_at
   const source = quote.url ? formatSourceUrl(quote.url) : null
+  const isAdmin = currentUser?.role === 'admin'
+  // Only a 'member'-sourced quote has a real owner (user_id is always null
+  // for person/document/ai) — admin can edit any quote regardless.
+  const canEdit = isAdmin || (!!currentUser && quote.user_id === currentUser.id)
+
+  if (editOpen) {
+    return (
+      <EditQuoteModal
+        quote={quote}
+        briefSlug={briefSlug}
+        isAdmin={isAdmin}
+        onClose={() => setEditOpen(false)}
+      />
+    )
+  }
 
   return (
     <div
@@ -389,14 +358,26 @@ export function QuoteDetailModal({
       <div className="relative flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden border-[1.5px] border-ink bg-paper">
         <div className="flex shrink-0 items-start justify-between border-b-[1.5px] border-ink px-7 pb-5 pt-7">
           <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-blue-ink">Quote</p>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            style={{ touchAction: 'manipulation' }}
-            className="ml-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-paper-raised text-lg leading-none text-ink-soft outline-none transition-colors hover:bg-line hover:text-ink focus-visible:ring-2 focus-visible:ring-blue"
-          >
-            ×
-          </button>
+          <div className="flex items-center gap-3">
+            {canEdit && (
+              <button
+                type="button"
+                onClick={() => setEditOpen(true)}
+                style={{ touchAction: 'manipulation' }}
+                className="font-mono text-[10px] uppercase tracking-[0.15em] text-ink-faint transition-colors hover:text-blue"
+              >
+                Edit
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              aria-label="Close"
+              style={{ touchAction: 'manipulation' }}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-paper-raised text-lg leading-none text-ink-soft outline-none transition-colors hover:bg-line hover:text-ink focus-visible:ring-2 focus-visible:ring-blue"
+            >
+              ×
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-col gap-6 overflow-y-auto px-7 py-6">

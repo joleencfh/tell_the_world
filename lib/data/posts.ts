@@ -42,6 +42,16 @@ export interface QuoteAuthor {
 // is a hand-written union rather than derived from Database.
 export type QuoteSource = 'member' | 'person' | 'document' | 'ai'
 
+// Only meaningful when quote_source is 'person' — which social platform the
+// quoted post came from, so the card can show that platform's icon instead
+// of the generic person glyph (052's icon set).
+export type QuotePlatform = 'x' | 'linkedin'
+
+export interface QuoteOrganization {
+  name: string
+  logo_url: string
+}
+
 export interface Quote {
   id: string
   title: string
@@ -51,10 +61,12 @@ export interface Quote {
   quote_source: QuoteSource
   source_name: string | null
   source_detail: string | null
+  source_platform: QuotePlatform | null
   created_at: string
   updated_at: string
   topic_tags: string[]
   users: QuoteAuthor | null
+  source_organizations: QuoteOrganization | null
   likeCount: number
   myLike: boolean
 }
@@ -85,7 +97,7 @@ const MEDIA_SELECT =
   'id, post_type, title, body, url, user_id, created_at, users(id, display_name, avatar_url, role, affiliation, org_name)'
 
 const QUOTE_SELECT =
-  'id, title, body, url, user_id, quote_source, source_name, source_detail, created_at, updated_at, topic_tags, users!left(id, display_name, avatar_url, role, affiliation, org_name)'
+  'id, title, body, url, user_id, quote_source, source_name, source_detail, source_platform, created_at, updated_at, topic_tags, users!left(id, display_name, avatar_url, role, affiliation, org_name), source_organizations!left(name, logo_url)'
 
 interface QuoteRow {
   id: string
@@ -96,10 +108,12 @@ interface QuoteRow {
   quote_source: QuoteSource
   source_name: string | null
   source_detail: string | null
+  source_platform: QuotePlatform | null
   created_at: string
   updated_at: string
   topic_tags: string[]
   users: QuoteAuthor | null
+  source_organizations: QuoteOrganization | null
 }
 
 // Attaches each row's like count and whether the given viewer has liked it

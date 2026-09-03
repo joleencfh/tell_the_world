@@ -95,6 +95,12 @@ export interface QuoteAuthor {
 }
 
 export type QuoteSource = 'member' | 'person' | 'document' | 'ai'
+export type QuotePlatform = 'x' | 'linkedin'
+
+export interface QuoteOrganization {
+  name: string
+  logo_url: string
+}
 
 export interface Quote {
   id: string
@@ -105,10 +111,12 @@ export interface Quote {
   quote_source: QuoteSource
   source_name: string | null
   source_detail: string | null
+  source_platform: QuotePlatform | null
   created_at: string
   updated_at: string
   topic_tags: string[]
   users: QuoteAuthor | null
+  source_organizations: QuoteOrganization | null
   likeCount: number
   myLike: boolean
 }

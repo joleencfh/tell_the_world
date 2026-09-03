@@ -859,6 +859,8 @@ export type Database = {
           quote_source: string
           source_detail: string | null
           source_name: string | null
+          source_org_id: string | null
+          source_platform: string | null
           status: string
           title: string
           topic_tags: string[]
@@ -876,6 +878,8 @@ export type Database = {
           quote_source?: string
           source_detail?: string | null
           source_name?: string | null
+          source_org_id?: string | null
+          source_platform?: string | null
           status?: string
           title: string
           topic_tags?: string[]
@@ -893,6 +897,8 @@ export type Database = {
           quote_source?: string
           source_detail?: string | null
           source_name?: string | null
+          source_org_id?: string | null
+          source_platform?: string | null
           status?: string
           title?: string
           topic_tags?: string[]
@@ -906,6 +912,13 @@ export type Database = {
             columns: ["brief_id"]
             isOneToOne: false
             referencedRelation: "briefs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_posts_source_org_id_fkey"
+            columns: ["source_org_id"]
+            isOneToOne: false
+            referencedRelation: "source_organizations"
             referencedColumns: ["id"]
           },
           {
@@ -1439,6 +1452,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      source_organizations: {
+        Row: {
+          created_at: string
+          id: string
+          logo_url: string
+          name: string
+          name_key: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          logo_url: string
+          name: string
+          name_key?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          logo_url?: string
+          name?: string
+          name_key?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       translations: {
         Row: {
