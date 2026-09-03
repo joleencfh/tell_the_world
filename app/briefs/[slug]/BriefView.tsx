@@ -161,7 +161,9 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
   const sortedSections = [...brief.brief_sections].sort(
     (a, b) => a.display_order - b.display_order,
   )
-  const tldr = sortedSections.find((s) => s.section_type === 'tldr')?.content ?? ''
+  const tldrSection = sortedSections.find((s) => s.section_type === 'tldr')
+  const tldr = tldrSection?.content ?? ''
+  const tldrRichContent = tldrSection?.rich_content ?? null
   const readTimeMinutes = computeReadTimeMinutes(sortedSections)
   // orgCount (distinct affiliated orgs among reviewers) is still computed by
   // getEndorsementBar but not currently rendered anywhere — the combined
@@ -335,7 +337,7 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
                   ) : undefined
                 }
               />
-              <TLDRList content={tldr} />
+              <TLDRList content={tldr} richContent={tldrRichContent} />
             </div>
           </div>
         )}

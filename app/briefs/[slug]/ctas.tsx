@@ -265,7 +265,7 @@ export function SuggestCtaModal({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               maxLength={120}
-              placeholder="e.g. Watch our explainer video"
+              placeholder="E.g.: Sign our petition"
               disabled={isPending || isSubmitted}
               className="w-full border border-line bg-paper px-4 py-2.5 font-body text-sm text-ink placeholder:text-ink-faint/70 transition focus:outline-none focus:ring-2 focus:ring-blue disabled:opacity-50"
             />
