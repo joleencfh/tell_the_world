@@ -28,6 +28,7 @@ const COVERAGE_LIMIT = 2
 export interface HighlightedSectionData {
   brief: { id: string; title: string; slug: string; topicTags: string[] }
   tldr: string
+  tldrRichContent: unknown
   readTimeMinutes: number
   reviewedCount: number
   endorsedCount: number
@@ -45,7 +46,9 @@ export async function getHighlightedSectionData(db: DB, userId: string): Promise
   const brief = await getFeaturedBriefDetail(db, briefId)
   if (!brief) return null // defensive: featured flag survived a since-deleted brief
 
-  const tldr = brief.brief_sections.find((s) => s.section_type === 'tldr')?.content ?? ''
+  const tldrSection = brief.brief_sections.find((s) => s.section_type === 'tldr')
+  const tldr = tldrSection?.content ?? ''
+  const tldrRichContent = tldrSection?.rich_content ?? null
   const readTimeMinutes = computeReadTimeMinutes(brief.brief_sections)
 
   const [{ counts }, quotes, coverage] = await Promise.all([
@@ -61,6 +64,7 @@ export async function getHighlightedSectionData(db: DB, userId: string): Promise
   return {
     brief: { id: brief.id, title: brief.title, slug: brief.slug, topicTags: brief.topic_tags },
     tldr,
+    tldrRichContent,
     readTimeMinutes,
     reviewedCount: counts.reviewedCount,
     endorsedCount: counts.endorsedCount,
@@ -115,7 +119,7 @@ function CoverageEmptyState() {
 // ---------------------------------------------------------------------------
 
 export default function Highlighted({ data }: { data: HighlightedSectionData }) {
-  const { brief, tldr, readTimeMinutes, reviewedCount, endorsedCount, quotes, coverage } = data
+  const { brief, tldr, tldrRichContent, readTimeMinutes, reviewedCount, endorsedCount, quotes, coverage } = data
 
   return (
     <section className={`border-t-4 ${DASH_SECTION_BORDER_CLASSES.blue} pt-8`}>
@@ -158,7 +162,9 @@ export default function Highlighted({ data }: { data: HighlightedSectionData }) 
                   id: 'overview',
                   label: 'Overview',
                   content: (
-                    <div className="pt-6">{tldr.trim() ? <TLDRList content={tldr} /> : <OverviewEmptyState />}</div>
+                    <div className="pt-6">
+                      {tldr.trim() ? <TLDRList content={tldr} richContent={tldrRichContent} /> : <OverviewEmptyState />}
+                    </div>
                   ),
                 },
                 {

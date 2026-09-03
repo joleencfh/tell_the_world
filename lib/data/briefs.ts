@@ -141,15 +141,19 @@ export async function getFeaturedBrief(db: DB): Promise<string | null> {
 
 // Just enough of the featured brief for the Highlighted module (home-
 // dashboard-plan.md §2, Part 3 step 2) — title/slug/topic_tags plus the
-// section rows needed for read-time (helpers.ts's computeReadTimeMinutes)
-// and endorsement-bar (lib/data/contributions.ts's getEndorsementBar)
-// computation. Lighter than getBriefWithSectionsBySlug on purpose: this
-// skips subtitle, tldr_teaser, visibility, rich_content and timeline
-// events, none of which the dashboard card renders.
+// section rows needed for read-time (helpers.ts's computeReadTimeMinutes),
+// endorsement-bar (lib/data/contributions.ts's getEndorsementBar), and
+// TL;DR (TLDRList, app/briefs/[slug]/section-content.tsx) rendering.
+// Lighter than getBriefWithSectionsBySlug on purpose: this still skips
+// subtitle, tldr_teaser, visibility and timeline events, none of which the
+// dashboard card renders. rich_content is included (2026-09-03) since
+// TLDRList needs it once a TL;DR is authored via the rich text editor —
+// leaving it out would silently drop that TL;DR's formatting here only.
 export interface FeaturedBriefDetailSection {
   id: string
   section_type: BriefSectionType
   content: string
+  rich_content: unknown
   content_version: number
 }
 
@@ -164,7 +168,7 @@ export interface FeaturedBriefDetail {
 export async function getFeaturedBriefDetail(db: DB, briefId: string): Promise<FeaturedBriefDetail | null> {
   const { data, error } = await db
     .from('briefs')
-    .select('id, title, slug, topic_tags, brief_sections(id, section_type, content, content_version)')
+    .select('id, title, slug, topic_tags, brief_sections(id, section_type, content, rich_content, content_version)')
     .eq('id', briefId)
     .single()
 

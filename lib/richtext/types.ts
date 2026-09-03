@@ -146,3 +146,42 @@ export function plainTextToRichContent(content: string): RichTextRoot {
   }))
   return { root: { type: 'root', children } }
 }
+
+// ---------------------------------------------------------------------------
+// TL;DR bullets — one paragraph per bullet
+// ---------------------------------------------------------------------------
+
+// The legacy TL;DR textarea's "**lead term** — rest" convention (one bullet
+// per line, optionally starting with a bold lead followed by an em dash) —
+// shared by the plain-text render path (parseTLDR,
+// app/briefs/[slug]/section-content.tsx) and the rich-text switch-over below,
+// so both agree on what counts as a bulleted lead term.
+const TLDR_LEAD_PATTERN = /^\*\*(.+?)\*\*\s*—\s*(.*)$/
+
+export function parseTldrBulletLead(line: string): { lead: string | null; rest: string } {
+  const match = line.match(TLDR_LEAD_PATTERN)
+  return match ? { lead: match[1].trim(), rest: match[2].trim() } : { lead: null, rest: line }
+}
+
+// One-way conversion for TL;DR's "Switch to rich text editor" action
+// (mirrors plainTextToRichContent above). TL;DR is one bullet per line
+// rather than blank-line-separated paragraphs, and each Enter in the rich
+// editor starts a new paragraph — so a bullet becomes a paragraph, and an
+// existing **lead** — rest bullet carries its lead over as a real bold text
+// run instead of flattening the ** markers to literal text.
+export function tldrPlainTextToRichContent(content: string): RichTextRoot {
+  const lines = content.split(/\r?\n/).map((line) => line.trim()).filter(Boolean)
+  const children: RichTextParagraphNode[] = (lines.length > 0 ? lines : ['']).map((line) => {
+    const { lead, rest } = parseTldrBulletLead(line)
+    return {
+      type: 'paragraph',
+      children: lead
+        ? [
+            { type: 'text', text: lead, format: RICH_TEXT_BOLD_FORMAT },
+            { type: 'text', text: ` — ${rest}` },
+          ]
+        : [{ type: 'text', text: rest }],
+    }
+  })
+  return { root: { type: 'root', children } }
+}

@@ -4,6 +4,8 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 import Avatar from '@/components/ui/Avatar'
 import { getDisplayName, formatDate } from './helpers'
+import { parseRichContent, parseTldrBulletLead, type RichTextParagraphNode } from '@/lib/richtext/types'
+import { renderRichTextInline } from '@/lib/richtext/render'
 import type { Reviewer } from '@/lib/data/contributions'
 import type { BriefContributor } from './page'
 
@@ -61,7 +63,12 @@ export const SECTION_BG: Record<number, string> = {
 }
 
 // ---------------------------------------------------------------------------
-// TL;DR bullets — short lines, optional "**lead term** — rest" shape
+// TL;DR bullets — either the legacy plain-text lines (optional "**lead
+// term** — rest" shape, parsed by parseTldrBulletLead) or, once an admin
+// switches a TL;DR to the rich text editor (lib/richtext/editor.tsx, same
+// one Explainer subsections use), one bullet per Lexical paragraph — see
+// tldrPlainTextToRichContent's comment in lib/richtext/types.ts for how the
+// two shapes stay compatible with each other.
 // ---------------------------------------------------------------------------
 
 interface TLDRBullet {
@@ -77,26 +84,43 @@ export function parseTLDR(content: string): TLDRBullet[] | null {
 
   if (lines.length === 0) return null
 
-  return lines.map((line) => {
-    const match = line.match(/^\*\*(.+?)\*\*\s*—\s*(.*)$/)
-    return match ? { lead: match[1].trim(), rest: match[2].trim() } : { lead: null, rest: line }
-  })
+  return lines.map(parseTldrBulletLead)
 }
 
-export function TLDRList({ content }: { content: string }) {
+function TLDRBulletRow({ children }: { children: ReactNode }) {
+  return (
+    <li className="flex gap-3">
+      <span className="mt-2.5 h-1.5 w-1.5 rounded-full bg-ink-faint shrink-0" aria-hidden />
+      <p className="font-body text-[1.05rem] text-ink leading-[1.7]">{children}</p>
+    </li>
+  )
+}
+
+export function TLDRList({ content, richContent }: { content: string; richContent?: unknown }) {
+  const doc = parseRichContent(richContent)
+
+  if (doc) {
+    const bullets = doc.root.children.filter((node): node is RichTextParagraphNode => node.type === 'paragraph')
+    if (bullets.length === 0) return null
+    return (
+      <ul className="space-y-4 max-w-2xl">
+        {bullets.map((bullet, i) => (
+          <TLDRBulletRow key={i}>{renderRichTextInline(bullet.children)}</TLDRBulletRow>
+        ))}
+      </ul>
+    )
+  }
+
   const bullets = parseTLDR(content)
   if (!bullets) return null
 
   return (
     <ul className="space-y-4 max-w-2xl">
       {bullets.map((bullet, i) => (
-        <li key={i} className="flex gap-3">
-          <span className="mt-2.5 h-1.5 w-1.5 rounded-full bg-ink-faint shrink-0" aria-hidden />
-          <p className="font-body text-[1.05rem] text-ink leading-[1.7]">
-            {bullet.lead && <strong className="font-semibold text-ink">{bullet.lead} — </strong>}
-            {bullet.rest}
-          </p>
-        </li>
+        <TLDRBulletRow key={i}>
+          {bullet.lead && <strong className="font-semibold text-ink">{bullet.lead} — </strong>}
+          {bullet.rest}
+        </TLDRBulletRow>
       ))}
     </ul>
   )

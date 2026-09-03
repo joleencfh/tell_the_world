@@ -109,6 +109,36 @@ const EXPLAINER_RICH_HELP = (
   </>
 )
 
+// Shown instead of SECTION_HELP.tldr once TL;DR is switched to the rich text
+// editor. No Section/Subsection/Image buttons here (allowHeadings/allowImages
+// both off below) — TL;DR is a flat list of short bullets, one per paragraph.
+const TLDR_RICH_HELP = (
+  <>
+    Press <strong className="text-ink">Enter</strong> for a new bullet, 3–5 recommended. Use the{' '}
+    <strong className="text-ink">B</strong> button to bold a lead term at the start of a bullet, e.g.{' '}
+    <strong className="text-ink">Compute race</strong> — followed by an em dash and the rest of the line.
+  </>
+)
+
+const TLDR_RICH_PLACEHOLDER =
+  'Compute race — governments vs. governments, companies vs. companies.\nA second bullet goes here.'
+
+// Section types the Lexical rich text editor (lib/richtext/editor.tsx) can
+// author, alongside the per-type toolbar/help it gets — every other type
+// stays on the plain textarea (or its own specialized editor, e.g.
+// SourcesFormEditor) below. Keyed lookup rather than a per-type boolean flag
+// so adding a third rich-text-eligible section type is a one-entry change
+// here, not a new `isFoo` variable threaded through the component.
+const RICH_TEXT_SECTIONS: Partial<Record<BriefSection['section_type'], {
+  allowHeadings: boolean
+  allowImages: boolean
+  helpText: ReactNode
+  placeholder?: string
+}>> = {
+  explainer: { allowHeadings: true, allowImages: true, helpText: EXPLAINER_RICH_HELP },
+  tldr: { allowHeadings: false, allowImages: false, helpText: TLDR_RICH_HELP, placeholder: TLDR_RICH_PLACEHOLDER },
+}
+
 // ---------------------------------------------------------------------------
 // Section editor
 // ---------------------------------------------------------------------------
@@ -124,12 +154,14 @@ interface SectionEditorProps {
   // editor lets the author title or remove.
   onTitleChange?: (key: string, title: string) => void
   onRemove?: (key: string) => void
-  // Only meaningful for explainer subsections (Part 0b) — every other
-  // section type stays on the plain textarea above.
+  // Only meaningful for section types in RICH_TEXT_SECTIONS above (Part 0b:
+  // explainer; TL;DR added 2026-09-03) — every other section type stays on
+  // the plain textarea.
   onRichContentChange?: (key: string, richContent: unknown, plainText: string) => void
   onSwitchToRichText?: (key: string) => void
-  // Explainer only (2026-09-02): backs the rich text editor's Image toolbar
-  // button. Not passed through for FAQ answer authoring (faq-answers.tsx,
+  // Backs the rich text editor's Image toolbar button — only wired up for
+  // section types with allowImages set in RICH_TEXT_SECTIONS (explainer).
+  // Not passed through for FAQ answer authoring (faq-answers.tsx,
   // faq-meta-editor.tsx), which also reuses RichTextEditor but hasn't been
   // asked to carry headings/images.
   onUploadImage?: (file: File) => Promise<string | null>
@@ -151,11 +183,12 @@ export function SectionEditor({
   const isExplainer = section.section_type === 'explainer'
   const isGoingDeeper = section.section_type === 'going_deeper'
   const help = SECTION_HELP[section.section_type]
+  const richConfig = RICH_TEXT_SECTIONS[section.section_type]
   // A brand-new, still-empty subsection goes straight to the rich text
   // editor (nothing legacy to preserve); an existing plain-text subsection
   // keeps the textarea until the admin deliberately switches it — the two
   // shapes coexist rather than one silently replacing the other (§2, Part 0b).
-  const useRichEditor = isExplainer && (section.rich_content !== null || section.content.trim() === '')
+  const useRichEditor = !!richConfig && (section.rich_content !== null || section.content.trim() === '')
 
   return (
     <div className="border border-line bg-paper-raised">
@@ -215,7 +248,7 @@ export function SectionEditor({
 
       <div className="px-4 py-3 border-b border-line bg-paper/60">
         <p className="font-body text-xs text-ink-soft leading-relaxed">
-          {useRichEditor ? EXPLAINER_RICH_HELP : help.instructions}
+          {useRichEditor && richConfig ? richConfig.helpText : help.instructions}
         </p>
       </div>
 
@@ -225,14 +258,14 @@ export function SectionEditor({
           initialContent={section.content}
           onChange={(content) => onContentChange(section.clientKey, content)}
         />
-      ) : useRichEditor && onRichContentChange ? (
+      ) : useRichEditor && richConfig && onRichContentChange ? (
         <RichTextEditor
           key={section.clientKey}
           initialValue={section.rich_content}
           onChange={(json, plainText) => onRichContentChange(section.clientKey, json, plainText)}
-          placeholder={help.placeholder}
-          allowHeadings
-          allowImages
+          placeholder={richConfig.placeholder ?? help.placeholder}
+          allowHeadings={richConfig.allowHeadings}
+          allowImages={richConfig.allowImages}
           onUploadImage={onUploadImage}
         />
       ) : (
@@ -244,7 +277,7 @@ export function SectionEditor({
             className="w-full px-3 py-3 font-mono text-sm text-ink leading-relaxed focus:outline-none resize-y"
             placeholder={help.placeholder}
           />
-          {isExplainer && onSwitchToRichText && (
+          {richConfig && onSwitchToRichText && (
             <div className="border-t border-line px-4 py-2.5">
               <button
                 type="button"
@@ -254,7 +287,9 @@ export function SectionEditor({
                 Switch to rich text editor →
               </button>
               <p className="mt-1 font-body text-xs text-ink-soft/70">
-                Carries the existing text over as plain paragraphs. Key term tooltips become literal text.
+                {isExplainer
+                  ? 'Carries the existing text over as plain paragraphs. Key term tooltips become literal text.'
+                  : 'Carries each existing bullet over as its own paragraph, keeping any bold lead term.'}
               </p>
             </div>
           )}

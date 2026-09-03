@@ -77,6 +77,14 @@ function renderInline(node: RichTextInlineNode, key: number, keyterms: KeytermSt
   )
 }
 
+// Renders a bare inline-node list with no block wrapper (no keyterms — no
+// caller needs them yet) — the TL;DR rich-text path (section-content.tsx's
+// TLDRList) needs each bullet's inline content without the <p> renderParagraph
+// wraps it in, since the bullet's own markup wraps it instead.
+export function renderRichTextInline(nodes: RichTextInlineNode[]): ReactNode {
+  return nodes.map((node, i) => renderInline(node, i, null))
+}
+
 function renderParagraph(
   paragraph: RichTextParagraphNode,
   key: number,

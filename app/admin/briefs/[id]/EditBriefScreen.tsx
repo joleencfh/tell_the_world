@@ -6,7 +6,7 @@ import Logo from '@/components/ui/Logo'
 import SignOutButton from '@/components/ui/SignOutButton'
 import { saveBrief, deleteBrief, uploadExplainerImage } from '@/lib/admin/brief-actions'
 import type { Brief, BriefSection, MediaPickerOption, TimelineEvent, UserOption, FaqMetaRow } from '@/lib/admin/brief-actions'
-import { plainTextToRichContent } from '@/lib/richtext/types'
+import { plainTextToRichContent, tldrPlainTextToRichContent } from '@/lib/richtext/types'
 import { SectionEditor, type EditableSection } from './section-editor'
 import { TimelineEditor, type EditableTimelineEvent } from './timeline-editor'
 import { FaqMetaEditor, DEFAULT_FAQ_META, type EditableFaqMeta } from './faq-meta-editor'
@@ -87,10 +87,16 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
     setSections(prev => prev.map(s => s.clientKey === key ? { ...s, rich_content: richContent, content: plainText } : s))
   }, [])
 
-  // One-way per-row switch (Part 0b) — seeds an initial rich-text doc from
-  // the subsection's current plain content so nothing is silently lost.
+  // One-way per-row switch (Part 0b; extended to TL;DR 2026-09-03) — seeds
+  // an initial rich-text doc from the section's current plain content so
+  // nothing is silently lost. TL;DR's bullets are one-per-line rather than
+  // blank-line-separated paragraphs, so it gets its own converter.
   const handleSwitchToRichText = useCallback((key: string) => {
-    setSections(prev => prev.map(s => s.clientKey === key ? { ...s, rich_content: plainTextToRichContent(s.content) } : s))
+    setSections(prev => prev.map(s => {
+      if (s.clientKey !== key) return s
+      const convert = s.section_type === 'tldr' ? tldrPlainTextToRichContent : plainTextToRichContent
+      return { ...s, rich_content: convert(s.content) }
+    }))
   }, [])
 
   function moveSection(key: string, dir: 'up' | 'down') {
