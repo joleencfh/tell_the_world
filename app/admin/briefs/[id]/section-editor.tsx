@@ -96,15 +96,16 @@ const SECTION_HELP: Record<BriefSection['section_type'], { instructions: ReactNo
 }
 
 // Shown instead of SECTION_HELP.explainer once a subsection is switched to
-// the rich text editor (Part 0b) — {{term|definition}} keyterm tooltips
-// aren't supported there yet, so the instructions shouldn't imply they are.
+// the rich text editor (Part 0b).
 const EXPLAINER_RICH_HELP = (
   <>
-    Use the <strong className="text-ink">B</strong> and <strong className="text-ink">Link</strong> buttons above to
-    format text. Link to another brief with a path like{' '}
-    <code className="font-mono text-[11px]">/briefs/some-brief-slug</code>, or paste a full URL for an external
-    link. Key term tooltips (<code className="font-mono text-[11px]">{'{{term|definition}}'}</code>) aren&apos;t
-    supported here yet.
+    Use the <strong className="text-ink">B</strong>, <strong className="text-ink">Link</strong>,{' '}
+    <strong className="text-ink">Section</strong>, and <strong className="text-ink">Subsection</strong> buttons
+    above to format text, and <strong className="text-ink">Image</strong> to drop in a picture anywhere in the
+    text. Link to another brief with a path like <code className="font-mono text-[11px]">/briefs/some-brief-slug</code>,
+    or paste a full URL for an external link. Mark a key term inline with{' '}
+    <code className="font-mono text-[11px]">{'{{term|definition}}'}</code> to get a hover/focus tooltip on the
+    public page — same syntax as the plain-text editor, no toolbar button needed.
   </>
 )
 
@@ -127,6 +128,11 @@ interface SectionEditorProps {
   // section type stays on the plain textarea above.
   onRichContentChange?: (key: string, richContent: unknown, plainText: string) => void
   onSwitchToRichText?: (key: string) => void
+  // Explainer only (2026-09-02): backs the rich text editor's Image toolbar
+  // button. Not passed through for FAQ answer authoring (faq-answers.tsx,
+  // faq-meta-editor.tsx), which also reuses RichTextEditor but hasn't been
+  // asked to carry headings/images.
+  onUploadImage?: (file: File) => Promise<string | null>
 }
 
 export function SectionEditor({
@@ -140,6 +146,7 @@ export function SectionEditor({
   onRemove,
   onRichContentChange,
   onSwitchToRichText,
+  onUploadImage,
 }: SectionEditorProps) {
   const isExplainer = section.section_type === 'explainer'
   const isGoingDeeper = section.section_type === 'going_deeper'
@@ -224,6 +231,9 @@ export function SectionEditor({
           initialValue={section.rich_content}
           onChange={(json, plainText) => onRichContentChange(section.clientKey, json, plainText)}
           placeholder={help.placeholder}
+          allowHeadings
+          allowImages
+          onUploadImage={onUploadImage}
         />
       ) : (
         <>

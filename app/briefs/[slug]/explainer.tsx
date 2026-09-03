@@ -4,61 +4,9 @@ import { TimelineGraphic } from './timeline'
 import { ExplainerEngagement, ExplainerHeaderWidgets, ContributorsStrip } from './explainer-engagement'
 import { parseRichContent } from '@/lib/richtext/types'
 import { renderRichText } from '@/lib/richtext/render'
+import { tokenizeKeyterms, Keyterm } from '@/lib/richtext/keyterms'
 import type { BriefTimelineEvent, ContentiousPoint, ExplainerComment, ExplainerUsefulness } from './page'
 import type { EngagementAuthor } from '@/lib/data/explainer-engagement'
-
-// ---------------------------------------------------------------------------
-// Keyterm tooltips — authoring convention: {{term|definition}} inline in an
-// explainer subsection's content, pattern-matched the same way parseFAQ
-// parses structured text out of a single content field (two-ink-bold-plan.md
-// §3 Part 3 step 4).
-// ---------------------------------------------------------------------------
-
-interface ExplainerToken {
-  type: 'text' | 'keyterm'
-  text: string
-  definition?: string
-}
-
-const KEYTERM_PATTERN = /\{\{(.+?)\|(.+?)\}\}/g
-
-function tokenizeKeyterms(text: string): ExplainerToken[] {
-  const tokens: ExplainerToken[] = []
-  let lastIndex = 0
-  for (const match of text.matchAll(KEYTERM_PATTERN)) {
-    const index = match.index ?? 0
-    if (index > lastIndex) tokens.push({ type: 'text', text: text.slice(lastIndex, index) })
-    tokens.push({ type: 'keyterm', text: match[1].trim(), definition: match[2].trim() })
-    lastIndex = index + match[0].length
-  }
-  if (lastIndex < text.length) tokens.push({ type: 'text', text: text.slice(lastIndex) })
-  return tokens
-}
-
-// CSS-only hover/focus reveal (group-hover/group-focus-within), keyboard
-// reachable via the term's own tabIndex — but the tooltip's text also needs
-// to reach assistive tech, not just sighted hover/focus users, hence
-// aria-describedby rather than relying on the visual reveal alone (§1.4).
-function Keyterm({ term, definition, id }: { term: string; definition: string; id: string }) {
-  return (
-    <span className="group relative" style={{ touchAction: 'manipulation' }}>
-      <span
-        tabIndex={0}
-        aria-describedby={id}
-        className="cursor-help border-b-2 border-blue font-semibold not-italic text-blue-ink outline-none focus-visible:ring-2 focus-visible:ring-blue"
-      >
-        {term}
-      </span>
-      <span
-        role="tooltip"
-        id={id}
-        className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-56 -translate-x-1/2 rounded bg-ink px-3 py-2 text-left font-body text-xs font-normal not-italic leading-snug text-paper opacity-0 shadow-lg transition-opacity duration-150 motion-reduce:transition-none group-hover:opacity-100 group-focus-within:opacity-100"
-      >
-        {definition}
-      </span>
-    </span>
-  )
-}
 
 // Paragraph className matches the legacy path's first-paragraph emphasis
 // (medium weight for the lead paragraph, soft color for the rest) so a
@@ -73,6 +21,18 @@ function explainerParagraphClassName(index: number): string {
   }`
 }
 
+// In-content headings (H2/H3 in the rich text editor's toolbar) — sized
+// between the Explainer's main title (explainerTitleClassName below, ~1.8rem)
+// and the 1.125rem body baseline above. Distinct from each subsection's own
+// brief_sections.title (rendered by ExplainerSubsection below, 1.28rem
+// italic) — that's a per-row label set in the admin form, these are
+// freeform headings an author can drop in anywhere while writing.
+function explainerHeadingClassName(level: 'h2' | 'h3'): string {
+  return level === 'h2'
+    ? 'font-display text-[1.45rem] font-extrabold leading-[1.3] text-ink'
+    : 'font-display text-[1.2rem] font-bold leading-[1.35] text-ink'
+}
+
 function ExplainerBody({
   sectionId,
   content,
@@ -84,12 +44,20 @@ function ExplainerBody({
 }) {
   const doc = parseRichContent(richContent)
   if (doc) {
-    return <div className="max-w-2xl space-y-6">{renderRichText(doc, { paragraphClassName: explainerParagraphClassName })}</div>
+    return (
+      <div className="max-w-2xl space-y-6">
+        {renderRichText(doc, {
+          paragraphClassName: explainerParagraphClassName,
+          headingClassName: explainerHeadingClassName,
+          keyterms: { sectionId },
+        })}
+      </div>
+    )
   }
 
-  // Legacy plain-text path — {{term|definition}} keyterm syntax, not
-  // authored via the rich text editor yet (docs/design/brief-feature/
-  // brief-page-part2-plan.md §2, Part 0b: the two shapes coexist).
+  // Legacy plain-text path — same {{term|definition}} keyterm syntax as the
+  // rich-text path above (docs/design/brief-feature/brief-page-part2-plan.md
+  // §2, Part 0b: the two shapes coexist).
   const paragraphs = content.split(/\n\n+/).filter(Boolean)
 
   return (
@@ -152,6 +120,7 @@ function ExplainerSubsection({ section }: { section: ExplainerSectionRow }) {
 // ---------------------------------------------------------------------------
 
 export function ExplainerSections({
+  explainerTitle,
   sections,
   sourceSections,
   timelineEvents,
@@ -166,6 +135,12 @@ export function ExplainerSections({
   onFlagContentious,
   onShowUsefulLikers,
 }: {
+  // Shown once above every subsection (migration 059) — sized between the
+  // "Explainer" section band label (SectionHeader, ~1.7-2.5rem) and each
+  // subsection's own title (1.28rem). null when the admin hasn't set one;
+  // nothing renders in that case rather than falling back to the brief's
+  // own title, which the hero above this section already shows.
+  explainerTitle: string | null
   sections: ExplainerSectionRow[]
   sourceSections: { id: string; content: string }[]
   timelineEvents: BriefTimelineEvent[]
@@ -187,6 +162,11 @@ export function ExplainerSections({
   return (
     <div className="space-y-10">
       <div className="space-y-4">
+        {explainerTitle && (
+          <h2 className="max-w-2xl font-display text-[1.8rem] font-extrabold leading-[1.2] text-ink" style={{ fontSize: 'clamp(1.5rem, 2.4vw, 1.8rem)' }}>
+            {explainerTitle}
+          </h2>
+        )}
         <ContributorsStrip points={contentiousPoints} comments={comments} />
         <ExplainerHeaderWidgets
           briefId={briefId}

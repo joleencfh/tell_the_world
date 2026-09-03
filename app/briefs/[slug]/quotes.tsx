@@ -124,15 +124,69 @@ const QUOTE_SOURCE_LABELS: Record<Exclude<Quote['quote_source'], 'member'>, stri
   ai: 'AI',
 }
 
-function SourceAvatar({ source }: { source: Quote['quote_source'] }) {
+const QUOTE_PLATFORM_LABELS: Record<NonNullable<Quote['source_platform']>, string> = {
+  x: 'X',
+  linkedin: 'LinkedIn',
+}
+
+// Label shown in the attribution pill — a platform-tagged person quote
+// (social post) reads as "X"/"LinkedIn" rather than the generic "External
+// source", same idea as an organization logo replacing the generic icon.
+function sourceLabel(quote: Quote): string {
+  if (quote.quote_source === 'person' && quote.source_platform) {
+    return QUOTE_PLATFORM_LABELS[quote.source_platform]
+  }
+  return QUOTE_SOURCE_LABELS[quote.quote_source as Exclude<Quote['quote_source'], 'member'>]
+}
+
+// Social-platform badges — the real brand marks (public/Icons/*.png, supplied
+// 2026-09-03), not hand-drawn approximations: a monochrome outline read as
+// too washed-out/generic to tell platforms apart at a glance. Only X and
+// LinkedIn ship today; other platforms fall through to the generic person
+// glyph below until their own icon is added here.
+const PLATFORM_ICON_SRC: Partial<Record<NonNullable<Quote['source_platform']>, string>> = {
+  x: '/Icons/twitter.png',
+  linkedin: '/Icons/linkedin.png',
+}
+
+// A real brand mark (platform badge or uploaded organization logo) gets a
+// plain white card — no dashed border/faint tint, which was designed for
+// the generic line-art glyphs and made even a correct icon look muted.
+// Bumped to Avatar's "md" size (was "sm"/h-9) since a recognizable badge
+// reads better with a bit more room than the abstract fallback glyphs did.
+function BrandBadge({ src, alt }: { src: string; alt: string }) {
   return (
-    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded border-[1.5px] border-dashed border-line-strong bg-paper-raised text-ink-faint">
-      {source === 'document' ? (
+    <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-line-strong bg-white">
+      {/* eslint-disable-next-line @next/next/no-img-element -- external/admin-uploaded logo or a fixed brand asset, arbitrary aspect ratio */}
+      <img src={src} alt={alt} className="h-full w-full object-contain p-0.5" />
+    </div>
+  )
+}
+
+// SourceAvatar — icon per attribution type, kept local here rather than
+// extending the shared Avatar primitive, which has no icon-override API and
+// is used by 6 unrelated screens. Precedence: an uploaded organization logo
+// (document/ai quotes attributed to a known company) beats a platform badge
+// (person quotes tagged with a social platform) beats the generic
+// person/document/ai glyph.
+function SourceAvatar({ quote }: { quote: Quote }) {
+  if (quote.source_organizations) {
+    return <BrandBadge src={quote.source_organizations.logo_url} alt={quote.source_organizations.name} />
+  }
+
+  const platformIconSrc = quote.quote_source === 'person' && quote.source_platform ? PLATFORM_ICON_SRC[quote.source_platform] : undefined
+  if (platformIconSrc) {
+    return <BrandBadge src={platformIconSrc} alt={QUOTE_PLATFORM_LABELS[quote.source_platform!]} />
+  }
+
+  return (
+    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded border-[1.5px] border-dashed border-line-strong bg-paper-raised text-ink-faint">
+      {quote.quote_source === 'document' ? (
         <svg viewBox="0 0 16 16" className="h-4 w-4" aria-hidden>
           <path d="M4 2h6l3 3v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1Z" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
           <path d="M5.5 8.5h5M5.5 11h5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
         </svg>
-      ) : source === 'ai' ? (
+      ) : quote.quote_source === 'ai' ? (
         <svg viewBox="0 0 16 16" className="h-4 w-4" aria-hidden>
           <rect x="5" y="5" width="6" height="6" rx="1" fill="none" stroke="currentColor" strokeWidth="1.3" />
           <path d="M8 2v2.2M8 11.8V14M2 8h2.2M11.8 8H14M3.8 3.8l1.4 1.4M10.8 10.8l1.4 1.4M12.2 3.8l-1.4 1.4M5.2 10.8l-1.4 1.4" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
@@ -179,7 +233,7 @@ export function QuoteAuthorFooter({ quote }: { quote: Quote }) {
 
   return (
     <>
-      <SourceAvatar source={quote.quote_source} />
+      <SourceAvatar quote={quote} />
       <div className="min-w-0 flex-1">
         <p className="truncate font-display text-[0.85rem] font-extrabold text-ink">{quote.source_name}</p>
         {quote.source_detail && (
@@ -187,7 +241,7 @@ export function QuoteAuthorFooter({ quote }: { quote: Quote }) {
         )}
         {quote.quote_source !== 'member' && (
           <span className="mt-1 inline-flex items-center border border-line-strong bg-paper-raised px-1.5 py-0.5 font-mono text-[0.56rem] uppercase tracking-[0.06em] text-ink-faint">
-            {QUOTE_SOURCE_LABELS[quote.quote_source]}
+            {sourceLabel(quote)}
           </span>
         )}
       </div>
@@ -321,10 +375,15 @@ export function QuoteCard({
 // section.
 // ---------------------------------------------------------------------------
 
-const QUOTE_FILTERS: { value: 'all' | 'expert' | 'organisation'; label: string }[] = [
+type QuoteFilter = 'all' | 'expert' | 'organisation' | 'person' | 'document' | 'ai'
+
+const QUOTE_FILTERS: { value: QuoteFilter; label: string }[] = [
   { value: 'all', label: 'All' },
   { value: 'expert', label: 'Experts only' },
   { value: 'organisation', label: 'Orgs only' },
+  { value: 'person', label: 'External sources' },
+  { value: 'document', label: 'Documents' },
+  { value: 'ai', label: 'AI' },
 ]
 
 // Empty-state copy is role-aware (brief-page onboarding pass, 2026-08-28):
@@ -370,8 +429,13 @@ export function QuotesCarousel({
   onAddQuote: () => void
   onOpenQuote: (quote: Quote) => void
 }) {
-  const [filter, setFilter] = useState<'all' | 'expert' | 'organisation'>('all')
-  const filtered = filter === 'all' ? quotes : quotes.filter((q) => q.users?.role === filter)
+  const [filter, setFilter] = useState<QuoteFilter>('all')
+  const filtered =
+    filter === 'all'
+      ? quotes
+      : filter === 'expert' || filter === 'organisation'
+        ? quotes.filter((q) => q.users?.role === filter)
+        : quotes.filter((q) => q.quote_source === filter)
 
   return (
     <>

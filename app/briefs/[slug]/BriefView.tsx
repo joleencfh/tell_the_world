@@ -410,6 +410,7 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
                           />
                           {type === 'explainer' ? (
                             <ExplainerSections
+                              explainerTitle={brief.explainer_title}
                               sections={sections}
                               sourceSections={goingDeeperSections}
                               timelineEvents={brief.brief_timeline_events}

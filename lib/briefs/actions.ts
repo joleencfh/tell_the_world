@@ -331,6 +331,67 @@ export async function submitQuote(
   return { success: true, status }
 }
 
+// A member editing their own previously-submitted quote (RLS's own "Members
+// can update own posts" policy, 008_member_read_policies.sql, already
+// scopes this to the caller's rows — the .eq('user_id', ...) below is
+// belt-and-suspenders for a clear affected-rows count, not the sole guard).
+// Only body/tags are editable here: a 'member'-sourced quote has no
+// source_name/detail/url/platform/org to edit (those are always null for
+// this quote_source), so this is already the quote's full field set.
+// Re-runs the same clarity gate as first submission — otherwise an edit
+// could smuggle in flagged content a member's own initial submission would
+// have been blocked on.
+export async function updateOwnQuote(
+  quoteId: string,
+  briefSlug: string,
+  body: string,
+  tags: string[],
+): Promise<{ error?: string; success?: boolean; status?: 'published' | 'pending' }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return { error: 'You must be logged in to edit a quote.' }
+
+  const trimmed = body.trim()
+  if (!trimmed) return { error: 'Quote cannot be empty.' }
+  if (trimmed.length > 500) return { error: 'Quote must be under 500 characters.' }
+
+  const cleanTags = [...new Set(tags.map((t) => t.trim()).filter(Boolean))].slice(0, 10)
+
+  const { data: userData } = await supabase.from('users').select('role').eq('id', user.id).single()
+  const role = userData?.role as UserRole | undefined
+
+  let status: 'published' | 'pending' = 'published'
+  let flaggedTerms: Json | null = null
+  if (role === 'admin') {
+    status = 'pending'
+  } else {
+    const { flaggedTerms: flags, isClean } = checkClarity(trimmed)
+    if (!isClean) {
+      status = 'pending'
+      flaggedTerms = flags as unknown as Json
+    }
+  }
+
+  const { error, count } = await supabase
+    .from('content_posts')
+    .update(
+      { title: trimmed, topic_tags: cleanTags, status, flagged_terms: flaggedTerms },
+      { count: 'exact' },
+    )
+    .eq('id', quoteId)
+    .eq('user_id', user.id)
+    .eq('post_type', 'quote')
+
+  if (error) return { error: 'Failed to update quote. Please try again.' }
+  if (!count) return { error: 'Quote not found.' }
+
+  revalidatePath(`/briefs/${briefSlug}`)
+  return { success: true, status }
+}
+
 // A member's like on a quote — any logged-in member, true toggle, same
 // shape as likeCoverage below.
 export async function likeQuote(contentPostId: string, briefSlug: string): Promise<{ error?: string; liked?: boolean }> {

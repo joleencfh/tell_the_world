@@ -184,17 +184,31 @@ export function BriefModals({
         />
       )}
 
-      {/* No currentUser gate: viewing a quote's detail is informational,
-          available logged out too (like/copy just adapt). */}
+      {/* No currentUser gate on rendering: viewing a quote's detail is
+          informational, available logged out too (like/copy just adapt) —
+          currentUser is still passed through so the modal can show its own
+          Edit affordance to the quote's owner or an admin. */}
       {selectedQuote && (
-        <QuoteDetailModal quote={selectedQuote} briefSlug={brief.slug} isLoggedIn={isLoggedIn} onClose={onCloseSelectedQuote} />
+        <QuoteDetailModal
+          quote={selectedQuote}
+          briefSlug={brief.slug}
+          isLoggedIn={isLoggedIn}
+          currentUser={currentUser}
+          onClose={onCloseSelectedQuote}
+        />
       )}
 
       {/* No currentUser gate: viewing a coverage item's detail (Part 9) is
           informational, available logged out too (like/comment/vote just
           adapt — CoverageDetailModal itself gates those). */}
       {selectedCoverage && (
-        <CoverageDetailModal coverage={selectedCoverage} briefSlug={brief.slug} isLoggedIn={isLoggedIn} onClose={onCloseSelectedCoverage} />
+        <CoverageDetailModal
+          coverage={selectedCoverage}
+          briefSlug={brief.slug}
+          isLoggedIn={isLoggedIn}
+          isAdmin={currentUser?.role === 'admin'}
+          onClose={onCloseSelectedCoverage}
+        />
       )}
 
       {/* activeContributeModal can only be set by ContributeMenu, which only

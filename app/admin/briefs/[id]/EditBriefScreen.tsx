@@ -4,12 +4,13 @@ import { useState, useCallback } from 'react'
 import Link from 'next/link'
 import Logo from '@/components/ui/Logo'
 import SignOutButton from '@/components/ui/SignOutButton'
-import { saveBrief, deleteBrief } from '@/lib/admin/brief-actions'
+import { saveBrief, deleteBrief, uploadExplainerImage } from '@/lib/admin/brief-actions'
 import type { Brief, BriefSection, MediaPickerOption, TimelineEvent, UserOption, FaqMetaRow } from '@/lib/admin/brief-actions'
 import { plainTextToRichContent } from '@/lib/richtext/types'
 import { SectionEditor, type EditableSection } from './section-editor'
 import { TimelineEditor, type EditableTimelineEvent } from './timeline-editor'
 import { FaqMetaEditor, DEFAULT_FAQ_META, type EditableFaqMeta } from './faq-meta-editor'
+import { TagInput } from './tag-input'
 import { parseFAQ } from '@/lib/briefs/parse-faq'
 
 // ---------------------------------------------------------------------------
@@ -29,7 +30,8 @@ interface Props {
 export default function EditBriefScreen({ adminEmail, brief, sections: initialSections, timelineEvents: initialTimelineEvents, mediaOptions, userOptions, faqMeta: initialFaqMeta }: Props) {
   const [title, setTitle]           = useState(brief.title)
   const [subtitle, setSubtitle]     = useState(brief.subtitle ?? '')
-  const [topicTag, setTopicTag]     = useState(brief.topic_tag ?? '')
+  const [explainerTitle, setExplainerTitle] = useState(brief.explainer_title ?? '')
+  const [topicTags, setTopicTags]   = useState<string[]>(brief.topic_tags)
   const [tldrTeaser, setTldrTeaser] = useState(brief.tldr_teaser ?? '')
   const [pinnedMediaPostId, setPinnedMediaPostId] = useState(brief.pinned_media_post_id ?? '')
   const [visibility, setVisibility] = useState<Brief['visibility']>(brief.visibility)
@@ -122,6 +124,18 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
     ])
   }
 
+  // Backs the Explainer rich text editor's Image toolbar button
+  // (section-editor.tsx -> lib/richtext/editor.tsx) — wraps the server
+  // action in the File-to-FormData shape it expects, and collapses its
+  // {url?, error?} result to null on failure so the editor only needs to
+  // handle "got a URL" vs "didn't".
+  async function handleUploadImage(file: File): Promise<string | null> {
+    const formData = new FormData()
+    formData.set('file', file)
+    const result = await uploadExplainerImage(formData)
+    return result.url ?? null
+  }
+
   function removeSection(key: string) {
     setSections(prev =>
       prev.filter(s => s.clientKey !== key).map((s, i) => ({ ...s, display_order: i + 1 })),
@@ -169,7 +183,8 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
     const result = await saveBrief(brief.id, {
       title,
       subtitle,
-      topicTag,
+      explainerTitle,
+      topicTags,
       tldrTeaser,
       pinnedMediaPostId: pinnedMediaPostId || null,
       visibility,
@@ -345,17 +360,11 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <label className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">
-                Topic tag
+                Topic tags
               </label>
-              <input
-                type="text"
-                value={topicTag}
-                onChange={e => setTopicTag(e.target.value)}
-                className="w-full border border-line bg-paper-raised px-4 py-3 font-mono text-sm text-ink focus:outline-none focus:border-ink"
-                placeholder="e.g. ai-safety"
-              />
+              <TagInput tags={topicTags} onChange={setTopicTags} />
               <p className="font-body text-xs text-ink-soft/70">
-                Drives the auto Quotes and Media sections — must match the tag used on content_posts.
+                Drives the auto Quotes and Media sections — must match the tags used on content_posts. Enter or comma to add a tag.
               </p>
             </div>
             <div className="space-y-1.5">
@@ -449,6 +458,25 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
             </p>
           </div>
 
+          {/* Explainer title — shown once above the Explainer's subsections
+              on the public page, distinct from the section band's own
+              "Explainer" label and from each subsection's title below. */}
+          <div className="space-y-1.5">
+            <label className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">
+              Explainer title
+            </label>
+            <input
+              type="text"
+              value={explainerTitle}
+              onChange={e => setExplainerTitle(e.target.value)}
+              className="w-full border border-line bg-paper-raised px-4 py-3 font-body text-base text-ink focus:outline-none focus:border-ink"
+              placeholder="e.g. Why the compute race keeps escalating"
+            />
+            <p className="font-body text-xs text-ink-soft/70">
+              Shown once above the Explainer subsections below. Leave blank to show nothing there.
+            </p>
+          </div>
+
           {/* Sections */}
           <div className="space-y-3">
             <h2 className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">Sections</h2>
@@ -466,6 +494,7 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
                   onRemove={removeSection}
                   onRichContentChange={handleRichContentChange}
                   onSwitchToRichText={handleSwitchToRichText}
+                  onUploadImage={handleUploadImage}
                 />
               )
             })}

@@ -9,6 +9,8 @@ import { getAdminClient } from '@/lib/supabase/admin'
 import { sendApprovalEmail } from '@/lib/email/send-approval'
 import { sendRejectionEmail } from '@/lib/email/send-rejection'
 import { sendBriefProposalApprovedEmail } from '@/lib/email/send-brief-proposal-approved'
+import { fetchLinkPreview } from '@/lib/links/link-preview'
+import { fetchAndStoreImage } from '@/lib/links/store-image'
 import { slugify, uniqueSlug } from './slug'
 import * as adminData from '@/lib/data/admin'
 import type { PagedResult } from '@/lib/data/admin'
@@ -544,17 +546,20 @@ export interface CreateSourcedQuoteInput {
   sourceName: string
   sourceDetail: string
   sourceUrl: string
+  // 'person' only — which social platform the quoted post came from, so the
+  // card shows that platform's icon instead of the generic person glyph.
+  sourcePlatform?: 'x' | 'linkedin' | null
+  // 'document'/'ai' only — links to a reusable source_organizations logo.
+  sourceOrgId?: string | null
   body: string
   tags: string[]
 }
 
-export async function createSourcedQuote(
-  briefId: string,
-  briefSlug: string,
-  input: CreateSourcedQuoteInput,
-): Promise<{ error?: string; success?: boolean }> {
-  await requireAdmin()
-
+// Shared validation for create/update — both need the same body/name/detail/
+// url checks, only the write (insert vs. update) differs.
+function validateSourcedQuoteInput(
+  input: Pick<CreateSourcedQuoteInput, 'body' | 'sourceName' | 'sourceDetail' | 'sourceUrl' | 'tags'>,
+): { error: string } | { trimmedBody: string; sourceName: string; sourceDetail: string; sourceUrl: string; cleanTags: string[] } {
   const trimmedBody = input.body.trim()
   if (!trimmedBody) return { error: 'Quote cannot be empty.' }
   if (trimmedBody.length > 500) return { error: 'Quote must be under 500 characters.' }
@@ -579,6 +584,20 @@ export async function createSourcedQuote(
 
   const cleanTags = [...new Set(input.tags.map((t) => t.trim()).filter(Boolean))].slice(0, 10)
 
+  return { trimmedBody, sourceName, sourceDetail, sourceUrl, cleanTags }
+}
+
+export async function createSourcedQuote(
+  briefId: string,
+  briefSlug: string,
+  input: CreateSourcedQuoteInput,
+): Promise<{ error?: string; success?: boolean }> {
+  await requireAdmin()
+
+  const validated = validateSourcedQuoteInput(input)
+  if ('error' in validated) return validated
+  const { trimmedBody, sourceName, sourceDetail, sourceUrl, cleanTags } = validated
+
   const { error } = await getAdminClient().from('content_posts').insert({
     user_id: null,
     post_type: 'quote',
@@ -590,6 +609,8 @@ export async function createSourcedQuote(
     source_name: sourceName,
     source_detail: sourceDetail || null,
     url: sourceUrl,
+    source_platform: input.quoteSource === 'person' ? input.sourcePlatform ?? null : null,
+    source_org_id: input.quoteSource === 'document' || input.quoteSource === 'ai' ? input.sourceOrgId ?? null : null,
   })
 
   if (error) return { error: error.message }
@@ -597,6 +618,174 @@ export async function createSourcedQuote(
   revalidatePath('/admin')
   revalidatePath(`/briefs/${briefSlug}`)
   return { success: true }
+}
+
+// Full edit of an existing non-member-sourced quote (person/document/ai) —
+// admin-only, any quote on the platform. Deliberately doesn't allow
+// switching to/from 'member': that would mean reassigning user_id and
+// re-satisfying 052's attribution check constraint from the other side,
+// a materially different (and riskier) operation than editing the fields
+// of an already-non-member quote. Member-authored quotes are edited via
+// updateMemberQuoteAdmin (body/tags only — see its own comment) instead.
+export async function updateSourcedQuote(
+  quoteId: string,
+  briefSlug: string,
+  input: CreateSourcedQuoteInput,
+): Promise<{ error?: string; success?: boolean }> {
+  await requireAdmin()
+
+  const validated = validateSourcedQuoteInput(input)
+  if ('error' in validated) return validated
+  const { trimmedBody, sourceName, sourceDetail, sourceUrl, cleanTags } = validated
+
+  const admin = getAdminClient()
+  const { data: existing } = await admin.from('content_posts').select('quote_source').eq('id', quoteId).single()
+  if (!existing) return { error: 'Quote not found.' }
+  if (existing.quote_source === 'member') {
+    return { error: 'This quote is attributed to a platform member and can’t be edited here.' }
+  }
+
+  const { error } = await admin
+    .from('content_posts')
+    .update({
+      title: trimmedBody,
+      topic_tags: cleanTags,
+      quote_source: input.quoteSource,
+      source_name: sourceName,
+      source_detail: sourceDetail || null,
+      url: sourceUrl,
+      source_platform: input.quoteSource === 'person' ? input.sourcePlatform ?? null : null,
+      source_org_id: input.quoteSource === 'document' || input.quoteSource === 'ai' ? input.sourceOrgId ?? null : null,
+    })
+    .eq('id', quoteId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/admin')
+  revalidatePath(`/briefs/${briefSlug}`)
+  return { success: true }
+}
+
+// Admin editing a member-authored quote — body/tags only, same field set
+// updateOwnQuote (lib/briefs/actions.ts) offers the quote's own author,
+// since a 'member' quote has no source_name/detail/url/platform/org to
+// edit (always null for this quote_source). Bypasses the clarity gate and
+// ownership check that path applies to itself — admin moderation doesn't
+// need either.
+export async function updateMemberQuoteAdmin(
+  quoteId: string,
+  briefSlug: string,
+  body: string,
+  tags: string[],
+): Promise<{ error?: string; success?: boolean }> {
+  await requireAdmin()
+
+  const trimmedBody = body.trim()
+  if (!trimmedBody) return { error: 'Quote cannot be empty.' }
+  if (trimmedBody.length > 500) return { error: 'Quote must be under 500 characters.' }
+
+  const cleanTags = [...new Set(tags.map((t) => t.trim()).filter(Boolean))].slice(0, 10)
+
+  const { error } = await getAdminClient()
+    .from('content_posts')
+    .update({ title: trimmedBody, topic_tags: cleanTags })
+    .eq('id', quoteId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/admin')
+  revalidatePath(`/briefs/${briefSlug}`)
+  return { success: true }
+}
+
+// ---------------------------------------------------------------------------
+// Source organization logos — reusable per-company icon for document/ai-
+// sourced quotes (e.g. every quote attributed to "OpenAI" reuses the same
+// uploaded logo instead of re-uploading it per quote). Mirrors
+// app/profile/[id]/actions.ts's uploadAvatar, but admin-only and keyed by
+// organization name rather than by user id.
+// ---------------------------------------------------------------------------
+
+export interface SourceOrganizationOption {
+  id: string
+  name: string
+  logo_url: string
+}
+
+export async function getSourceOrganizations(): Promise<SourceOrganizationOption[]> {
+  await requireAdmin()
+
+  const { data } = await getAdminClient()
+    .from('source_organizations')
+    .select('id, name, logo_url')
+    .order('name')
+
+  return data ?? []
+}
+
+const MAX_LOGO_BYTES = 2 * 1024 * 1024
+const ALLOWED_LOGO_TYPES: Record<string, string> = {
+  'image/png': 'png',
+  'image/jpeg': 'jpg',
+  'image/webp': 'webp',
+  'image/svg+xml': 'svg',
+}
+
+// Upserts by name (case-insensitive, via source_organizations.name_key) —
+// uploading a logo for a name that already has one replaces it, so admins
+// can fix a bad logo without a separate delete step.
+export async function uploadSourceOrganizationLogo(
+  name: string,
+  formData: FormData,
+): Promise<{ error?: string; organization?: SourceOrganizationOption }> {
+  await requireAdmin()
+
+  const trimmedName = name.trim()
+  if (!trimmedName) return { error: 'Organization name is required.' }
+  if (trimmedName.length > 200) return { error: 'Organization name must be under 200 characters.' }
+
+  const file = formData.get('file')
+  if (!(file instanceof File)) return { error: 'No file provided.' }
+
+  const ext = ALLOWED_LOGO_TYPES[file.type]
+  if (!ext) return { error: 'Please upload a PNG, JPEG, WebP, or SVG image.' }
+  if (file.size > MAX_LOGO_BYTES) return { error: 'Logo must be smaller than 2MB.' }
+
+  const admin = getAdminClient()
+  const nameKey = trimmedName.toLowerCase()
+  const path = `${nameKey.replace(/[^a-z0-9]+/g, '-')}-${Date.now()}.${ext}`
+
+  const { error: uploadError } = await admin.storage
+    .from('source-logos')
+    .upload(path, file, { contentType: file.type })
+
+  if (uploadError) return { error: uploadError.message }
+
+  const {
+    data: { publicUrl },
+  } = admin.storage.from('source-logos').getPublicUrl(path)
+
+  const { data: existing } = await admin
+    .from('source_organizations')
+    .select('id')
+    .eq('name_key', nameKey)
+    .maybeSingle()
+
+  const { data, error } = existing
+    ? await admin
+        .from('source_organizations')
+        .update({ name: trimmedName, logo_url: publicUrl })
+        .eq('id', existing.id)
+        .select('id, name, logo_url')
+        .single()
+    : await admin
+        .from('source_organizations')
+        .insert({ name: trimmedName, logo_url: publicUrl })
+        .select('id, name, logo_url')
+        .single()
+
+  if (error) return { error: error.message }
+  return { organization: data }
 }
 
 // ---------------------------------------------------------------------------
@@ -654,6 +843,40 @@ export async function dismissCoverage(coverageId: string): Promise<{ success?: b
 
   revalidatePath('/admin')
   return { success: true }
+}
+
+// Re-scrapes a coverage row's article URL for a fresh og:image and re-hosts
+// it on Supabase storage, same as submitCoverage does at submission time.
+// Exists for rows whose image never got hosted this way in the first place
+// — either the scrape/fetch failed silently at submit time (both
+// link-preview.ts and store-image.ts never throw, so a bad fetch just
+// leaves image_url null or, for rows inserted before the re-hosting fix
+// landed, pointing straight at the outlet's own CDN, which the CSP's
+// img-src then silently blocks in the browser).
+export async function backfillCoverageImage(coverageId: string): Promise<{ success?: boolean; error?: string; imageUrl?: string }> {
+  await requireAdmin()
+  const admin = getAdminClient()
+
+  const { data: row, error: fetchErr } = await admin
+    .from('brief_coverage')
+    .select('id, url, submitted_by, briefs(slug)')
+    .eq('id', coverageId)
+    .single()
+
+  if (fetchErr || !row) return { error: 'Coverage row not found.' }
+
+  const preview = await fetchLinkPreview(row.url)
+  if (!preview.imageUrl) return { error: 'No image found on the article page.' }
+
+  const hosted = await fetchAndStoreImage(admin, preview.imageUrl, row.submitted_by ?? 'admin-backfill')
+  if (!hosted) return { error: 'Could not fetch or store that image.' }
+
+  const { error: updateErr } = await admin.from('brief_coverage').update({ image_url: hosted }).eq('id', coverageId)
+  if (updateErr) return { error: updateErr.message }
+
+  revalidatePath('/admin')
+  if (row.briefs?.slug) revalidatePath(`/briefs/${row.briefs.slug}`)
+  return { success: true, imageUrl: hosted }
 }
 
 // ---------------------------------------------------------------------------
