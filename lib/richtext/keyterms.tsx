@@ -3,15 +3,24 @@
 // text out of a single content field (two-ink-bold-plan.md §3 Part 3 step 4).
 // Shared between the legacy plain-text Explainer path (explainer.tsx, which
 // tokenizes a whole paragraph's raw string) and the rich-text renderer
-// (render.tsx, which tokenizes per text node — 2026-09-02 port). No editor
-// support needed for the rich-text side: an author just types the same
-// {{term|definition}} literally into a paragraph/heading, same as before;
-// render.tsx recognizes it in any text node's string at render time.
+// (render.tsx, which tokenizes per run of sibling text nodes — 2026-09-03
+// fix, see renderTextRunWithKeyterms). No editor support needed for the
+// rich-text side: an author just types the same {{term|definition}}
+// literally into a paragraph/heading, same as before.
 
 export interface ExplainerToken {
   type: 'text' | 'keyterm'
   text: string
   definition?: string
+  // Exact (untrimmed) span this token consumed from the source string — a
+  // 'text' token's start/end always equal its own text.length, but a
+  // 'keyterm' token's matched span ({{term|definition}}, brackets and pipe
+  // included) is longer than `text`/`definition` since those are trimmed.
+  // Needed by render.tsx to re-align formatting when a keyterm has been
+  // split across multiple sibling Lexical text nodes (see
+  // renderTextRunWithKeyterms) — plain string callers can ignore these.
+  start: number
+  end: number
 }
 
 const KEYTERM_PATTERN = /\{\{(.+?)\|(.+?)\}\}/g
@@ -21,11 +30,12 @@ export function tokenizeKeyterms(text: string): ExplainerToken[] {
   let lastIndex = 0
   for (const match of text.matchAll(KEYTERM_PATTERN)) {
     const index = match.index ?? 0
-    if (index > lastIndex) tokens.push({ type: 'text', text: text.slice(lastIndex, index) })
-    tokens.push({ type: 'keyterm', text: match[1].trim(), definition: match[2].trim() })
-    lastIndex = index + match[0].length
+    if (index > lastIndex) tokens.push({ type: 'text', text: text.slice(lastIndex, index), start: lastIndex, end: index })
+    const end = index + match[0].length
+    tokens.push({ type: 'keyterm', text: match[1].trim(), definition: match[2].trim(), start: index, end })
+    lastIndex = end
   }
-  if (lastIndex < text.length) tokens.push({ type: 'text', text: text.slice(lastIndex) })
+  if (lastIndex < text.length) tokens.push({ type: 'text', text: text.slice(lastIndex), start: lastIndex, end: text.length })
   return tokens
 }
 
