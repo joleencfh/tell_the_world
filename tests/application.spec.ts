@@ -146,6 +146,53 @@ test.describe('Application form (/apply)', () => {
     await expect(page.getByPlaceholder('e.g. Centre for AI Safety')).not.toBeVisible()
   })
 
+  // ── 5b. Comms specialist role ─────────────────────────────────────────────
+
+  test('comms_specialist role shows comms fields and hides creator/expert/org/journalist fields', async ({ page }) => {
+    await selectRole(page, 'comms_specialist')
+
+    // Comms-specific fields (all optional, but must render)
+    await expect(page.getByPlaceholder('e.g. Independent, or an org/agency name')).toBeVisible()
+    await expect(page.getByPlaceholder('e.g. Communications Lead')).toBeVisible()
+
+    // Other roles' fields must be absent
+    await expect(page.getByPlaceholder('e.g. 50000')).not.toBeVisible()
+    await expect(page.getByPlaceholder('e.g. Oxford Future of Humanity Institute')).not.toBeVisible()
+    await expect(page.getByPlaceholder('e.g. Centre for AI Safety')).not.toBeVisible()
+    await expect(page.getByPlaceholder('e.g. MIT Technology Review')).not.toBeVisible()
+  })
+
+  // ── 5c. Other role ─────────────────────────────────────────────────────────
+
+  test('other role requires a role description and shows no role-specific section', async ({ page }) => {
+    await selectRole(page, 'other')
+
+    // "Other" has no dedicated FormSection — just the base fields plus the
+    // "please specify" field that appears once desired_role === 'other'.
+    await expect(page.getByPlaceholder('e.g. 50000')).not.toBeVisible()
+    await expect(page.getByPlaceholder('e.g. Oxford Future of Humanity Institute')).not.toBeVisible()
+    await expect(page.getByPlaceholder('e.g. Centre for AI Safety')).not.toBeVisible()
+    await expect(page.getByPlaceholder('e.g. MIT Technology Review')).not.toBeVisible()
+    await expect(page.getByPlaceholder('e.g. Independent, or an org/agency name')).not.toBeVisible()
+
+    await page.getByRole('button', { name: 'Submit application' }).click()
+    await expect(page.getByText(/a few fields need your attention/i)).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Role description' })).toBeVisible()
+  })
+
+  // ── 5d. No console errors while switching between every role ────────────────
+
+  test('no uncaught JS errors while switching between all six roles', async ({ page }) => {
+    const errors: string[] = []
+    page.on('pageerror', (err) => errors.push(err.message))
+
+    for (const role of ['creator', 'journalist', 'expert', 'organisation', 'comms_specialist', 'other']) {
+      await selectRole(page, role)
+    }
+
+    expect(errors).toHaveLength(0)
+  })
+
   // ── 6. Validation errors on empty submit ──────────────────────────────────
 
   test('submitting with missing required fields shows inline validation errors', async ({ page }) => {
@@ -242,5 +289,62 @@ test.describe('Application form (/apply)', () => {
     console.log(
       `\nTest record created: email=${testEmail} — clean up manually in Supabase if needed.`
     )
+  })
+
+  // ── 8. Full valid comms_specialist submission ────────────────────────────
+  // comms_specialist (migration 056) has no dedicated full-submission test
+  // yet — unlike creator, it has no required role-specific fields at all, so
+  // this exercises the "base fields only" insert path plus confirms the
+  // newer enum value round-trips through the DB correctly.
+
+  test('complete valid comms_specialist form (no role-specific fields filled) saves the record', async ({ page }) => {
+    const testEmail = `playwright-comms-${Date.now()}@example.com`
+
+    await page.getByPlaceholder('First name').fill('Playwright')
+    await page.getByPlaceholder('Last name').fill('CommsTest')
+    await page.getByPlaceholder('you@example.com').fill(testEmail)
+    await selectRole(page, 'comms_specialist')
+    await page.getByPlaceholder('A short introduction…').fill(
+      'This is an automated Playwright test submission for comms_specialist. Safe to delete.'
+    )
+
+    await page.getByRole('button', { name: 'Submit application' }).click()
+
+    try {
+      await page.waitForURL('**/apply/pending', { timeout: 15000 })
+      await expect(page.getByText(/application received/i)).toBeVisible()
+    } catch {
+      await expect(
+        page.getByText(/application was saved.*confirmation email failed/i)
+      ).toBeVisible({ timeout: 5000 })
+    }
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!supabaseUrl || !serviceKey) {
+      console.warn(
+        'Skipping DB assertion — NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set'
+      )
+      return
+    }
+
+    const supabase = createClient(supabaseUrl, serviceKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    })
+
+    const { data, error } = await supabase
+      .from('applications')
+      .select('email, status, desired_role, first_name')
+      .eq('email', testEmail)
+      .single()
+
+    expect(error).toBeNull()
+    expect(data).toBeTruthy()
+    expect(data!.status).toBe('pending')
+    expect(data!.desired_role).toBe('comms_specialist')
+    expect(data!.first_name).toBe('Playwright')
+
+    await supabase.from('applications').delete().eq('email', testEmail)
   })
 })
