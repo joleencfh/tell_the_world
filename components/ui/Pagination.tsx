@@ -17,6 +17,9 @@ export default function Pagination({ page, pageSize, total, buildHref, dark = fa
 
   const hasPrev = page > 1
   const hasNext = page < totalPages
+  // First/Last are redundant with Prev/Next once there are only two pages —
+  // only show the jump controls when there's an actual middle to skip.
+  const showJump = totalPages > 2
 
   const borderCls = dark ? 'border-white/10' : 'border-line'
   const mutedCls = dark ? 'text-white/40' : 'text-ink-soft/60'
@@ -31,6 +34,17 @@ export default function Pagination({ page, pageSize, total, buildHref, dark = fa
         Showing {from}–{to} of {total}
       </span>
       <nav className="flex items-center gap-4" aria-label="Pagination">
+        {showJump && (
+          hasPrev ? (
+            <Link href={buildHref(1)} aria-label="First page" className={`font-mono text-[10px] tracking-[0.15em] uppercase ${linkCls}`}>
+              « First
+            </Link>
+          ) : (
+            <span className={`font-mono text-[10px] tracking-[0.15em] uppercase ${disabledCls}`}>
+              « First
+            </span>
+          )
+        )}
         {hasPrev ? (
           <Link href={buildHref(page - 1)} className={`font-mono text-[10px] tracking-[0.15em] uppercase ${linkCls}`}>
             ← Prev
@@ -51,6 +65,17 @@ export default function Pagination({ page, pageSize, total, buildHref, dark = fa
           <span className={`font-mono text-[10px] tracking-[0.15em] uppercase ${disabledCls}`}>
             Next →
           </span>
+        )}
+        {showJump && (
+          hasNext ? (
+            <Link href={buildHref(totalPages)} aria-label="Last page" className={`font-mono text-[10px] tracking-[0.15em] uppercase ${linkCls}`}>
+              Last »
+            </Link>
+          ) : (
+            <span className={`font-mono text-[10px] tracking-[0.15em] uppercase ${disabledCls}`}>
+              Last »
+            </span>
+          )
         )}
       </nav>
     </div>

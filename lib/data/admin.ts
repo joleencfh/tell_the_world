@@ -9,7 +9,7 @@ import type { PendingContentiousPoint } from '@/lib/admin/explainer-actions'
 
 type DB = SupabaseClient<Database>
 
-export const ADMIN_PAGE_SIZE = 20
+export const ADMIN_PAGE_SIZE = 40
 
 export interface PagedResult<T> {
   data: T[]

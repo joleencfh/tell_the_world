@@ -92,6 +92,7 @@ export function ApplicationCard({ app }: { app: Application }) {
   const [expanded, setExpanded] = useState(false)
   const [loading, setLoading] = useState<'approving' | 'rejecting' | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
 
   const displayName = app.full_name || [app.first_name, app.last_name].filter(Boolean).join(' ') || app.email
 
@@ -114,37 +115,82 @@ export function ApplicationCard({ app }: { app: Application }) {
     if (result.error) {
       setError(result.error)
       setLoading(null)
+      setConfirmingDelete(false)
     }
   }
 
   return (
     <div className="border border-line bg-paper-raised">
-      {/* Summary row — always visible */}
-      <button
-        className="w-full text-left px-5 py-4 flex items-center gap-4 hover:bg-paper/60 transition-colors"
-        onClick={() => setExpanded(e => !e)}
-        aria-expanded={expanded}
-      >
-        <span
-          className="font-mono text-[9px] tracking-[0.15em] text-ink-soft shrink-0 transition-transform duration-150"
-          aria-hidden
-          style={{ transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)' }}
+      {/* Summary row — always visible. The name/role/email area toggles the
+          expanded body; the delete control on the right is a sibling button
+          (not nested inside it) so admins can reject straight from here
+          without opening the card. */}
+      <div className="flex items-center gap-4 px-5 py-4 hover:bg-paper/60 transition-colors">
+        <button
+          type="button"
+          className="flex-1 min-w-0 flex items-center gap-4 text-left"
+          onClick={() => setExpanded(e => !e)}
+          aria-expanded={expanded}
         >
-          ▶
-        </span>
+          <span
+            className="font-mono text-[9px] tracking-[0.15em] text-ink-soft shrink-0 transition-transform duration-150"
+            aria-hidden
+            style={{ transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)' }}
+          >
+            ▶
+          </span>
 
-        <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-center gap-2.5 mb-0.5">
-            <span className="font-body text-sm font-semibold text-ink truncate">{displayName}</span>
-            <RoleBadge role={app.desired_role} />
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-2.5 mb-0.5">
+              <span className="font-body text-sm font-semibold text-ink truncate">{displayName}</span>
+              <RoleBadge role={app.desired_role} />
+            </div>
+            <span className="font-mono text-[10px] text-ink-soft">{app.email}</span>
           </div>
-          <span className="font-mono text-[10px] text-ink-soft">{app.email}</span>
-        </div>
 
-        <span className="font-mono text-[9px] text-ink-soft shrink-0 hidden sm:block">
-          {formatDate(app.created_at)}
-        </span>
-      </button>
+          <span className="font-mono text-[9px] text-ink-soft shrink-0 hidden sm:block">
+            {formatDate(app.created_at)}
+          </span>
+        </button>
+
+        {confirmingDelete ? (
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="font-mono text-[9px] text-ink-soft hidden md:inline">Reject?</span>
+            <button
+              type="button"
+              onClick={handleReject}
+              disabled={loading !== null}
+              className="font-mono text-[9px] tracking-[0.15em] uppercase px-2.5 py-1.5 bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {loading === 'rejecting' ? '…' : 'Yes'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirmingDelete(false)}
+              disabled={loading !== null}
+              className="font-mono text-[9px] tracking-[0.15em] uppercase px-2.5 py-1.5 border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              No
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setConfirmingDelete(true)}
+            aria-label="Reject this application"
+            title="Reject application"
+            className="shrink-0 font-mono text-sm leading-none text-ink-soft/50 hover:text-red-600 transition-colors px-1.5 py-1"
+          >
+            ✕
+          </button>
+        )}
+      </div>
+
+      {/* Quick-reject error — surfaced even while collapsed, since the
+          control above no longer requires expanding the card first. */}
+      {error && !expanded && (
+        <p className="px-5 pb-4 font-mono text-[10px] text-red-600" role="alert">{error}</p>
+      )}
 
       {/* Expanded body */}
       {expanded && (
