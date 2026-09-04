@@ -3,6 +3,7 @@
 import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { sendWaitlistConfirmation } from '@/lib/email/send-waitlist-confirmation'
+import { sendWaitlistNotificationEmail } from '@/lib/email/send-waitlist-notification'
 import type { TablesInsert, UserRole } from '@/lib/types'
 
 // ---------------------------------------------------------------------------
@@ -77,10 +78,20 @@ function isValidEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 }
 
+// The modal's placeholders show a bare domain ("youtube.com/@…",
+// "linkedin.com/in/…") with no scheme, so real users copy that shape
+// verbatim. new URL() rejects a scheme-less string outright, which used
+// to reject that exact input — normalize it to https:// first.
+function normalizeUrl(value: string): string {
+  const trimmed = value.trim()
+  if (!trimmed || trimmed.includes('://')) return trimmed
+  return `https://${trimmed}`
+}
+
 function isValidUrl(value: string): boolean {
   if (!value.trim()) return true
   try {
-    const url = new URL(value)
+    const url = new URL(normalizeUrl(value))
     return url.protocol === 'http:' || url.protocol === 'https:'
   } catch {
     return false
@@ -91,8 +102,11 @@ function validate(f: WaitlistInput): string | null {
   if (!ROLES.has(f.role as UserRole)) return 'Please select who you are.'
   if (!f.full_name.trim()) return 'Name is required.'
   if (!f.email.trim() || !isValidEmail(f.email.trim())) return 'A valid email address is required.'
-  if (!isValidUrl(f.linkedin_or_website_url))
-    return 'Please enter a valid LinkedIn or website URL (e.g. https://example.com).'
+  if (!isValidUrl(f.linkedin_or_website_url)) {
+    return f.role === 'creator'
+      ? 'Please enter a valid channel link (e.g. https://youtube.com/@yourchannel).'
+      : 'Please enter a valid LinkedIn or website URL (e.g. https://example.com).'
+  }
 
   // Content creators must name their platform/channel and link it —
   // mirrors the modal's isCreator-gated required fields.
@@ -133,7 +147,8 @@ export async function submitWaitlistSignup(form: WaitlistInput): Promise<SubmitW
     wants_early_access: form.wants_early_access,
   }
   if (form.affiliation.trim()) payload.affiliation = form.affiliation.trim()
-  if (form.linkedin_or_website_url.trim()) payload.linkedin_or_website_url = form.linkedin_or_website_url.trim()
+  if (form.linkedin_or_website_url.trim())
+    payload.linkedin_or_website_url = normalizeUrl(form.linkedin_or_website_url)
   if (form.additional_info.trim()) payload.additional_info = form.additional_info.trim()
 
   // Insert through the RLS client — the anon insert policy (039) is what
@@ -149,6 +164,18 @@ export async function submitWaitlistSignup(form: WaitlistInput): Promise<SubmitW
     }
     return { error: error.message }
   }
+
+  // Notify the admin — fire and forget (the waitlist table is the source
+  // of truth; a failed notification shouldn't fail the submission).
+  sendWaitlistNotificationEmail({
+    full_name: payload.full_name,
+    email: payload.email,
+    role: payload.role,
+    affiliation: payload.affiliation ?? undefined,
+    linkedin_or_website_url: payload.linkedin_or_website_url ?? undefined,
+    wants_early_access: form.wants_early_access,
+    additional_info: payload.additional_info ?? undefined,
+  }).catch((err) => console.error('Waitlist notification email failed:', err))
 
   try {
     await sendWaitlistConfirmation({
