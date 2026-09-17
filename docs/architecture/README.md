@@ -9,6 +9,7 @@ document that's silently kept in sync.
 
 | Date | Summary |
 | --- | --- |
+| [2026-09-17](2026-09-17.md) | Second snapshot, written after ~5 weeks of feature work: the Brief feature "Two-Ink Bold" rebuild (Explainer engagement, Coverage, Timeline, FAQ meta, Q&A voting, quote source icons, Lexical rich text replacing TipTap), a Home dashboard rebuild, a silent-launch Landing page + Waitlist flow, a deterministic clarity-check content gate, an analytics-events log, avatar uploads, `/contact` + `/privacy` pages, and 2 new user roles. Schema grew from 11 to 36 tables (migrations 017–061). |
 | [2026-08-10](2026-08-10.md) | First snapshot, written after the Option B refactor roadmap (pagination, generated Supabase types, `lib/data/` layer, shared `Avatar`/`RoleBadge`/`Pagination` UI, the 4 max-lines file splits) landed on `master`. |
 
 ## Adding a new snapshot

@@ -12,6 +12,7 @@ in each feature's folder before assuming a spec is live.
 | --- | --- | --- |
 | Brief page — expert contributions (reviews, endorsements, takes, comments) | In progress — see [`brief-feature/build-plan.md`](brief-feature/build-plan.md) | [`brief-feature/`](brief-feature/) |
 | Profile page — rework | Draft, not started | [`profile/`](profile/) |
+| Architecture cleanup — migration renumbering, dead `/briefs` route, `/home` composition consistency, lint decomposition debt | Not started — see [`architecture-cleanup/build-plan.md`](architecture-cleanup/build-plan.md) | [`architecture-cleanup/`](architecture-cleanup/) |
 
 ## Adding a new design doc
 
