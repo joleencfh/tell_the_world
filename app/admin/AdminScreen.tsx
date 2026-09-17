@@ -6,21 +6,20 @@ import { createBrief } from '@/lib/admin/brief-actions'
 import type { BriefOption } from '@/lib/admin/brief-actions'
 import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProposal, PendingFaqAnswer, PendingQuestionAnswer, PendingCta, PublishedCta, PendingCoverage, PendingBriefFeedback, PendingContentPost, BriefReview, WaitlistSignup, AnalyticsEventRow } from '@/lib/admin/actions'
 import type { PendingContentiousPoint } from '@/lib/admin/explainer-actions'
-import { ADMIN_PAGE_SIZE } from '@/lib/data/admin'
-import Pagination from '@/components/ui/Pagination'
 import Logo from '@/components/ui/Logo'
 import SignOutButton from '@/components/ui/SignOutButton'
-import { ApplicationCard, QuestionCard, CorrectionProposalCard, BriefProposalCard, ApprovedRow } from './cards'
-import { FaqAnswerCard } from './faq-answer-card'
-import { ContentiousPointCard } from './contentious-point-card'
-import { QuestionAnswerCard } from './question-answer-card'
-import { CtaCard, PublishedCtaCard } from './cta-card'
-import { ContentPostCard } from './content-post-card'
-import { CoverageCard } from './coverage-card'
-import { FeedbackCard } from './feedback-card'
-import { ReviewCard } from './review-card'
-import { WaitlistCard } from './waitlist-card'
-import { AnalyticsEventRowItem } from './analytics-tab'
+import { TabButton } from './tab-button'
+import { PendingApplicationsTab, ApprovedTab } from './tabs/applications'
+import {
+  QuestionsTab,
+  CorrectionProposalsTab,
+  FaqAnswersTab,
+  ContentiousPointsTab,
+  QuestionAnswersTab,
+} from './tabs/simple-queues'
+import { CtasTab } from './tabs/ctas'
+import { QuotesTab, CoverageTab, FeedbackTab } from './tabs/content'
+import { ReviewsTab, ProposalsTab, WaitlistTab, AnalyticsTab } from './tabs/misc'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -247,417 +246,132 @@ export default function AdminScreen({
             </div>
           </div>
 
-          {/* Pending applications tab */}
           {tab === 'pending' && (
-            <>
-              {pending.length === 0 ? (
-                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-                  No pending applications.
-                </p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {pending.map(app => (
-                    <ApplicationCard key={app.id} app={app} />
-                  ))}
-                </div>
-              )}
-              <Pagination
-                page={pendingPage}
-                pageSize={ADMIN_PAGE_SIZE}
-                total={pendingCount}
-                buildHref={(p) => buildPageHref('pendingPage', p)}
-              />
-            </>
+            <PendingApplicationsTab pending={pending} pendingCount={pendingCount} pendingPage={pendingPage} buildPageHref={buildPageHref} />
           )}
 
-          {/* Pending questions tab */}
           {tab === 'questions' && (
-            <>
-              {pendingQuestions.length === 0 ? (
-                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-                  No pending questions.
-                </p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {pendingQuestions.map(q => (
-                    <QuestionCard key={q.id} question={q} />
-                  ))}
-                </div>
-              )}
-              <Pagination
-                page={questionsPage}
-                pageSize={ADMIN_PAGE_SIZE}
-                total={pendingQuestionsCount}
-                buildHref={(p) => buildPageHref('questionsPage', p)}
-              />
-            </>
+            <QuestionsTab
+              pendingQuestions={pendingQuestions}
+              pendingQuestionsCount={pendingQuestionsCount}
+              questionsPage={questionsPage}
+              buildPageHref={buildPageHref}
+            />
           )}
 
-          {/* Pending correction proposals tab */}
           {tab === 'correctionProposals' && (
-            <>
-              {pendingCorrectionProposals.length === 0 ? (
-                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-                  No pending correction proposals.
-                </p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {pendingCorrectionProposals.map(c => (
-                    <CorrectionProposalCard key={c.id} proposal={c} />
-                  ))}
-                </div>
-              )}
-              <Pagination
-                page={correctionProposalsPage}
-                pageSize={ADMIN_PAGE_SIZE}
-                total={pendingCorrectionProposalsCount}
-                buildHref={(p) => buildPageHref('correctionProposalsPage', p)}
-              />
-            </>
+            <CorrectionProposalsTab
+              pendingCorrectionProposals={pendingCorrectionProposals}
+              pendingCorrectionProposalsCount={pendingCorrectionProposalsCount}
+              correctionProposalsPage={correctionProposalsPage}
+              buildPageHref={buildPageHref}
+            />
           )}
 
-          {/* Pending FAQ answers tab */}
           {tab === 'faqAnswers' && (
-            <>
-              {pendingFaqAnswers.length === 0 ? (
-                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-                  No pending FAQ answers.
-                </p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {pendingFaqAnswers.map(a => (
-                    <FaqAnswerCard key={a.id} answer={a} />
-                  ))}
-                </div>
-              )}
-              <Pagination
-                page={faqAnswersPage}
-                pageSize={ADMIN_PAGE_SIZE}
-                total={pendingFaqAnswersCount}
-                buildHref={(p) => buildPageHref('faqAnswersPage', p)}
-              />
-            </>
+            <FaqAnswersTab
+              pendingFaqAnswers={pendingFaqAnswers}
+              pendingFaqAnswersCount={pendingFaqAnswersCount}
+              faqAnswersPage={faqAnswersPage}
+              buildPageHref={buildPageHref}
+            />
           )}
 
-          {/* Pending contentious points tab (Explainer engagement redesign) */}
           {tab === 'contentiousPoints' && (
-            <>
-              {pendingContentiousPoints.length === 0 ? (
-                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-                  No pending contentious points.
-                </p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {pendingContentiousPoints.map(p => (
-                    <ContentiousPointCard key={p.id} point={p} />
-                  ))}
-                </div>
-              )}
-              <Pagination
-                page={contentiousPointsPage}
-                pageSize={ADMIN_PAGE_SIZE}
-                total={pendingContentiousPointsCount}
-                buildHref={(p) => buildPageHref('contentiousPointsPage', p)}
-              />
-            </>
+            <ContentiousPointsTab
+              pendingContentiousPoints={pendingContentiousPoints}
+              pendingContentiousPointsCount={pendingContentiousPointsCount}
+              contentiousPointsPage={contentiousPointsPage}
+              buildPageHref={buildPageHref}
+            />
           )}
 
-          {/* Pending Q&A answers tab */}
           {tab === 'questionAnswers' && (
-            <>
-              {pendingQuestionAnswers.length === 0 ? (
-                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-                  No pending Q&amp;A answers.
-                </p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {pendingQuestionAnswers.map(a => (
-                    <QuestionAnswerCard key={a.id} answer={a} />
-                  ))}
-                </div>
-              )}
-              <Pagination
-                page={questionAnswersPage}
-                pageSize={ADMIN_PAGE_SIZE}
-                total={pendingQuestionAnswersCount}
-                buildHref={(p) => buildPageHref('questionAnswersPage', p)}
-              />
-            </>
+            <QuestionAnswersTab
+              pendingQuestionAnswers={pendingQuestionAnswers}
+              pendingQuestionAnswersCount={pendingQuestionAnswersCount}
+              questionAnswersPage={questionAnswersPage}
+              buildPageHref={buildPageHref}
+            />
           )}
 
-          {/* Pending calls to action tab */}
           {tab === 'ctas' && (
-            <>
-              {pendingCtas.length === 0 ? (
-                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-                  No pending calls to action.
-                </p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {pendingCtas.map(c => (
-                    <CtaCard key={c.id} cta={c} />
-                  ))}
-                </div>
-              )}
-              <Pagination
-                page={ctasPage}
-                pageSize={ADMIN_PAGE_SIZE}
-                total={pendingCtasCount}
-                buildHref={(p) => buildPageHref('ctasPage', p)}
-              />
-
-              {/* Published CTAs — reorder/pin control (brief-page-part2-plan.md
-                  §2, Part 8). Separate from the pending queue above: these are
-                  already live, this section is about which order they appear
-                  in, not moderation. */}
-              <div className="mt-8 pt-6 border-t border-line">
-                <h2 className="mb-1 font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft">
-                  Published — reorder
-                </h2>
-                <p className="mb-4 font-body text-xs text-ink-soft/70">
-                  Default order is newest first. Set a lower number to promote a CTA earlier in its brief&apos;s
-                  carousel; clear the field to return it to the default.
-                </p>
-                {publishedCtas.length === 0 ? (
-                  <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-                    No published calls to action.
-                  </p>
-                ) : (
-                  <div className="flex flex-col gap-2">
-                    {publishedCtas.map(c => (
-                      <PublishedCtaCard key={c.id} cta={c} />
-                    ))}
-                  </div>
-                )}
-                <Pagination
-                  page={publishedCtasPage}
-                  pageSize={ADMIN_PAGE_SIZE}
-                  total={publishedCtasCount}
-                  buildHref={(p) => buildPageHref('publishedCtasPage', p)}
-                />
-              </div>
-            </>
+            <CtasTab
+              pendingCtas={pendingCtas}
+              pendingCtasCount={pendingCtasCount}
+              ctasPage={ctasPage}
+              publishedCtas={publishedCtas}
+              publishedCtasCount={publishedCtasCount}
+              publishedCtasPage={publishedCtasPage}
+              buildPageHref={buildPageHref}
+            />
           )}
 
-          {/* Pending contributor submissions tab — brief-attached quotes
-              (submitQuote) and profile posts (createPost) both land here,
-              only when the deterministic clarity check flagged them (see
-              lib/clarity/check.ts and lib/data/admin.ts's
-              getPendingContentPosts). */}
           {tab === 'quotes' && (
-            <>
-              {pendingContentPosts.length === 0 ? (
-                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-                  No pending submissions.
-                </p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {pendingContentPosts.map(q => (
-                    <ContentPostCard key={q.id} quote={q} />
-                  ))}
-                </div>
-              )}
-              <Pagination
-                page={quotesPage}
-                pageSize={ADMIN_PAGE_SIZE}
-                total={pendingContentPostsCount}
-                buildHref={(p) => buildPageHref('quotesPage', p)}
-              />
-            </>
+            <QuotesTab
+              pendingContentPosts={pendingContentPosts}
+              pendingContentPostsCount={pendingContentPostsCount}
+              quotesPage={quotesPage}
+              buildPageHref={buildPageHref}
+            />
           )}
 
-          {/* Pending coverage tab */}
           {tab === 'coverage' && (
-            <>
-              {pendingCoverage.length === 0 ? (
-                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-                  No pending coverage.
-                </p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {pendingCoverage.map(c => (
-                    <CoverageCard key={c.id} coverage={c} />
-                  ))}
-                </div>
-              )}
-              <Pagination
-                page={coveragePage}
-                pageSize={ADMIN_PAGE_SIZE}
-                total={pendingCoverageCount}
-                buildHref={(p) => buildPageHref('coveragePage', p)}
-              />
-            </>
+            <CoverageTab
+              pendingCoverage={pendingCoverage}
+              pendingCoverageCount={pendingCoverageCount}
+              coveragePage={coveragePage}
+              buildPageHref={buildPageHref}
+            />
           )}
 
-          {/* Brief feedback tab */}
           {tab === 'feedback' && (
-            <>
-              {pendingBriefFeedback.length === 0 ? (
-                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-                  No new feedback.
-                </p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {pendingBriefFeedback.map(f => (
-                    <FeedbackCard key={f.id} feedback={f} />
-                  ))}
-                </div>
-              )}
-              <Pagination
-                page={feedbackPage}
-                pageSize={ADMIN_PAGE_SIZE}
-                total={pendingBriefFeedbackCount}
-                buildHref={(p) => buildPageHref('feedbackPage', p)}
-              />
-            </>
+            <FeedbackTab
+              pendingBriefFeedback={pendingBriefFeedback}
+              pendingBriefFeedbackCount={pendingBriefFeedbackCount}
+              feedbackPage={feedbackPage}
+              buildPageHref={buildPageHref}
+            />
           )}
 
-          {/* Reviews & endorsements tab — read-only, no pending state */}
           {tab === 'reviews' && (
-            <>
-              {briefReviews.length === 0 ? (
-                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-                  No reviews or endorsements yet.
-                </p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {briefReviews.map(r => (
-                    <ReviewCard key={r.id} review={r} />
-                  ))}
-                </div>
-              )}
-              <Pagination
-                page={reviewsPage}
-                pageSize={ADMIN_PAGE_SIZE}
-                total={briefReviewsCount}
-                buildHref={(p) => buildPageHref('reviewsPage', p)}
-              />
-            </>
+            <ReviewsTab briefReviews={briefReviews} briefReviewsCount={briefReviewsCount} reviewsPage={reviewsPage} buildPageHref={buildPageHref} />
           )}
 
-          {/* Brief proposals tab */}
           {tab === 'proposals' && (
-            <>
-              {briefProposals.length === 0 ? (
-                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-                  No brief proposals yet.
-                </p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {briefProposals.map(p => (
-                    <BriefProposalCard key={p.id} proposal={p} briefOptions={briefOptions} />
-                  ))}
-                </div>
-              )}
-              <Pagination
-                page={proposalsPage}
-                pageSize={ADMIN_PAGE_SIZE}
-                total={briefProposalsCount}
-                buildHref={(p) => buildPageHref('proposalsPage', p)}
-              />
-            </>
+            <ProposalsTab
+              briefProposals={briefProposals}
+              briefProposalsCount={briefProposalsCount}
+              proposalsPage={proposalsPage}
+              briefOptions={briefOptions}
+              buildPageHref={buildPageHref}
+            />
           )}
 
-          {/* Waitlist tab — read-only, no approve/reject state */}
           {tab === 'waitlist' && (
-            <>
-              {waitlistSignups.length === 0 ? (
-                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-                  No waitlist signups yet.
-                </p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {waitlistSignups.map(w => (
-                    <WaitlistCard key={w.id} signup={w} />
-                  ))}
-                </div>
-              )}
-              <Pagination
-                page={waitlistPage}
-                pageSize={ADMIN_PAGE_SIZE}
-                total={waitlistSignupsCount}
-                buildHref={(p) => buildPageHref('waitlistPage', p)}
-              />
-            </>
+            <WaitlistTab
+              waitlistSignups={waitlistSignups}
+              waitlistSignupsCount={waitlistSignupsCount}
+              waitlistPage={waitlistPage}
+              buildPageHref={buildPageHref}
+            />
           )}
 
-          {/* Approved tab */}
           {tab === 'approved' && (
-            <>
-              {approved.length === 0 ? (
-                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-                  No approved users yet.
-                </p>
-              ) : (
-                <div className="bg-paper-raised border border-line px-5 py-1">
-                  {approved.map(app => (
-                    <ApprovedRow key={app.id} app={app} />
-                  ))}
-                </div>
-              )}
-              <Pagination
-                page={approvedPage}
-                pageSize={ADMIN_PAGE_SIZE}
-                total={approvedCount}
-                buildHref={(p) => buildPageHref('approvedPage', p)}
-              />
-            </>
+            <ApprovedTab approved={approved} approvedCount={approvedCount} approvedPage={approvedPage} buildPageHref={buildPageHref} />
           )}
 
-          {/* Analytics tab — read-only activity feed (logins, questions,
-              comments, likes, brief views) written by lib/analytics/log.ts */}
           {tab === 'analytics' && (
-            <>
-              {analyticsEvents.length === 0 ? (
-                <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-                  No activity recorded yet.
-                </p>
-              ) : (
-                <div className="bg-paper-raised border border-line px-5 py-1">
-                  {analyticsEvents.map((event) => (
-                    <AnalyticsEventRowItem key={event.id} event={event} />
-                  ))}
-                </div>
-              )}
-              <Pagination
-                page={analyticsPage}
-                pageSize={ADMIN_PAGE_SIZE}
-                total={analyticsEventsCount}
-                buildHref={(p) => buildPageHref('analyticsPage', p)}
-              />
-            </>
+            <AnalyticsTab
+              analyticsEvents={analyticsEvents}
+              analyticsEventsCount={analyticsEventsCount}
+              analyticsPage={analyticsPage}
+              buildPageHref={buildPageHref}
+            />
           )}
 
         </div>
       </main>
     </div>
-  )
-}
-
-// ---------------------------------------------------------------------------
-// Tab button primitive
-// ---------------------------------------------------------------------------
-
-function TabButton({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean
-  onClick: () => void
-  children: React.ReactNode
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={[
-        'flex items-center px-4 py-2.5 font-mono text-[10px] tracking-[0.18em] uppercase border-b-2 -mb-px transition-colors',
-        active
-          ? 'border-ink text-ink'
-          : 'border-transparent text-ink-soft hover:text-ink',
-      ].join(' ')}
-    >
-      {children}
-    </button>
   )
 }
