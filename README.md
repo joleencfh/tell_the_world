@@ -3,7 +3,7 @@
 A platform built specifically for AI safety communication: an expert
 directory, a quotes database, and editorially-produced briefs that give
 creators and journalists a vetted, on-record source and background they can
-actually use — with a design meant to reach past English-language creators.
+actually use, with a design meant to reach past English-language creators.
 
 ## Tech stack
 
@@ -18,7 +18,7 @@ See exact versions in [package.json](package.json).
 
 ## Package manager
 
-This project uses **[Bun](https://bun.com)** — not npm, yarn, or node — for
+This project uses **[Bun](https://bun.com)**  (not npm, yarn, or node) for
 installs, scripts, and tests.
 
 ```bash
