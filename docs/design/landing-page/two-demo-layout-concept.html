@@ -1,0 +1,217 @@
+<title>Two-Demo Layout</title>
+<style>
+:root{
+  --color-paper:#FFFFFF;--color-paper-raised:#F7F7F8;
+  --color-paper-sunken:#FBEFF5;--color-paper-sunken-blue:#EAF0FE;
+  --color-ink:#0C0D0E;--color-ink-soft:#4A4E53;--color-ink-faint:#727679;
+  --color-line:#E2E3E5;--color-line-strong:#C9CBCE;
+  --color-blue:#1E4FEB;--color-blue-soft:#E7EDFD;--color-blue-ink:#0B2C99;
+  --color-pink:#F0197E;--color-pink-soft:#FDE6F1;--color-pink-ink:#99075A;
+  --font-display:"Segoe UI","Helvetica Neue",Arial,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Consolas,monospace;
+}
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&display=swap');
+*{box-sizing:border-box;}
+body{margin:0;background:var(--color-paper);color:var(--color-ink);font-family:var(--font-display);}
+.wrap{max-width:68rem;margin:0 auto;padding-inline:1.5rem;}
+.eyebrow{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--font-mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;font-weight:700;}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+h1,h2,h3{font-family:var(--font-display);font-weight:800;letter-spacing:-.01em;margin:0;text-wrap:balance;}
+p{margin:0;}
+.btn{font-family:var(--font-display);text-transform:uppercase;letter-spacing:.08em;font-size:13px;font-weight:700;padding:.85rem 1.5rem;border:2px solid;cursor:pointer;transition:background .15s,color .15s;}
+.btn-blue{background:var(--color-blue-ink);border-color:var(--color-blue-ink);color:#fff;}
+.btn-pink{background:var(--color-pink-ink);border-color:var(--color-pink-ink);color:#fff;}
+.tag{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:.5rem 1rem;border:1px solid var(--color-line-strong);}
+.annot{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-ink-faint);text-align:center;margin-top:.6rem;}
+.annot.built{color:var(--color-blue-ink);}
+.annot.unbuilt{color:var(--color-pink-ink);}
+
+header{position:sticky;top:0;background:rgba(255,255,255,.95);backdrop-filter:blur(4px);border-bottom:2px solid var(--color-ink);z-index:5;}
+header .row{display:flex;align-items:center;justify-content:space-between;padding-block:1rem;}
+.logo{font-family:var(--font-display);font-weight:800;font-size:17px;}
+.logo span{color:var(--color-pink);}
+
+.hero{padding:3.5rem 1.5rem 2.5rem;text-align:center;}
+.hero h1{font-size:clamp(1.6rem,3.2vw,2.5rem);line-height:1.1;margin:1rem auto 1.25rem;max-width:40rem;}
+.hero h1 .pink{color:var(--color-pink);}
+.hero p{color:var(--color-ink-soft);max-width:30rem;margin:0 auto 1.5rem;line-height:1.6;font-size:.95rem;}
+
+.circles{padding:1.5rem 1.5rem 3rem;}
+.circles .row{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:2rem;max-width:50rem;margin:0 auto;}
+.circles .col{max-width:14rem;text-align:center;}
+.circles .col .eyebrow{color:var(--color-pink-ink);justify-content:center;margin-bottom:.4rem;font-size:9px;}
+.circles .col:last-child .eyebrow{color:var(--color-blue-ink);}
+.circles .col p{font-family:var(--font-display);font-weight:700;font-size:13px;}
+.circlepair{width:6rem;height:4rem;position:relative;flex-shrink:0;}
+.circlepair span{position:absolute;top:50%;width:4rem;height:4rem;border-radius:50%;transform:translateY(-50%);}
+.circlepair .c1{left:0;background:var(--color-pink);}
+.circlepair .c2{left:1.4rem;background:var(--color-blue);mix-blend-mode:multiply;}
+
+/* Why This Matters Now — reverted to the signed-off Bold Ink Block treatment: soft radial pink bloom, full copy.
+   Bounded top+bottom by a thin rule so the section reads as its own block instead of
+   fading invisibly into the plain-white sections on either side. */
+.matters{padding:5.5rem 1.5rem;position:relative;overflow:hidden;
+  border-top:1px solid var(--color-line-strong);
+  border-bottom:1px solid var(--color-line-strong);
+  background:radial-gradient(38rem 22rem at 50% 30%,rgba(240,25,126,.10),rgba(240,25,126,0) 70%),#fff;}
+.matters .inner{max-width:44rem;margin:0 auto;text-align:center;position:relative;}
+.matters .eyebrow{justify-content:center;color:var(--color-pink-ink);margin-bottom:1.1rem;}
+.matters .dot{background:var(--color-pink);}
+.matters h2{font-size:clamp(1.7rem,3.6vw,2.5rem);line-height:1.15;margin-bottom:1.5rem;}
+.matters h2 .em{color:var(--color-pink);}
+.matters p{color:var(--color-ink-soft);line-height:1.7;font-size:1.02rem;max-width:38rem;margin:0 auto;}
+
+/* Demo sections — alternating title/demo halves. The second one gets a top
+   rule so the two demos read as separate sections, not one continuous block. */
+.demo-section{padding:2.75rem 1.5rem;}
+.demo-section.reverse{border-top:1px solid var(--color-line-strong);}
+.demo-section .grid{max-width:64rem;margin:0 auto;display:grid;grid-template-columns:1fr;gap:2.5rem;align-items:center;}
+@media(min-width:900px){.demo-section .grid{grid-template-columns:1fr 1fr;gap:3.5rem;}}
+.demo-section.reverse .grid{direction:rtl;}
+.demo-section.reverse .grid > *{direction:ltr;}
+.demo-copy .eyebrow{margin-bottom:.9rem;}
+.demo-copy h3{font-size:clamp(1.3rem,2.4vw,1.75rem);line-height:1.2;margin-bottom:1rem;}
+.demo-copy p{color:var(--color-ink-soft);line-height:1.65;font-size:.98rem;}
+.demo-visual{border:2px solid var(--color-ink);background:var(--color-paper-raised);min-height:15rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.75rem;padding:1.5rem;text-align:center;}
+.demo-visual .icon{width:34px;height:34px;color:var(--color-ink-faint);}
+.demo-visual .lbl{font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-ink-faint);max-width:18rem;line-height:1.6;}
+
+.qa-eyebrow{color:var(--color-blue-ink);}
+.qa-eyebrow .dot{background:var(--color-blue);}
+.quote-eyebrow{color:var(--color-pink-ink);}
+.quote-eyebrow .dot{background:var(--color-pink);}
+
+/* Imagine + Scale — replaces the old short differentiation line */
+.imagine{background:var(--color-blue-ink);padding:4rem 1.5rem;}
+.imagine .inner{max-width:42rem;margin:0 auto;text-align:center;}
+.imagine .eyebrow{justify-content:center;color:#B9C6F2;margin-bottom:1rem;}
+.imagine .dot{background:var(--color-pink);}
+.imagine h2{color:#fff;font-size:clamp(1.5rem,3vw,2.15rem);line-height:1.25;margin-bottom:1.25rem;}
+.imagine > .inner > p{color:#E2E8FC;line-height:1.75;font-size:1rem;margin-bottom:2.75rem;}
+.imagine .stat{font-weight:800;font-size:clamp(2.6rem,7vw,3.75rem);color:#fff;line-height:1;font-variant-numeric:tabular-nums;}
+.imagine .stat .em{color:var(--color-pink);}
+.imagine .stat-cap{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#B9C6F2;margin-top:.6rem;margin-bottom:1.75rem;}
+.imagine .supporting{color:#B9C6F2;font-size:.9rem;line-height:1.65;max-width:34rem;margin:0 auto;}
+
+/* Closing ask — unchanged from Bold Ink Block */
+.closing{padding:4rem 1.5rem 5rem;}
+.closing .grid{max-width:60rem;margin:0 auto;display:grid;grid-template-columns:1fr;gap:1.5rem;}
+@media(min-width:800px){.closing .grid{grid-template-columns:1fr 1fr;}}
+.card{border:2px solid var(--color-ink);padding:2rem;display:flex;flex-direction:column;gap:1.1rem;}
+.card .eyebrow{margin-bottom:.15rem;}
+.card:first-child .eyebrow{color:var(--color-blue-ink);}
+.card:first-child .dot{background:var(--color-blue);}
+.card:last-child .eyebrow{color:var(--color-pink-ink);}
+.card:last-child .dot{background:var(--color-pink);}
+.card p{color:var(--color-ink-soft);line-height:1.6;font-size:.92rem;}
+.card .btn{align-self:flex-start;}
+.below{max-width:32rem;margin:2.25rem auto 0;text-align:center;color:var(--color-ink-soft);font-size:.9rem;}
+
+footer{border-top:1px solid var(--color-line);padding:2rem 1.5rem;text-align:center;font-family:var(--font-mono);font-size:11px;color:var(--color-ink-faint);letter-spacing:.08em;text-transform:uppercase;}
+
+.section-note{max-width:64rem;margin:0 auto;padding:0 1.5rem;}
+.section-note .box{border:1px dashed var(--color-line-strong);padding:.5rem .9rem;font-family:var(--font-mono);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-ink-faint);text-align:center;margin-bottom:.75rem;}
+</style>
+
+<header>
+  <div class="wrap row">
+    <div class="logo">Tell The<span>World</span></div>
+    <div class="tag">Apply</div>
+  </div>
+</header>
+
+<section class="hero">
+  <span class="eyebrow" style="justify-content:center;color:var(--color-ink-soft)"><span class="dot" style="background:var(--color-pink)"></span>Opening soon</span>
+  <h1>AI safety research rarely reaches the people who could <span class="pink">tell its story.</span></h1>
+  <p>Tell The World connects AI safety researchers and organisations with the creators and journalists who can put their work in front of real audiences.</p>
+  <button class="btn btn-blue">Join the waitlist</button>
+</section>
+
+<section class="circles">
+  <div class="row">
+    <div class="col">
+      <span class="eyebrow">Creators &amp; journalists</span>
+      <p>Know how to turn complicated research into stories people can relate to.</p>
+    </div>
+    <div class="circlepair"><span class="c1"></span><span class="c2"></span></div>
+    <div class="col">
+      <span class="eyebrow">Researchers &amp; organisations</span>
+      <p>Have important messages on how to make AI go well.</p>
+    </div>
+  </div>
+</section>
+
+<section class="matters">
+  <div class="inner">
+    <span class="eyebrow"><span class="dot"></span>Why this matters now</span>
+    <h2>Attention shows up. <span class="em">Understanding doesn&rsquo;t stick.</span></h2>
+    <p>Every few months a warning from inside a frontier lab goes viral and the whole internet spends a week arguing about AI risk. Then it fades, and what&rsquo;s left is confusion and a fight split down party lines, not a public that understands the problem any better. People are already paying attention. What&rsquo;s missing is careful explanation from the people who actually study this, coming from voices audiences already trust.</p>
+  </div>
+</section>
+
+<section class="demo-section">
+  <div class="wrap">
+    <div class="grid">
+      <div class="demo-copy">
+        <span class="eyebrow qa-eyebrow"><span class="dot"></span>Community Q&amp;A</span>
+        <h3>Ask a question. Get an answer from someone who studies this.</h3>
+        <p>Every brief has open Q&amp;A. Ask what&rsquo;s actually on your mind, and an expert or organisation working on the problem answers directly, on the record, with their name and affiliation attached.</p>
+      </div>
+      <div>
+        <div class="demo-visual">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-4 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z"/></svg>
+          <span class="lbl">Live demo &mdash; crafted loop animation of the real Q&amp;A card</span>
+        </div>
+        <p class="annot built">&#9679; Built &mdash; see qa-feature-loop-concept.html</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="demo-section reverse">
+  <div class="wrap">
+    <div class="grid">
+      <div class="demo-copy">
+        <span class="eyebrow quote-eyebrow"><span class="dot"></span>Quotes, on record</span>
+        <h3>A quote experts can actually stand behind.</h3>
+        <p>Experts and organisations add their own on-record quotes directly, in plain language. Every submission runs through a clarity check first, so jargon gets caught before it ever reaches a reader.</p>
+      </div>
+      <div>
+        <div class="demo-visual">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M7 8c-2 0-3 1.5-3 3.5S5 15 7 15c.5 2-1 4-3 4.5 3 .5 6-1.5 6-6C10 10 9 8 7 8Zm10 0c-2 0-3 1.5-3 3.5s1 3.5 3 3.5c.5 2-1 4-3 4.5 3 .5 6-1.5 6-6 0-5.5-1-9.5-3-9.5Z"/></svg>
+          <span class="lbl">Live demo &mdash; crafted loop animation of the real Add a Quote flow</span>
+        </div>
+        <p class="annot built">&#9679; Built &mdash; see quote-feature-loop-concept.html</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="imagine">
+  <div class="inner">
+    <span class="eyebrow"><span class="dot"></span>Why this could be big</span>
+    <h2>Imagine every AI safety expert&rsquo;s public voice, in one place.</h2>
+    <p>Right now the case for AI safety lives in scattered X threads, Substack posts, and knowledge that never leaves a lab. What if a small, critical group of the world&rsquo;s communicators could draw from all of it in one place, with a name and a face behind every claim, one question away instead of one search away?</p>
+    <div class="stat"><span class="em">200,000</span></div>
+    <div class="stat-cap">Creators reached, before journalists even factor in</div>
+    <p class="supporting">Just 5% of creators with more than 10,000 followers, across ten major western countries, would bring around 200,000 creators into AI safety communications, each reaching thousands of people directly. Add even a small share of journalists and the reach grows further.</p>
+  </div>
+</section>
+
+<section class="closing">
+  <div class="grid">
+    <div class="card">
+      <span class="eyebrow"><span class="dot"></span>For researchers &amp; organisations</span>
+      <p>You&rsquo;ve done the work. Getting it in front of a non-specialist audience shouldn&rsquo;t be another job on top of your research. Join as an early expert or organisation and help shape the first briefs and Q&amp;A threads creators and journalists will actually use.</p>
+      <button class="btn btn-blue">Apply as an expert or org</button>
+    </div>
+    <div class="card">
+      <span class="eyebrow"><span class="dot"></span>For creators &amp; journalists</span>
+      <p>You know how to make people care about something. What&rsquo;s usually missing is the background and a real expert willing to go on record. Join the waitlist for early access to briefs, quotes, and direct contact with the people doing the research.</p>
+      <button class="btn btn-pink">Join the waitlist</button>
+    </div>
+  </div>
+  <p class="below">Want in sooner? Become an early tester and try Tell The World while it&rsquo;s still rough, so you can help us fix it.</p>
+</section>
+
+<footer>Tell The World &mdash; footer (unchanged)</footer>
