@@ -93,7 +93,7 @@ export async function getAnalyticsEvents(page = 1): Promise<PagedResult<Analytic
 
 // ---------------------------------------------------------------------------
 // Reviews & endorsements — read-only, unlike every queue above. These
-// publish immediately (setReviewStatus in lib/briefs/actions.ts never sets
+// publish immediately (setReviewStatus in lib/briefs/actions/reviews.ts never sets
 // a pending status), so there's nothing to approve/dismiss here; this tab
 // is purely visibility into who reviewed/endorsed what, and any comment
 // left (brief-page-part2-plan.md §2, Part 2 follow-up, 2026-08-22).
@@ -117,7 +117,7 @@ export async function getBriefReviews(page = 1): Promise<PagedResult<BriefReview
 
 // Soft-remove, not a hard delete — 'archived' is an existing status on this
 // table (migration 017), already used for a contributor's own self-withdraw
-// (lib/briefs/actions.ts). Archiving drops it out of the public reviewer
+// (lib/briefs/actions/reviews.ts). Archiving drops it out of the public reviewer
 // count/list (getEndorsementBar filters status = 'published') while keeping
 // it in the row's own history — same reasoning as the profile withdrawal
 // history this pairs with. briefSlug is only needed to revalidate the

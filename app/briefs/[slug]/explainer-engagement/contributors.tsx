@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 import Avatar from '@/components/ui/Avatar'
 import RoleBadge from '@/components/ui/RoleBadge'

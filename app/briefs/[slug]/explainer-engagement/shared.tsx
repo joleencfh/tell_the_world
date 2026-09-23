@@ -315,4 +315,4 @@ export function ReplyRow({
   )
 }
 
-export { ReplyForm, ReplyArea }
+export { ReplyArea }

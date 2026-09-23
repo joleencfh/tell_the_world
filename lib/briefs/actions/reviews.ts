@@ -103,7 +103,7 @@ export async function setReviewStatus(
 // Self-withdraw — a contributor removing their own review/endorsement,
 // triggered from the profile history list (lib/data/contributions.ts's
 // getUserReviewHistory). Same 'archived' status admin's archiveBriefReview
-// (lib/admin/actions.ts) uses, and the same RLS policy ("Contributors can
+// (lib/admin/actions/misc-lists.ts) uses, and the same RLS policy ("Contributors can
 // update their own review or endorsement", migration 017) that already
 // allows this — the .eq('user_id', ...) below is defense in depth, not the
 // actual enforcement. Archiving (not deleting) is what makes this show up

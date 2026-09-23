@@ -2,10 +2,7 @@ import type { Application } from '@/lib/admin/actions'
 import { ADMIN_PAGE_SIZE } from '@/lib/data/admin'
 import Pagination from '@/components/ui/Pagination'
 import { ApplicationCard, ApprovedRow } from '../cards'
-
-interface TabProps {
-  buildPageHref: (paramName: string, page: number) => string
-}
+import type { TabProps } from './shared'
 
 export function PendingApplicationsTab({
   pending,

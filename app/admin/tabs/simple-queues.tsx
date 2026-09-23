@@ -6,10 +6,7 @@ import { QuestionCard, CorrectionProposalCard } from '../cards'
 import { FaqAnswerCard } from '../faq-answer-card'
 import { ContentiousPointCard } from '../contentious-point-card'
 import { QuestionAnswerCard } from '../question-answer-card'
-
-interface TabProps {
-  buildPageHref: (paramName: string, page: number) => string
-}
+import type { TabProps } from './shared'
 
 export function QuestionsTab({
   pendingQuestions,

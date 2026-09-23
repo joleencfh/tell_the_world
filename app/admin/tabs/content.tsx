@@ -4,10 +4,7 @@ import Pagination from '@/components/ui/Pagination'
 import { ContentPostCard } from '../content-post-card'
 import { CoverageCard } from '../coverage-card'
 import { FeedbackCard } from '../feedback-card'
-
-interface TabProps {
-  buildPageHref: (paramName: string, page: number) => string
-}
+import type { TabProps } from './shared'
 
 // Pending contributor submissions tab — brief-attached quotes (submitQuote)
 // and profile posts (createPost) both land here, only when the

@@ -6,10 +6,7 @@ import { BriefProposalCard } from '../cards'
 import { ReviewCard } from '../review-card'
 import { WaitlistCard } from '../waitlist-card'
 import { AnalyticsEventRowItem } from '../analytics-tab'
-
-interface TabProps {
-  buildPageHref: (paramName: string, page: number) => string
-}
+import type { TabProps } from './shared'
 
 // Reviews & endorsements tab — read-only, no pending state
 export function ReviewsTab({

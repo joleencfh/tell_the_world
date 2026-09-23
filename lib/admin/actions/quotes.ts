@@ -11,7 +11,7 @@ import type { Json } from '@/lib/database.types'
 // Content post moderation (brief-page-part2-plan.md §2, Part 4, widened by
 // the deterministic clarity check — lib/clarity/check.ts) — pending →
 // published via admin approval, same shape as CTA moderation above. A row
-// lands here from either submitQuote (lib/briefs/actions.ts, brief_id set,
+// lands here from either submitQuote (lib/briefs/actions/quotes.ts, brief_id set,
 // post_type always 'quote') or createPost (lib/posts/actions.ts, brief_id
 // null, any post_type) — a row is 'pending' only when the clarity check
 // actually flagged it (or, for submitQuote specifically, unconditionally
@@ -70,7 +70,7 @@ export async function dismissQuote(quoteId: string): Promise<{ success?: boolean
 // ---------------------------------------------------------------------------
 // Sourced quotes (attribution to a non-platform-member) — migration
 // 052_content_posts_external_quote_attribution.sql. Unlike submitQuote
-// (lib/briefs/actions.ts), which always goes into the pending queue above,
+// (lib/briefs/actions/quotes.ts), which always goes into the pending queue above,
 // there's no other member to moderate here — an admin-authored quote
 // publishes immediately.
 // ---------------------------------------------------------------------------
@@ -201,7 +201,7 @@ export async function updateSourcedQuote(
 }
 
 // Admin editing a member-authored quote — body/tags only, same field set
-// updateOwnQuote (lib/briefs/actions.ts) offers the quote's own author,
+// updateOwnQuote (lib/briefs/actions/quotes.ts) offers the quote's own author,
 // since a 'member' quote has no source_name/detail/url/platform/org to
 // edit (always null for this quote_source). Bypasses the clarity gate and
 // ownership check that path applies to itself — admin moderation doesn't

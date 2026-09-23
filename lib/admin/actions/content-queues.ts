@@ -102,7 +102,7 @@ export async function dismissCorrectionProposal(proposalId: string): Promise<{ s
 // ---------------------------------------------------------------------------
 // FAQ answers moderation (two-ink-bold-plan.md Part 4b) — free-text
 // answers, so pending → published via admin approval, unlike the binary
-// review/endorsement trust signal in lib/briefs/actions.ts's
+// review/endorsement trust signal in lib/briefs/actions/reviews.ts's
 // setReviewStatus (published immediately, no moderation).
 // ---------------------------------------------------------------------------
 
