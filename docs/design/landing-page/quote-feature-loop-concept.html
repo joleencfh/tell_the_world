@@ -1,0 +1,535 @@
+<title>Add a Quote Feature Loop</title>
+<style>
+:root{
+  --color-paper:#FFFFFF;--color-paper-raised:#F7F7F8;--color-paper-sunken-blue:#EAF0FE;
+  --color-ink:#0C0D0E;--color-ink-soft:#4A4E53;--color-ink-faint:#727679;
+  --color-line:#E2E3E5;--color-line-strong:#C9CBCE;
+  --color-blue:#1E4FEB;--color-blue-ink:#0B2C99;--color-blue-soft:#E7EDFD;
+  --color-pink:#F0197E;--color-pink-ink:#99075A;--color-pink-soft:#FDE6F1;
+  --font-display:"Segoe UI","Helvetica Neue",Arial,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Consolas,monospace;
+}
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&display=swap');
+*{box-sizing:border-box;}
+body{margin:0;background:var(--color-paper-raised);color:var(--color-ink);font-family:var(--font-display);padding:2.5rem 1.25rem;}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);}
+.frame{max-width:26rem;margin:0 auto;}
+.tag{display:block;text-align:center;font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-ink-faint);margin-bottom:1.25rem;}
+
+.card-viewport{position:relative;overflow:hidden;background:var(--color-paper);outline:2px solid var(--color-pink);transition:opacity .5s ease;}
+.card-fade{position:absolute;left:0;right:0;bottom:0;height:4.5rem;background:linear-gradient(to bottom, rgba(255,255,255,0) 0%, var(--color-paper) 78%);pointer-events:none;z-index:6;}
+
+.reveal{opacity:0;transform:translateY(8px);transition:opacity .45s cubic-bezier(.16,1,.3,1), transform .45s cubic-bezier(.16,1,.3,1);}
+.reveal.show{opacity:1;transform:translateY(0);}
+
+/* ---- idle "page behind the modal" screen -- a cropped-in view of the
+   real Quotes section (SectionHeader + populated carousel) so the button
+   reads as part of a live, busy page rather than floating on its own ---- */
+.idle-screen{position:absolute;inset:0;overflow:hidden;padding:28px 26px 0;transition:opacity .4s ease;}
+.sec-rule-row{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+.sec-num{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.18em;color:var(--color-blue);}
+.sec-rule{height:1px;flex:1;background:var(--color-line);}
+.sec-head-row{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:22px;}
+.sec-title{font-family:var(--font-display);font-weight:800;text-transform:uppercase;letter-spacing:.01em;font-size:1.55rem;line-height:1;color:var(--color-ink);margin:0;}
+.sec-desc{font-family:var(--font-display);font-style:italic;font-size:.76rem;color:var(--color-ink-soft);margin:8px 0 0;max-width:13rem;}
+.add-quote-btn{flex-shrink:0;border:2px solid var(--color-blue);background:var(--color-blue);color:#fff;padding:10px 18px;font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;transition:transform .12s ease,box-shadow .12s ease;}
+.add-quote-btn.pressed{transform:scale(.93);box-shadow:inset 0 0 0 999px rgba(0,0,0,.15);}
+
+.idle-cards{display:flex;align-items:stretch;gap:14px;}
+.idle-card{width:196px;flex-shrink:0;display:flex;flex-direction:column;gap:12px;border:1px solid var(--color-line);border-top:3px solid var(--color-blue);background:var(--color-paper);padding:14px;opacity:.55;}
+.idle-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.idle-card-date{font-family:var(--font-mono);font-size:9px;letter-spacing:.04em;color:var(--color-ink-faint);}
+.idle-card-icons{display:flex;align-items:center;gap:7px;color:var(--color-ink-faint);}
+.idle-card-heart{display:flex;align-items:center;gap:3px;font-family:var(--font-mono);font-size:9px;font-variant-numeric:tabular-nums;}
+/* flex:1, not auto height -- the real QuoteCard (quotes.tsx) is a flex
+   column with this paragraph as the only flex:1 child, so every card in a
+   row stretches to the tallest one and a short quote just leaves space
+   above the footer instead of the footer crowding right up against it. */
+.idle-card-body{flex:1;font-family:var(--font-display);font-size:.78rem;line-height:1.5;color:var(--color-ink);margin:0;}
+.idle-card-foot{display:flex;align-items:center;gap:8px;border-top:1px solid var(--color-line);padding-top:10px;}
+.idle-avatar{width:24px;height:24px;border-radius:50%;background:var(--color-blue);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;font-size:10px;flex-shrink:0;}
+.idle-avatar.square{border-radius:5px;background:var(--color-blue-ink);}
+.idle-card-name{font-family:var(--font-display);font-weight:800;font-size:.72rem;color:var(--color-ink);}
+.idle-card-cred{font-family:var(--font-mono);font-size:.58rem;color:var(--color-ink-soft);margin-top:1px;}
+
+/* ---- modal ---- */
+.modal-overlay{position:absolute;top:0;left:0;right:0;display:flex;justify-content:center;padding:1.75rem 1.1rem;background:rgba(12,13,14,0);opacity:0;pointer-events:none;transition:opacity .4s ease, background .4s ease;}
+.modal-overlay.show{opacity:1;background:rgba(12,13,14,.55);}
+.modal-card{width:100%;max-width:23rem;border:1px solid var(--color-line);background:var(--color-paper);box-shadow:0 18px 44px rgba(12,13,14,.18);}
+.modal-head{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid var(--color-line);padding:19px 21px 15px;}
+.modal-eyebrow{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:.2em;color:var(--color-blue-ink);margin:0 0 5px;}
+.modal-title{font-family:var(--font-display);font-size:1.12rem;font-weight:800;text-transform:uppercase;color:var(--color-ink);margin:0;line-height:1.2;}
+.modal-sub{font-family:var(--font-display);font-size:.71rem;font-style:italic;color:var(--color-ink-soft);margin:5px 0 0;}
+.modal-close{width:25px;height:25px;flex-shrink:0;border-radius:999px;background:var(--color-paper-raised);color:var(--color-ink-soft);display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1;margin-left:12px;}
+.modal-body{padding:17px 21px 26px;display:flex;flex-direction:column;gap:15px;}
+.field-label{display:block;font-family:var(--font-mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.16em;color:var(--color-ink-faint);margin-bottom:7px;}
+.fake-textarea{border:1px solid var(--color-line);background:var(--color-paper);padding:10px 13px;font-family:var(--font-display);font-size:.83rem;color:var(--color-ink);min-height:5.5em;line-height:1.5;white-space:pre-wrap;transition:opacity .2s ease;}
+.caret{display:inline-block;width:1px;height:1em;background:var(--color-ink);vertical-align:text-bottom;margin-left:1px;animation:blink 1s step-start infinite;}
+@keyframes blink{50%{opacity:0;}}
+.tags-row{display:flex;flex-wrap:wrap;gap:6px;}
+.tag-chip{border:1px solid var(--color-line);padding:3px 9px;font-family:var(--font-mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--color-ink-soft);}
+.hint{font-family:var(--font-display);font-size:.66rem;color:var(--color-ink-faint);margin:6px 0 0;}
+.clarity-box{border-left:3px solid var(--color-pink-ink);background:var(--color-paper-sunken-blue);padding:13px 15px;}
+.clarity-count{font-family:var(--font-mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.16em;color:var(--color-pink-ink);margin:0 0 8px;}
+.clarity-item{font-family:var(--font-display);font-size:.76rem;line-height:1.55;color:var(--color-ink-soft);}
+.clarity-term{font-weight:700;color:var(--color-ink);}
+.clarity-suggestion{display:block;margin-top:3px;color:var(--color-ink-faint);}
+.feedback-text{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.09em;color:var(--color-blue-ink);line-height:1.5;margin:0;}
+.modal-actions{display:flex;align-items:center;gap:16px;padding-top:1px;}
+.primary-btn{background:var(--color-ink);color:var(--color-paper);padding:10px 19px;font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;transition:opacity .2s ease, transform .12s ease;}
+.primary-btn.disabled{opacity:.5;}
+.primary-btn.pressed{transform:scale(.94);}
+.secondary-btn{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--color-ink-faint);}
+
+.cursor{position:absolute;top:0;left:0;width:18px;height:18px;opacity:0;transition:transform 1.4s cubic-bezier(.65,0,.35,1), opacity .3s ease;pointer-events:none;z-index:5;}
+.cursor.visible{opacity:1;}
+.cursor-glyph{display:block;transition:transform .15s ease;transform-origin:22% 18%;}
+.cursor-glyph.pulse{transform:scale(.78);}
+.click-ring{position:absolute;top:2px;left:2px;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;border:2px solid var(--color-blue);opacity:0;}
+.click-ring.ping{animation:clickRing .55s ease-out;}
+@keyframes clickRing{0%{opacity:.9;transform:scale(.3);}100%{opacity:0;transform:scale(2.1);}}
+
+.selection-highlight{position:absolute;top:0;left:0;background:rgba(30,79,235,.28);border-radius:2px;pointer-events:none;opacity:0;transition:opacity .15s ease;z-index:3;}
+.selection-highlight.show{opacity:1;}
+</style>
+
+<div class="frame">
+  <span class="tag">Crafted loop concept: Add a quote, live component structure</span>
+
+  <p class="sr-only">Looping demo of the real Add a quote feature. Expert Elena Vasquez opens the Add a quote form on the brief about the Hugging Face / OpenAI security incident, types a quote that uses the jargon term &ldquo;reward hacking,&rdquo; and the platform&rsquo;s deterministic clarity check flags it and explains what it means. She copies the panel&rsquo;s own suggested plain-language wording and pastes it over the flagged phrase, the flag clears, and she publishes. This is an existing, shipped feature, reproduced faithfully rather than invented for the demo.</p>
+
+  <div class="card-viewport" id="card-viewport">
+    <div class="idle-screen" id="idle-screen">
+      <div class="sec-rule-row">
+        <span class="sec-num">03</span>
+        <span class="sec-rule"></span>
+      </div>
+      <div class="sec-head-row">
+        <div>
+          <h2 class="sec-title">Quotes</h2>
+          <p class="sec-desc">Pulled from the platform &amp; source documents on this topic</p>
+        </div>
+        <button class="add-quote-btn" id="add-quote-btn" type="button">+ Add quote</button>
+      </div>
+      <div class="idle-cards" aria-hidden="true">
+        <div class="idle-card">
+          <div class="idle-card-top">
+            <span class="idle-card-date">MAR 3</span>
+            <div class="idle-card-icons">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden><rect x="5.5" y="5.5" width="9" height="9" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M2.5 10.5v-8a1 1 0 0 1 1-1h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              <span class="idle-card-heart">
+                <svg width="12" height="11" viewBox="0 0 16 14" aria-hidden><path d="M8 13.2S1.4 9.3 1.4 4.9C1.4 2.7 3.1 1 5.2 1c1.2 0 2.2.6 2.8 1.5C8.6 1.6 9.6 1 10.8 1c2.1 0 3.8 1.7 3.8 3.9 0 4.4-6.6 8.3-6.6 8.3Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+                4
+              </span>
+            </div>
+          </div>
+          <p class="idle-card-body">&ldquo;The lesson here isn&rsquo;t about one model. It&rsquo;s about what happens once systems like this start operating faster than anyone can review.&rdquo;</p>
+          <div class="idle-card-foot">
+            <span class="idle-avatar">E</span>
+            <div>
+              <p class="idle-card-name">Elena Vasquez</p>
+              <p class="idle-card-cred">Independent Researcher</p>
+            </div>
+          </div>
+        </div>
+        <div class="idle-card">
+          <div class="idle-card-top">
+            <span class="idle-card-date">MAR 3</span>
+            <div class="idle-card-icons">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden><rect x="5.5" y="5.5" width="9" height="9" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M2.5 10.5v-8a1 1 0 0 1 1-1h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              <span class="idle-card-heart">
+                <svg width="12" height="11" viewBox="0 0 16 14" aria-hidden><path d="M8 13.2S1.4 9.3 1.4 4.9C1.4 2.7 3.1 1 5.2 1c1.2 0 2.2.6 2.8 1.5C8.6 1.6 9.6 1 10.8 1c2.1 0 3.8 1.7 3.8 3.9 0 4.4-6.6 8.3-6.6 8.3Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+                1
+              </span>
+            </div>
+          </div>
+          <p class="idle-card-body">&ldquo;This is worse than what came before it, not just more widely covered.&rdquo;</p>
+          <div class="idle-card-foot">
+            <span class="idle-avatar square">F</span>
+            <div>
+              <p class="idle-card-name">Foresight Commons</p>
+              <p class="idle-card-cred">AI policy &middot; existential risk</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-overlay">
+      <div class="modal-card" id="modal-card">
+        <div class="modal-head">
+          <div>
+            <p class="modal-eyebrow">Quotes</p>
+            <h2 class="modal-title">Add a quote</h2>
+            <p class="modal-sub">For: The Hugging Face / OpenAI Security Incident</p>
+          </div>
+          <span class="modal-close" aria-hidden="true">&times;</span>
+        </div>
+        <div class="modal-body">
+          <div class="reveal" id="field-quote">
+            <label class="field-label">Quote</label>
+            <div class="fake-textarea" id="fake-textarea"><span id="typed-text"></span><span class="caret"></span></div>
+          </div>
+
+          <div class="reveal" id="field-tags">
+            <label class="field-label">Tags</label>
+            <div class="tags-row">
+              <span class="tag-chip">ai safety</span>
+              <span class="tag-chip">frontier labs</span>
+            </div>
+            <p class="hint">Pre-filled from this brief&rsquo;s tags. Edit as needed.</p>
+          </div>
+
+          <div class="reveal" id="clarity-panel">
+            <div class="clarity-box">
+              <p class="clarity-count">1 term flagged</p>
+              <p class="clarity-item">
+                <span class="clarity-term">&ldquo;reward hacking&rdquo;</span>: When an AI finds an unintended shortcut that scores well on its training objective without doing what was actually wanted.
+                <span class="clarity-suggestion" id="clarity-suggestion">Try: an AI gaming its own scoring system</span>
+              </p>
+            </div>
+          </div>
+
+          <p class="feedback-text reveal" id="feedback-msg">Quote published.</p>
+
+          <div class="modal-actions">
+            <button class="primary-btn" id="primary-btn" type="button">Publish quote</button>
+            <button class="secondary-btn" id="secondary-btn" type="button">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="selection-highlight" id="selection-highlight" aria-hidden="true"></div>
+      <div class="cursor" id="cursor" aria-hidden="true">
+        <svg class="cursor-glyph" width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 1.5L14.5 7.6L8.7 9.2L7.1 15L2 1.5Z" fill="var(--color-ink)" stroke="#fff" stroke-width="1.1" stroke-linejoin="round"/></svg>
+        <div class="click-ring" id="click-ring"></div>
+      </div>
+    </div>
+
+    <div class="card-fade"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var FLAGGED_TERM = 'reward hacking';
+  var REPLACEMENT_TERM = 'an AI gaming its own scoring system';
+  var QUOTE_ORIGINAL = 'The incident report is straightforward: this was reward hacking. The agents found a shortcut that scored well, and none of them told a human.';
+  var QUOTE_REVISED = QUOTE_ORIGINAL.replace(FLAGGED_TERM, REPLACEMENT_TERM);
+
+  var cardViewport = document.getElementById('card-viewport');
+  var cardFade = document.querySelector('.card-fade');
+  var idleScreen = document.getElementById('idle-screen');
+  var addQuoteBtn = document.getElementById('add-quote-btn');
+  var modalOverlay = document.getElementById('modal-overlay');
+  var modalCard = document.getElementById('modal-card');
+  var fieldQuote = document.getElementById('field-quote');
+  var fieldTags = document.getElementById('field-tags');
+  var fakeTextarea = document.getElementById('fake-textarea');
+  var typedTextEl = document.getElementById('typed-text');
+  var clarityPanel = document.getElementById('clarity-panel');
+  var feedbackMsg = document.getElementById('feedback-msg');
+  var primaryBtn = document.getElementById('primary-btn');
+  var secondaryBtn = document.getElementById('secondary-btn');
+  var cursor = document.getElementById('cursor');
+  var cursorGlyph = cursor.querySelector('.cursor-glyph');
+  var clarityTerm = clarityPanel.querySelector('.clarity-term');
+  var claritySuggestion = document.getElementById('clarity-suggestion');
+  var selectionHighlight = document.getElementById('selection-highlight');
+
+  var FADE_BUFFER_PX = 30;
+
+  // The clarity-flagged panel and the published-feedback message are never
+  // both visible at once, but the fixed-height box has to be tall enough for
+  // whichever of the two is taller -- measure both (each briefly forced
+  // visible) and keep the max, same "measure the resting content, let
+  // anything past it fade instead of resize" approach as the Q&A loop.
+  function computeModalHeight(){
+    var clarityWasShown = clarityPanel.classList.contains('show');
+    var feedbackWasShown = feedbackMsg.classList.contains('show');
+
+    clarityPanel.classList.add('show');
+    feedbackMsg.classList.remove('show');
+    var hFlagged = modalCard.scrollHeight;
+
+    clarityPanel.classList.remove('show');
+    feedbackMsg.classList.add('show');
+    var hPublished = modalCard.scrollHeight;
+
+    clarityPanel.classList.toggle('show', clarityWasShown);
+    feedbackMsg.classList.toggle('show', feedbackWasShown);
+
+    return Math.max(hFlagged, hPublished);
+  }
+
+  function fitViewport(){
+    var modalHeight = computeModalHeight();
+    var fadeHeight = cardFade.getBoundingClientRect().height || 72;
+    cardViewport.style.height = (modalHeight + fadeHeight + FADE_BUFFER_PX) + 'px';
+  }
+
+  function fitViewportSoon(){
+    requestAnimationFrame(function(){ requestAnimationFrame(fitViewport); });
+  }
+
+  fitViewport();
+  fitViewportSoon();
+  setTimeout(fitViewport, 350);
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(fitViewportSoon); }
+
+  if(window.ResizeObserver){
+    var lastWidth = document.querySelector('.frame').getBoundingClientRect().width;
+    new ResizeObserver(function(entries){
+      var w = entries[0].contentRect.width;
+      if(Math.abs(w - lastWidth) > 1){ lastWidth = w; fitViewport(); }
+    }).observe(document.querySelector('.frame'));
+  } else {
+    window.addEventListener('resize', fitViewport);
+  }
+
+  function positionCursorNear(el, dx, dy){
+    var hostBox = cardViewport.getBoundingClientRect();
+    var elBox = el.getBoundingClientRect();
+    cursor.style.transition = 'none';
+    cursor.style.transform = 'translate(' + (elBox.left - hostBox.left + dx) + 'px,' + (elBox.top - hostBox.top + dy) + 'px)';
+    cursor.getBoundingClientRect();
+    cursor.style.transition = '';
+  }
+
+  function rectToLocal(rect){
+    var hostBox = cardViewport.getBoundingClientRect();
+    return { x: rect.left - hostBox.left, y: rect.top - hostBox.top, width: rect.width, height: rect.height };
+  }
+
+  function moveCursorTo(el){
+    var r = rectToLocal(el.getBoundingClientRect());
+    var x = r.x + r.width / 2 - 3;
+    var y = r.y + r.height / 2 - 3;
+    cursor.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+  }
+
+  function moveCursorToRect(rect){
+    var r = rectToLocal(rect);
+    var x = r.x + r.width / 2 - 3;
+    var y = r.y + r.height / 2 - 3;
+    cursor.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+  }
+
+  var clickRing = document.getElementById('click-ring');
+
+  function clickPulse(targetEl){
+    cursorGlyph.classList.add('pulse');
+    setTimeout(function(){ cursorGlyph.classList.remove('pulse'); }, 150);
+    clickRing.classList.remove('ping');
+    void clickRing.offsetWidth; // restart the ring animation even on back-to-back clicks
+    clickRing.classList.add('ping');
+    if(targetEl){
+      targetEl.classList.add('pressed');
+      setTimeout(function(){ targetEl.classList.remove('pressed'); }, 160);
+    }
+  }
+
+  // Finds the on-screen rect of a substring inside #typed-text's single text
+  // node via the Range API -- lets the cursor point at (and a selection
+  // rectangle highlight) the exact flagged phrase inside the typed quote
+  // without adding any inline highlighting to the text itself, since the
+  // real ClarityFlagsPanel never highlights jargon inline, only lists it
+  // below the field (see components/ClarityFlagsPanel.tsx).
+  function findTextRect(phrase){
+    var node = typedTextEl.firstChild;
+    if(!node) return null;
+    var full = node.textContent;
+    var idx = full.indexOf(phrase);
+    if(idx === -1) return null;
+    var range = document.createRange();
+    range.setStart(node, idx);
+    range.setEnd(node, idx + phrase.length);
+    return range.getBoundingClientRect();
+  }
+
+  function showSelectionHighlight(rect){
+    var r = rectToLocal(rect);
+    selectionHighlight.style.transform = 'translate(' + (r.x - 2) + 'px,' + (r.y - 1) + 'px)';
+    selectionHighlight.style.width = (r.width + 4) + 'px';
+    selectionHighlight.style.height = (r.height + 2) + 'px';
+    selectionHighlight.classList.add('show');
+  }
+
+  function hideSelectionHighlight(){
+    selectionHighlight.classList.remove('show');
+  }
+
+  if(reduced){
+    idleScreen.style.opacity = '0';
+    modalOverlay.classList.add('show');
+    fieldQuote.classList.add('show');
+    fieldTags.classList.add('show');
+    typedTextEl.textContent = QUOTE_REVISED;
+    clarityPanel.classList.remove('show');
+    feedbackMsg.classList.add('show');
+    primaryBtn.textContent = 'Published';
+    primaryBtn.classList.add('disabled');
+    secondaryBtn.textContent = 'Close';
+    hideSelectionHighlight();
+    fitViewportSoon();
+    return;
+  }
+
+  var timers = [];
+  var typeTimer = null;
+  function clearTimers(){
+    timers.forEach(clearTimeout);
+    timers = [];
+    if(typeTimer){ clearInterval(typeTimer); typeTimer = null; }
+  }
+  function at(ms, fn){ timers.push(setTimeout(fn, ms)); }
+
+  function typeText(text, totalMs, onDone){
+    typedTextEl.textContent = '';
+    var i = 0;
+    var interval = Math.max(14, totalMs / text.length);
+    typeTimer = setInterval(function(){
+      i++;
+      typedTextEl.textContent = text.slice(0, i);
+      if(i >= text.length){
+        clearInterval(typeTimer);
+        typeTimer = null;
+        if(onDone) onDone();
+      }
+    }, interval);
+  }
+
+  // There's no "apply suggestion" button in the real ClarityFlagsPanel --
+  // it's a read-only list, the author has to fix the field themselves. So
+  // the fix is played as copy-paste: select the panel's own suggested
+  // wording, then paste it over the flagged phrase back in the field --
+  // instant, the way a paste actually lands, not retyped.
+  function pasteReplacement(){
+    hideSelectionHighlight();
+    var idx = QUOTE_ORIGINAL.indexOf(FLAGGED_TERM);
+    var prefix = QUOTE_ORIGINAL.slice(0, idx);
+    var suffix = QUOTE_ORIGINAL.slice(idx + FLAGGED_TERM.length);
+    fakeTextarea.style.opacity = '0.4';
+    setTimeout(function(){
+      typedTextEl.textContent = prefix + REPLACEMENT_TERM + suffix;
+      fakeTextarea.style.opacity = '1';
+    }, 160);
+  }
+
+  function runCycle(){
+    clearTimers();
+
+    cardViewport.style.transition = 'none';
+    cardViewport.style.opacity = '1';
+    idleScreen.style.transition = 'none';
+    idleScreen.style.opacity = '1';
+    addQuoteBtn.classList.remove('pressed');
+    primaryBtn.classList.remove('pressed');
+    clickRing.classList.remove('ping');
+    modalOverlay.classList.remove('show');
+    fieldQuote.classList.remove('show');
+    fieldTags.classList.remove('show');
+    clarityPanel.classList.remove('show');
+    feedbackMsg.classList.remove('show');
+    cursor.classList.remove('visible');
+    hideSelectionHighlight();
+    typedTextEl.textContent = '';
+    fakeTextarea.style.opacity = '1';
+    primaryBtn.textContent = 'Publish quote';
+    primaryBtn.classList.remove('disabled');
+    secondaryBtn.textContent = 'Cancel';
+    cardViewport.getBoundingClientRect();
+    cardViewport.style.transition = 'opacity .5s ease';
+    idleScreen.style.transition = 'opacity .4s ease';
+
+    // Click the trigger -- cursor travel is intentionally slow (1.4s CSS
+    // transition, see .cursor) so it reads as a deliberate, watchable move
+    // rather than a snap. It also rests on the button for a beat before
+    // clicking, and the click itself gets a ring + button press so the
+    // click reads clearly instead of blending into the scene change.
+    at(900, function(){
+      positionCursorNear(addQuoteBtn, -26, -22);
+      cursor.classList.add('visible');
+    });
+    at(1600, function(){ moveCursorTo(addQuoteBtn); });
+    at(3350, function(){ clickPulse(addQuoteBtn); });
+    at(3600, function(){
+      idleScreen.style.opacity = '0';
+      modalOverlay.classList.add('show');
+    });
+    at(3900, function(){ cursor.classList.remove('visible'); });
+
+    at(4100, function(){ fieldQuote.classList.add('show'); });
+    at(4400, function(){ fieldTags.classList.add('show'); });
+    at(4700, function(){
+      typeText(QUOTE_ORIGINAL, 2800, function(){
+        // Slower, more legible pause before the warning appears -- long
+        // enough to notice the term was just typed before the flag lands.
+        at(1000, function(){
+          clarityPanel.classList.add('show');
+          primaryBtn.textContent = 'Review flags';
+        });
+      });
+    });
+
+    // Fix-it beat: read the flag (hover the quoted term), move to the
+    // panel's own suggested wording and copy it, then move back into the
+    // field, select the flagged phrase, and paste the copy over it --
+    // there's no "apply suggestion" action in the real ClarityFlagsPanel,
+    // so this is played as what a real author would actually do by hand.
+    at(9600, function(){
+      positionCursorNear(clarityTerm, -22, -18);
+      cursor.classList.add('visible');
+    });
+    at(9850, function(){ moveCursorTo(clarityTerm); });
+
+    at(12950, function(){ moveCursorTo(claritySuggestion); });
+    at(14550, function(){ showSelectionHighlight(claritySuggestion.getBoundingClientRect()); });
+    at(15250, function(){
+      hideSelectionHighlight();
+      clickPulse(); // small "copied" confirmation, no button underneath
+    });
+
+    at(15400, function(){
+      var rect = findTextRect(FLAGGED_TERM);
+      if(rect){ moveCursorToRect(rect); }
+    });
+    at(17000, function(){
+      var rect = findTextRect(FLAGGED_TERM);
+      if(rect) showSelectionHighlight(rect);
+    });
+    at(17700, function(){
+      pasteReplacement();
+      clickPulse(); // "pasted" confirmation
+    });
+    at(17900, function(){
+      clarityPanel.classList.remove('show');
+      primaryBtn.textContent = 'Publish quote';
+    });
+
+    at(19200, function(){ moveCursorTo(primaryBtn); });
+    at(20700, function(){
+      clickPulse(primaryBtn);
+      primaryBtn.textContent = 'Submitting…';
+    });
+    at(21000, function(){
+      cursor.classList.remove('visible');
+      primaryBtn.textContent = 'Published';
+      primaryBtn.classList.add('disabled');
+      secondaryBtn.textContent = 'Close';
+      feedbackMsg.classList.add('show');
+    });
+
+    at(23200, function(){ cardViewport.style.opacity = '0.15'; });
+    at(24000, function(){ runCycle(); });
+  }
+
+  runCycle();
+
+  document.addEventListener('visibilitychange', function(){
+    if(document.hidden){ clearTimers(); } else { runCycle(); }
+  });
+})();
+</script>

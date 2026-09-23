@@ -164,6 +164,26 @@ This has **not** been signed off as the direction for the What's Inside
 section — treat it the same as Part 0's other design proposals (needs
 explicit user sign-off) before wiring it into `app/page.tsx` in Part 1.
 
+**Status: exploration only, not signed off.** A second loop of the same
+kind, this time of the real Add a Quote flow (`app/briefs/[slug]/
+quote-modals.tsx`'s `AddQuoteModal`, `lib/briefs/actions.ts`'s
+`submitQuote`, and the deterministic clarity check in
+`lib/clarity/check.ts` / `useClarityGate.ts` / `ClarityFlagsPanel.tsx`).
+Unlike the Q&A loop above, every behavior it shows is already shipped:
+an expert types a quote, the clarity check flags the jargon term
+"reward hacking," she revises it into plain language, the flag clears,
+and it publishes immediately (the happy path: a `pending`-status ending
+was avoided as anticlimactic for a landing page). Same fictional expert
+persona (Elena Vasquez, Independent Researcher) and same Hugging Face /
+OpenAI incident as the Q&A loop, for continuity between the two demos.
+
+Saved for later reference:
+- In-repo source: `docs/design/landing-page/quote-feature-loop-concept.html`
+- Live rendered version: https://claude.ai/artifact/HWGBpfvrmi7bGQSTCtHYuf
+
+Not signed off as a direction. Needs explicit sign-off before either
+loop is wired into `app/page.tsx`.
+
 ---
 
 ## 1. Engineering conventions
