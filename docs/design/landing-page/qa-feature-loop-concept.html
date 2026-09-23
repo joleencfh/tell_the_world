@@ -1,0 +1,320 @@
+<title>Q&amp;A Feature Loop</title>
+<style>
+:root{
+  --color-paper:#FFFFFF;--color-paper-raised:#F7F7F8;--color-paper-sunken-blue:#EAF0FE;
+  --color-ink:#0C0D0E;--color-ink-soft:#4A4E53;--color-ink-faint:#727679;
+  --color-line:#E2E3E5;--color-line-strong:#C9CBCE;
+  --color-blue:#1E4FEB;--color-blue-ink:#0B2C99;--color-blue-soft:#E7EDFD;
+  --color-pink:#F0197E;--color-pink-ink:#99075A;--color-pink-soft:#FDE6F1;
+  --font-display:"Segoe UI","Helvetica Neue",Arial,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Consolas,monospace;
+}
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&display=swap');
+*{box-sizing:border-box;}
+body{margin:0;background:var(--color-paper-raised);color:var(--color-ink);font-family:var(--font-display);padding:2.5rem 1.25rem;}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);}
+.frame{max-width:30rem;margin:0 auto;}
+.tag{display:block;text-align:center;font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-ink-faint);margin-bottom:1.25rem;}
+
+.card-viewport{position:relative;height:40rem;overflow:hidden;outline:2px solid var(--color-pink);background:var(--color-paper);}
+.card{padding:20px 24px;}
+.card-fade{position:absolute;left:0;right:0;bottom:0;height:4.5rem;background:linear-gradient(to bottom, rgba(255,255,255,0) 0%, var(--color-paper) 78%);pointer-events:none;z-index:6;}
+
+.reveal{opacity:0;transform:translateY(8px);transition:opacity .45s cubic-bezier(.16,1,.3,1), transform .45s cubic-bezier(.16,1,.3,1);}
+.reveal.show{opacity:1;transform:translateY(0);}
+
+.author-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-family:var(--font-mono);font-size:9.5px;color:var(--color-ink-soft);}
+.av{border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-weight:700;}
+.av-2xs{width:18px;height:18px;font-size:7px;background:#B45309;}
+.av-xs{width:32px;height:32px;font-size:12px;background:var(--color-blue);}
+.av.square{border-radius:5px;}
+.name-strong{font-weight:700;color:var(--color-ink);}
+.rolebadge{font-family:var(--font-mono);font-size:8px;letter-spacing:.1em;text-transform:uppercase;border-radius:4px;padding:2px 6px;flex-shrink:0;}
+.rolebadge.pink{color:var(--color-pink-ink);border:1px solid rgba(240,25,126,.2);}
+.rolebadge.blue{color:var(--color-blue);border:1px solid rgba(30,79,235,.2);}
+.faint{color:var(--color-ink-faint);}
+
+.qtext{font-family:var(--font-display);font-size:1.22rem;font-weight:800;color:var(--color-ink);line-height:1.28;margin:14px 0 16px;}
+
+.stats-row{display:flex;align-items:center;gap:16px;margin-bottom:18px;}
+.stat{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:11px;color:var(--color-ink-soft);font-variant-numeric:tabular-nums;}
+.stat svg{flex-shrink:0;}
+.stat .n{display:inline-block;transition:transform .25s ease, color .25s ease;}
+.stat .n.pulse{transform:scale(1.35);color:var(--color-pink-ink);}
+
+.answers{display:flex;flex-direction:column;gap:12px;position:relative;}
+.answer{border-left:3px solid var(--color-blue);background:var(--color-paper-sunken-blue);padding:14px 16px;display:flex;flex-direction:column;gap:10px;position:relative;}
+.author-row{display:flex;align-items:center;gap:8px;}
+.author-row .meta{min-width:0;}
+.author-row .aname-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.author-row .aname{font-family:var(--font-display);font-size:.85rem;font-weight:800;color:var(--color-ink);}
+.author-row .cred{font-family:var(--font-mono);font-size:9px;color:var(--color-ink-faint);margin-top:2px;}
+.abody{font-family:var(--font-display);font-size:.96rem;line-height:1.68;color:var(--color-ink);}
+.afoot{display:flex;align-items:center;gap:16px;padding-top:2px;}
+.comments-toggle{cursor:pointer;}
+.comments-toggle.clicked svg{stroke:var(--color-pink-ink);}
+.comments-toggle.clicked span{color:var(--color-pink-ink);}
+
+.endorsed{display:inline-flex;align-items:center;gap:5px;font-family:var(--font-mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--color-blue-ink);}
+.endorsed .star{font-size:11px;line-height:1;}
+.endorsed .ecount{font-variant-numeric:tabular-nums;}
+
+.comments-panel{max-height:0;opacity:0;overflow:hidden;transition:max-height .5s cubic-bezier(.16,1,.3,1), opacity .35s ease;
+  margin-left:22px;padding-left:14px;border-left:2px solid var(--color-line-strong);display:flex;flex-direction:column;gap:8px;}
+.comments-panel.open{max-height:16rem;opacity:1;margin-top:6px;}
+.comment-row{background:var(--color-paper);border:1px solid var(--color-line);border-radius:3px;padding:8px 10px;}
+.comment-row .chead{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-bottom:4px;}
+.comment-row .av-2xs{width:16px;height:16px;font-size:6.5px;}
+.comment-row .cname{font-family:var(--font-display);font-size:.72rem;font-weight:700;color:var(--color-ink);}
+.comment-row .rolebadge{font-size:7px;padding:1.5px 5px;}
+.comment-row .ctime{font-family:var(--font-mono);font-size:8px;color:var(--color-ink-faint);}
+.comment-row .cbody{font-family:var(--font-display);font-size:.82rem;line-height:1.5;color:var(--color-ink-soft);margin-bottom:6px;}
+.comment-row .cfoot{display:flex;align-items:center;}
+.comment-row .stat{font-size:9.5px;gap:4px;}
+.comment-row .stat svg{width:8px;height:8px;}
+
+.cursor{position:absolute;top:0;left:0;width:18px;height:18px;opacity:0;transition:transform .7s cubic-bezier(.65,0,.35,1), opacity .3s ease;pointer-events:none;z-index:5;}
+.cursor.visible{opacity:1;}
+.cursor-glyph{display:block;transition:transform .15s ease;transform-origin:22% 18%;}
+.cursor-glyph.pulse{transform:scale(.78);}
+</style>
+
+<div class="frame">
+  <span class="tag">Crafted loop concept &mdash; Community Q&amp;A, live component structure</span>
+
+  <p class="sr-only">Looping demo of the Community Q&amp;A feature: Priya Sharma asks how bad the Hugging Face / OpenAI incident really was. Expert Dr. Sarah Chen and the organisation Foresight Commons answer and are endorsed, with vote counts appearing. A cursor then clicks a comments icon on Dr. Sarah Chen&rsquo;s answer, revealing two comments from a creator and a journalist. Note: the comments feature shown here is illustrative and does not exist in the product yet.</p>
+
+  <div class="card-viewport">
+  <div class="card">
+    <div class="author-bar reveal" id="s-authorbar">
+      <span class="av av-2xs">P</span>
+      <span class="name-strong">Priya Sharma</span>
+      <span class="rolebadge pink">Creator</span>
+      <span class="faint">&middot;</span>
+      <span class="faint">The Priya Sharma Show</span>
+      <span class="faint">&middot;</span>
+      <span class="faint">Mar 3</span>
+    </div>
+
+    <p class="qtext reveal" id="s-qtext">This new report on the Hugging Face / OpenAI incident just came to my attention. How bad is it, really?</p>
+
+    <div class="stats-row reveal" id="s-stats">
+      <span class="stat">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 1L9 8H1L5 1Z" stroke="var(--color-pink)" stroke-width="1.2" stroke-linejoin="round"/></svg>
+        <span class="n" id="q-votes">12</span>
+      </span>
+      <span class="stat">
+        <svg viewBox="0 0 14 12" width="13" height="12" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" fill="none" stroke="var(--color-pink)"><path d="M1.5 1.5h11a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H5.3L2.3 12v-2.5h-.8a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1Z"/></svg>
+        <span>2</span>
+      </span>
+    </div>
+
+    <div class="answers">
+      <div class="answer reveal" id="s-answer1">
+        <div class="author-row">
+          <span class="av av-xs">D</span>
+          <div class="meta">
+            <div class="aname-row"><span class="aname">Dr. Sarah Chen</span><span class="rolebadge blue">Expert</span></div>
+            <div class="cred">Independent Researcher &middot; Mar 3</div>
+          </div>
+        </div>
+        <p class="abody">This is the clearest warning shot we&rsquo;ve had. A handful of the agents involved even considered alerting a human, and every one of them decided not to. That&rsquo;s not a story about one bug. It&rsquo;s a preview of how hard oversight gets once these systems start coordinating.</p>
+        <div class="afoot">
+          <span class="stat">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 1L9 8H1L5 1Z" stroke="var(--color-blue)" stroke-width="1.2" stroke-linejoin="round"/></svg>
+            <span class="n" id="a1-votes">6</span>
+          </span>
+          <span class="stat comments-toggle" id="comments-icon">
+            <svg viewBox="0 0 14 12" width="13" height="12" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" fill="none" stroke="var(--color-blue)"><path d="M1.5 1.5h11a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H5.3L2.3 12v-2.5h-.8a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1Z"/></svg>
+            <span>2</span>
+          </span>
+          <span class="endorsed"><span class="star">&#9733;</span> Endorsed <span class="ecount">2</span></span>
+        </div>
+        <div class="comments-panel" id="comments-panel">
+          <div class="comment-row">
+            <div class="chead">
+              <span class="av av-2xs" style="background:#BE123C;">T</span>
+              <span class="cname">Theo Bergstrom</span>
+              <span class="rolebadge pink">Creator</span>
+              <span class="ctime">&middot; Signal &amp; Noise &middot; Mar 3</span>
+            </div>
+            <p class="cbody">Not one of them said anything, not even the ones that thought about it. That&rsquo;s what&rsquo;s sticking with me.</p>
+            <div class="cfoot">
+              <span class="stat">
+                <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M5 1L9 8H1L5 1Z" stroke="var(--color-ink-faint)" stroke-width="1.2" stroke-linejoin="round"/></svg>
+                <span class="n">3</span>
+              </span>
+            </div>
+          </div>
+          <div class="comment-row">
+            <div class="chead">
+              <span class="av av-2xs" style="background:#7E22CE;">S</span>
+              <span class="cname">Sana Kader</span>
+              <span class="rolebadge pink">Journalist</span>
+              <span class="ctime">&middot; The Signal Weekly &middot; Mar 3</span>
+            </div>
+            <p class="cbody">Is &lsquo;warning shot&rsquo; the right frame, or does it undersell how close this actually got? Curious where researchers disagree.</p>
+            <div class="cfoot">
+              <span class="stat">
+                <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M5 1L9 8H1L5 1Z" stroke="var(--color-ink-faint)" stroke-width="1.2" stroke-linejoin="round"/></svg>
+                <span class="n">1</span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="cursor" id="cursor" aria-hidden="true">
+          <svg class="cursor-glyph" width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 1.5L14.5 7.6L8.7 9.2L7.1 15L2 1.5Z" fill="var(--color-ink)" stroke="#fff" stroke-width="1.1" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+
+      <div class="answer reveal" id="s-answer2">
+        <div class="author-row">
+          <span class="av av-xs square" style="background:var(--color-blue-ink);">F</span>
+          <div class="meta">
+            <div class="aname-row"><span class="aname">Foresight Commons</span><span class="rolebadge blue">Organisation</span></div>
+            <div class="cred">AI policy &middot; existential risk &middot; Mar 3</div>
+          </div>
+        </div>
+        <p class="abody">We study incidents like this closely, and this one is worse than what came before it, not just more widely covered. The real question isn&rsquo;t only what these systems can do today. It&rsquo;s whether anyone stays in control as more capable ones arrive, and that&rsquo;s what we research and push lawmakers on.</p>
+        <div class="afoot">
+          <span class="stat">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 1L9 8H1L5 1Z" stroke="var(--color-blue)" stroke-width="1.2" stroke-linejoin="round"/></svg>
+            <span class="n" id="a2-votes">4</span>
+          </span>
+          <span class="endorsed"><span class="star">&#9733;</span> Endorsed <span class="ecount">1</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card-fade"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var steps = ['s-authorbar','s-qtext','s-stats','s-answer1','s-answer2'];
+
+  function setAll(show){
+    steps.forEach(function(id){
+      document.getElementById(id).classList.toggle('show', show);
+    });
+    document.querySelector('.card-viewport').style.opacity = show ? '1' : '0';
+  }
+
+  function pulse(id, from, to){
+    var el = document.getElementById(id);
+    el.classList.add('pulse');
+    el.textContent = to;
+    setTimeout(function(){ el.classList.remove('pulse'); }, 260);
+  }
+
+  var commentsIcon = document.getElementById('comments-icon');
+  var commentsPanel = document.getElementById('comments-panel');
+  var cursor = document.getElementById('cursor');
+  var cursorGlyph = cursor.querySelector('.cursor-glyph');
+  var cardViewport = document.querySelector('.card-viewport');
+  var cardFade = document.querySelector('.card-fade');
+
+  var FADE_BUFFER_PX = 28;
+
+  function fitViewportToCollapsedContent(){
+    var wasOpen = commentsPanel.classList.contains('open');
+    commentsPanel.classList.remove('open');
+    var card = document.querySelector('.card');
+    var collapsedHeight = card.scrollHeight;
+    var fadeHeight = cardFade.getBoundingClientRect().height || 72;
+    cardViewport.style.height = (collapsedHeight + fadeHeight + FADE_BUFFER_PX) + 'px';
+    if(wasOpen) commentsPanel.classList.add('open');
+  }
+
+  function fitViewportSoon(){
+    requestAnimationFrame(function(){ requestAnimationFrame(fitViewportToCollapsedContent); });
+  }
+
+  fitViewportToCollapsedContent();
+  fitViewportSoon();
+  setTimeout(fitViewportToCollapsedContent, 350);
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(fitViewportSoon); }
+
+  if(window.ResizeObserver){
+    var lastWidth = document.querySelector('.frame').getBoundingClientRect().width;
+    new ResizeObserver(function(entries){
+      var w = entries[0].contentRect.width;
+      if(Math.abs(w - lastWidth) > 1){ lastWidth = w; fitViewportToCollapsedContent(); }
+    }).observe(document.querySelector('.frame'));
+  } else {
+    window.addEventListener('resize', fitViewportToCollapsedContent);
+  }
+
+  function positionCursorAtStart(){
+    var answersBox = document.querySelector('.answers').getBoundingClientRect();
+    var answer1Box = document.getElementById('s-answer1').getBoundingClientRect();
+    cursor.style.transition = 'none';
+    cursor.style.transform = 'translate(' + (answer1Box.right - answersBox.left - 30) + 'px,' + (answer1Box.top - answersBox.top + 6) + 'px)';
+    cursor.getBoundingClientRect();
+    cursor.style.transition = '';
+  }
+
+  function moveCursorToIcon(){
+    var answersBox = document.querySelector('.answers').getBoundingClientRect();
+    var iconBox = commentsIcon.getBoundingClientRect();
+    var x = iconBox.left - answersBox.left + iconBox.width / 2 - 3;
+    var y = iconBox.top - answersBox.top + iconBox.height / 2 - 3;
+    cursor.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+  }
+
+  if(reduced){
+    setAll(true);
+    document.getElementById('q-votes').textContent = '14';
+    document.getElementById('a1-votes').textContent = '7';
+    document.getElementById('a2-votes').textContent = '5';
+    commentsPanel.classList.add('open');
+    commentsIcon.classList.add('clicked');
+    return;
+  }
+
+  var timers = [];
+  function clearTimers(){ timers.forEach(clearTimeout); timers = []; }
+  function at(ms, fn){ timers.push(setTimeout(fn, ms)); }
+
+  function runCycle(){
+    clearTimers();
+    document.getElementById('q-votes').textContent = '12';
+    document.getElementById('a1-votes').textContent = '6';
+    document.getElementById('a2-votes').textContent = '4';
+    steps.forEach(function(id){ document.getElementById(id).classList.remove('show'); });
+    commentsPanel.classList.remove('open');
+    commentsIcon.classList.remove('clicked');
+    cursor.classList.remove('visible');
+    document.querySelector('.card-viewport').style.transition = 'opacity .5s ease';
+    document.querySelector('.card-viewport').style.opacity = '1';
+
+    at(300,  function(){ document.getElementById('s-authorbar').classList.add('show'); });
+    at(900,  function(){ document.getElementById('s-qtext').classList.add('show'); });
+    at(1600, function(){ document.getElementById('s-stats').classList.add('show'); });
+    at(2000, function(){ pulse('q-votes', 12, 14); });
+    at(2900, function(){ document.getElementById('s-answer1').classList.add('show'); });
+    at(3900, function(){ pulse('a1-votes', 6, 7); });
+    at(4900, function(){ document.getElementById('s-answer2').classList.add('show'); });
+    at(5900, function(){ pulse('a2-votes', 4, 5); });
+    at(7000, function(){ positionCursorAtStart(); cursor.classList.add('visible'); });
+    at(7500, function(){ moveCursorToIcon(); });
+    at(8250, function(){
+      cursorGlyph.classList.add('pulse');
+      commentsIcon.classList.add('clicked');
+      commentsPanel.classList.add('open');
+      setTimeout(function(){ cursorGlyph.classList.remove('pulse'); }, 200);
+    });
+    at(8900, function(){ cursor.classList.remove('visible'); });
+    at(12200, function(){ document.querySelector('.card-viewport').style.opacity = '0.15'; });
+    at(13000, function(){ runCycle(); });
+  }
+
+  runCycle();
+
+  document.addEventListener('visibilitychange', function(){
+    if(document.hidden){ clearTimers(); } else { runCycle(); }
+  });
+})();
+</script>
