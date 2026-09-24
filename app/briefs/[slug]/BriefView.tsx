@@ -1,33 +1,19 @@
 'use client'
 
-import { useState, Fragment } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import Logo from '@/components/ui/Logo'
-import DarkBand from '@/components/ui/DarkBand'
 import SignOutButton from '@/components/ui/SignOutButton'
 import Footer from '@/components/ui/Footer'
-import {
-  SECTION_ORDER,
-  SECTION_META,
-  SECTION_BG,
-  SectionHeader,
-  LockedPlaceholder,
-  HeroChipBar,
-  TLDRList,
-  ContributorsList,
-} from './section-content'
+import { SECTION_META, SectionHeader, TLDRList } from './section-content'
 import { QuotesCarousel } from './quotes'
-import { ContributeMenu, type ContributeModalKind } from './contribute'
-import { QuestionsList, QuestionForm } from './qa'
-import { ReviewEndorseControl } from './review-endorse'
-import { ExplainerSections } from './explainer'
-import { FAQSection } from './faq'
-import { CtaCarousel } from './ctas'
-import { CoverageCarousel } from './coverage'
-import { RelatedBriefsCarousel } from './related-briefs'
+import type { ContributeModalKind } from './contribute'
 import { BriefModals } from './brief-modals'
 import { SectionNav, buildNavSections } from './section-nav'
-import { computeReadTimeMinutes, getBriefNumber, getBriefCategory } from './helpers'
+import { computeReadTimeMinutes } from './helpers'
+import { BriefHero } from './brief-hero'
+import { BriefMainSections } from './brief-main-sections'
+import { QaSection, CtaSection, CoverageSection, RelatedBriefsSection, FooterActions } from './brief-secondary-sections'
 import type {
   Brief,
   CurrentUser,
@@ -218,103 +204,20 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
 
       <main>
 
-        {/* ── Hero — neutral ink, no blue/pink tint (§1.1) ─────────────── */}
-        <div id="section-top" className="relative overflow-hidden border-b border-line px-6 pt-12 pb-14">
-          {/* Bottom fade to next section */}
-          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent to-paper pointer-events-none" />
-
-          <div className="mx-auto max-w-4xl relative">
-            {/* Numbered eyebrow — 01, so the SectionHeader sequence starting
-                at 02 (TL;DR, just below) doesn't appear to skip 01 (§1.3). */}
-            <div className="flex items-center gap-4 mb-[0.9rem] anim-rise" style={{ animationDelay: '0ms' }}>
-              <span className="font-mono text-sm tracking-[0.2em] text-ink font-bold tabular-nums">01</span>
-              <div className="h-px flex-1 bg-line" />
-              <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-ink-faint">
-                Brief No. {getBriefNumber(brief.id)} — {getBriefCategory(brief.topic_tag)}
-              </span>
-              {/* Admin-only entry point into the existing brief editor (Part 5
-                  step 3) — no new editing capability, just a visible link
-                  into /admin/briefs/[id] from the live page. */}
-              {currentUser?.role === 'admin' && (
-                <Link
-                  href={`/admin/briefs/${brief.id}`}
-                  className="shrink-0 font-mono text-[10px] tracking-[0.3em] uppercase text-ink-faint hover:text-ink transition-colors"
-                >
-                  Edit this brief →
-                </Link>
-              )}
-            </div>
-
-            {/* Title/subtitle block + Contribute — flex row so the hero's
-                role-gated dropdown (Part 9) sits top-right of the title,
-                matching the reference artifact's .hero-top layout. */}
-            <div className="flex flex-wrap items-start justify-between gap-10">
-              <div className="min-w-0 flex-1">
-                {/* Title — large, dominant */}
-                <h1
-                  className="font-display font-extrabold text-ink anim-rise break-words"
-                  style={{
-                    fontSize: 'clamp(1.98rem, 4.99vw, 4.22rem)',
-                    lineHeight: '0.96',
-                    letterSpacing: '-0.035em',
-                    animationDelay: '80ms',
-                  }}
-                >
-                  {brief.title}
-                </h1>
-
-                {/* Subtitle — one sentence, allowed a point of view */}
-                {brief.subtitle && (
-                  <p
-                    className="font-body text-base sm:text-lg text-ink-soft italic mt-6 max-w-2xl anim-rise"
-                    style={{ animationDelay: '120ms' }}
-                  >
-                    {brief.subtitle}
-                  </p>
-                )}
-              </div>
-
-              {currentUser && (
-                <div className="anim-rise" style={{ animationDelay: '100ms' }}>
-                  <ContributeMenu
-                    role={currentUser.role} onOpenModal={setActiveContributeModal}
-                    onSuggestCta={() => setSuggestCtaOpen(true)} onAddCoverage={() => setAddCoverageOpen(true)}
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Header chip bar + tag row — endorsement bar, last reviewed,
-                read time, topic tags (Part 0a). aria-live inside HeroChipBar:
-                chips appear/change count in place with no navigation when
-                the review/endorse control below is used. */}
-            <HeroChipBar
-              reviewedCount={reviewedCount}
-              endorsedCount={endorsedCount}
-              lastReviewedAt={brief.last_reviewed_at}
-              readTimeMinutes={readTimeMinutes}
-              topicTags={brief.topic_tags}
-              onOpenReviewers={() => setReviewersModalOpen(true)}
-            />
-
-            {/* Contributors — members whose proposed-brief submission was
-                converted/linked into this brief (Part 10 step 3). Renders
-                nothing when empty. */}
-            <ContributorsList contributors={contributors} />
-
-            {/* Brief-level review/endorse control — expert/organisation only */}
-            {canContribute && (
-              <div className="mt-4 anim-rise" style={{ animationDelay: '180ms' }}>
-                <ReviewEndorseControl
-                  briefId={brief.id}
-                  briefSlug={brief.slug}
-                  sectionId={null}
-                  initialStatus={myReviewStatus}
-                />
-              </div>
-            )}
-          </div>
-        </div>
+        <BriefHero
+          brief={brief}
+          currentUser={currentUser}
+          canContribute={canContribute}
+          myReviewStatus={myReviewStatus}
+          reviewedCount={reviewedCount}
+          endorsedCount={endorsedCount}
+          readTimeMinutes={readTimeMinutes}
+          contributors={contributors}
+          onOpenModal={setActiveContributeModal}
+          onSuggestCta={() => setSuggestCtaOpen(true)}
+          onAddCoverage={() => setAddCoverageOpen(true)}
+          onOpenReviewers={() => setReviewersModalOpen(true)}
+        />
 
         {/* ── TL;DR ─────────────────────────────────────────────────────── */}
         {tldr.trim() && (
@@ -354,258 +257,71 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
           </div>
         )}
 
-        {/* ── Sections or lock ─────────────────────────────────────────── */}
-        {showSections ? (
-          <>
-            {SECTION_ORDER.map((type, i) => {
-              // A section type can have more than one row (e.g. multiple
-              // titled Explainer subsections, Part 3) — render every
-              // matching row, not just the first, so content isn't silently
-              // dropped.
-              const sections = sortedSections.filter((s) => s.section_type === type)
-
-              return (
-                <Fragment key={type}>
-                  {sections.length > 0 && (() => {
-                    const meta = SECTION_META[type]
-                    const bgClass = SECTION_BG[i] ?? 'bg-paper'
-                    return (
-                      <div id={`section-${type}`} className={`${bgClass} scroll-mt-20 border-t-4 border-t-blue border-b border-b-line px-6 py-16`}>
-                        <div className="mx-auto max-w-4xl anim-rise" style={{ animationDelay: '100ms' }}>
-                          <SectionHeader
-                            num={meta.num}
-                            label={meta.label}
-                            description={meta.description}
-                            numTone={type === 'faq' ? 'blue' : 'ink'}
-                            action={
-                              type === 'faq' && (canContribute || currentUser?.role === 'admin') ? (
-                                // Opens the shared feedback mechanism (Part 0c)
-                                // rather than a role-gated submission, so —
-                                // unlike canContribute's other gated controls —
-                                // it's safe to also preview for admin.
-                                <button
-                                  type="button" onClick={() => setActiveContributeModal('faq-question')} style={{ touchAction: 'manipulation' }}
-                                  className="border-[1.5px] border-ink bg-paper px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.06em] text-ink transition-colors hover:border-blue hover:text-blue"
-                                >
-                                  + Suggest question
-                                </button>
-                              ) : type === 'explainer' && isLoggedIn ? (
-                                // Renamed from "Suggest changes" and opened to
-                                // every logged-in role (Explainer Engagement
-                                // Options design pass, 2026-08-26) — this is
-                                // now the Explainer's only feedback trigger
-                                // (the old bottom-of-section "Give feedback on
-                                // this section" link is gone; the public
-                                // contentious-point/comment mechanisms in
-                                // ExplainerEngagement below replace what that
-                                // link's open-to-everyone reach used to cover).
-                                <button
-                                  type="button"
-                                  onClick={() => setExplainerFeedbackOpen(true)}
-                                  style={{ touchAction: 'manipulation' }}
-                                  className="border-[1.5px] border-blue bg-paper px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.06em] text-blue-ink outline-none transition-colors hover:bg-blue hover:text-white focus-visible:ring-2 focus-visible:ring-blue"
-                                >
-                                  Give feedback
-                                </button>
-                              ) : undefined
-                            }
-                          />
-                          {type === 'explainer' ? (
-                            <ExplainerSections
-                              explainerTitle={brief.explainer_title}
-                              sections={sections}
-                              sourceSections={goingDeeperSections}
-                              timelineEvents={brief.brief_timeline_events}
-                              briefId={brief.id}
-                              briefSlug={brief.slug}
-                              contentiousPoints={contentiousPoints}
-                              comments={explainerComments}
-                              usefulness={explainerUsefulness}
-                              currentUser={engagementAuthor}
-                              canFlagContentious={canFlagContentious}
-                              canVoteUseful={canVoteUseful}
-                              onFlagContentious={() => setFlagContentiousOpen(true)}
-                              onShowUsefulLikers={() => setUsefulLikersOpen(true)}
-                            />
-                          ) : (
-                            <FAQSection
-                              sections={sections}
-                              briefId={brief.id}
-                              briefSlug={brief.slug}
-                              canSubmit={canContribute || currentUser?.role === 'admin'}
-                              answersByQuestion={faqAnswersByQuestion}
-                              faqMetaByQuestion={faqMetaByQuestion}
-                              onGiveFeedback={setFaqFeedbackQuestion}
-                              isLoggedIn={isLoggedIn}
-                            />
-                          )}
-                        </div>
-                      </div>
-                    )
-                  })()}
-                </Fragment>
-              )
-            })}
-          </>
-        ) : (
-          <div className="px-6 py-14">
-            <div className="mx-auto max-w-4xl space-y-2">
-              {SECTION_ORDER.map((type) => (
-                <LockedPlaceholder key={type} />
-              ))}
-            </div>
-            {/* Members-only CTA */}
-            <div className="mx-auto max-w-4xl mt-6">
-              <div className="bg-coverage-bg rounded-2xl p-10 text-center">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-coverage-fg/5 mb-5">
-                  <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-pink">
-                    <path fillRule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <p className="font-display uppercase text-coverage-fg text-2xl mb-3">Members Only</p>
-                <p className="font-body text-sm text-coverage-fg/50 mb-8 leading-relaxed max-w-sm mx-auto">
-                  The full brief — sources, context, and expert guidance — is available to approved members of the Tell The World community.
-                </p>
-                <div className="flex items-center justify-center gap-6 flex-wrap">
-                  <Link href="/apply" className="font-display uppercase tracking-widest text-xs bg-pink-ink text-white px-8 py-3 hover:opacity-90 transition-opacity">
-                    Apply to Join
-                  </Link>
-                  <Link href="/login" className="font-mono text-[9px] tracking-[0.15em] uppercase text-coverage-fg/40 hover:text-coverage-fg/80 transition-colors">
-                    Already a member? Login →
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        <BriefMainSections
+          showSections={showSections}
+          sortedSections={sortedSections}
+          goingDeeperSections={goingDeeperSections}
+          brief={brief}
+          currentUser={currentUser}
+          isLoggedIn={isLoggedIn}
+          canContribute={canContribute}
+          onSuggestQuestion={setActiveContributeModal}
+          onExplainerFeedback={() => setExplainerFeedbackOpen(true)}
+          contentiousPoints={contentiousPoints}
+          explainerComments={explainerComments}
+          explainerUsefulness={explainerUsefulness}
+          engagementAuthor={engagementAuthor}
+          canFlagContentious={canFlagContentious}
+          canVoteUseful={canVoteUseful}
+          onFlagContentious={() => setFlagContentiousOpen(true)}
+          onShowUsefulLikers={() => setUsefulLikersOpen(true)}
+          faqAnswersByQuestion={faqAnswersByQuestion}
+          faqMetaByQuestion={faqMetaByQuestion}
+          onFaqGiveFeedback={setFaqFeedbackQuestion}
+        />
 
         {/* ── Q&A — members only ───────────────────────────────────────── */}
         {isLoggedIn && (
-          <div id="section-qa" className="scroll-mt-20 border-t-4 border-t-pink border-b border-b-line bg-paper-sunken px-6 py-16">
-            <div className="mx-auto max-w-4xl">
-              <SectionHeader
-                num="06"
-                label="Community Q&A"
-                description="Questions from members, answered by experts"
-                numTone="pink"
-                action={
-                  <button
-                    type="button"
-                    className="border-[1.5px] border-pink bg-paper px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.06em] text-pink transition-colors hover:bg-pink hover:text-white"
-                  >
-                    + Ask a question
-                  </button>
-                }
-              />
-              <QuestionsList
-                questions={questions}
-                answersByQuestion={answersByQuestion}
-                briefSlug={brief.slug}
-                canEndorse={canContribute}
-                canSubmitAnswer={canSubmitAnswer}
-                voterTone={voterTone}
-              />
-              <QuestionForm briefId={brief.id} briefSlug={brief.slug} />
-            </div>
-          </div>
+          <QaSection
+            briefId={brief.id}
+            briefSlug={brief.slug}
+            questions={questions}
+            answersByQuestion={answersByQuestion}
+            canContribute={canContribute}
+            canSubmitAnswer={canSubmitAnswer}
+            voterTone={voterTone}
+          />
         )}
 
         {/* ── Calls to Action ──────────────────────────────────────────── */}
         {showSections && (
-          <div id="section-cta" className="scroll-mt-20 border-t-4 border-t-pink border-b border-b-line bg-paper px-6 py-16">
-            <div className="mx-auto max-w-4xl">
-              <SectionHeader
-                num="07"
-                label="Calls to Action"
-                description="What experts & orgs want you to do with this"
-                numTone="blue"
-                action={
-                  canSuggestCta ? (
-                    <button
-                      type="button"
-                      onClick={() => setSuggestCtaOpen(true)}
-                      style={{ touchAction: 'manipulation' }}
-                      className="border-2 border-blue bg-blue px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.08em] text-white outline-none transition-colors hover:bg-paper hover:text-blue focus-visible:ring-2 focus-visible:ring-blue"
-                    >
-                      + New CTA
-                    </button>
-                  ) : undefined
-                }
-              />
-              <CtaCarousel ctas={ctas} canSuggestCta={canSuggestCta} />
-            </div>
-          </div>
+          <CtaSection ctas={ctas} canSuggestCta={canSuggestCta} onSuggestCta={() => setSuggestCtaOpen(true)} />
         )}
 
-        {/* ── Covered By — fixed dark band in both themes (§1.3) ───────── */}
+        {/* ── Covered By ────────────────────────────────────────────────── */}
         {showSections && (
-          <DarkBand id="section-coverage" className="scroll-mt-20 border-t-4 border-t-pink border-b border-b-line px-6 py-16">
-            <div className="mx-auto max-w-4xl">
-              <SectionHeader
-                num="08"
-                label="Covered By"
-                description="How this topic is being covered elsewhere"
-                numTone="pink"
-                onDark
-                action={
-                  isLoggedIn ? (
-                    <button
-                      type="button"
-                      onClick={() => setAddCoverageOpen(true)}
-                      style={{ touchAction: 'manipulation' }}
-                      className="border-2 border-pink bg-pink px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.08em] text-white outline-none transition-colors hover:bg-transparent hover:text-pink focus-visible:ring-2 focus-visible:ring-pink"
-                    >
-                      + Add coverage
-                    </button>
-                  ) : undefined
-                }
-              />
-              <CoverageCarousel coverage={coverage} briefSlug={brief.slug} isLoggedIn={isLoggedIn} onOpenCoverage={setSelectedCoverage} />
-            </div>
-          </DarkBand>
+          <CoverageSection
+            coverage={coverage}
+            briefSlug={brief.slug}
+            isLoggedIn={isLoggedIn}
+            onAddCoverage={() => setAddCoverageOpen(true)}
+            onOpenCoverage={setSelectedCoverage}
+          />
         )}
 
-        {/* ── Related Briefs — neutral ink (§1.1: the editorial spine, never
-            blue/pink). Not rendered at all when there's nothing to relate
-            to (no topic_tag, or no other brief shares it) — same
-            near-empty-state convention as Quotes above, don't render an
-            empty section (§3 Part 8). ─────────────────────────────────── */}
+        {/* ── Related Briefs — see brief-secondary-sections.tsx's own
+            comment for why this is skipped entirely when empty. ────────── */}
         {showSections && relatedBriefs.length > 0 && (
-          <div id="section-related" className="scroll-mt-20 border-t-4 border-line bg-paper-raised px-6 py-16">
-            <div className="mx-auto max-w-4xl">
-              <SectionHeader
-                num="09"
-                label="Related Briefs"
-                description="More on this topic"
-              />
-              <RelatedBriefsCarousel briefs={relatedBriefs} />
-            </div>
-          </div>
+          <RelatedBriefsSection relatedBriefs={relatedBriefs} />
         )}
 
         {/* ── Footer actions — logged-in members ───────────────────────── */}
         {isLoggedIn && (
-          <div className="px-6 py-6 border-t border-line">
-            <div className="mx-auto max-w-4xl flex flex-wrap items-center gap-6">
-              {canContribute && (
-                <button
-                  type="button"
-                  onClick={() => setProposeCorrectionOpen(true)}
-                  className="font-mono text-[10px] tracking-[0.15em] uppercase text-ink-soft hover:text-ink transition-colors inline-flex items-center gap-2"
-                >
-                  <span aria-hidden>→</span> Propose a correction or addition
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => setProposeBriefOpen(true)}
-                style={{ touchAction: 'manipulation' }}
-                className="ml-auto inline-flex items-center gap-2 border-2 border-blue bg-paper px-8 py-3 font-display text-sm uppercase tracking-widest text-blue-ink transition-colors hover:bg-blue hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue"
-              >
-                Propose a new brief <span aria-hidden>→</span>
-              </button>
-            </div>
-          </div>
+          <FooterActions
+            canContribute={canContribute}
+            onProposeCorrection={() => setProposeCorrectionOpen(true)}
+            onProposeBrief={() => setProposeBriefOpen(true)}
+          />
         )}
 
         {/* ── Every top-level modal — extracted to brief-modals.tsx to keep
