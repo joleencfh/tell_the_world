@@ -3,6 +3,7 @@
   "lastAppliedAt": "2026-09-25T00:00:00Z",
   "scope": "app/page.tsx and the landing/* section components it renders, plus WaitlistModal.tsx and the shared Footer/Logo",
   "entries": {
+    "header.blog-link": { "file": "app/page.tsx", "text": "Blog" },
     "header.apply-link": { "file": "app/page.tsx", "text": "Apply" },
     "header.signin-link": { "file": "app/page.tsx", "text": "Sign in" },
 

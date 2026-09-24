@@ -38,10 +38,23 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-paper text-ink flex flex-col">
 
-      <header className="sticky top-0 z-10 bg-paper/95 backdrop-blur-sm border-b-2 border-ink px-6">
-        <div className="mx-auto flex max-w-5xl items-center justify-between py-4">
+      <header className="sticky top-0 z-10 bg-paper/95 backdrop-blur-sm border-b-2 border-ink px-4 sm:px-6">
+        {/* gap-3 on the row is a floor, not a fallback for justify-between —
+            flexbox gap enforces a minimum spacing between the logo and the
+            nav group even when they're packed edge to edge, which they
+            started being on narrow phones once the Blog link's added width
+            ate the slack that justify-between used to leave on its own. */}
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 py-4">
           <Logo href="/" />
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-3 sm:gap-5">
+            <a
+              href="https://telltheworldblog.substack.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors"
+            >
+              Blog
+            </a>
             <Link
               href="/apply"
               className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink border border-ink px-3 py-1.5 hover:bg-ink hover:text-paper transition-colors"

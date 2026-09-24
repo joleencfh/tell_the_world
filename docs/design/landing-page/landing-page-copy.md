@@ -24,6 +24,12 @@ feature demos, not real user data.
 
 
 
+### header.blog-link
+
+> Blog
+
+*Links out to https://telltheworldblog.substack.com/ (opens in a new tab).*
+
 ### header.apply-link
 
 > Apply
