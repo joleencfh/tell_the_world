@@ -536,11 +536,23 @@ export default function AddQuoteDemo() {
       </div>
 
       <style>{`
-        /* Proportional 15% size reduction (2026-09-24) — same reasoning as
-           QACommunityDemo.tsx's matching comment: zoom shrinks real layout,
-           so every measurement the effect above takes already reflects the
-           smaller size consistently, no JS changes needed. */
-        .aq-demo{zoom:.85;}
+        /* Proportional size reduction (2026-09-24, .85; tightened to .75
+           2026-09-26) — same reasoning as QACommunityDemo.tsx's matching
+           comment: zoom shrinks real layout, so every measurement the
+           effect above takes already reflects the smaller size
+           consistently, no JS changes needed. The extra reduction fixes
+           .sec-head-row (the idle screen's "Quotes" title + "+ Add quote"
+           button) wrapping onto two lines on narrow phones — .sec-desc's
+           13rem max-width makes its flex sibling claim a full 208px of
+           local width regardless of how little the actual text needs, and
+           at .85 zoom a phone-width column doesn't have enough local room
+           left over for the button once that's accounted for. A lower zoom
+           gives every local measurement more physical room to work with
+           without changing anything's *relative* proportions.
+           (Desktop/tablet columns are wide enough that .sec-head-row was
+           never actually short on room — max-w-[26rem] binds there, not
+           the viewport, so this only bites on phones.) */
+        .aq-demo{zoom:.75;}
         .aq-demo .card-viewport{position:relative;overflow:hidden;background:var(--color-paper);border:2px solid var(--color-ink);transition:opacity .5s ease;}
         .aq-demo .card-fade{position:absolute;left:0;right:0;bottom:0;height:4.5rem;background:linear-gradient(to bottom, rgba(255,255,255,0) 0%, var(--color-paper) 78%);pointer-events:none;z-index:6;}
 
