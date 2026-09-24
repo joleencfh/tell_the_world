@@ -43,8 +43,12 @@ test.describe('Landing page', () => {
   })
 
   test('two-circles section — both audiences visible', async ({ page }) => {
-    await expect(page.getByText('Creators & journalists')).toBeVisible()
-    await expect(page.getByText('Researchers & organisations')).toBeVisible()
+    // exact: true — the closing section's "For creators & journalists" /
+    // "For researchers & organisations" eyebrows are case-insensitive
+    // substring matches of these same labels, which turns a loose getByText
+    // into a strict-mode violation (2 elements) now that both sections exist.
+    await expect(page.getByText('Creators & journalists', { exact: true })).toBeVisible()
+    await expect(page.getByText('Researchers & organisations', { exact: true })).toBeVisible()
   })
 
   test('closing section — waitlist and early-tester CTAs visible', async ({ page }) => {
