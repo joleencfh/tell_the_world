@@ -141,12 +141,11 @@ export default function LandingPage() {
                 className="font-display font-extrabold tracking-tight text-ink mb-4"
                 style={{ fontSize: 'clamp(1.3rem, 2.4vw, 1.75rem)', lineHeight: 1.2 }}
               >
-                Ask a question. Get an answer from someone who studies this.
+                Ask a question &amp; get an answer from someone who studies this.
               </h3>
               <p className="font-body text-ink-soft" style={{ fontSize: '0.98rem', lineHeight: 1.65 }}>
-                Every brief has open Q&amp;A. Ask what&rsquo;s actually on your mind, and an expert or
-                organisation working on the problem answers directly, on the record, with their name and
-                affiliation attached.
+                Every brief has an open Q&amp;A. Ask what&rsquo;s on your mind, and an expert or
+                organisation working on the problem answers directly, on the record.
               </p>
             </div>
             <QACommunityDemo />

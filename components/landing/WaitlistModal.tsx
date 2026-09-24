@@ -179,8 +179,8 @@ export default function WaitlistModal({ mode, onClose, defaultRole }: WaitlistMo
             <h3 className="font-display font-extrabold text-xl text-ink mb-1">Tell us who you are</h3>
             <p className="font-body text-sm text-ink-soft leading-relaxed mb-6">
               {wantsEarlyAccess
-                ? "We'll reach out by email if we're ready for early testers. No spam, no mailing list sold to anyone else."
-                : "We'll reach out when Tell The World opens. No spam, no mailing list sold to anyone else."}
+                ? "We'll reach out by email if we're ready for early testers."
+                : "We'll reach out when Tell The World opens."}
             </p>
 
             <form onSubmit={handleSubmit} noValidate>

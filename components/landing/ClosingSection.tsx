@@ -22,9 +22,8 @@ export default function ClosingSection({ onApplyAsExpertOrg, onJoinWaitlist, onB
               For researchers &amp; organisations
             </span>
             <p className="font-body text-[0.92rem] leading-relaxed text-ink-soft">
-              You&rsquo;ve done the work. Getting it in front of a non-specialist audience shouldn&rsquo;t be
-              another job on top of your research. Join as an early expert or organisation and help shape
-              the first briefs and Q&amp;A threads creators and journalists will actually use.
+              Join as an early user and help shape the first briefs and Q&amp;A threads creators and
+              journalists will actually use.
             </p>
             <button
               type="button"
@@ -41,9 +40,8 @@ export default function ClosingSection({ onApplyAsExpertOrg, onJoinWaitlist, onB
               For creators &amp; journalists
             </span>
             <p className="font-body text-[0.92rem] leading-relaxed text-ink-soft">
-              You know how to make people care about something. What&rsquo;s usually missing is the
-              background and a real expert willing to go on record. Join the waitlist for early access to
-              briefs, quotes, and direct contact with the people doing the research.
+              Join the waitlist for early access to briefs, quotes, and direct contact with the people doing
+              the research.
             </p>
             <button
               type="button"

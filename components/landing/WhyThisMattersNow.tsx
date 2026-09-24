@@ -23,18 +23,17 @@ export default function WhyThisMattersNow() {
           className="font-display font-extrabold tracking-tight text-ink mb-6"
           style={{ fontSize: 'clamp(1.7rem, 3.6vw, 2.5rem)', lineHeight: 1.15 }}
         >
-          Attention shows up. <span className="text-pink">Understanding doesn&rsquo;t stick.</span>
+          Attention shows up, <span className="text-pink">understanding doesn&rsquo;t always follow.</span>
         </h2>
 
         <p
           className="font-body text-ink-soft mx-auto"
           style={{ fontSize: '1.02rem', lineHeight: 1.7, maxWidth: '38rem' }}
         >
-          Every few months a warning from inside a frontier lab goes viral and the whole internet spends a
-          week arguing about AI risk. Then it fades, and what&rsquo;s left is confusion and a fight split
-          down party lines, not a public that understands the problem any better. People are already paying
-          attention. What&rsquo;s missing is careful explanation from the people who actually study this,
-          coming from voices audiences already trust.
+          AI incidents are all over the news and existential risk is reaching the mainstream. Now that people
+          are finally paying attention, we need a way to keep the momentum going, while providing candid
+          &amp; credible explanations from the people and organisations who actually study this. We need to
+          do this at scale, now.
         </p>
       </RevealOnScroll>
     </section>
