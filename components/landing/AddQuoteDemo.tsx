@@ -145,16 +145,43 @@ export default function AddQuoteDemo() {
       modalOverlay!.classList.toggle('show', show)
     }
 
+    // .aq-demo carries a CSS `zoom` (the size-reduction pass) on an ancestor
+    // of cardViewport, cursor, and every element these functions measure.
+    // getBoundingClientRect() reports PHYSICAL (post-zoom) coordinates, but
+    // `transform: translate()` — like every other layout/paint property —
+    // is resolved in the LOCAL (pre-zoom) coordinate system and gets
+    // zoomed again on top of whatever value we hand it. Feeding a raw
+    // physical delta straight into translate() double-applies the zoom and
+    // makes the cursor undershoot every move (worse the smaller zoom is —
+    // this went from a subtle 15% undershoot to an obvious 25% one when
+    // the Add-a-quote demo's zoom was tightened from .85 to .75), which is
+    // what read as "the cursor sits too high" — it wasn't nudged up, it
+    // just never travelled as far down/right as it was supposed to.
+    // Dividing the measured delta by zoom converts it back to the local
+    // value that actually produces the intended physical displacement.
+    // zoom is set on .aq-demo (an ANCESTOR of cardViewport), and CSS zoom
+    // isn't an inherited property for computed-style purposes — reading it
+    // off cardViewport itself would just report the initial value (1), a
+    // silent no-op. closest('.aq-demo') gets the element the rule actually
+    // applies to.
+    const aqRoot = cardViewport!.closest('.aq-demo') as HTMLElement
+    const zoom = parseFloat(getComputedStyle(aqRoot).zoom) || 1
+
     function rectToLocal(rect: DOMRect) {
       const hostBox = cardViewport!.getBoundingClientRect()
-      return { x: rect.left - hostBox.left, y: rect.top - hostBox.top, width: rect.width, height: rect.height }
+      return {
+        x: (rect.left - hostBox.left) / zoom,
+        y: (rect.top - hostBox.top) / zoom,
+        width: rect.width / zoom,
+        height: rect.height / zoom,
+      }
     }
 
     function positionCursorNear(el: Element, dx: number, dy: number) {
       const hostBox = cardViewport!.getBoundingClientRect()
       const elBox = el.getBoundingClientRect()
       cursor!.style.transition = 'none'
-      cursor!.style.transform = `translate(${elBox.left - hostBox.left + dx}px, ${elBox.top - hostBox.top + dy}px)`
+      cursor!.style.transform = `translate(${(elBox.left - hostBox.left) / zoom + dx}px, ${(elBox.top - hostBox.top) / zoom + dy}px)`
       cursor!.getBoundingClientRect()
       cursor!.style.transition = ''
     }
