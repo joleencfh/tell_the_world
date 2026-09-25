@@ -1,83 +1,69 @@
 import RevealOnScroll from './RevealOnScroll'
 
 interface ClosingSectionProps {
+  onApplyAsExpertOrg: () => void
   onJoinWaitlist: () => void
   onBecomeEarlyTester: () => void
 }
 
-// Minimalist title: plain key colors, no gradient. "Are you ready to"
-// stays quiet; "Tell"/"World" get the brand colors, "The" stays neutral
-// so the two colored words carry the emphasis instead of the whole line.
-export default function ClosingSection({ onJoinWaitlist, onBecomeEarlyTester }: ClosingSectionProps) {
+// conference-landing-page-plan.md §0 — the closing ask, replacing the old
+// single waitlist CTA block with two role-specific columns (researchers &
+// organisations vs. creators & journalists), each opening WaitlistModal
+// with its own role pre-selected. "Become an early tester" now lives as a
+// single line below both columns rather than its own button.
+export default function ClosingSection({ onApplyAsExpertOrg, onJoinWaitlist, onBecomeEarlyTester }: ClosingSectionProps) {
   return (
-    <section className="px-6 pt-[4.2rem] pb-32 text-center">
-      <RevealOnScroll className="mx-auto max-w-2xl">
-        <p
-          className="font-body font-medium text-ink-soft"
-          style={{ fontSize: 'clamp(1.05rem, 1.6vw, 1.25rem)', marginBottom: '0.5rem' }}
-        >
-          Are you ready to
-        </p>
-
-        <p
-          className="font-display font-extrabold tracking-tight"
-          style={{ fontSize: 'clamp(2.2rem, 6vw, 3.4rem)', lineHeight: 1.1, marginBottom: '3rem' }}
-        >
-          <span className="text-pink">Tell</span> <span className="text-ink">The</span>{' '}
-          <span className="text-blue">World?</span>
-        </p>
-
-        <div className="anim-nudge mb-12 flex justify-center" aria-hidden>
-          <svg viewBox="0 0 20 46" width="20" height="46">
-            <defs>
-              <linearGradient id="closing-arrow-gradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" style={{ stopColor: 'var(--color-pink)' }} />
-                <stop offset="100%" style={{ stopColor: 'var(--color-blue)' }} />
-              </linearGradient>
-            </defs>
-            <line x1="10" y1="0" x2="10" y2="34" stroke="url(#closing-arrow-gradient)" strokeWidth="2" strokeLinecap="round" />
-            <path
-              d="M2 28 L10 38 L18 28"
-              stroke="url(#closing-arrow-gradient)"
-              strokeWidth="2"
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
-
-        <div className="flex flex-wrap items-center justify-center gap-5">
-          <button
-            type="button"
-            onClick={onJoinWaitlist}
-            className="w-full max-w-[20rem] whitespace-normal border-2 border-blue-ink bg-blue-ink px-4 py-3.5 text-center font-display text-sm font-bold tracking-wide uppercase text-white transition-colors hover:bg-white hover:text-blue-ink min-[480px]:w-64 min-[480px]:max-w-none min-[480px]:whitespace-nowrap"
-          >
-            Join the waitlist
-          </button>
-
-          <div className="group relative flex w-full max-w-[20rem] min-[480px]:w-auto min-[480px]:max-w-none">
+    <section className="px-6 pt-16 pb-32">
+      <RevealOnScroll className="mx-auto max-w-4xl">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div className="flex flex-col gap-4 border-2 border-ink p-8">
+            <span className="inline-flex items-center gap-2.5 font-mono text-[10.5px] tracking-[0.16em] uppercase text-blue-ink">
+              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-blue" aria-hidden />
+              For researchers &amp; organisations
+            </span>
+            <p className="font-body text-[0.92rem] leading-relaxed text-ink-soft">
+              Join as an early user and help shape the first briefs and Q&amp;A threads creators and
+              journalists will actually use.
+            </p>
             <button
               type="button"
-              onClick={onBecomeEarlyTester}
-              aria-describedby="early-tester-tip"
-              className="w-full whitespace-normal border-2 border-ink px-4 py-3.5 text-center font-display text-sm font-bold tracking-wide uppercase text-ink transition-colors hover:bg-ink hover:text-white min-[480px]:w-64 min-[480px]:whitespace-nowrap"
+              onClick={onApplyAsExpertOrg}
+              className="self-start font-display uppercase tracking-widest text-sm px-6 py-3 border-2 border-blue-ink bg-blue-ink text-white hover:bg-white hover:text-blue-ink transition-colors duration-150"
             >
-              Become an early tester
+              Apply as an expert or org
             </button>
-            <span
-              id="early-tester-tip"
-              role="tooltip"
-              className="pointer-events-none absolute bottom-full left-1/2 mb-2.5 w-56 -translate-x-1/2 translate-y-1 rounded-sm bg-ink px-3 py-2.5 text-left font-body text-xs leading-snug text-white opacity-0 transition-all duration-150 group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100"
-            >
-              Try Tell The World while it&rsquo;s still rough, and help us fix it.
-              <span
-                aria-hidden
-                className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-ink"
-              />
+          </div>
+
+          <div className="flex flex-col gap-4 border-2 border-ink p-8">
+            <span className="inline-flex items-center gap-2.5 font-mono text-[10.5px] tracking-[0.16em] uppercase text-pink-ink">
+              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-pink" aria-hidden />
+              For creators &amp; journalists
             </span>
+            <p className="font-body text-[0.92rem] leading-relaxed text-ink-soft">
+              Join the waitlist for early access to briefs, quotes, and direct contact with the people doing
+              the research.
+            </p>
+            <button
+              type="button"
+              onClick={onJoinWaitlist}
+              className="self-start font-display uppercase tracking-widest text-sm px-6 py-3 border-2 border-pink-ink bg-pink-ink text-white hover:bg-white hover:text-pink-ink transition-colors duration-150"
+            >
+              Join the waitlist
+            </button>
           </div>
         </div>
+
+        <p className="mx-auto mt-9 max-w-lg text-center font-body text-sm text-ink-soft">
+          Want in sooner?{' '}
+          <button
+            type="button"
+            onClick={onBecomeEarlyTester}
+            className="font-semibold text-ink underline decoration-line-strong underline-offset-2 hover:decoration-ink"
+          >
+            Become an early tester
+          </button>{' '}
+          and try Tell The World while it&rsquo;s still rough, so you can help us fix it.
+        </p>
       </RevealOnScroll>
     </section>
   )

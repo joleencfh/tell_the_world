@@ -23,6 +23,10 @@ import type { UserRole } from '@/lib/types'
 interface WaitlistModalProps {
   mode: 'waitlist' | 'early-tester'
   onClose: () => void
+  /** Pre-selects a role in the form step — e.g. the closing ask's two CTAs
+   *  each open the modal already pointed at the relevant role instead of
+   *  leaving the default (creator) selected. */
+  defaultRole?: UserRole
 }
 
 const ROLE_OPTIONS: { value: UserRole; label: string }[] = [
@@ -42,12 +46,12 @@ const labelCls = 'block font-mono text-[10px] tracking-[0.1em] uppercase text-in
 // Matches .anim-modal-panel-out's duration in app/globals.css.
 const CLOSE_ANIMATION_MS = 180
 
-export default function WaitlistModal({ mode, onClose }: WaitlistModalProps) {
+export default function WaitlistModal({ mode, onClose, defaultRole }: WaitlistModalProps) {
   const [isPending, startTransition] = useTransition()
   const [step, setStep] = useState<'intro' | 'form'>(mode === 'early-tester' ? 'intro' : 'form')
   const [closing, setClosing] = useState(false)
   const [wantsEarlyAccess, setWantsEarlyAccess] = useState(mode === 'early-tester')
-  const [role, setRole] = useState<UserRole>('creator')
+  const [role, setRole] = useState<UserRole>(defaultRole ?? 'creator')
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [affiliation, setAffiliation] = useState('')
@@ -175,8 +179,8 @@ export default function WaitlistModal({ mode, onClose }: WaitlistModalProps) {
             <h3 className="font-display font-extrabold text-xl text-ink mb-1">Tell us who you are</h3>
             <p className="font-body text-sm text-ink-soft leading-relaxed mb-6">
               {wantsEarlyAccess
-                ? "We'll reach out by email if we're ready for early testers. No spam, no mailing list sold to anyone else."
-                : "We'll reach out when Tell The World opens. No spam, no mailing list sold to anyone else."}
+                ? "We'll reach out by email if we're ready for early testers."
+                : "We'll reach out when Tell The World opens."}
             </p>
 
             <form onSubmit={handleSubmit} noValidate>
