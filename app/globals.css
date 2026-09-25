@@ -200,11 +200,24 @@ body {
    here previously made blue fade out well before reaching the footer on
    most real viewport heights). Values are light-mode literals (see the
    dark-mode note above on --color-paper etc.) since dark mode is off
-   sitewide for now. */
+   sitewide for now.
+
+   Top fade (2026-09-26): the base linear-gradient started flat white at
+   0% with no analogue of the bottom's fixed-8rem treatment, so on a page
+   this much taller than when that stop was tuned, the 42%-into-pink mark
+   lands well past the hero+two-circles area — visually, the whole top of
+   the page just reads as plain white. A separate fixed-rem top layer (not
+   a percentage stop, for the same reason the bottom fade uses one) gives
+   the hero a soft blue tint that fades out by the time the two-circles
+   graphic appears, regardless of how tall everything below it grows.
+   Also bumped the two radial blooms' alpha ~15% (0.11→0.13, 0.12→0.14)
+   per feedback that the washes read as too faint next to the rest of the
+   page's color. */
 .page-wash {
   background-image:
-    radial-gradient(46rem 30rem at 50% 40%, rgba(240, 25, 126, 0.11), rgba(240, 25, 126, 0) 70%),
-    radial-gradient(46rem 30rem at 50% 84%, rgba(30, 79, 235, 0.12), rgba(30, 79, 235, 0) 70%),
+    linear-gradient(180deg, rgba(30, 79, 235, 0.09) 0%, rgba(30, 79, 235, 0) 26rem),
+    radial-gradient(46rem 30rem at 50% 40%, rgba(240, 25, 126, 0.13), rgba(240, 25, 126, 0) 70%),
+    radial-gradient(46rem 30rem at 50% 84%, rgba(30, 79, 235, 0.14), rgba(30, 79, 235, 0) 70%),
     linear-gradient(
       180deg,
       #FFFFFF 0%,

@@ -143,7 +143,13 @@ export default function LandingPage() {
 
         <WhyThisMattersNow />
 
-        <section className="bg-paper-sunken px-6 py-11">
+        {/* bg-paper-sunken is the shared theme token (used well beyond this
+            page — briefs, home, admin), so it stays untouched; the extra
+            ~15% intensity asked for here is a flat same-color overlay
+            painted on top instead, scoped to this section only. A
+            "gradient" of one solid color to itself is the trick — same
+            math as mixing the base color 15% toward pure pink. */}
+        <section className="bg-paper-sunken px-6 py-11" style={{ backgroundImage: 'linear-gradient(rgba(240,25,126,.15), rgba(240,25,126,.15))' }}>
           <div className="mx-auto grid max-w-5xl grid-cols-1 items-center gap-10 md:grid-cols-2 md:gap-14">
             <div>
               <span className="mb-3.5 inline-flex items-center gap-2.5 font-mono text-xs tracking-[0.16em] uppercase text-blue-ink">
@@ -165,7 +171,9 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="border-t border-line-strong bg-paper-sunken-blue px-6 py-11">
+        {/* Same same-color-overlay trick as the Q&A section above, scoped
+            here instead of touching the shared bg-paper-sunken-blue token. */}
+        <section className="border-t border-line-strong bg-paper-sunken-blue px-6 py-11" style={{ backgroundImage: 'linear-gradient(rgba(30,79,235,.15), rgba(30,79,235,.15))' }}>
           <div className="mx-auto grid max-w-5xl grid-cols-1 items-center gap-10 md:grid-cols-2 md:gap-14">
             <div className="md:order-2">
               <span className="mb-3.5 inline-flex items-center gap-2.5 font-mono text-xs tracking-[0.16em] uppercase text-pink-ink">
