@@ -212,11 +212,14 @@ body {
    graphic appears, regardless of how tall everything below it grows.
    Also bumped the two radial blooms' alpha ~15% (0.11→0.13, 0.12→0.14)
    per feedback that the washes read as too faint next to the rest of the
-   page's color. */
+   page's color, then dialed the pink one (pooled behind the two-circles
+   graphic, a "middle" section) back down ~10% to 0.12 per follow-up
+   feedback — the top fade and the blue bloom (pooled behind the closing
+   headline, a "bottom" section) were asked to stay as they were. */
 .page-wash {
   background-image:
     linear-gradient(180deg, rgba(30, 79, 235, 0.09) 0%, rgba(30, 79, 235, 0) 26rem),
-    radial-gradient(46rem 30rem at 50% 40%, rgba(240, 25, 126, 0.13), rgba(240, 25, 126, 0) 70%),
+    radial-gradient(46rem 30rem at 50% 40%, rgba(240, 25, 126, 0.12), rgba(240, 25, 126, 0) 70%),
     radial-gradient(46rem 30rem at 50% 84%, rgba(30, 79, 235, 0.14), rgba(30, 79, 235, 0) 70%),
     linear-gradient(
       180deg,

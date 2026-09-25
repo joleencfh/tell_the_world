@@ -9,7 +9,7 @@ export default function WhyThisMattersNow() {
   return (
     <section
       className="border-t border-b border-line-strong bg-paper px-6 py-[5.5rem]"
-      style={{ backgroundImage: 'radial-gradient(38rem 22rem at 50% 30%, rgba(240,25,126,.12), rgba(240,25,126,0) 70%)' }}
+      style={{ backgroundImage: 'radial-gradient(38rem 22rem at 50% 30%, rgba(240,25,126,.11), rgba(240,25,126,0) 70%)' }}
     >
       <RevealOnScroll className="mx-auto max-w-[44rem] text-center">
         <div className="mb-[1.1rem] inline-flex items-center justify-center gap-2.5">
