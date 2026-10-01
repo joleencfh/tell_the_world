@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tell The World landing page, final design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ======== Tokens (mirror of landing-theme.css) ======== */
+:root{
+ --color-parchment:#F7F4EE;--color-bone:#F0EEE6;--color-vellum:#FBFAF6;
+ --color-umber:#26251E;--color-umber-hover:#3A3931;--color-umber-soft:#5E5D56;--color-umber-deep:#4A4943;--color-umber-body:#3F3E37;
+ --color-field-line:#7A786E;--color-rule:#DEDBD3;--color-window-line:#DAD6CA;
+ --color-rose:#B80F5A;--color-rose-deep:#9E0B4D;--color-rose-bright:#F0197E;--color-rose-wash:#FBDDE8;
+ --color-cobalt:#1D3AA6;--color-cobalt-deep:#162E85;--color-cobalt-bright:#2150E8;--color-cobalt-wash:#DCE5FB;
+ --color-violet:#6B21A8;
+ --color-card-rose:#F5E8EA;--color-card-cobalt:#E8ECF6;--color-band-pale:#EFF2F9;--color-band-soft:#E5EAF6;
+ --color-diff-removed:#EBE8DE;--color-disabled:#E4E1D8;--color-scrim:rgba(38,37,30,.55);
+ --font-serif:"EB Garamond",Georgia,serif;--font-ui:Inter,system-ui,sans-serif;--font-mono:"IBM Plex Mono",ui-monospace,monospace;
+ --radius-sm:2px;--radius-md:4px;--radius-full:9999px;
+ --shadow-hairline:0 0 0 1px rgba(38,37,30,.13);
+ --shadow-window:0 28px 70px rgba(0,0,0,.14),0 14px 32px rgba(0,0,0,.1),0 0 0 1px rgba(38,37,30,.12);
+ --shadow-modal:0 28px 70px rgba(0,0,0,.28),0 14px 32px rgba(0,0,0,.16),0 0 0 1px rgba(38,37,30,.14);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-ui);background:#E9E8E3;color:var(--color-umber);line-height:1.5;padding:0 16px 96px}
+.wrap{max-width:1240px;margin:0 auto}
+/* review-page chrome (not part of the design) */
+.doc h1{font-size:28px;margin:40px 0 8px;font-weight:500;letter-spacing:-.02em}
+.doc p,.doc li{font-size:15px;color:#3b3a33}.doc ul{margin:8px 0 0 20px}
+.box{background:#F7F7F4;border:1px solid #CDCDC9;border-radius:4px;padding:18px 22px;margin-top:16px}
+.box h3{font:500 12px var(--font-mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;color:#4a4943}
+.part{margin-top:80px;padding-top:12px;border-top:2px solid #26251E}
+.part>h2{font-size:24px;font-weight:500;letter-spacing:-.02em;margin:10px 0 4px}
+.part>p.lead{font-size:15px;color:#3b3a33;max-width:60em}
+.cap{font:500 12px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:#4a4943;margin:26px 0 6px}
+.sugkey{border-bottom:2px dotted #8a6d00;background:#fff6cc;padding:0 2px}
+.sug{border-bottom:2px dotted #8a6d00}
+.frame{container-type:inline-size;border:1px solid #bdbbb2;border-radius:4px;overflow:hidden}
+.frame.mob{width:390px;max-width:100%}
+.row2{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start}
+
+/* ================= THE PAGE (uses tokens only) ================= */
+.G{background:var(--color-parchment);color:var(--color-umber);font-family:var(--font-ui)}
+.G .mono{font:400 12px/1.4 var(--font-mono);letter-spacing:.07em;text-transform:uppercase}
+.G .in{max-width:1080px;margin:0 auto;padding-inline:40px}
+.G .btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;border-radius:var(--radius-md);font:500 15px/1 var(--font-ui);padding:0 22px;text-decoration:none;background:var(--color-umber);color:var(--color-parchment);border:2px solid transparent;transition:background .15s cubic-bezier(.4,0,.2,1)}
+.G .btn:hover,.G .btn.is-hover{background:var(--color-umber-hover)}
+.G .btn.rose{background:var(--color-rose);color:#fff}.G .btn.rose:hover,.G .btn.rose.is-hover{background:var(--color-rose-deep)}
+.G .btn.cobalt{background:var(--color-cobalt);color:#fff}.G .btn.cobalt:hover,.G .btn.cobalt.is-hover{background:var(--color-cobalt-deep)}
+.G .btn:focus-visible,.G .btn.is-focus{outline:2px solid var(--color-umber);outline-offset:2px}
+.G .btn.sm{min-height:36px;padding:0 14px;font-size:14px}
+.G .logo{display:inline-flex;align-items:center;gap:8px;font:500 15px var(--font-ui);letter-spacing:-.01em;color:var(--color-umber);text-decoration:none}
+.G .logo svg{width:28px;height:18px}
+.G .pk{color:var(--color-rose)}.G .bl{color:var(--color-cobalt)}
+
+/* header */
+.G .nav{display:flex;align-items:center;justify-content:space-between;padding:12px 40px;border-bottom:1px solid var(--color-rule);background:var(--color-parchment)}
+.G .nav .r{display:flex;align-items:center;gap:8px;font-size:14px}
+.G .nav .lk{color:var(--color-umber-soft);text-decoration:none;padding:12px 10px;border-radius:var(--radius-md)}
+.G .nav .lk:hover{color:var(--color-umber);text-decoration:underline;text-underline-offset:3px}
+
+/* hero */
+.G .hero{display:grid;grid-template-columns:1fr 230px;gap:56px;align-items:start;padding-top:64px}
+.G h1{font:400 clamp(38px,5.8cqw,76px)/1 var(--font-serif);letter-spacing:-.03em;margin:20px 0 24px;max-width:13em}
+.G h1 em{color:var(--color-rose);white-space:nowrap}
+.G .lead{font:400 23px/1.42 var(--font-serif);color:var(--color-umber-soft);max-width:28em}
+.G .circ{padding-top:44px}
+.G .circ svg{width:100%;height:auto;display:block}
+.G .legend{list-style:none;margin-top:14px;display:grid;gap:6px}
+.G .legend li{display:flex;align-items:center;gap:8px}
+.G .legend i{width:10px;height:10px;border-radius:50%;flex:none}
+.G .legend li:first-child{color:var(--color-rose)}.G .legend li:first-child i{background:var(--color-rose-bright)}
+.G .legend li:last-child{color:var(--color-cobalt)}.G .legend li:last-child i{background:var(--color-cobalt-bright)}
+.G .ledger{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:56px}
+.G .lc{border-radius:var(--radius-md);box-shadow:var(--shadow-hairline)}
+.G .lc.p{background:var(--color-card-rose)}.G .lc.b{background:var(--color-card-cobalt)}
+.G .lh{display:flex;align-items:center;gap:10px;padding:13px 22px;border-bottom:1px solid rgba(38,37,30,.14)}
+.G .lc.p .lh{color:var(--color-rose-deep)}.G .lc.b .lh{color:var(--color-cobalt)}
+.G .lh i{width:10px;height:10px;border-radius:50%;background:currentColor}
+.G .row{padding:20px 22px 6px}.G .row .mono{display:block;margin-bottom:6px;color:var(--color-umber-soft)}
+.G .row p{font:400 25px/1.3 var(--font-serif);max-width:17em}
+.G .lf{padding:18px 22px 22px}
+.G .trust{font-size:14px;color:var(--color-umber-soft);padding:20px 0 64px;max-width:46em}
+
+/* sections */
+.G .s{padding-block:88px;border-top:1px solid var(--color-rule)}
+.G .band-pale{background:var(--color-band-pale)}
+.G .g2{display:grid;grid-template-columns:1.15fr .85fr;gap:72px;align-items:start}
+.G h2{font:400 clamp(30px,4.4cqw,56px)/1.03 var(--font-serif);letter-spacing:-.025em;margin-top:16px}
+.G h2 em{color:var(--color-rose)}
+.G .essay .body{font:400 21px/1.55 var(--font-serif);color:var(--color-umber-body);padding-top:40px}
+.G .art{display:grid;grid-template-columns:.78fr 1.22fr;gap:64px;align-items:center}
+.G .art h2{font-size:clamp(28px,3.7cqw,46px)}
+.G .art .prose{font:400 21px/1.5 var(--font-serif);color:var(--color-umber-soft);margin-top:20px}
+
+/* framed window artifact */
+.G .win{background:var(--color-vellum);border-radius:var(--radius-md);box-shadow:var(--shadow-window);overflow:hidden}
+.G .chrome{display:grid;grid-template-columns:96px 1fr 96px;align-items:center;padding:6px 12px 6px 16px;border-bottom:1px solid var(--color-window-line)}
+.G .dots{display:flex;gap:6px}.G .dots i{width:10px;height:10px;border-radius:50%;background:var(--color-window-line)}
+.G .wt{text-align:center;font-size:13px;color:var(--color-umber-soft)}
+.G .pause{justify-self:end;display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 10px;border:1px solid var(--color-field-line);border-radius:var(--radius-md);background:transparent;color:var(--color-umber);font:400 12px var(--font-mono);letter-spacing:.07em;text-transform:uppercase;cursor:pointer}
+.G .pause:hover{background:var(--color-bone)}.G .pause:focus-visible{outline:2px solid var(--color-umber);outline-offset:2px}
+.G .tabs{display:flex;gap:22px;padding:0 20px;border-bottom:1px solid var(--color-window-line)}
+.G .tabs span{padding:10px 0;color:var(--color-umber-soft)}.G .tabs span.on{color:var(--color-umber);border-bottom:2px solid var(--color-umber)}
+.G .msg{padding:20px 24px;border-bottom:1px solid var(--color-window-line)}.G .msg:last-child{border-bottom:0}
+.G .who{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;font-size:14px}
+.G .who b{font-weight:500}.G .who .c{color:var(--color-umber-soft)}
+.G .who .mono::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:currentColor;margin-right:6px}
+.G .msg p{font:400 19px/1.4 var(--font-serif);margin-top:8px}
+.G .msg .foot{margin-top:10px;color:var(--color-cobalt)}
+.G .ex{margin-top:12px;text-align:right;font:400 14px var(--font-ui);color:var(--color-umber-soft)}
+.G .qcard{padding:18px 24px;border-bottom:1px solid var(--color-window-line)}
+.G .qcard p{font:400 20px/1.35 var(--font-serif)}
+.G .qcard .who{margin-top:10px}
+.G .term .top{padding:10px 16px;border-bottom:1px solid var(--color-window-line);display:flex;justify-content:space-between;gap:12px;color:var(--color-umber-soft)}
+.G .term .top span:last-child{text-transform:none;letter-spacing:0;font-size:13px}
+.G .diff{font:400 13.5px/1.6 var(--font-mono);padding:14px 0}
+.G .diff div{padding:3px 20px 3px 44px;position:relative}
+.G .diff .g{position:absolute;left:18px;color:var(--color-umber-soft)}
+.G .diff .old{background:var(--color-diff-removed);color:var(--color-umber-soft)}.G .diff .old s{text-decoration-thickness:2px;color:var(--color-umber)}
+.G .diff .new{background:var(--color-cobalt-wash)}.G .diff .new b{font-weight:500;border-bottom:2px solid var(--color-cobalt)}
+.G .why{padding:14px 22px;border-top:1px solid var(--color-window-line);font-size:14px}
+.G .why .mono{color:var(--color-rose-deep);display:block;margin-bottom:4px}
+.G .tags{padding:14px 22px 0;display:flex;gap:6px}
+.G .tags span{font:400 12px var(--font-mono);border:1px solid var(--color-window-line);padding:2px 8px;border-radius:var(--radius-sm);color:var(--color-umber-soft)}
+.G .acts{padding:16px 22px 22px;display:flex;gap:16px;align-items:center;font-size:14px;color:var(--color-umber-soft)}
+
+/* closing + footer */
+.G .close{background:var(--color-band-soft);border-top:1px solid var(--color-rule)}
+.G .close .top{position:relative;overflow:hidden}
+.G .close .body{position:relative;z-index:1;padding-block:96px 88px}
+.G .close p.big{font:400 clamp(28px,3.6cqw,44px)/1.12 var(--font-serif);letter-spacing:-.02em;max-width:16em}
+.G .close p.big a{color:inherit;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:5px}
+.G .close .a{margin-top:28px;display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.G .close small{font-size:14px;color:var(--color-umber-deep)}
+.G .close .cc{position:absolute;right:-70px;bottom:-90px;width:380px;pointer-events:none}
+.G .close .cc svg{width:100%;height:auto;display:block}
+.G .foot{border-top:1px solid rgba(38,37,30,.18);padding:12px 40px;display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--color-umber-deep)}
+.G .foot a{color:var(--color-umber-deep);margin-left:8px;text-decoration:none;padding:12px 8px;display:inline-block}
+.G .foot a:hover{text-decoration:underline}
+.G .foot .blog{display:none}
+.G .cp{fill:var(--color-rose-bright)}.G .cb{fill:var(--color-cobalt-bright)}.G .co{fill:var(--color-violet)}
+
+@container (max-width:760px){
+ .G .in{padding-inline:20px}.G .nav{padding:8px 12px 8px 20px}.G .nav .hide{display:none}.G .nav .r{gap:0}
+ .G .hero{grid-template-columns:1fr;gap:24px;padding-top:36px}.G .lead{font-size:21px}
+ .G .circ{padding-top:0;display:flex;align-items:center;gap:16px}.G .circ svg{width:132px;flex:none}.G .legend{margin-top:0}
+ .G .ledger{grid-template-columns:1fr;margin-top:36px}.G .row p{font-size:23px}.G .trust{padding-bottom:44px}
+ .G .s{padding-block:56px}.G .g2{grid-template-columns:1fr;gap:0}.G .essay .body{padding-top:24px;font-size:20px}
+ .G .art{grid-template-columns:1fr;gap:32px}
+ .G .chrome{grid-template-columns:1fr auto;padding:4px 8px 4px 14px}.G .chrome .dots{display:none}.G .wt{text-align:left;font-size:12.5px}
+ .G .pause{min-height:44px;min-width:44px;justify-content:center}.G .pause span{display:none}
+ .G .tabs{gap:14px;padding:0 14px;overflow:hidden}
+ .G .diff div{padding-left:36px;padding-right:12px;font-size:12.5px}
+ .G .term .top span:last-child{display:none}
+ .G .close .body{padding-block:56px 130px}.G .close .cc{width:250px;right:-60px;bottom:-70px}
+ .G .foot{padding:8px 12px 8px 20px;flex-wrap:wrap}.G .foot .blog{display:inline-block}
+}
+
+/* ================= MODAL ================= */
+.scrimfr{position:relative;background:var(--color-parchment);min-height:760px;container-type:inline-size;border:1px solid #bdbbb2;border-radius:4px;overflow:hidden;display:grid;place-items:center;padding:32px}
+.scrimfr .bgpage{position:absolute;inset:0;opacity:.9;background:var(--color-parchment)}
+.scrimfr .scrim{position:absolute;inset:0;background:var(--color-scrim)}
+.M{position:relative;z-index:1;width:100%;max-width:520px;background:var(--color-vellum);border-radius:var(--radius-md);box-shadow:var(--shadow-modal);padding:32px;font-family:var(--font-ui);color:var(--color-umber)}
+.M .x{position:absolute;top:8px;right:8px;width:44px;height:44px;display:grid;place-items:center;background:transparent;border:0;border-radius:var(--radius-md);color:var(--color-umber);font:400 22px var(--font-ui)}
+.M .x:hover{background:var(--color-bone)}.M .x:focus-visible{outline:2px solid var(--color-umber);outline-offset:0}
+.M .eb{font:400 12px var(--font-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--color-umber-soft)}
+.M h3{font:400 34px/1.05 var(--font-serif);letter-spacing:-.02em;margin:10px 0 10px}
+.M .sub{font-size:15px;color:var(--color-umber-soft);margin-bottom:20px}
+.M .lbl{display:block;font:500 13px var(--font-ui);margin:16px 0 6px}
+.M .lbl small{font-weight:400;color:var(--color-umber-soft)}
+.M .chips{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.M .chip{min-height:44px;padding:8px 10px;border:1px solid var(--color-field-line);border-radius:var(--radius-md);background:transparent;color:var(--color-umber);font:500 14px/1.2 var(--font-ui);text-align:center;display:flex;align-items:center;justify-content:center;gap:6px}
+.M .chip:hover,.M .chip.is-hover{background:var(--color-bone)}
+.M .chip.sel{border:2px solid var(--color-umber);padding:7px 9px}
+.M .chip.sel.p{background:var(--color-rose-wash)}.M .chip.sel.b{background:var(--color-cobalt-wash)}.M .chip.sel.n{background:var(--color-bone)}
+.M .chip.sel::before{content:"";width:12px;height:12px;border-radius:50%;background:var(--color-umber);box-shadow:inset 0 0 0 3px var(--color-vellum);border:1px solid var(--color-umber);flex:none}
+.M .chip.is-focus{outline:2px solid var(--color-umber);outline-offset:2px}
+.M .in-f{width:100%;min-height:44px;border:1px solid var(--color-field-line);border-radius:var(--radius-md);background:#fff;padding:10px 12px;font:400 16px var(--font-ui);color:var(--color-umber)}
+.M .in-f.ph{color:var(--color-umber-soft)}
+.M .in-f.focus{border-color:var(--color-umber);outline:2px solid var(--color-umber);outline-offset:1px}
+.M .in-f.err{border:2px solid var(--color-rose-deep);padding:9px 11px}
+.M .err-msg{display:flex;gap:6px;align-items:flex-start;color:var(--color-rose-deep);font-size:13.5px;margin-top:6px}
+.M .err-msg b{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;background:var(--color-rose-deep);color:#fff;font-size:11px;flex:none;margin-top:2px}
+.M .ta{min-height:76px}
+.M .submit{margin-top:22px;width:100%}
+.M .btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;border-radius:var(--radius-md);font:500 15px var(--font-ui);padding:0 22px;background:var(--color-umber);color:var(--color-parchment);border:2px solid transparent}
+.M .btn.rose{background:var(--color-rose);color:#fff}.M .btn.cobalt{background:var(--color-cobalt);color:#fff}
+.M .btn.pending{background:var(--color-disabled);color:var(--color-umber-soft)}
+.M .check{display:flex;gap:12px;align-items:flex-start;margin:6px 0 4px;font-size:15px}
+.M .box-c{width:24px;height:24px;border:2px solid var(--color-umber);border-radius:var(--radius-sm);display:grid;place-items:center;flex:none;font:600 15px var(--font-ui);background:#fff}
+.M .ok{width:48px;height:48px;border-radius:50%;display:flex;margin-bottom:6px}
+.M .ok i{width:30px;height:30px;border-radius:50%;margin-top:9px}
+.M .ok i:first-child{background:var(--color-rose-bright)}.M .ok i:last-child{background:var(--color-cobalt-bright);margin-left:-12px;mix-blend-mode:multiply}
+@container (max-width:600px){
+ .scrimfr{align-items:end;padding:0;min-height:780px}
+ .M{max-width:none;border-radius:var(--radius-md) var(--radius-md) 0 0;padding:24px 20px 28px}
+ .M h3{font-size:30px}.M .chips{grid-template-columns:1fr 1fr}
+}
+
+/* ================= DEMO STORYBOARD ================= */
+.board{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:20px;align-items:start}
+.board .step{font:500 12px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:#4a4943;margin-bottom:6px}
+.board .G{border:1px solid #bdbbb2;border-radius:4px;padding:20px}
+.board .G .win{box-shadow:var(--shadow-window)}
+.board .G .msg p{font-size:17px}
+.board .G .qcard p{font-size:18px}
+.board .note{font-size:13px;color:#3b3a33;margin-top:6px}
+.board .G .addbar{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;border-bottom:1px solid var(--color-window-line)}
+.board .G .addbar b{font:400 22px var(--font-serif);letter-spacing:-.01em}
+.board .G .ta2{margin:0 22px;padding:12px 14px;border:1px solid var(--color-field-line);border-radius:var(--radius-md);background:#fff;font:400 16px/1.5 var(--font-ui)}
+.board .G mark{background:var(--color-rose-wash);color:var(--color-umber);border-bottom:3px solid var(--color-rose-bright);padding:0 2px}
+.board .G .flag{margin:12px 22px 0;background:var(--color-rose-wash);border-radius:var(--radius-md);padding:12px 14px;font-size:14px}
+.board .G .flag b{font:400 12px var(--font-mono);text-transform:uppercase;letter-spacing:.07em;color:var(--color-rose-deep);display:block;margin-bottom:4px}
+.board .G .ok-line{margin:12px 22px 0;padding:10px 14px;border-radius:var(--radius-md);background:var(--color-cobalt-wash);font-size:14px;color:var(--color-umber)}
+.board .G .pad{height:18px}
+.board .G .cursor{display:inline-block;width:2px;height:1em;background:var(--color-umber);vertical-align:-2px;margin-left:1px}
+
+.G .qlabel{font:400 12px var(--font-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--color-umber-soft)}
+.G .addbar{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;border-bottom:1px solid var(--color-window-line)}
+.G .addbar b{font:400 22px var(--font-serif);letter-spacing:-.01em}
+.G .thread{padding:20px 24px 22px}
+.G .thread .q p{font:400 21px/1.35 var(--font-serif);margin-top:12px}
+.G .thread .ans{margin:18px 0 0 32px;background:var(--color-card-cobalt);box-shadow:var(--shadow-hairline);border-radius:4px;padding:16px 20px}
+.G .thread .ans+.ans{margin-top:12px}
+.G .thread .ans p{font:400 19px/1.4 var(--font-serif);margin-top:12px}
+.G .thread .ans .endo{margin-top:12px;border-top:1px solid rgba(38,37,30,.15);padding-top:10px;color:var(--color-cobalt)}
+.G .stage{position:relative;overflow:hidden;display:grid}
+.G .stage>*{grid-area:1/1}
+.G .stage .scrim{background:var(--color-scrim)}
+.G .stage .formlayer{display:grid;place-items:center;padding:20px 24px}
+.G .mcard{width:100%;max-width:27rem;background:var(--color-vellum);border-radius:4px;box-shadow:var(--shadow-modal)}
+.G .mcard .mh{padding:12px 20px;border-bottom:1px solid var(--color-window-line)}
+.G .mcard .mh b{font:400 20px var(--font-serif);letter-spacing:-.01em}
+.G .mcard .mh div{font-size:13px;color:var(--color-umber-soft)}
+.G .mcard .mb{padding:12px 20px}
+.G .mcard .ta3{margin-top:6px;border:1px solid var(--color-field-line);border-radius:4px;background:#fff;padding:10px 12px;font-size:15px;line-height:1.5}
+.G .mcard .tg2{display:flex;gap:6px;margin-top:12px}
+.G .mcard .tg2 span{font:400 12px var(--font-mono);border:1px solid var(--color-window-line);padding:2px 8px;border-radius:2px;color:var(--color-umber-soft)}
+.G .mcard .flagp{margin-top:12px;background:var(--color-rose-wash);border-radius:4px;padding:12px 14px;font-size:14px}
+.G .mcard .flagp b{display:block;font:400 12px var(--font-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--color-rose-deep);margin-bottom:4px}
+.G .mcard .okp{margin-top:12px;background:var(--color-cobalt-wash);border-radius:4px;padding:10px 14px;font-size:14px}
+.G .mcard .ma{display:flex;gap:16px;align-items:center;padding:4px 20px 16px;font-size:14px;color:var(--color-umber-soft)}
+.G .pbtn{display:inline-flex;align-items:center;min-height:40px;padding:0 18px;border-radius:4px;font-weight:500;background:var(--color-umber);color:var(--color-parchment)}
+.G .pbtn.off{background:var(--color-disabled);color:var(--color-umber-soft)}
+.G mark.flg{background:var(--color-rose-wash);color:var(--color-umber);border-bottom:3px solid var(--color-rose-bright);padding:0 2px}
+.G .selx{background:var(--color-cobalt-wash);outline:1px solid var(--color-cobalt)}
+.G .repl{border-bottom:2px solid var(--color-cobalt);font-weight:500}
+.G .cur{position:absolute;z-index:3;width:18px;height:18px;pointer-events:none}
+.G .caret{display:inline-block;width:2px;height:1em;background:var(--color-umber);vertical-align:-2px;margin-left:1px}
+@container (max-width:760px){.G .thread{padding:20px 16px}.G .thread .ans{margin-left:16px}.G .stage .formlayer{padding:16px 12px}}
+
+.G .au,.au{display:flex;gap:10px;align-items:center}
+.G .av,.au .av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:#fff;font:600 15px var(--font-ui);flex:none}
+.G .av.rose,.au .av.rose{background:var(--color-rose-deep)}.G .av.cob,.au .av.cob{background:var(--color-cobalt)}
+.G .av.org,.au .av.org{background:var(--color-cobalt-deep);border-radius:4px}
+.G .aline,.au .aline{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
+.G .aline b,.au .aline b{font-weight:600;font-size:15px;line-height:1.2}
+.G .rl,.au .rl{font:400 12px var(--font-mono);letter-spacing:.07em;text-transform:uppercase;border:1px solid;border-radius:2px;padding:1px 6px}
+.G .rl.rose,.au .rl.rose{color:var(--color-rose);border-color:rgba(184,15,90,.4)}.G .rl.cob,.au .rl.cob{color:var(--color-cobalt);border-color:rgba(29,58,166,.4)}
+.G .cr,.au .cr{font-size:13px;color:var(--color-umber-soft);margin-top:2px;line-height:1.3}
+.board .G .new-q{box-shadow:inset 3px 0 0 var(--color-cobalt)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="doc">
+<h1>Tell The World landing page: final design (Step 5)</h1>
+<p>Complete page in order, desktop and mobile, then the waitlist modal, the two demos as designed components, and the design system they are built from. Real copy throughout; <span class="sugkey">dotted yellow underline</span> marks wording that is not in <code>landing-page-copy.md</code> and needs your sign-off. All colours and type below come from the tokens in <code>landing-theme.css</code>.</p>
+<div class="box"><h3>Settled and applied</h3><ul>
+<li>One action, join the waitlist. No "Apply". Pink = creators &amp; journalists, blue = researchers &amp; organisations. Cursor-only reference, E typography + F ledger + framed artifacts. Colour at about 25%. Compact circle pair beside the headline, as in <code>direction-mix-3.html</code>. Demos restyled as stylised artifacts (option A).</li>
+<li>Defaults I assumed where you did not answer: the creators card keeps its faint pink; the "You bring" label is dropped (the card is just label, sentence and button); the 200,000 / Imagine section is removed; the colour tints stay at 25%.</li>
+</ul></div>
+<div class="box"><h3>Departures from the current page, so none is a surprise</h3><ul>
+<li>Header: "Apply" removed. On mobile, "Sign in" and "Join the waitlist" stay, "Blog" moves to the footer.</li>
+<li>The "two circles" section is now the two audience cards in the hero.</li>
+<li>The Imagine / 200,000 section is gone (an unsourced projection). The closing section keeps its early-tester line, but the single action stays the waitlist.</li>
+<li>Q&amp;A demo: the comments beat is removed because the feature does not exist. Both demos get a Pause button and an "Illustrative example" label.</li>
+</ul></div>
+</div>
+
+<!-- ============== PART A ============== -->
+<div class="part">
+<h2>A. The page</h2>
+<p class="lead">Sections in order: header, hero with the audience cards, why this matters now, Community Q&amp;A, Quotes on record, closing, footer.</p>
+<div class="cap">Desktop, 1200px</div>
+<div class="frame G" id="page">
+ <header class="nav"><a class="logo" href="#"><svg viewBox="0 0 28 18" aria-hidden="true"><circle cx="9" cy="9" r="8" fill="#F0197E"/><circle cx="19" cy="9" r="8" fill="#2150E8" fill-opacity=".92"/></svg>Tell The World</a>
+  <nav class="r"><a class="lk hide" href="#">Blog</a><a class="lk" href="#">Sign in</a><a class="btn sm" href="#">Join the waitlist</a></nav></header>
+ <main>
+ <div class="in hero">
+  <div>
+   <span class="mono" style="color:var(--color-umber-soft)">Opening soon</span>
+   <h1>AI safety research rarely reaches the people who could <em>tell its story.</em></h1>
+   <p class="lead">Tell The World connects AI safety researchers and organisations with the creators and journalists who can put their work in front of real audiences.</p>
+  </div>
+  <div class="circ">
+   <svg viewBox="0 0 280 160" role="img" aria-label="Two overlapping circles: creators and journalists in pink, researchers and organisations in blue"><defs><clipPath id="cl1"><circle cx="82" cy="80" r="76"/></clipPath></defs><circle class="cp" cx="82" cy="80" r="76"/><circle class="cb" cx="198" cy="80" r="76"/><circle class="co" cx="198" cy="80" r="76" clip-path="url(#cl1)"/></svg>
+   <ul class="legend mono"><li><i></i>Creators &amp; journalists</li><li><i></i>Researchers &amp; organisations</li></ul>
+  </div>
+ </div>
+ <div class="in">
+  <div class="ledger">
+   <section class="lc p" aria-label="Creators and journalists"><div class="lh mono"><i></i>Creators &amp; journalists</div><div class="row"><p>Know how to turn complicated research into stories people can relate to.</p></div><div class="lf"><a class="btn rose" href="#">Join the waitlist</a></div></section>
+   <section class="lc b" aria-label="Researchers and organisations"><div class="lh mono"><i></i>Researchers &amp; organisations</div><div class="row"><p>Have important messages on how to make AI go well.</p></div><div class="lf"><a class="btn cobalt" href="#">Join the waitlist</a></div></section>
+  </div>
+  <p class="trust"><span class="sug">Members are approved before they can post or sign in.</span></p>
+ </div>
+
+ <section class="s essay band-pale"><div class="in g2">
+  <div><span class="mono pk">Why this matters now</span><h2>Attention shows up, <em>understanding doesn't always follow.</em></h2></div>
+  <p class="body">AI incidents are all over the news and existential risk is reaching the mainstream. Now that people are finally paying attention, we need a way to keep the momentum going, while providing candid &amp; credible explanations from the people and organisations who actually study this. We need to do this at scale, now.</p>
+ </div></section>
+
+ <section class="s"><div class="in art">
+  <div><span class="mono bl">Community Q&amp;A</span><h2>Ask a question &amp; get an answer from someone who studies this.</h2>
+   <p class="prose">Every brief has an open Q&amp;A. Ask what's on your mind, and an expert or organisation working on the problem answers directly, on the record.</p></div>
+  <div>
+   <div class="win" role="group" aria-label="Example: a question and two expert answers on a brief about the Hugging Face / OpenAI security incident">
+    <div class="chrome"><div class="dots" aria-hidden="true"><i></i><i></i><i></i></div><div class="wt" aria-hidden="true">The Hugging Face / OpenAI Security Incident</div><button class="pause" aria-pressed="false" aria-label="Pause the animated example"><svg width="10" height="12" viewBox="0 0 10 12" aria-hidden="true"><rect x="0" y="0" width="3.5" height="12" fill="currentColor"/><rect x="6.5" y="0" width="3.5" height="12" fill="currentColor"/></svg><span>Pause</span></button></div>
+    <div aria-hidden="true">
+    <div class="tabs mono"><span>Brief</span><span class="on">Q&amp;A</span><span>Quotes</span><span>Sources</span></div>
+    <div class="thread">
+     <div class="q"><span class="qlabel">Question</span><div class="au" style="margin-top:8px"><span class="av rose">P</span><div><div class="aline"><b>Priya Sharma</b><span class="rl rose">Creator</span></div><div class="cr">The Priya Sharma Show</div></div></div><p>This new report on the Hugging Face / OpenAI incident just came to my attention. How bad is it, really?</p></div>
+     <div class="ans"><span class="qlabel">Answer</span><div class="au" style="margin-top:8px"><span class="av cob">E</span><div><div class="aline"><b>Elena Vasquez</b><span class="rl cob">Expert</span></div><div class="cr">Independent Researcher</div></div></div><p>This is the clearest warning shot we've had. A handful of the agents involved even considered alerting a human, and every one of them decided not to. That's not a story about one bug. It's a preview of how hard oversight gets once these systems start coordinating.</p><div class="endo mono">Endorsed · 2</div></div>
+     <div class="ans"><span class="qlabel">Answer</span><div class="au" style="margin-top:8px"><span class="av org">F</span><div><div class="aline"><b>Foresight Commons</b><span class="rl cob">Organisation</span></div><div class="cr">AI policy · existential risk</div></div></div><p>We study incidents like this closely, and this one is worse than what came before it, not just more widely covered. The real question isn't only what these systems can do today. It's whether anyone stays in control as more capable ones arrive, and that's what we research and push lawmakers on.</p><div class="endo mono">Endorsed · 1</div></div>
+    </div>
+    </div>
+   </div>
+   <p class="ex"><span class="sug">Illustrative example, sample content</span></p>
+  </div>
+ </div></section>
+
+ <section class="s"><div class="in art">
+  <div><span class="mono bl">Quotes, on record</span><h2>Expert quotes you can understand, and use.</h2>
+   <p class="prose">Experts and organisations add their own on-record quotes directly, in plain language. Every submission runs through a clarity check first, so jargon gets caught before it ever reaches a reader.</p></div>
+  <div>
+   <div class="win term" role="group" aria-label="Example: an expert clicks Add quote and types a quote that uses the jargon term reward hacking. The clarity check flags it and suggests plainer wording, the expert pastes that wording over the term, and publishes the quote.">
+    <div class="chrome"><div class="dots" aria-hidden="true"><i></i><i></i><i></i></div><div class="wt" aria-hidden="true">Add a quote</div><button class="pause" aria-pressed="false" aria-label="Pause the animated example"><svg width="10" height="12" viewBox="0 0 10 12" aria-hidden="true"><rect x="0" y="0" width="3.5" height="12" fill="currentColor"/><rect x="6.5" y="0" width="3.5" height="12" fill="currentColor"/></svg><span>Pause</span></button></div>
+    <div aria-hidden="true">
+    <div id="pageQuoteBody"></div>
+    </div>
+   </div>
+   <p class="ex"><span class="sug">Illustrative example, sample content</span></p>
+  </div>
+ </div></section>
+ </main>
+
+ <div class="close">
+  <div class="top">
+   <div class="cc"><svg viewBox="0 0 280 160" aria-hidden="true"><defs><clipPath id="cl2"><circle cx="82" cy="80" r="76"/></clipPath></defs><circle class="cp" cx="82" cy="80" r="76"/><circle class="cb" cx="198" cy="80" r="76"/><circle class="co" cx="198" cy="80" r="76" clip-path="url(#cl2)"/></svg></div>
+   <div class="in body">
+    <p class="big">Want in sooner? <a href="#">Become an early tester</a> and try Tell The World while it's still rough, so you can help us fix it.</p>
+    <div class="a"><a class="btn" href="#">Join the waitlist</a></div>
+   </div>
+  </div>
+  <footer class="foot"><span>Tell The World · © 2026</span><span><a class="blog" href="#">Blog</a><a href="#">Privacy Policy</a><a href="#">Contact</a></span></footer>
+ </div>
+</div>
+
+<div class="cap">Mobile, 390px (header keeps Sign in and the waitlist button; Blog moves to the footer; every target is at least 44px)</div>
+<div class="frame G mob" data-src="#page"></div>
+</div>
+
+<!-- ============== PART B ============== -->
+<div class="part">
+<h2>B. The waitlist modal</h2>
+<p class="lead">Three steps, as built: an early-tester intro (only when "Become an early tester" opened it), the form, and the confirmation. Dialog behaviour from the audit is part of the design: focus moves to the heading on open, stays inside until it closes, returns to the trigger, labelled by its heading, and the role picker is a radio group. Chips mark selection with a dot and a heavier outline as well as colour.</p>
+<div class="cap">Form, creator preselected (desktop)</div>
+<div class="scrimfr"><div class="bgpage"></div><div class="scrim"></div>
+ <div class="M" role="dialog" aria-modal="true" aria-labelledby="m1">
+  <button class="x" aria-label="Close">×</button>
+  <div class="eb">Join the waitlist</div><h3 id="m1">Tell us who you are</h3><p class="sub">We'll reach out when Tell The World opens.</p>
+  <span class="lbl" id="rl">I am a</span>
+  <div class="chips" role="radiogroup" aria-labelledby="rl">
+   <div class="chip sel p" role="radio" aria-checked="true">Creator</div><div class="chip" role="radio" aria-checked="false">Journalist</div><div class="chip" role="radio" aria-checked="false">Researcher/Expert</div>
+   <div class="chip" role="radio" aria-checked="false">Organisation</div><div class="chip" role="radio" aria-checked="false">Communications Specialist</div><div class="chip" role="radio" aria-checked="false">Other</div>
+  </div>
+  <label class="lbl">Full name</label><div class="in-f ph">Jordan Reyes</div>
+  <label class="lbl">Email</label><div class="in-f ph">you@example.com</div>
+  <label class="lbl">Platform &amp; channel name</label><div class="in-f ph">e.g. YouTube, Jordan's AI Corner</div>
+  <label class="lbl">Channel link</label><div class="in-f ph">youtube.com/@…</div>
+  <label class="lbl">Anything else? <small>(Optional)</small></label><div class="in-f ph ta">Optional</div>
+  <button class="btn rose submit">Join the waitlist</button>
+ </div></div>
+
+<div class="row2">
+ <div style="flex:1 1 520px;min-width:300px">
+  <div class="cap">Form with an error, field focused (desktop)</div>
+  <div class="scrimfr" style="min-height:560px"><div class="bgpage"></div><div class="scrim"></div>
+   <div class="M">
+    <button class="x" aria-label="Close">×</button>
+    <div class="eb">Join the waitlist</div><h3>Tell us who you are</h3>
+    <span class="lbl">I am a</span>
+    <div class="chips"><div class="chip sel b is-focus">Researcher/Expert</div><div class="chip">Organisation</div><div class="chip">Other</div></div>
+    <label class="lbl">Email</label><div class="in-f err">jordan@</div><div class="err-msg"><b>!</b><span><span class="sug">Enter an email address like you@example.com.</span></span></div>
+    <label class="lbl">Where you work, publish, or post</label><div class="in-f focus"><span style="border-right:2px solid var(--color-umber)">Independent</span></div>
+    <button class="btn cobalt submit">Join the waitlist</button>
+   </div></div>
+ </div>
+ <div style="flex:1 1 520px;min-width:300px">
+  <div class="cap">Early-tester intro (desktop)</div>
+  <div class="scrimfr" style="min-height:560px"><div class="bgpage"></div><div class="scrim"></div>
+   <div class="M">
+    <button class="x" aria-label="Close">×</button>
+    <div class="eb">Become an early tester</div><h3>Before you sign up</h3>
+    <p class="sub">We'll reach out soon to a handful of early testers. Thank you for wanting to help us shape it while it's still rough around the edges.</p>
+    <div class="check"><span class="box-c">✓</span><span>Yes, I'd like to be considered as an early tester.</span></div>
+    <button class="btn submit">Next</button>
+   </div></div>
+ </div>
+</div>
+
+<div class="row2">
+ <div style="flex:1 1 520px;min-width:300px">
+  <div class="cap">Submitting and success (desktop)</div>
+  <div class="scrimfr" style="min-height:420px"><div class="bgpage"></div><div class="scrim"></div>
+   <div class="M" style="text-align:left">
+    <button class="x" aria-label="Close">×</button>
+    <div class="ok" aria-hidden="true"><i></i><i></i></div>
+    <h3>You're on the list</h3><p class="sub" style="margin-bottom:0">We'll email you when there's something to see.</p>
+    <button class="btn submit" style="margin-top:20px">Close</button>
+   </div></div>
+  <div style="margin-top:12px;max-width:520px"><div class="M" style="box-shadow:var(--shadow-hairline);padding:16px"><button class="btn pending" style="width:100%">Joining…</button></div><p style="font-size:13px;color:#3b3a33;margin-top:6px">Submitting: the button keeps its size, turns grey and reads "Joining…", and is disabled.</p></div>
+ </div>
+ <div style="flex:0 0 390px;max-width:100%">
+  <div class="cap">Form on mobile (390px): a bottom sheet</div>
+  <div class="scrimfr" style="min-height:820px;width:390px;max-width:100%;padding:0"><div class="bgpage"></div><div class="scrim"></div>
+   <div class="M" style="border-radius:4px 4px 0 0;max-width:none;padding:24px 20px 28px;align-self:end">
+    <button class="x" aria-label="Close">×</button>
+    <div class="eb">Join the waitlist</div><h3 style="font-size:30px">Tell us who you are</h3><p class="sub">We'll reach out when Tell The World opens.</p>
+    <span class="lbl">I am a</span>
+    <div class="chips" style="grid-template-columns:1fr 1fr"><div class="chip sel p">Creator</div><div class="chip">Journalist</div><div class="chip">Researcher/Expert</div><div class="chip">Organisation</div><div class="chip">Communications Specialist</div><div class="chip">Other</div></div>
+    <label class="lbl">Full name</label><div class="in-f ph">Jordan Reyes</div>
+    <label class="lbl">Email</label><div class="in-f ph">you@example.com</div>
+    <button class="btn rose submit">Join the waitlist</button>
+   </div></div>
+ </div>
+</div>
+</div>
+
+<!-- ============== PART C ============== -->
+<div class="part">
+<h2>C. The two demos as designed components</h2>
+<p class="lead">Both are short loops inside a framed window, in the same visual language as the page. The window is described once to assistive technology and the animated interior is hidden from it. A Pause button sits in the window chrome (and the loops start only when the window is mostly in view and stop when it leaves). With reduced motion set, each demo shows a still: the Q&amp;A shows the full thread, and the quote demo shows the quote with its term flagged and the plainer wording suggested (the page mock above shows exactly these stills). The Q&amp;A comments beat is removed because that feature does not exist yet. In the Q&amp;A, answers are indented under the question, sit on a faint blue card, and are labelled, so an answer can never be mistaken for a question.</p>
+<div class="cap">Q&amp;A loop, 4 keyframes</div>
+<div class="board" id="qaBoard"></div>
+<div class="cap">Add a quote loop, 6 keyframes</div>
+<p class="lead" style="margin:0 0 12px">About 20 seconds: a cursor clicks Add quote, types a quote with a technical term, the term is flagged, the suggestion is copied and pasted over it, then the quote is published.</p>
+<div class="board" id="aqBoard"></div>
+</div>
+
+<div class="doc"><div class="box" style="margin-top:56px"><h3>Where the design system is</h3><p>The tokens, type scale, spacing and every component with its states are in <code>design-system.md</code> and <code>landing-theme.css</code> in this folder, and rendered in <code>design-system.html</code>.</p></div></div>
+</div>
+
+<script>
+var chrome=function(t){return '<div class="chrome"><div class="dots" aria-hidden="true"><i></i><i></i><i></i></div><div class="wt">'+t+'</div><button class="pause"><svg width="10" height="12" viewBox="0 0 10 12" aria-hidden="true"><rect x="0" y="0" width="3.5" height="12" fill="currentColor"/><rect x="6.5" y="0" width="3.5" height="12" fill="currentColor"/></svg><span>Pause</span></button></div>'};
+var tabs='<div class="tabs mono"><span>Brief</span><span class="on">Q&amp;A</span><span>Quotes</span><span>Sources</span></div>';
+function frame(step,note,inner){return '<div><div class="step">'+step+'</div><div class="G"><div class="win">'+inner+'</div></div><p class="note">'+note+'</p></div>'}
+/* ---- Q&A ---- */
+var qHead='<div class="q"><span class="qlabel">Question</span><div class="au" style="margin-top:8px"><span class="av rose">P</span><div><div class="aline"><b>Priya Sharma</b><span class="rl rose">Creator</span></div><div class="cr">The Priya Sharma Show</div></div></div><p>This new report on the Hugging Face / OpenAI incident just came to my attention. How bad is it, really?</p></div>';
+function au(name,role,cred,style){var t=role==='Creator'?'rose':'cob';var cls=t==='rose'?'rose':(role==='Organisation'?'org':'cob');return '<div class="au" style="'+(style||'')+'"><span class="av '+cls+'">'+name.charAt(0)+'</span><div><div class="aline"><b>'+name+'</b><span class="rl '+t+'">'+role+'</span></div><div class="cr">'+cred+'</div></div></div>'}
+function ans(name,role,cred,text,n){return '<div class="ans"><span class="qlabel">Answer</span>'+au(name,role,cred,'margin-top:10px')+'<p>'+text+'</p><div class="endo mono">Endorsed · '+n+'</div></div>'}
+var A1T="This is the clearest warning shot we've had. A handful of the agents involved even considered alerting a human, and every one of them decided not to. That's not a story about one bug. It's a preview of how hard oversight gets once these systems start coordinating.";
+var A2T="We study incidents like this closely, and this one is worse than what came before it, not just more widely covered. The real question isn't only what these systems can do today. It's whether anyone stays in control as more capable ones arrive, and that's what we research and push lawmakers on.";
+var thread=function(p){return '<div class="thread">'+qHead+p+'</div>'};
+var qaT='The Hugging Face / OpenAI Security Incident';
+var elena=function(n){return ans('Elena Vasquez','Expert','Independent Researcher',A1T,n)};
+document.getElementById('qaBoard').innerHTML=
+ frame('1. Question arrives',"A labelled Question, with the creator's name in pink.",chrome(qaT)+tabs+thread(''))+
+ frame('2. Expert answers',"Elena's answer fades in, indented under the question on a faint blue card and labelled Answer.",chrome(qaT)+tabs+thread(elena(1)))+
+ frame('3. Endorsed ticks up','Her Endorsed count goes from 1 to 2.',chrome(qaT)+tabs+thread(elena(2)))+
+ frame('4. Organisation answers (rest frame)','Foresight Commons answers last. This is the still shown with reduced motion, then the loop restarts.',chrome(qaT)+tabs+thread(elena(2)+ans('Foresight Commons','Organisation','AI policy · existential risk',A2T,1)));
+/* ---- Add a quote ---- */
+var qrow=function(t,n,c,cl){return '<div class="qcard"><p>'+t+'</p>'+au(n,cl,c,'margin-top:12px')+'</div>'};
+var listHTML='<div><div class="addbar"><b>Quotes</b><span class="btn" style="background:var(--color-cobalt);color:#fff;min-height:36px;padding:0 14px;font-size:14px">Add quote</span></div>'+
+ qrow('"The lesson here isn\'t about one model. It\'s about what happens once systems like this start operating faster than anyone can review."','Elena Vasquez','Independent Researcher','Expert')+
+ qrow('"This is worse than what came before it, not just more widely covered."','Foresight Commons','AI policy · existential risk','Organisation')+'</div>';
+var BEFORE='The incident report is straightforward: this was ',AFTER='. The agents found a shortcut that scored well, and none of them told a human.',TERM='reward hacking',REPL='an AI gaming its own scoring system';
+var cursor=function(style){return '<svg class="cur" style="'+style+'" viewBox="0 0 18 18" fill="none"><path d="M2 1.5L14.5 7.6L8.7 9.2L7.1 15L2 1.5Z" fill="#26251E" stroke="#fff" stroke-width="1.1" stroke-linejoin="round"/></svg>'};
+var flagHTML=function(sel){return '<div class="flagp"><b>1 term flagged</b>&ldquo;'+TERM+'&rdquo;: When an AI finds an unintended shortcut that scores well on its training objective without doing what was actually wanted.<div style="margin-top:8px">Try: <span'+(sel?' class="selx"':'')+'>'+REPL+'</span></div></div>'};
+function modal(o){return '<div class="formlayer"><div class="mcard"><div class="mh"><b>Add a quote</b><div>For: The Hugging Face / OpenAI Security Incident</div></div><div class="mb"><span class="qlabel">Quote</span><div class="ta3">'+o.text+'</div><div class="tg2"><span>ai safety</span><span>frontier labs</span></div>'+(o.flag||'')+(o.ok?'<div class="okp">Quote published.</div>':'')+'</div><div class="ma"><span class="pbtn'+(o.off?' off':'')+'">'+o.primary+'</span><span>'+(o.sec||'Cancel')+'</span></div></div></div>'}
+function stageHTML(open,inner,cur){return '<div class="stage">'+listHTML+'<div class="scrim" style="opacity:'+(open?1:0)+'"></div>'+inner+(cur||'')+'</div>'}
+var fTitle='Add a quote';
+var textFlag=BEFORE+'<mark class="flg">'+TERM+'</mark>'+AFTER;
+var textFixed=BEFORE+'<b class="repl">'+REPL+'</b>'+AFTER;
+var stages={
+ click:chrome('Quotes')+stageHTML(false,'',cursor('right:74px;top:30px')),
+ typing:chrome(fTitle)+stageHTML(true,modal({text:BEFORE+TERM+'. The agen<span class="caret"></span>',primary:'Publish quote'})),
+ flagged:chrome(fTitle)+stageHTML(true,modal({text:textFlag,flag:flagHTML(false),primary:'Review flags',off:1})),
+ copy:chrome(fTitle)+stageHTML(true,modal({text:textFlag,flag:flagHTML(true),primary:'Review flags',off:1}),cursor('left:200px;top:470px')),
+ pasted:chrome(fTitle)+stageHTML(true,modal({text:textFixed,primary:'Publish quote'}),cursor('left:150px;top:418px')),
+ published:chrome(fTitle)+stageHTML(true,modal({text:textFixed,ok:1,primary:'Published',off:1,sec:'Close'}))
+};
+document.getElementById('aqBoard').innerHTML=
+ frame('1. Cursor clicks Add quote','A cursor moves to the Add quote button and clicks it. The list is the base layer.',stages.click)+
+ frame('2. The form opens and the quote is typed','The form fades in over a dimmed list. The quote types in, using the technical term "reward hacking".',stages.typing)+
+ frame('3. The term is flagged (rest frame)','The term is marked, a flag panel explains it and suggests plainer wording. The button reads Review flags. This is the still shown with reduced motion.',stages.flagged)+
+ frame('4. The suggestion is copied','The cursor reads the flag, then selects and copies the suggested wording.',stages.copy)+
+ frame('5. Pasted over the term','The cursor selects "reward hacking" in the quote and pastes the plain wording over it. The flag clears and the button returns to Publish quote.',stages.pasted)+
+ frame('6. Published','The cursor clicks Publish quote. The button reads Submitting, then Published, and "Quote published." appears. The window fades and the loop restarts.',stages.published);
+/* ---- the page mock's quote window uses the rest frame ---- */
+document.getElementById('pageQuoteBody').innerHTML=stageHTML(true,modal({text:textFlag,flag:flagHTML(false),primary:'Review flags',off:1}));
+document.querySelectorAll('[data-src]').forEach(function(m){m.innerHTML=document.querySelector(m.dataset.src).innerHTML});
+</script>
+</body>
+</html>

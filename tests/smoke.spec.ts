@@ -42,13 +42,50 @@ test.describe('Landing page', () => {
     await expect(page.getByRole('heading', { name: 'Tell us who you are' })).toBeVisible()
   })
 
-  test('two-circles section — both audiences visible', async ({ page }) => {
-    // exact: true — the closing section's "For creators & journalists" /
-    // "For researchers & organisations" eyebrows are case-insensitive
-    // substring matches of these same labels, which turns a loose getByText
-    // into a strict-mode violation (2 elements) now that both sections exist.
-    await expect(page.getByText('Creators & journalists', { exact: true })).toBeVisible()
-    await expect(page.getByText('Researchers & organisations', { exact: true })).toBeVisible()
+  test('hero — both audience cards visible', async ({ page }) => {
+    // The two audience cards are headed by their labels; the circle legend
+    // repeats the same words, so query the headings, not loose text.
+    await expect(page.getByRole('heading', { name: 'Creators & journalists' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Researchers & organisations' })).toBeVisible()
+  })
+
+  test('the researchers card button pre-selects the matching role in the form', async ({ page }) => {
+    await page
+      .getByRole('region', { name: 'Researchers & organisations' })
+      .getByRole('button', { name: 'Join the waitlist' })
+      .click()
+    await expect(page.getByRole('dialog').getByRole('radio', { name: 'Researcher/Expert' })).toHaveAttribute(
+      'aria-checked',
+      'true',
+    )
+  })
+
+  test('header — no Apply link, one waitlist action', async ({ page }) => {
+    const header = page.getByRole('banner')
+    await expect(header.getByRole('link', { name: 'Apply' })).toHaveCount(0)
+    await expect(header.getByRole('button', { name: 'Join the waitlist' })).toBeVisible()
+  })
+
+  test('demos — each has a Pause control and an illustrative label', async ({ page }) => {
+    const pauses = page.getByRole('button', { name: 'Pause the animated example' })
+    await expect(pauses).toHaveCount(2)
+    await pauses.first().click()
+    await expect(page.getByRole('button', { name: 'Play the animated example' })).toHaveCount(1)
+    await expect(page.getByText('Illustrative example, sample content')).toHaveCount(2)
+  })
+
+  test('waitlist dialog — labelled, focus moves in, Escape closes and focus returns', async ({ page }) => {
+    const trigger = page.getByRole('banner').getByRole('button', { name: 'Join the waitlist' })
+    await trigger.focus()
+    await trigger.click()
+    const dlg = page.getByRole('dialog', { name: 'Tell us who you are' })
+    await expect(dlg).toBeVisible()
+    await expect(dlg.getByRole('heading', { name: 'Tell us who you are' })).toBeFocused()
+    // The page behind is inert while the dialog is open.
+    await expect(page.locator('[inert]')).toHaveCount(1)
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+    await expect(trigger).toBeFocused()
   })
 
   test('closing section — waitlist and early-tester CTAs visible', async ({ page }) => {

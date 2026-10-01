@@ -43,7 +43,8 @@ async function openWaitlistModal(page: Page) {
 }
 
 function selectWaitlistRole(page: Page, label: string) {
-  return page.getByRole('dialog').getByRole('button', { name: label, exact: true }).click()
+  // The role picker is a radio group (aria role=radio), not plain buttons.
+  return page.getByRole('dialog').getByRole('radio', { name: label, exact: true }).click()
 }
 
 function dialog(page: Page) {
@@ -64,7 +65,7 @@ test.describe('Waitlist modal', () => {
   test('opens with all six "I am a" role options visible', async ({ page }) => {
     await openWaitlistModal(page)
     for (const label of ALL_ROLES) {
-      await expect(dialog(page).getByRole('button', { name: label, exact: true })).toBeVisible()
+      await expect(dialog(page).getByRole('radio', { name: label, exact: true })).toBeVisible()
     }
   })
 

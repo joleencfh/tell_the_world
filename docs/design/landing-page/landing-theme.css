@@ -1,0 +1,126 @@
+/*
+ * Tell The World, landing page theme (Tailwind CSS 4 @theme)
+ *
+ * ADDITIVE ON PURPOSE. Every token name below is new. None collides with the
+ * existing "Two-Ink Bold" tokens in app/globals.css (--color-paper, --color-ink,
+ * --color-pink, --color-blue, --font-display, --font-body, --color-line, ...),
+ * so adding this file changes nothing on the Brief page or the rest of the app.
+ * When the app migrates to this system, replace the old tokens with these and
+ * delete the old names.
+ *
+ * Fonts: --font-mono is NOT redefined (IBM Plex Mono is already the app's mono).
+ * EB Garamond and Inter are new and should be loaded with next/font on the
+ * landing route only (variables --font-eb-garamond, --font-inter).
+ *
+ * All text pairings below were checked for WCAG AA (ratios in design-system.md).
+ */
+
+@theme {
+  /* ---------- Colour: surfaces ---------- */
+  --color-parchment:    #F7F4EE;  /* page canvas */
+  --color-bone:         #F0EEE6;  /* neutral card, hover fill */
+  --color-vellum:       #FBFAF6;  /* framed artifacts: windows, modal */
+  --color-card-rose:    #F5E8EA;  /* creators & journalists card (faint pink) */
+  --color-card-cobalt:  #E8ECF6;  /* researchers & organisations card (faint blue) */
+  --color-band-pale:    #EFF2F9;  /* "Why this matters now" band */
+  --color-band-soft:    #E5EAF6;  /* closing band */
+  --color-diff-removed: #EBE8DE;  /* removed line in a diff */
+  --color-disabled:     #E4E1D8;  /* disabled / pending button fill */
+
+  /* ---------- Colour: text and lines ---------- */
+  --color-umber:        #26251E;  /* primary text, primary button fill */
+  --color-umber-hover:  #3A3931;  /* primary button hover */
+  --color-umber-body:   #3F3E37;  /* long serif reading text on pale bands */
+  --color-umber-soft:   #5E5D56;  /* secondary text, labels (AA on every surface above) */
+  --color-umber-deep:   #4A4943;  /* small text on the closing band */
+  --color-field-line:   #7A786E;  /* input and chip borders (4:1, needs 3:1) */
+  --color-rule:         #DEDBD3;  /* section hairlines on parchment */
+  --color-window-line:  #DAD6CA;  /* hairlines inside windows */
+
+  /* ---------- Colour: audience pair ---------- */
+  --color-rose:         #B80F5A;  /* creators & journalists: text, buttons */
+  --color-rose-deep:    #9E0B4D;  /* rose labels on tints, errors, rose hover */
+  --color-rose-bright:  #F0197E;  /* GRAPHIC ONLY: circles, dots. Never text. */
+  --color-rose-wash:    #FBDDE8;  /* selected chip, flagged-term panel */
+  --color-cobalt:       #1D3AA6;  /* researchers & organisations: text, buttons */
+  --color-cobalt-deep:  #162E85;  /* cobalt hover */
+  --color-cobalt-bright:#2150E8;  /* GRAPHIC ONLY: circles, dots. Never text. */
+  --color-cobalt-wash:  #DCE5FB;  /* selected chip, added line in a diff */
+  --color-violet:       #6B21A8;  /* GRAPHIC ONLY: the overlap of the two circles */
+
+  --color-scrim:        rgba(38, 37, 30, 0.55);  /* behind the modal */
+
+  /* ---------- Typography: scale (utility = text-<name>) ---------- */
+  --text-display: clamp(2.375rem, 1.45rem + 3.9vw, 4.75rem);       /* hero h1 */
+  --text-display--line-height: 1;
+  --text-display--letter-spacing: -0.03em;
+
+  --text-heading: clamp(1.875rem, 1.1rem + 3.2vw, 3.5rem);          /* "Why this matters now" */
+  --text-heading--line-height: 1.03;
+  --text-heading--letter-spacing: -0.025em;
+
+  --text-heading-sm: clamp(1.75rem, 1.2rem + 2.2vw, 2.875rem);      /* artifact section h2 */
+  --text-heading-sm--line-height: 1.05;
+  --text-heading-sm--letter-spacing: -0.025em;
+
+  --text-statement: clamp(1.75rem, 1.2rem + 2.3vw, 2.75rem);        /* closing line */
+  --text-statement--line-height: 1.12;
+  --text-statement--letter-spacing: -0.02em;
+
+  --text-lead: 1.4375rem;                                           /* 23px hero sub; 21px under md */
+  --text-lead--line-height: 1.42;
+
+  --text-card: 1.5625rem;                                           /* 25px audience sentence; 23px under md */
+  --text-card--line-height: 1.3;
+
+  --text-prose: 1.3125rem;                                          /* 21px serif reading text */
+  --text-prose--line-height: 1.5;
+
+  --text-message: 1.1875rem;                                        /* 19px serif inside windows */
+  --text-message--line-height: 1.4;
+
+  --text-ui: 0.9375rem;                                             /* 15px buttons, nav, body UI */
+  --text-ui--line-height: 1.5;
+
+  --text-ui-sm: 0.875rem;                                           /* 14px captions, trust line */
+  --text-ui-sm--line-height: 1.5;
+
+  --text-label: 0.75rem;                                            /* 12px mono labels, ALWAYS uppercase, +0.07em */
+  --text-label--line-height: 1.4;
+  --text-label--letter-spacing: 0.07em;
+
+  /* ---------- Spacing ---------- */
+  /* Tailwind's default --spacing (0.25rem = 4px) is the base unit; keep it. */
+  --spacing-gutter:   2.5rem;   /* 40px page side padding; use 1.25rem under md */
+  --spacing-section:  5.5rem;   /* 88px vertical section padding; use 3.5rem under md */
+  --container-page:   67.5rem;  /* 1080px content width */
+
+  /* ---------- Shape ---------- */
+  /* Not --radius-sm / --radius-md: those override Tailwind's defaults and would
+     change every existing page. Circles and dots use Tailwind's rounded-full. */
+  --radius-tag:     2px;   /* small tags */
+  --radius-control: 4px;   /* buttons, cards, inputs, windows, modal */
+
+  /* ---------- Elevation (flat page, elevation only on framed artifacts) ---------- */
+  --shadow-hairline: 0 0 0 1px rgb(38 37 30 / 0.13);
+  --shadow-window:   0 28px 70px rgb(0 0 0 / 0.14), 0 14px 32px rgb(0 0 0 / 0.10), 0 0 0 1px rgb(38 37 30 / 0.12);
+  --shadow-modal:    0 28px 70px rgb(0 0 0 / 0.28), 0 14px 32px rgb(0 0 0 / 0.16), 0 0 0 1px rgb(38 37 30 / 0.14);
+
+  /* ---------- Motion ---------- */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 150ms;     /* hover, press */
+  --duration-demo-step: 600ms; /* a demo beat fading in */
+}
+
+/* Font families live in an inline theme because they reference next/font
+   variables (same reason app/globals.css splits fonts out). --font-mono is
+   the app's existing IBM Plex Mono and is deliberately not redefined. */
+@theme inline {
+  --font-serif: var(--font-eb-garamond), "EB Garamond", Georgia, serif;
+  --font-ui:    var(--font-inter), Inter, system-ui, sans-serif;
+}
+
+/* Reduced motion: demos show their rest frame and every transition collapses. */
+@media (prefers-reduced-motion: reduce) {
+  :root { --duration-fast: 0ms; --duration-demo-step: 0ms; }
+}
