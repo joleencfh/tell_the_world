@@ -316,7 +316,7 @@ say the word if you want those changed too.*
 
 ### quote-section.heading
 
-> A quote experts can actually stand behind.
+> Expert quotes you can understand, and use.
 
 
 
