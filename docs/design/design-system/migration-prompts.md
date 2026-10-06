@@ -81,7 +81,7 @@ Rules for every phase:
 Phase 1 of the design migration: foundations and primitives.
 
 1. Replace app/landing-theme.css with the contents of docs/design/design-system/app-theme.css (it supersedes it) and update the import in app/globals.css. Do not remove or edit the old tokens in globals.css.
-2. Move EB Garamond and Inter (next/font, variables --font-eb-garamond and --font-inter) from the (landing) route layout to app/layout.tsx so every route has them. Do NOT change the <body> font class or background; unmigrated screens must look exactly as they do today.
+2. Move EB Garamond and Inter (variables --font-eb-garamond and --font-inter) from the (landing) route layout to app/layout.tsx so every route has them. Self-host them with next/font/local instead of next/font/google: today a failed Google Fonts download at build time breaks the whole build (it failed a Vercel deploy on 2026-10-06), and after this step every page depends on these fonts. Get the latin-subset woff2 files (for example from the @fontsource-variable/eb-garamond and @fontsource-variable/inter packages), commit them under app/fonts, keep the same variable names, weights and display: swap, and note in the PR that both fonts are OFL licensed. Keep IBM Plex Mono as it is. Do NOT change the <body> font class or background; unmigrated screens must look exactly as they do today.
 3. Build these primitives in components/ui, one file each, with the recipes and every state from design-system.md section 3: Button (variants primary, rose, cobalt, secondary, ghost, danger, icon, sm; pending state), Field set (Field, TextInput, Textarea, Select, Checkbox, ChoiceChips as a real radiogroup with arrow keys, FormSection), RoleLabel, Author, Avatar (replace the current one; role fills, org is a square), StatusChip, CategoryChip, Tag, Alert (4 tones), Toast (provider + hook), EmptyState, Skeleton, LockedPanel, Menu, Modal (labelled, focus trapped, rest of page inert, Escape and scrim close, focus returns to trigger, bottom sheet on mobile), ConfirmDialog.
    Use the existing landing WaitlistModal behaviour as the reference for Modal.
 4. Keep the existing component names working: Avatar and RoleBadge keep their current props and are migrated to the new look; keep a thin compatibility mapping so callers do not break. Note which callers now look different in the PR.
@@ -89,7 +89,7 @@ Phase 1 of the design migration: foundations and primitives.
 6. Add a dev-only route (e.g. app/dev/design-system, excluded from production via notFound() in production) that renders each primitive in every state, so later phases and reviews have one place to look.
 7. Add Playwright keyboard tests for Modal, Menu and ChoiceChips.
 
-Exit: build and lint green, landing page unchanged except the error colour, dev route renders all primitives, other screens visually unchanged (compare screenshots of /login, /home, /directory, a brief page before and after).
+Exit: build and lint green (the two new fonts load from the repo, not from fonts.googleapis.com), landing page unchanged except the error colour, dev route renders all primitives, other screens visually unchanged (compare screenshots of /login, /home, /directory, a brief page before and after).
 ```
 
 ## Phase 2: Auth, forms and small pages (1 to 2 sessions, 1 PR)
