@@ -53,8 +53,7 @@ top to bottom:
 - **2026-09-16/17**: Part 0 design proposals produced (three directions:
   Calm Editorial, Bold Ink Block, Asymmetric Press). **Bold Ink Block
   signed off** as the direction — reversed blue-ink bands, 2px ink
-  borders, mono numbered dividers, shadow-block accents. Artifact:
-  https://claude.ai/artifact/EMr7gRKNp8LK9kQk3VDNAn (note: this mockup
+  borders, mono numbered dividers, shadow-block accents. Artifact: a private claude.ai mockup (note: this mockup
   predates everything below — its What's Inside section still shows a
   placeholder image, not the two dedicated demo sections).
 - **2026-09-17**: explored a crafted (non-video) loop animation of the
@@ -62,8 +61,7 @@ top to bottom:
   Built out, iterated on copy (uses the real July 2026 Hugging Face/
   OpenAI incident as example content), and saved at
   `docs/design/landing-page/qa-feature-loop-concept.html` — see that
-  file's own header comment and the artifact at
-  https://claude.ai/artifact/6LTUH2Ua3FHUmWC9847SqK for the full history.
+  file's own header comment for the full history.
   This is **built and signed off** as the Community Q&A demo.
 - **2026-09-23**: decided one demo animation wasn't enough to convey
   what the product does, and restructured What's Inside into two
@@ -84,8 +82,7 @@ top to bottom:
   after a brief attempt to shorten it, and added thin rule dividers
   bounding "Why This Matters Now" and between the two demo sections so
   sections read as visually distinct blocks. Final full-page layout
-  mockup: https://claude.ai/artifact/JscqkdwQpc2Nk1y3sVRqZw (also saved
-  at `docs/design/landing-page/two-demo-layout-concept.html`) — **this
+  mockup: `docs/design/landing-page/two-demo-layout-concept.html` — **this
   mockup is the current signed-off layout direction**, superseding the
   original Bold Ink Block mockup's section structure while keeping its
   visual language. Note: this mockup's Quotes-demo slot still shows a
@@ -248,7 +245,7 @@ the Briefs epic.
 Saved for later reference:
 - In-repo source: `docs/design/landing-page/qa-feature-loop-concept.html`
   (open directly in a browser, or drop into any static server).
-- Live rendered version: https://claude.ai/artifact/6LTUH2Ua3FHUmWC9847SqK
+- (The original claude.ai artifact was private and is no longer linked.)
 
 This has **not** been signed off as the direction for the What's Inside
 section — treat it the same as Part 0's other design proposals (needs
@@ -269,7 +266,7 @@ OpenAI incident as the Q&A loop, for continuity between the two demos.
 
 Saved for later reference:
 - In-repo source: `docs/design/landing-page/quote-feature-loop-concept.html`
-- Live rendered version: https://claude.ai/artifact/HWGBpfvrmi7bGQSTCtHYuf
+- (The original claude.ai artifact was private and is no longer linked.)
 
 Not signed off as a direction. Needs explicit sign-off before either
 loop is wired into `app/page.tsx`.
