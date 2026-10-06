@@ -51,3 +51,6 @@ yarn-error.log*
 # supabase cli scratch
 /supabase/.temp
 next-env.d.ts
+
+# scratch QA captures from build sessions
+docs/design/**/built-screenshots/
