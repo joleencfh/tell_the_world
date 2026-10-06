@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tell The World landing page directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=IBM+Plex+Mono:wght@400;500&family=Inter+Tight:wght@400;500;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,sans-serif;background:#ECEAE4;color:#1c1b17;line-height:1.5;padding:0 16px 80px}
+.wrap{max-width:1240px;margin:0 auto}
+.doc h1{font-size:28px;margin:40px 0 8px;font-weight:600}
+.doc p,.doc li{font-size:15px;color:#3d3b34}
+.doc ul{margin:8px 0 0 20px}
+.doc .box{background:#fff;border:1px solid #cfcbbd;border-radius:6px;padding:20px 24px;margin-top:20px}
+.doc h2{font-size:14px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;font-weight:500}
+.sugkey{border-bottom:2px dotted #8a6d00;background:#fff6cc;padding:0 2px}
+.dir{margin-top:72px}
+.dir>h2{font-size:26px;font-weight:600}
+.dir .feel{font-size:17px;margin:4px 0 16px;color:#3d3b34}
+.metagrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:24px}
+.metagrid>div{background:#fff;border:1px solid #cfcbbd;border-radius:6px;padding:16px 18px;font-size:14px}
+.metagrid h3{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;font-weight:500;color:#524f46}
+.metagrid ul{margin-left:16px}
+.sw{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.sw span{font-family:'IBM Plex Mono',monospace;font-size:12px;padding:4px 7px;border-radius:3px;border:1px solid rgba(0,0,0,.15)}
+.cap{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#524f46;margin:20px 0 6px}
+.frame{container-type:inline-size;border:1px solid #bdb9aa;border-radius:6px;overflow:hidden;background:#fff}
+.mobwrap{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}
+.frame.mob{width:390px;max-width:100%}
+.sug{border-bottom:2px dotted #8a6d00}
+.C .sug,.CH .sug{border-bottom-color:#ffd54a}
+
+/* logo */
+.logo{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:16px}
+.logo svg{width:28px;height:18px}
+
+/* ============ A: Briefing Paper ============ */
+.A{--bg:#F7F5EF;--card:#FCFBF8;--ink:#1C1B17;--soft:#57554C;--line:#D9D5C8;--pink:#B80F5A;--blue:#1D3AA6;--pinkt:#FAD2E2;--bluet:#D3DCF8;background:var(--bg);color:var(--ink);font-family:Inter,sans-serif}
+.A .nav{display:flex;align-items:center;justify-content:space-between;padding:16px 40px;border-bottom:1px solid var(--line)}
+.A .nav .r{display:flex;align-items:center;gap:20px;font-size:14px}
+.A .nav a{color:var(--soft);text-decoration:none}
+.A .btn{display:inline-block;border-radius:4px;font-weight:500;font-size:15px;padding:12px 18px;text-decoration:none;border:1px solid transparent}
+.A .btn.ink{background:var(--ink);color:var(--bg)}
+.A .btn.pink{background:var(--pink);color:#fff}
+.A .btn.blue{background:var(--blue);color:#fff}
+.A .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;padding:72px 40px 80px;align-items:start}
+.A .mono{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
+.A h1{font-family:'Inter Tight',Inter,sans-serif;font-weight:500;font-size:clamp(32px,4.6cqw,60px);line-height:1.04;letter-spacing:-.035em;margin:18px 0 24px}
+.A h1 .hl{color:var(--pink)}
+.A .sub{font-family:'EB Garamond',Georgia,serif;font-size:22px;line-height:1.42;color:var(--soft);max-width:520px}
+.A .trust{font-size:15px;color:var(--ink);margin-top:18px;max-width:520px}
+.A .cta{margin-top:28px}
+.A .cta .mono{display:block;margin-bottom:10px}
+.A .cta .row{display:flex;gap:10px;flex-wrap:wrap}
+.A .cta small{display:block;margin-top:12px;font-size:13px;color:var(--soft)}
+.A .card{background:var(--card);border:1px solid var(--line);border-radius:4px;box-shadow:0 18px 40px -22px rgba(28,27,23,.35)}
+.A .card .top{display:flex;justify-content:space-between;padding:10px 18px;border-bottom:1px solid var(--line)}
+.A .card .body{padding:20px 22px}
+.A .card h3{font-family:'Inter Tight',sans-serif;font-weight:500;font-size:22px;letter-spacing:-.02em;line-height:1.2}
+.A .chips{display:flex;gap:6px;margin:10px 0 18px}
+.A .chip{font-family:'IBM Plex Mono',monospace;font-size:12px;border:1px solid var(--line);padding:2px 8px;border-radius:3px;color:var(--soft)}
+.A blockquote{font-family:'EB Garamond',serif;font-size:21px;line-height:1.35;font-style:italic;border-top:1px solid var(--line);padding-top:16px}
+.A .who{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:13px}
+.A .av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:600;font-size:13px;flex:none}
+.A .av.b{background:var(--blue)}.A .av.p{background:var(--pink)}
+.A .badge{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:3px}
+.A .badge.b{background:var(--bluet);color:var(--blue)}.A .badge.p{background:var(--pinkt);color:var(--pink)}
+.A .who .cred{color:var(--soft);font-size:12.5px;display:block}
+.A .qa{border-top:1px solid var(--line);margin-top:18px;padding-top:14px;font-size:14.5px}
+.A .src{margin-top:16px;border:1px dashed var(--soft);border-radius:4px;padding:8px 12px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--soft)}
+.A .ex{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--soft);margin-top:10px;text-align:right}
+.A .sec{display:grid;grid-template-columns:.85fr 1.15fr;gap:64px;padding:88px 40px;border-top:1px solid var(--line);align-items:start}
+.A h2{font-family:'Inter Tight',sans-serif;font-weight:500;font-size:clamp(28px,3.4cqw,42px);line-height:1.1;letter-spacing:-.03em;margin:14px 0 18px}
+.A .sec p.prose{font-family:'EB Garamond',serif;font-size:21px;line-height:1.45;color:var(--soft)}
+.A .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--blue)}
+.A .thread .msg{padding:18px 22px;border-bottom:1px solid var(--line)}
+.A .thread .msg:last-child{border-bottom:0}
+.A .thread .ans{background:var(--bluet)}
+.A .thread .msg p{font-size:15px;margin-top:8px}
+.A .thread .foot{margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--blue);letter-spacing:.06em;text-transform:uppercase}
+@container (max-width:700px){
+ .A .nav{padding:14px 20px}.A .nav .hide{display:none}
+ .A .hero,.A .sec{grid-template-columns:1fr;gap:36px;padding:40px 20px}
+ .A .sub{font-size:20px}.A .cta .row .btn{width:100%;text-align:center}
+}
+
+/* ============ B: Two Voices ============ */
+.B{--bg:#FBF8F3;--ink:#14121A;--soft:#4A4650;--pink:#D80F6C;--pinkb:#F0197E;--pinktxt:#B80F5A;--blue:#1A3BC4;--blueb:#2150E8;--pinkt:#FFDCEB;--bluet:#DCE5FF;background:var(--bg);color:var(--ink);font-family:Inter,sans-serif}
+.B .nav{display:flex;align-items:center;justify-content:space-between;padding:16px 40px}
+.B .nav .r{display:flex;align-items:center;gap:20px;font-size:14px;font-weight:500}
+.B .nav a{color:var(--ink);text-decoration:none}
+.B .btn{display:inline-block;border-radius:999px;font-weight:600;font-size:16px;padding:12px 26px;text-decoration:none;border:2px solid transparent}
+.B .btn.ink{background:var(--ink);color:var(--bg)}
+.B .btn.pink{background:var(--pink);color:#fff}
+.B .btn.blue{background:var(--blue);color:#fff}
+.B .hero{padding:48px 40px 40px;text-align:center}
+.B .tag{display:inline-flex;align-items:center;gap:8px;background:#EDEAE2;border-radius:999px;padding:6px 14px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;font-weight:500}
+.B .tag i{width:8px;height:8px;border-radius:50%;background:var(--pinkb)}
+.B h1{font-family:'Inter Tight',sans-serif;font-weight:800;font-size:clamp(32px,5.6cqw,72px);line-height:1;letter-spacing:-.04em;margin:22px auto 22px;max-width:15.5em}
+.B h1 .hl{color:var(--pinktxt)}
+.B .sub{font-size:20px;line-height:1.5;color:var(--soft);max-width:640px;margin:0 auto}
+.B .split{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:0;margin:48px 40px 0;gap:12px;text-align:left}
+.B .half{padding:56px 48px 40px;border-radius:28px}
+.B .half.p{background:var(--pinkt)}.B .half.b{background:var(--bluet)}
+.B .lab{font-family:'IBM Plex Mono',monospace;font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:500}
+.B .half.p .lab{color:var(--pinktxt)}.B .half.b .lab{color:var(--blue)}
+.B .half p{font-family:'Inter Tight',sans-serif;font-weight:800;letter-spacing:-.025em;font-size:28px;line-height:1.15;margin:12px 0 26px;max-width:15em}
+.B .circles{position:absolute;left:50%;top:-1px;transform:translate(-50%,-50%);width:112px;height:64px;pointer-events:none}
+.B .note{font-size:14px;color:var(--soft);padding:20px 40px 56px;text-align:center}
+.B .sec{display:grid;grid-template-columns:.9fr 1.1fr;gap:64px;padding:88px 40px;align-items:center}
+.B h2{font-family:'Inter Tight',sans-serif;font-weight:800;font-size:clamp(28px,3.8cqw,48px);line-height:1.05;letter-spacing:-.035em;margin:14px 0 18px}
+.B .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:500;color:var(--blue)}
+.B .prose{font-size:18px;color:var(--soft);line-height:1.55}
+.B .modal{background:#fff;box-shadow:0 0 0 1px rgba(20,18,26,.14);border-radius:28px;padding:30px}
+.B .modal .lab{color:var(--blue)}
+.B .modal h3{font-family:'Inter Tight',sans-serif;font-weight:800;letter-spacing:-.03em;font-size:28px;margin-top:2px}
+.B .modal .for{font-size:13.5px;color:var(--soft);font-style:italic;margin-bottom:16px}
+.B .field{font-size:12px;font-weight:600;margin:12px 0 6px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.06em}
+.B .ta{border:1px solid #6A6C6A;border-radius:10px;padding:12px 14px;font-size:16px;line-height:1.5}
+.B mark{background:var(--pinkt);color:var(--ink);border-bottom:3px solid var(--pinkb);padding:0 2px}
+.B .flag{margin-top:12px;background:var(--pinkt);border-radius:10px;padding:12px 14px;font-size:14.5px}
+.B .flag b{font-family:'IBM Plex Mono',monospace;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--pinktxt);display:block;margin-bottom:4px}
+.B .try{display:inline-block;margin-top:8px;background:var(--bluet);color:var(--blue);font-weight:600;border-radius:999px;padding:3px 12px;font-size:14px}
+.B .tags{display:flex;gap:6px;flex-wrap:wrap}
+.B .tags span{border:1px solid #6A6C6A;border-radius:999px;padding:1px 10px;font-size:13px}
+.B .hint{font-size:12.5px;color:var(--soft);margin-top:6px}
+.B .acts{display:flex;gap:14px;align-items:center;margin-top:18px}
+.B .acts u{font-size:14px;color:var(--soft)}
+@container (max-width:700px){
+ .B .nav{padding:14px 20px}.B .nav .hide{display:none}
+ .B .hero{padding:32px 20px 24px}.B .sub{font-size:18px}
+ .B .split{grid-template-columns:1fr;margin:44px 20px 0}
+ 
+ .B .half{padding:44px 24px 28px}.B .half p{font-size:24px}
+ .B .circles{width:96px;height:56px;top:-1px}
+ .B .sec{grid-template-columns:1fr;gap:32px;padding:48px 20px}
+ .B .note{padding:16px 20px 40px}
+}
+
+/* ============ C: Institute ============ */
+.C{--navy:#0A1F66;--cream:#F6F2EA;--ink:#14162B;--soft:#C9D1EE;--pinkl:#FF9CC6;--bluel:#A9BCFF;--pinktxt:#B80F5A;--paperline:#D8D2C3;background:var(--navy);color:var(--cream);font-family:Inter,sans-serif}
+.C .nav{display:flex;align-items:center;justify-content:space-between;padding:18px 40px}
+.C .nav .r{display:flex;align-items:center;gap:22px;font-size:14px}
+.C .nav a{color:var(--soft);text-decoration:none}
+.C .btn{display:inline-block;border-radius:2px;font-weight:500;font-size:15px;padding:13px 22px;text-decoration:none}
+.C .btn.cream{background:var(--cream);color:var(--navy)}
+.C .btn.line{border:1px solid var(--cream);color:var(--cream);padding:8px 14px;font-size:14px}
+.C .hero{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;padding:72px 40px 56px;align-items:center}
+.C .mono{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--bluel)}
+.C h1{font-family:Fraunces,Georgia,serif;font-weight:400;font-size:clamp(34px,5cqw,66px);line-height:1.04;letter-spacing:-.02em;margin:20px 0 26px}
+.C h1 em{color:var(--pinkl);font-style:italic}
+.C .sub{font-size:19px;line-height:1.55;color:var(--soft);max-width:540px}
+.C .cta{margin-top:30px}
+.C .cta small{display:block;margin-top:14px;font-size:14px;color:var(--soft)}
+.C .rings{position:relative}
+.C .rings svg{width:100%;height:auto;display:block}
+.C .rings .l{display:flex;justify-content:space-between;margin-top:12px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.C .rings .l span:first-child{color:var(--pinkl)}.C .rings .l span:last-child{color:var(--bluel);text-align:right}
+.C .claims{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin:0 40px;border-top:1px solid rgba(246,242,234,.3)}
+.C .claims div{padding:22px 28px 48px 0}
+.C .claims .n{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--bluel)}
+.C .claims h3{font-family:Fraunces,serif;font-weight:400;font-size:24px;margin:8px 0 6px}
+.C .claims p{font-size:15px;color:var(--soft);line-height:1.5;max-width:26em}
+.C.paper{background:var(--cream);color:var(--ink)}
+.C .sec{display:grid;grid-template-columns:1.1fr .9fr;gap:72px;padding:96px 40px;align-items:start}
+.C .sec .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--pinktxt)}
+.C h2{font-family:Fraunces,serif;font-weight:400;font-size:clamp(30px,4.3cqw,56px);line-height:1.07;letter-spacing:-.02em;margin-top:18px}
+.C h2 em{font-style:italic;color:var(--pinktxt)}
+.C .sec p{font-size:18px;line-height:1.65;color:#3a3d55;margin-top:44px}
+@container (max-width:700px){
+ .C .nav{padding:14px 20px}.C .nav .hide{display:none}
+ .C .hero{grid-template-columns:1fr;padding:32px 20px 32px;gap:36px}
+ .C .claims{grid-template-columns:1fr;margin:0 20px}.C .claims div{padding:18px 0 8px}
+ .C .sec{grid-template-columns:1fr;gap:0;padding:56px 20px}.C .sec p{margin-top:24px}
+ .C .cta .btn{width:100%;text-align:center}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="doc">
+<h1>Landing page: three directions (Step 3)</h1>
+<p>Real copy from <code>landing-page-copy.md</code> is used throughout. <span class="sugkey">Dotted yellow underline</span> marks suggested wording that is not in that file. The people and quotes are the existing fictional demo content, shown with an "illustrative" label. Source and citation slots are placeholders.</p>
+<div class="box">
+<h2>Decisions so far</h2>
+<ul>
+<li><b>D1.</b> One action only: join the waitlist. The header "Apply" is removed.</li>
+<li><b>D2.</b> Pink = creators &amp; journalists. Blue = researchers &amp; organisations. The colour pair is kept as audience coding, not decoration.</li>
+<li><b>D3.</b> The Hugging Face / OpenAI incident is real, so the demo and example brief should link a source (placeholder shown until you supply it).</li>
+<li><b>D4.</b> No em dashes. No invented testimonials, counts, endorsements or logos. All text pairs meet WCAG AA (ratios listed per direction).</li>
+<li><b>D5.</b> References are now Cursor and Wise only. Say Briefly is dropped (no highlighter, pastel cards, sticker type, tagline badge).</li>
+<li><b>D6 (proposed, awaiting you).</b> A brief becomes a visible, labelled example on the page. The "200,000" projection leaves the landing page.</li>
+</ul>
+</div>
+</div>
+
+<!-- ===================== A ===================== -->
+<section class="dir" id="dirA">
+<h2>A. Briefing Paper</h2>
+<p class="feel">A calm, editorial desk where you can see the actual brief before you join.</p>
+<div class="metagrid">
+<div><h3>Borrows from</h3><ul><li>Cursor only: parchment canvas, weight-500 tightened headline, EB Garamond prose, mono metadata, 4px corners, hairlines, framed artifact card, accent colour used as text (pink "tell its story.") and never as a surface</li></ul></div>
+<div><h3>Palette</h3>
+<div class="sw"><span style="background:#F7F5EF">canvas #F7F5EF</span><span style="background:#1C1B17;color:#F7F5EF">ink #1C1B17</span><span style="background:#B80F5A;color:#fff">pink #B80F5A</span><span style="background:#1D3AA6;color:#fff">blue #1D3AA6</span><span style="background:#FAD2E2">pink tint</span><span style="background:#D3DCF8">blue tint</span></div>
+<p style="margin-top:8px">Ink on canvas 15.8:1, pink text 5.9:1, blue text 8.7:1, white on pink button 6.5:1, white on blue button 9.5:1.</p></div>
+<div><h3>Type</h3><p>Inter Tight 500 headlines (tight tracking), EB Garamond for reading text, IBM Plex Mono only for sources, credentials and labels.</p></div>
+<div><h3>Layout character</h3><p>Left-aligned, two columns. Text on the left, a real-looking brief card on the right. Hairline rules between sections, no coloured bands. The audience choice is made by two role-coloured buttons.</p></div>
+<div><h3>Trade-offs</h3><ul><li><b>Pro:</b> answers "what is a brief and can I trust it?" in the first screen. Most credible to journalists.</li><li><b>Pro:</b> lowest alarm, calmest tone.</li><li><b>Con:</b> least energy. Pink and blue shrink to small tags, so the two-cluster idea is quieter.</li><li><b>Con:</b> the hero depends on one good example brief with a real source.</li></ul></div>
+</div>
+
+<div class="cap">Desktop hero</div>
+<div class="frame A" id="A-hero">
+ <div class="nav"><span class="logo"><svg viewBox="0 0 28 18"><circle cx="9" cy="9" r="8" fill="#F0197E"/><circle cx="19" cy="9" r="8" fill="#1D3AA6" fill-opacity=".92"/></svg>Tell The World</span>
+  <div class="r"><a class="hide" href="#">Blog</a><a class="hide" href="#">Sign in</a><a class="btn ink" href="#" style="padding:9px 14px;font-size:14px">Join the waitlist</a></div></div>
+ <div class="hero">
+  <div>
+   <span class="mono">Opening soon</span>
+   <h1>AI safety research rarely reaches the people who could <span class="hl">tell its story.</span></h1>
+   <p class="sub">Tell The World connects AI safety researchers and organisations with the creators and journalists who can put their work in front of real audiences.</p>
+   <p class="trust"><span class="sug">Members are approved before they can post or sign in. Every brief is written to be reused in your own video, article or post.</span></p>
+   <div class="cta"><span class="mono">Join the waitlist as</span>
+    <div class="row"><a class="btn pink" href="#">Creator or journalist</a><a class="btn blue" href="#">Researcher or organisation</a></div>
+    <small><span class="sug">We review every request and reply by email.</span></small></div>
+  </div>
+  <div>
+   <div class="card">
+    <div class="top"><span class="mono">Example brief</span><span class="mono">Sample content</span></div>
+    <div class="body">
+     <h3>The Hugging Face / OpenAI Security Incident</h3>
+     <div class="chips"><span class="chip">ai safety</span><span class="chip">frontier labs</span></div>
+     <blockquote>"The lesson here isn't about one model. It's about what happens once systems like this start operating faster than anyone can review."</blockquote>
+     <div class="who"><span class="av b">E</span><div><b>Elena Vasquez</b> <span class="badge b">Expert</span><span class="cred">Independent Researcher</span></div></div>
+     <div class="qa"><div class="who" style="margin:0 0 8px"><span class="av p">P</span><div><b>Priya Sharma</b> <span class="badge p">Creator</span></div></div>This new report on the Hugging Face / OpenAI incident just came to my attention. How bad is it, really?</div>
+     <div class="src">Sources: [citation placeholder, add the incident report link]</div>
+    </div>
+   </div>
+   <p class="ex"><span class="sug">Illustrative example, sample content</span></p>
+  </div>
+ </div>
+</div>
+
+<div class="cap">Desktop section: Community Q&amp;A</div>
+<div class="frame A" id="A-sec">
+ <div class="sec">
+  <div>
+   <span class="eyebrow">Community Q&amp;A</span>
+   <h2>Ask a question &amp; get an answer from someone who studies this.</h2>
+   <p class="prose">Every brief has an open Q&amp;A. Ask what's on your mind, and an expert or organisation working on the problem answers directly, on the record.</p>
+  </div>
+  <div>
+   <div class="card thread">
+    <div class="msg"><div class="who" style="margin:0"><span class="av p">P</span><div><b>Priya Sharma</b> <span class="badge p">Creator</span><span class="cred">The Priya Sharma Show</span></div></div><p>This new report on the Hugging Face / OpenAI incident just came to my attention. How bad is it, really?</p></div>
+    <div class="msg ans"><div class="who" style="margin:0"><span class="av b">E</span><div><b>Elena Vasquez</b> <span class="badge b">Expert</span><span class="cred">Independent Researcher</span></div></div><p>This is the clearest warning shot we've had. A handful of the agents involved even considered alerting a human, and every one of them decided not to. That's not a story about one bug. It's a preview of how hard oversight gets once these systems start coordinating.</p><div class="foot">Endorsed</div></div>
+    <div class="msg ans"><div class="who" style="margin:0"><span class="av b">F</span><div><b>Foresight Commons</b> <span class="badge b">Organisation</span><span class="cred">AI policy · existential risk</span></div></div><p>We study incidents like this closely, and this one is worse than what came before it, not just more widely covered. The real question isn't only what these systems can do today. It's whether anyone stays in control as more capable ones arrive, and that's what we research and push lawmakers on.</p><div class="foot">Endorsed</div></div>
+   </div>
+   <p class="ex"><span class="sug">Illustrative example, sample content</span></p>
+  </div>
+ </div>
+</div>
+<div class="cap">Mobile hero (390px)</div>
+<div class="mobwrap"><div class="frame A mob" data-src="#A-hero"></div></div>
+</section>
+
+<!-- ===================== B ===================== -->
+<section class="dir" id="dirB">
+<h2>B. Two Voices</h2>
+<p class="feel">The existing two-ink energy, grown up: two sides of one conversation, meeting in the middle.</p>
+<div class="metagrid">
+<div><h3>Borrows from</h3><ul><li>Wise: pill buttons and tags, 28px large cards separated by fill not borders, very heavy tightly tracked display type (softened to sentence case), flat with no gradients</li><li>Cursor: warm paper canvas, hairline discipline</li><li>Current identity: overlapping circles, pink/blue split</li></ul></div>
+<div><h3>Palette</h3>
+<div class="sw"><span style="background:#FBF8F3">paper #FBF8F3</span><span style="background:#14121A;color:#fff">ink #14121A</span><span style="background:#D80F6C;color:#fff">pink #D80F6C</span><span style="background:#1A3BC4;color:#fff">blue #1A3BC4</span><span style="background:#FFDCEB">pink tint #FFDCEB</span><span style="background:#DCE5FF">blue tint #DCE5FF</span></div>
+<p style="margin-top:8px">White on pink 5.0:1, white on blue 8.5:1, pink text on pink tint 5.1:1, blue text on blue tint 6.8:1, ink on tints 14.8:1.</p></div>
+<div><h3>Type</h3><p>Inter Tight 800 with tight tracking in sentence case (our stand-in for Wise Sans), Inter for everything else, IBM Plex Mono for labels.</p></div>
+<div><h3>Layout character</h3><p>Centred headline, then the page splits into a pink half and a blue half with the circles meeting at the seam. Each half carries its own audience sentence and its own button. Pill buttons and large rounded panels, flat fills only.</p></div>
+<div><h3>Trade-offs</h3><ul><li><b>Pro:</b> the strongest expression of "two clusters, one network". Both audiences see their own door in the first screen.</li><li><b>Pro:</b> most continuity with what exists, easiest to build on.</li><li><b>Con:</b> loudest. Wise's heavy display voice is the one reference quality that can tip into shouting, so I softened it to sentence case. Still a risk with experts.</li><li><b>Con:</b> shows no brief in the hero, so the trust story relies on one suggested line.</li></ul></div>
+</div>
+
+<div class="cap">Desktop hero</div>
+<div class="frame B" id="B-hero">
+ <div class="nav"><span class="logo"><svg viewBox="0 0 28 18"><circle cx="9" cy="9" r="8" fill="#F0197E"/><circle cx="19" cy="9" r="8" fill="#2150E8" fill-opacity=".92"/></svg>Tell The World</span>
+  <div class="r"><a class="hide" href="#">Blog</a><a class="hide" href="#">Sign in</a></div></div>
+ <div class="hero">
+  <span class="tag"><i></i>Opening soon</span>
+  <h1>AI safety research rarely reaches the people who could <span class="hl">tell its story.</span></h1>
+  <p class="sub">Tell The World connects AI safety researchers and organisations with the creators and journalists who can put their work in front of real audiences.</p>
+ </div>
+ <div class="split">
+  <svg class="circles" viewBox="0 0 112 64"><circle cx="38" cy="32" r="30" fill="#F0197E"/><circle cx="74" cy="32" r="30" fill="#2150E8" fill-opacity=".95"/></svg>
+  <div class="half p"><span class="lab">Creators &amp; journalists</span><p>Know how to turn complicated research into stories people can relate to.</p><a class="btn pink" href="#">Join the waitlist</a></div>
+  <div class="half b"><span class="lab">Researchers &amp; organisations</span><p>Have important messages on how to make AI go well.</p><a class="btn blue" href="#">Join the waitlist</a></div>
+ </div>
+ <p class="note"><span class="sug">Members are approved before they can post or sign in. We review every request and reply by email.</span></p>
+</div>
+
+<div class="cap">Desktop section: Quotes, on record</div>
+<div class="frame B" id="B-sec">
+ <div class="sec">
+  <div>
+   <span class="eyebrow">Quotes, on record</span>
+   <h2>A quote experts can actually stand behind.</h2>
+   <p class="prose">Experts and organisations add their own on-record quotes directly, in plain language. Every submission runs through a clarity check first, so jargon gets caught before it ever reaches a reader.</p>
+  </div>
+  <div>
+   <div class="modal">
+    <span class="lab">Quotes</span><h3>Add a quote</h3><div class="for">For: The Hugging Face / OpenAI Security Incident</div>
+    <div class="field">Quote</div>
+    <div class="ta">The incident report is straightforward: this was <mark>reward hacking</mark>. The agents found a shortcut that scored well, and none of them told a human.</div>
+    <div class="flag"><b>1 term flagged</b>"reward hacking": When an AI finds an unintended shortcut that scores well on its training objective without doing what was actually wanted.<br><span class="try">Try: an AI gaming its own scoring system</span></div>
+    <div class="field">Tags</div><div class="tags"><span>ai safety</span><span>frontier labs</span></div>
+    <div class="hint">Pre-filled from this brief's tags. Edit as needed.</div>
+    <div class="acts"><a class="btn ink" href="#" style="padding:10px 18px">Publish quote</a><u>Cancel</u></div>
+   </div>
+   <p style="font-size:12.5px;color:#4A4650;margin-top:8px;text-align:right"><span class="sug">Illustrative example, sample content</span></p>
+  </div>
+ </div>
+</div>
+<div class="cap">Mobile hero (390px)</div>
+<div class="mobwrap"><div class="frame B mob" data-src="#B-hero"></div></div>
+</section>
+
+<!-- ===================== C ===================== -->
+<section class="dir" id="dirC">
+<h2>C. Institute</h2>
+<p class="feel">A quiet, authoritative research institution that happens to have a very good network.</p>
+<div class="metagrid">
+<div><h3>Borrows from</h3><ul><li>Cursor: whisper-weight serif headlines with tight tracking, mono for metadata, sharp 2px corners, flat surfaces with no glow or gradient</li><li>Wise: the dark-inversion rhythm (a deep field with one light accent on it, then a light section), and the three-column "feature row" for the claims strip</li></ul></div>
+<div><h3>Palette</h3>
+<div class="sw"><span style="background:#0A1F66;color:#F6F2EA">navy #0A1F66</span><span style="background:#F6F2EA">cream #F6F2EA</span><span style="background:#FF9CC6">pink light #FF9CC6</span><span style="background:#A9BCFF">blue light #A9BCFF</span><span style="background:#B80F5A;color:#fff">pink on paper #B80F5A</span></div>
+<p style="margin-top:8px">Cream on navy 13.4:1, pink light on navy 7.7:1, blue light on navy 8.1:1, pink on cream paper 5.8:1. The current pink would fail on navy (2.8:1), so the tint changes on dark.</p></div>
+<div><h3>Type</h3><p>Fraunces 400 (serif, with one italic phrase) for headlines, Inter for body, IBM Plex Mono for labels and numbering.</p></div>
+<div><h3>Layout character</h3><p>A full-bleed navy opening with a left-aligned statement and a large flat overlap of two circles. A ruled three-column strip states the positioning. Then a cream reading section. Fewer, larger moves, no cards in the hero.</p></div>
+<div><h3>Trade-offs</h3><ul><li><b>Pro:</b> most gravity, which suits experts and organisations and the subject. Strongest first impression of seriousness.</li><li><b>Pro:</b> the claims strip states vetting, sourcing and reuse in plain sight.</li><li><b>Con:</b> coolest in tone, so it may feel institutional to young creators. Blue dominates, so pink and blue are no longer equal partners.</li><li><b>Con:</b> dark-field sections need extra care for contrast and a new tint for pink.</li></ul></div>
+</div>
+
+<div class="cap">Desktop hero</div>
+<div class="frame C" id="C-hero">
+ <div class="nav"><span class="logo"><svg viewBox="0 0 28 18"><circle cx="9" cy="9" r="8" fill="#FF9CC6"/><circle cx="19" cy="9" r="8" fill="#A9BCFF" fill-opacity=".92"/></svg>Tell The World</span>
+  <div class="r"><a class="hide" href="#">Blog</a><a class="hide" href="#">Sign in</a><a class="btn line" href="#">Join the waitlist</a></div></div>
+ <div class="hero">
+  <div>
+   <span class="mono">Opening soon</span>
+   <h1>AI safety research rarely reaches the people who could <em>tell its story.</em></h1>
+   <p class="sub">Tell The World connects AI safety researchers and organisations with the creators and journalists who can put their work in front of real audiences.</p>
+   <div class="cta"><a class="btn cream" href="#">Join the waitlist</a><small><span class="sug">Approved members only. We review every request and reply by email.</span></small></div>
+  </div>
+  <div class="rings">
+   <svg viewBox="0 0 400 260" role="img" aria-label="Two overlapping circles: creators and journalists, and researchers and organisations">
+    <defs><clipPath id="cl"><circle cx="150" cy="130" r="120"/></clipPath></defs>
+    <circle cx="150" cy="130" r="120" fill="#FF9CC6"/>
+    <circle cx="250" cy="130" r="120" fill="#A9BCFF"/>
+    <circle cx="250" cy="130" r="120" fill="#F6F2EA" clip-path="url(#cl)"/>
+   </svg>
+   <div class="l"><span>Creators &amp; journalists</span><span>Researchers &amp; organisations</span></div>
+  </div>
+ </div>
+ <div class="claims">
+  <div><span class="n">01</span><h3><span class="sug">Approved, not open</span></h3><p><span class="sug">Members are reviewed before they can post or sign in.</span></p></div>
+  <div><span class="n">02</span><h3><span class="sug">Sourced</span></h3><p><span class="sug">Every claim traces to a named member or a cited source.</span></p></div>
+  <div><span class="n">03</span><h3><span class="sug">Built for reuse</span></h3><p><span class="sug">Briefs are written so creators can turn them into their own video, article or post.</span></p></div>
+ </div>
+</div>
+
+<div class="cap">Desktop section: Why this matters now</div>
+<div class="frame C paper" id="C-sec">
+ <div class="sec">
+  <div><span class="eyebrow">Why this matters now</span><h2>Attention shows up, <em>understanding doesn't always follow.</em></h2></div>
+  <p>AI incidents are all over the news and existential risk is reaching the mainstream. Now that people are finally paying attention, we need a way to keep the momentum going, while providing candid &amp; credible explanations from the people and organisations who actually study this. We need to do this at scale, now.</p>
+ </div>
+</div>
+<div class="cap">Mobile hero (390px)</div>
+<div class="mobwrap"><div class="frame C mob" data-src="#C-hero"></div></div>
+</section>
+
+</div>
+<script>
+document.querySelectorAll('[data-src]').forEach(function(m){
+  var s=document.querySelector(m.dataset.src);
+  m.innerHTML=s.innerHTML;
+});
+</script>
+</body>
+</html>
