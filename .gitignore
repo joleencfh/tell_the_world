@@ -41,6 +41,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.schema
 
 # vercel
 .vercel
@@ -54,3 +55,6 @@ next-env.d.ts
 
 # scratch QA captures from build sessions
 docs/design/**/built-screenshots/
+
+# varlock: generated from .env.schema
+env.d.ts
