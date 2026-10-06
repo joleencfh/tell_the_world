@@ -1,0 +1,414 @@
+<title>Design Decision Previews</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout concept: a quiet review sheet. Each decision is a section with its options stacked as framed specimens,
+   drawn in the app design system's own tokens (always light), and a radio choice under each. */
+:root {
+  --bg: #F3F2EE; --fg: #1F1E19; --muted: #5C5A52; --line: #D9D6CC; --card: #FFFFFF; --accent: #1D3AA6; --accent-fg: #FFFFFF; --pick: #E8ECF6;
+  --font-ui: "Inter", system-ui, sans-serif; --font-serif: "EB Garamond", Georgia, serif; --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #17171A; --fg: #ECEBE6; --muted: #A9A79E; --line: #34332F; --card: #1F1F22; --accent: #8FA6FF; --accent-fg: #101114; --pick: #232A44; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #17171A; --fg: #ECEBE6; --muted: #A9A79E; --line: #34332F; --card: #1F1F22; --accent: #8FA6FF; --accent-fg: #101114; --pick: #232A44; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-ui); font-size: 16px; line-height: 1.55; padding-inline: 20px; padding-block: 40px 140px; }
+.wrap { max-width: 960px; margin-inline: auto; display: grid; gap: 64px; }
+h1 { font-family: var(--font-serif); font-weight: 500; font-size: clamp(2rem, 1.4rem + 2.4vw, 2.75rem); line-height: 1.05; letter-spacing: -0.02em; margin: 0 0 12px; text-wrap: balance; }
+h2 { font-family: var(--font-serif); font-weight: 500; font-size: 2rem; line-height: 1.1; letter-spacing: -0.015em; margin: 0 0 8px; text-wrap: balance; }
+.intro p, .dec-head p { margin: 0 0 10px; max-width: 64ch; color: var(--muted); }
+.intro p.note { font-size: 14px; }
+.kicker { font-family: var(--font-mono); font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+.dec { display: grid; gap: 28px; padding-top: 28px; border-top: 1px solid var(--line); }
+.opt { display: grid; gap: 10px; }
+.opt-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.opt-head h3 { margin: 0; font-size: 16px; font-weight: 600; }
+.opt-head .tag { font-family: var(--font-mono); font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--accent); }
+.opt p.why { margin: 0; font-size: 14px; color: var(--muted); max-width: 70ch; }
+.frame { border: 1px solid var(--line); border-radius: 6px; overflow-x: auto; background: #F7F4EE; }
+.frame > .sp { min-width: 0; }
+.choose { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.choose legend { font-size: 14px; font-weight: 600; margin-right: 4px; padding: 0; }
+fieldset { border: 0; margin: 0; padding: 0; }
+.choose label { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 1px solid var(--line); border-radius: 4px; background: var(--card); cursor: pointer; font-size: 15px; }
+.choose input { accent-color: var(--accent); width: 18px; height: 18px; margin: 0; }
+.choose label:has(input:checked) { background: var(--pick); border-color: var(--accent); outline: 1px solid var(--accent); }
+.choose label:has(input:focus-visible) { outline: 2px solid var(--fg); outline-offset: 2px; }
+
+/* summary bar */
+.bar { position: fixed; inset-inline: 0; bottom: 0; background: var(--card); border-top: 1px solid var(--line); padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 10; }
+.bar-in { max-width: 960px; margin-inline: auto; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; }
+.bar code { font-family: var(--font-mono); font-size: 13px; overflow-wrap: anywhere; }
+.bar button { min-height: 44px; padding: 0 18px; border: 0; border-radius: 4px; background: var(--accent); color: var(--accent-fg); font: 500 15px var(--font-ui); cursor: pointer; }
+.bar button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+
+/* ===== Specimens: the app design system, fixed light ===== */
+.sp {
+  --parchment: #F7F4EE; --vellum: #FBFAF6; --bone: #F0EEE6; --umber: #26251E; --soft: #5E5D56; --deep: #4A4943; --rule: #DEDBD3; --window: #DAD6CA; --field: #7A786E;
+  --band-soft: #E5EAF6; --inverse: #26251E; --inv-soft: #C9C5B8; --rose: #B80F5A; --rose-deep: #9E0B4D; --cobalt: #1D3AA6; --card-cobalt: #E8ECF6;
+  --brick: #A32A1E; --brick-wash: #F8E5E1; --moss: #2D6A3E; --moss-wash: #E4F0E6; --ochre: #7A4F00; --ochre-wash: #F7EBCB;
+  background: var(--parchment); color: var(--umber); font-family: var(--font-ui);
+}
+.sp * { box-sizing: border-box; }
+.sp .label { font-family: var(--font-mono); font-size: 12px; line-height: 1.4; letter-spacing: .07em; text-transform: uppercase; color: var(--soft); }
+.sp a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 5px; }
+.sp .role { display: inline-block; font-family: var(--font-mono); font-size: 12px; line-height: 1.4; letter-spacing: .07em; text-transform: uppercase; border: 1px solid; border-radius: 2px; padding: 1px 6px; background: none; }
+.sp .role.rose { color: var(--rose-deep); border-color: color-mix(in srgb, var(--rose) 40%, transparent); }
+.sp .role.cobalt { color: var(--cobalt); border-color: color-mix(in srgb, var(--cobalt) 40%, transparent); }
+.sp .role.neutral { color: var(--soft); border-color: var(--field); }
+.sp svg.i { width: 14px; height: 14px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.sample { font-size: 12px; color: var(--soft); padding: 8px 20px; border-top: 1px solid var(--rule); font-family: var(--font-ui); }
+
+/* Decision 1: coverage band */
+.tail { padding: 28px 32px; display: grid; gap: 6px; }
+.tail .src { font-size: 14px; color: var(--soft); }
+.cov { padding: 44px 32px; }
+.cov h4 { margin: 0 0 6px; font-family: var(--font-serif); font-weight: 400; font-size: 28px; line-height: 1.15; letter-spacing: -.02em; }
+.cov .sub { margin: 0 0 24px; font-size: 14px; max-width: 60ch; }
+.cov-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+.cov-item { display: grid; gap: 6px; align-content: start; }
+.cov-item .outlet { font-family: var(--font-ui); font-size: 15px; font-weight: 600; }
+.cov-item .hl { font-family: var(--font-serif); font-size: 20px; line-height: 1.25; letter-spacing: -.01em; }
+.cov-item .when { font-size: 13px; }
+.cov-item a { font-size: 14px; }
+.cov.a { background: var(--band-soft); color: var(--umber); }
+.cov.a .sub, .cov.a .when { color: var(--deep); }
+.cov.a .cov-item { border-top: 1px solid color-mix(in srgb, var(--umber) 22%, transparent); padding-top: 14px; }
+.cov.b { background: var(--inverse); color: var(--parchment); }
+.cov.b .sub, .cov.b .when { color: var(--inv-soft); }
+.cov.b .cov-item { border-top: 1px solid color-mix(in srgb, var(--parchment) 28%, transparent); padding-top: 14px; }
+.cov.c { background: var(--parchment); border-top: 1px solid var(--rule); }
+.cov.c .sub, .cov.c .when { color: var(--soft); }
+.cov.c .cov-item { background: var(--vellum); box-shadow: 0 0 0 1px rgb(38 37 30 / .13); border-radius: 4px; padding: 20px; }
+.foot { padding: 20px 32px; font-size: 14px; display: flex; flex-wrap: wrap; gap: 8px 24px; color: var(--deep); }
+
+/* Decision 2: status chips */
+.list { margin: 24px; background: var(--vellum); border-radius: 4px; box-shadow: 0 0 0 1px rgb(38 37 30 / .13); }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 16px; align-items: center; padding: 14px 20px; min-height: 44px; border-top: 1px solid var(--rule); }
+.row:first-child { border-top: 0; }
+.who { display: grid; gap: 2px; min-width: 0; }
+.who b { font-size: 15px; font-weight: 600; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; }
+.who span.c { font-size: 13px; color: var(--soft); }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 12px; line-height: 1.4; letter-spacing: .07em; text-transform: uppercase; border: 1px solid var(--field); border-radius: 2px; padding: 1px 6px; color: var(--umber); white-space: nowrap; }
+.chips-tone .pending { color: var(--ochre); border-color: color-mix(in srgb, var(--ochre) 40%, transparent); }
+.chips-tone .approved { color: var(--moss); border-color: color-mix(in srgb, var(--moss) 40%, transparent); }
+.chips-tone .declined { color: var(--brick); border-color: color-mix(in srgb, var(--brick) 40%, transparent); }
+.chips-wash .chip { border-color: transparent; }
+.chips-wash .pending { color: var(--ochre); background: var(--ochre-wash); }
+.chips-wash .approved { color: var(--moss); background: var(--moss-wash); }
+.chips-wash .declined { color: var(--brick); background: var(--brick-wash); }
+
+/* Decision 3: reading text */
+.read { padding: 40px 32px; display: grid; gap: 18px; }
+.marker { display: flex; align-items: center; gap: 12px; max-width: 704px; }
+.marker b { font-family: var(--font-mono); font-size: 12px; letter-spacing: .07em; }
+.marker i { flex: 1; height: 1px; background: var(--rule); }
+.read h4 { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: 28px; line-height: 1.15; letter-spacing: -.02em; max-width: 704px; }
+.read .col { max-width: 704px; display: grid; gap: 22px; }
+.read p { margin: 0; }
+.read .tldr { background: var(--card-cobalt); border-radius: 4px; padding: 16px 20px; font-family: var(--font-serif); font-size: 23px; line-height: 1.42; }
+.read.serif .col p { font-family: var(--font-serif); font-size: 19px; line-height: 1.65; }
+.read.sans .col p { font-family: var(--font-ui); font-size: 16px; line-height: 1.65; }
+.read.big .col p { font-family: var(--font-serif); font-size: 21px; line-height: 1.55; }
+
+/* Decision 4: admin rows */
+.tbl { margin: 24px; min-width: 680px; background: var(--vellum); border-radius: 4px; box-shadow: 0 0 0 1px rgb(38 37 30 / .13); }
+.tr { display: grid; grid-template-columns: 1.3fr 130px 1.3fr 96px 120px; gap: 12px; align-items: center; padding-inline: 16px; border-top: 1px solid var(--rule); }
+.tr:first-child { border-top: 0; }
+.tr.h { border-top: 0; border-bottom: 1px solid var(--rule); }
+.tr > * { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tbl.d-a .tr { min-height: 44px; font-size: 14px; }
+.tbl.d-a .tr.h { min-height: 40px; }
+.tbl.d-a b { font-weight: 600; }
+.tbl.d-b .tr { min-height: 36px; font-size: 13px; }
+.tbl.d-b b { font-weight: 600; }
+.tbl.d-c { background: #fff; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .1em; box-shadow: 0 0 0 1px #E2E3E5; }
+.tbl.d-c .tr { min-height: 30px; font-size: 10px; color: #4A4E53; border-color: #E2E3E5; }
+.tbl.d-c b { font-weight: 600; color: #0C0D0E; }
+.tbl.d-c .tr.h { color: #727679; }
+.tbl.d-c .chip, .tbl.d-c .role { font-size: 9px; padding: 0 4px; border-radius: 9999px; letter-spacing: .1em; }
+.tbl.d-c .role { color: #1E4FEB; border-color: #1E4FEB; }
+.tbl.d-c .chip { color: #0C0D0E; border-color: #0C0D0E; }
+.tbl.d-b .tr.h { min-height: 32px; }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="clock" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.2 1.4"/></symbol>
+  <symbol id="check" viewBox="0 0 16 16"><path d="M3 8.5l3.2 3L13 4.5"/></symbol>
+  <symbol id="x" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></symbol>
+</svg>
+
+<main class="wrap">
+  <header class="intro">
+    <p class="kicker">Tell The World design system</p>
+    <h1>Four decisions, side by side</h1>
+    <p>Each option below is built with the real tokens, fonts and type sizes from the design system, so what you see is close to what the app would look like. Pick one option per decision. Your picks collect in the bar at the bottom, ready to paste back into Claude Code.</p>
+    <p class="note">The mockups always show the light design system, even if your browser is in dark mode. All names, outlets and dates are sample content for design comparison only.</p>
+  </header>
+
+  <!-- ============ DECISION 1 ============ -->
+  <section class="dec" aria-labelledby="d1">
+    <div class="dec-head">
+      <p class="kicker">Decision 1 · Brief page and dashboard</p>
+      <h2 id="d1">The "Covered by" block</h2>
+      <p>This block lists media outlets that used a brief. Today it is a black band. The design system says no dark bands, but this block may need the weight. Each frame shows the end of a brief page: the last source, the block, then the footer.</p>
+    </div>
+
+    <div class="opt">
+      <div class="opt-head"><h3>A. Soft blue band</h3><span class="tag">Recommended</span></div>
+      <div class="frame"><div class="sp">
+        <div class="tail"><span class="label">Sources</span><span class="src">4. Evaluation access for outside auditors. Sample Policy Institute, 2026.</span></div>
+        <section class="cov a" aria-label="Covered by, option A">
+          <h4>Covered by</h4><p class="sub">Outlets that have used this brief in their reporting.</p>
+          <div class="cov-grid">
+            <div class="cov-item"><span class="outlet">The Evening Ledger</span><span class="hl">What auditors can and cannot see inside a model</span><span class="when">12 Sep 2026</span><a href="#d1">Read the piece</a></div>
+            <div class="cov-item"><span class="outlet">Sample Weekly</span><span class="hl">Why outside testers want more access</span><span class="when">3 Sep 2026</span><a href="#d1">Read the piece</a></div>
+            <div class="cov-item"><span class="outlet">Fieldnotes Radio</span><span class="hl">A plain guide to evaluation access</span><span class="when">28 Aug 2026</span><a href="#d1">Listen to the episode</a></div>
+          </div>
+        </section>
+        <div class="foot"><a href="#d1">Privacy Policy</a><a href="#d1">Contact</a><a href="#d1">Blog</a></div>
+      </div></div>
+      <p class="why">Matches the landing page closing band. Keeps the page light end to end. Gives up the strong visual full stop the black band provides.</p>
+    </div>
+
+    <div class="opt">
+      <div class="opt-head"><h3>B. Dark band (keep it)</h3><span class="tag">One exception to "no dark bands"</span></div>
+      <div class="frame"><div class="sp">
+        <div class="tail"><span class="label">Sources</span><span class="src">4. Evaluation access for outside auditors. Sample Policy Institute, 2026.</span></div>
+        <section class="cov b" aria-label="Covered by, option B">
+          <h4>Covered by</h4><p class="sub">Outlets that have used this brief in their reporting.</p>
+          <div class="cov-grid">
+            <div class="cov-item"><span class="outlet">The Evening Ledger</span><span class="hl">What auditors can and cannot see inside a model</span><span class="when">12 Sep 2026</span><a href="#d1">Read the piece</a></div>
+            <div class="cov-item"><span class="outlet">Sample Weekly</span><span class="hl">Why outside testers want more access</span><span class="when">3 Sep 2026</span><a href="#d1">Read the piece</a></div>
+            <div class="cov-item"><span class="outlet">Fieldnotes Radio</span><span class="hl">A plain guide to evaluation access</span><span class="when">28 Aug 2026</span><a href="#d1">Listen to the episode</a></div>
+          </div>
+        </section>
+        <div class="foot"><a href="#d1">Privacy Policy</a><a href="#d1">Contact</a><a href="#d1">Blog</a></div>
+      </div></div>
+      <p class="why">Strongest proof moment on the page, and closest to today. Breaks the "reading surface" rule and is the only dark area in the whole app.</p>
+    </div>
+
+    <div class="opt">
+      <div class="opt-head"><h3>C. No band, open section with cards</h3><span class="tag">Quietest</span></div>
+      <div class="frame"><div class="sp">
+        <div class="tail"><span class="label">Sources</span><span class="src">4. Evaluation access for outside auditors. Sample Policy Institute, 2026.</span></div>
+        <section class="cov c" aria-label="Covered by, option C">
+          <h4>Covered by</h4><p class="sub">Outlets that have used this brief in their reporting.</p>
+          <div class="cov-grid">
+            <div class="cov-item"><span class="outlet">The Evening Ledger</span><span class="hl">What auditors can and cannot see inside a model</span><span class="when">12 Sep 2026</span><a href="#d1">Read the piece</a></div>
+            <div class="cov-item"><span class="outlet">Sample Weekly</span><span class="hl">Why outside testers want more access</span><span class="when">3 Sep 2026</span><a href="#d1">Read the piece</a></div>
+            <div class="cov-item"><span class="outlet">Fieldnotes Radio</span><span class="hl">A plain guide to evaluation access</span><span class="when">28 Aug 2026</span><a href="#d1">Listen to the episode</a></div>
+          </div>
+        </section>
+        <div class="foot"><a href="#d1">Privacy Policy</a><a href="#d1">Contact</a><a href="#d1">Blog</a></div>
+      </div></div>
+      <p class="why">No special treatment, just a section like the others. Least visual weight for the proof that matters most to new visitors.</p>
+    </div>
+
+    <fieldset class="choose"><legend>Your pick</legend>
+      <label><input type="radio" name="d1" value="A"> A</label>
+      <label><input type="radio" name="d1" value="B"> B</label>
+      <label><input type="radio" name="d1" value="C"> C</label>
+    </fieldset>
+  </section>
+
+  <!-- ============ DECISION 2 ============ -->
+  <section class="dec" aria-labelledby="d2">
+    <div class="dec-head">
+      <p class="kicker">Decision 2 · Admin and dashboard</p>
+      <h2 id="d2">Status chips on the admin screens</h2>
+      <p>Pending, approved and declined. Public screens use plain neutral chips either way. This decision is only about admin, where staff scan long lists. Every option keeps the icon and the word, so colour never carries the meaning alone.</p>
+    </div>
+
+    <div class="opt">
+      <div class="opt-head"><h3>A. Neutral everywhere</h3><span class="tag">Simplest</span></div>
+      <div class="frame"><div class="sp"><div class="list">
+        <div class="row"><div class="who"><b>Amara Okafor <span class="role rose">Creator</span></b><span class="c">Independent video producer</span></div><span class="chip"><svg class="i"><use href="#clock"/></svg>Pending</span></div>
+        <div class="row"><div class="who"><b>Dr. Lena Vogel <span class="role cobalt">Expert</span></b><span class="c">Sample Institute for Policy Research</span></div><span class="chip"><svg class="i"><use href="#check"/></svg>Approved</span></div>
+        <div class="row"><div class="who"><b>Tomas Reyes <span class="role neutral">Other</span></b><span class="c">No affiliation given</span></div><span class="chip"><svg class="i"><use href="#x"/></svg>Declined</span></div>
+        <div class="row"><div class="who"><b>Priya Nair <span class="role rose">Journalist</span></b><span class="c">Sample Weekly</span></div><span class="chip"><svg class="i"><use href="#clock"/></svg>Pending</span></div>
+      </div></div></div>
+      <p class="why">Calm and consistent with the rest of the app. The icon and the word do the work, so you read each chip instead of spotting it. Slower to scan a long queue.</p>
+    </div>
+
+    <div class="opt">
+      <div class="opt-head"><h3>B. Tone on admin (border and text)</h3><span class="tag">Recommended</span></div>
+      <div class="frame"><div class="sp chips-tone"><div class="list">
+        <div class="row"><div class="who"><b>Amara Okafor <span class="role rose">Creator</span></b><span class="c">Independent video producer</span></div><span class="chip pending"><svg class="i"><use href="#clock"/></svg>Pending</span></div>
+        <div class="row"><div class="who"><b>Dr. Lena Vogel <span class="role cobalt">Expert</span></b><span class="c">Sample Institute for Policy Research</span></div><span class="chip approved"><svg class="i"><use href="#check"/></svg>Approved</span></div>
+        <div class="row"><div class="who"><b>Tomas Reyes <span class="role neutral">Other</span></b><span class="c">No affiliation given</span></div><span class="chip declined"><svg class="i"><use href="#x"/></svg>Declined</span></div>
+        <div class="row"><div class="who"><b>Priya Nair <span class="role rose">Journalist</span></b><span class="c">Sample Weekly</span></div><span class="chip pending"><svg class="i"><use href="#clock"/></svg>Pending</span></div>
+      </div></div></div>
+      <p class="why">Muted ochre, moss and brick on a thin border. Faster to scan, still quiet. None of the three is rose or cobalt, so a status is never confused with an audience.</p>
+    </div>
+
+    <div class="opt">
+      <div class="opt-head"><h3>C. Tone with a tinted fill</h3><span class="tag">Strongest signal</span></div>
+      <div class="frame"><div class="sp chips-tone chips-wash"><div class="list">
+        <div class="row"><div class="who"><b>Amara Okafor <span class="role rose">Creator</span></b><span class="c">Independent video producer</span></div><span class="chip pending"><svg class="i"><use href="#clock"/></svg>Pending</span></div>
+        <div class="row"><div class="who"><b>Dr. Lena Vogel <span class="role cobalt">Expert</span></b><span class="c">Sample Institute for Policy Research</span></div><span class="chip approved"><svg class="i"><use href="#check"/></svg>Approved</span></div>
+        <div class="row"><div class="who"><b>Tomas Reyes <span class="role neutral">Other</span></b><span class="c">No affiliation given</span></div><span class="chip declined"><svg class="i"><use href="#x"/></svg>Declined</span></div>
+        <div class="row"><div class="who"><b>Priya Nair <span class="role rose">Journalist</span></b><span class="c">Sample Weekly</span></div><span class="chip pending"><svg class="i"><use href="#clock"/></svg>Pending</span></div>
+      </div></div></div>
+      <p class="why">Easiest to spot in a long list. Not in the current design system, which allows tone on border and text only, so choosing it means adding a small rule there.</p>
+    </div>
+
+    <fieldset class="choose"><legend>Your pick</legend>
+      <label><input type="radio" name="d2" value="A"> A</label>
+      <label><input type="radio" name="d2" value="B"> B</label>
+      <label><input type="radio" name="d2" value="C"> C</label>
+    </fieldset>
+  </section>
+
+  <!-- ============ DECISION 3 ============ -->
+  <section class="dec" aria-labelledby="d3">
+    <div class="dec-head">
+      <p class="kicker">Decision 3 · Brief page</p>
+      <h2 id="d3">The reading font for brief sections</h2>
+      <p>The same section, set three ways. Brief sections are in sans today. The Q&amp;A and quotes already use serif in the new design. Read each one as if you were reading a brief for real.</p>
+    </div>
+
+    <div class="opt">
+      <div class="opt-head"><h3>A. Serif, 19px</h3><span class="tag">Recommended</span></div>
+      <div class="frame"><div class="sp"><div class="read serif">
+        <div class="marker"><b>02</b><i></i><span class="label">What we know</span></div>
+        <h4>Auditors can test a model without seeing inside it</h4>
+        <div class="col">
+          <p class="tldr">In short: outside testers can learn a lot from careful questions alone, but some risks only show up with deeper access.</p>
+          <p>Most outside evaluations today work through the same chat window the public uses. Testers write many prompts, record the answers and look for patterns. This approach is cheap, and it needs no cooperation from the company that built the system.</p>
+          <p>Its limit is that a model can behave well in a test and differently in the field. Researchers call this a gap between what was measured and what was meant, and closing it usually requires access to training data, internal notes or the model's own working.</p>
+        </div>
+      </div></div></div>
+      <p class="why">Warm and book-like, matches the Q&amp;A and quotes, best for sustained reading. EB Garamond runs small for its size, so 19px is the floor.</p>
+    </div>
+
+    <div class="opt">
+      <div class="opt-head"><h3>B. Sans (Inter), 16px</h3><span class="tag">Closest to today</span></div>
+      <div class="frame"><div class="sp"><div class="read sans">
+        <div class="marker"><b>02</b><i></i><span class="label">What we know</span></div>
+        <h4>Auditors can test a model without seeing inside it</h4>
+        <div class="col">
+          <p class="tldr">In short: outside testers can learn a lot from careful questions alone, but some risks only show up with deeper access.</p>
+          <p>Most outside evaluations today work through the same chat window the public uses. Testers write many prompts, record the answers and look for patterns. This approach is cheap, and it needs no cooperation from the company that built the system.</p>
+          <p>Its limit is that a model can behave well in a test and differently in the field. Researchers call this a gap between what was measured and what was meant, and closing it usually requires access to training data, internal notes or the model's own working.</p>
+        </div>
+      </div></div></div>
+      <p class="why">Clean and efficient, and it keeps more text on screen. Reads more like a product than an essay, and breaks the serif-for-reading rule used everywhere else.</p>
+    </div>
+
+    <div class="opt">
+      <div class="opt-head"><h3>C. Serif, 21px</h3><span class="tag">Most generous</span></div>
+      <div class="frame"><div class="sp"><div class="read big">
+        <div class="marker"><b>02</b><i></i><span class="label">What we know</span></div>
+        <h4>Auditors can test a model without seeing inside it</h4>
+        <div class="col">
+          <p class="tldr">In short: outside testers can learn a lot from careful questions alone, but some risks only show up with deeper access.</p>
+          <p>Most outside evaluations today work through the same chat window the public uses. Testers write many prompts, record the answers and look for patterns. This approach is cheap, and it needs no cooperation from the company that built the system.</p>
+          <p>Its limit is that a model can behave well in a test and differently in the field. Researchers call this a gap between what was measured and what was meant, and closing it usually requires access to training data, internal notes or the model's own working.</p>
+        </div>
+      </div></div></div>
+      <p class="why">Easiest on the eyes for long briefs, good for older readers and big screens. Makes already long briefs about 10% longer. Not a defined step in the system today (21px exists only as the section intro).</p>
+    </div>
+
+    <fieldset class="choose"><legend>Your pick</legend>
+      <label><input type="radio" name="d3" value="A"> A</label>
+      <label><input type="radio" name="d3" value="B"> B</label>
+      <label><input type="radio" name="d3" value="C"> C</label>
+    </fieldset>
+  </section>
+
+  <!-- ============ DECISION 4 ============ -->
+  <section class="dec" aria-labelledby="d4">
+    <div class="dec-head">
+      <p class="kicker">Decision 4 · Admin</p>
+      <h2 id="d4">How dense the admin lists are</h2>
+      <p>The same six applications in three densities. Count how many fit on a screen and how comfortable they feel to read. On a phone these tables scroll sideways inside their frame.</p>
+    </div>
+
+    <div class="opt">
+      <div class="opt-head"><h3>A. Comfortable: Inter 14px, 44px rows</h3><span class="tag">Recommended</span></div>
+      <div class="frame"><div class="sp"><div class="tbl d-a">
+        <div class="tr h label"><span>Name</span><span>Role</span><span>Affiliation</span><span>Received</span><span>Status</span></div>
+        <div class="tr"><b>Amara Okafor</b><span><span class="role rose">Creator</span></span><span>Independent producer</span><span>4 Oct</span><span><span class="chip"><svg class="i"><use href="#clock"/></svg>Pending</span></span></div>
+        <div class="tr"><b>Dr. Lena Vogel</b><span><span class="role cobalt">Expert</span></span><span>Sample Policy Institute</span><span>3 Oct</span><span><span class="chip"><svg class="i"><use href="#check"/></svg>Approved</span></span></div>
+        <div class="tr"><b>Tomas Reyes</b><span><span class="role neutral">Other</span></span><span>None given</span><span>3 Oct</span><span><span class="chip"><svg class="i"><use href="#x"/></svg>Declined</span></span></div>
+        <div class="tr"><b>Priya Nair</b><span><span class="role rose">Journalist</span></span><span>Sample Weekly</span><span>2 Oct</span><span><span class="chip"><svg class="i"><use href="#clock"/></svg>Pending</span></span></div>
+        <div class="tr"><b>Jonas Weber</b><span><span class="role cobalt">Organisation</span></span><span>Sample Safety Lab</span><span>1 Oct</span><span><span class="chip"><svg class="i"><use href="#check"/></svg>Approved</span></span></div>
+        <div class="tr"><b>Mei Tanaka</b><span><span class="role rose">Creator</span></span><span>Sample Studio</span><span>30 Sep</span><span><span class="chip"><svg class="i"><use href="#clock"/></svg>Pending</span></span></div>
+      </div></div></div>
+      <p class="why">Meets the 44px touch target. Easy to read and to tap, on a phone as well as a desktop. About 12 rows per screen.</p>
+    </div>
+
+    <div class="opt">
+      <div class="opt-head"><h3>B. Compact: Inter 13px, 36px rows</h3><span class="tag">Desktop-first</span></div>
+      <div class="frame"><div class="sp"><div class="tbl d-b">
+        <div class="tr h label"><span>Name</span><span>Role</span><span>Affiliation</span><span>Received</span><span>Status</span></div>
+        <div class="tr"><b>Amara Okafor</b><span><span class="role rose">Creator</span></span><span>Independent producer</span><span>4 Oct</span><span><span class="chip"><svg class="i"><use href="#clock"/></svg>Pending</span></span></div>
+        <div class="tr"><b>Dr. Lena Vogel</b><span><span class="role cobalt">Expert</span></span><span>Sample Policy Institute</span><span>3 Oct</span><span><span class="chip"><svg class="i"><use href="#check"/></svg>Approved</span></span></div>
+        <div class="tr"><b>Tomas Reyes</b><span><span class="role neutral">Other</span></span><span>None given</span><span>3 Oct</span><span><span class="chip"><svg class="i"><use href="#x"/></svg>Declined</span></span></div>
+        <div class="tr"><b>Priya Nair</b><span><span class="role rose">Journalist</span></span><span>Sample Weekly</span><span>2 Oct</span><span><span class="chip"><svg class="i"><use href="#clock"/></svg>Pending</span></span></div>
+        <div class="tr"><b>Jonas Weber</b><span><span class="role cobalt">Organisation</span></span><span>Sample Safety Lab</span><span>1 Oct</span><span><span class="chip"><svg class="i"><use href="#check"/></svg>Approved</span></span></div>
+        <div class="tr"><b>Mei Tanaka</b><span><span class="role rose">Creator</span></span><span>Sample Studio</span><span>30 Sep</span><span><span class="chip"><svg class="i"><use href="#clock"/></svg>Pending</span></span></div>
+      </div></div></div>
+      <p class="why">Fits about 40% more rows on a screen. Below the 44px touch target, so it would apply to desktop widths only, with option A on phones. This needs a small exception added to the design system.</p>
+    </div>
+
+    <div class="opt">
+      <div class="opt-head"><h3>For reference: today's admin</h3><span class="tag">Old style, not an option</span></div>
+      <div class="frame"><div class="sp"><div class="tbl d-c">
+        <div class="tr h"><span>Name</span><span>Role</span><span>Affiliation</span><span>Received</span><span>Status</span></div>
+        <div class="tr"><b>Amara Okafor</b><span><span class="role">Creator</span></span><span>Independent producer</span><span>4 Oct</span><span><span class="chip">Pending</span></span></div>
+        <div class="tr"><b>Dr. Lena Vogel</b><span><span class="role">Expert</span></span><span>Sample Policy Institute</span><span>3 Oct</span><span><span class="chip">Approved</span></span></div>
+        <div class="tr"><b>Tomas Reyes</b><span><span class="role">Other</span></span><span>None given</span><span>3 Oct</span><span><span class="chip">Declined</span></span></div>
+        <div class="tr"><b>Priya Nair</b><span><span class="role">Journalist</span></span><span>Sample Weekly</span><span>2 Oct</span><span><span class="chip">Pending</span></span></div>
+        <div class="tr"><b>Jonas Weber</b><span><span class="role">Organisation</span></span><span>Sample Safety Lab</span><span>1 Oct</span><span><span class="chip">Approved</span></span></div>
+        <div class="tr"><b>Mei Tanaka</b><span><span class="role">Creator</span></span><span>Sample Studio</span><span>30 Sep</span><span><span class="chip">Pending</span></span></div>
+      </div></div></div>
+      <p class="why">A rough recreation of the current look: 10px mono capitals, 30px rows. Shown only so you can judge how much room the new options give up.</p>
+    </div>
+
+    <fieldset class="choose"><legend>Your pick</legend>
+      <label><input type="radio" name="d4" value="A"> A</label>
+      <label><input type="radio" name="d4" value="B"> B</label>
+    </fieldset>
+  </section>
+</main>
+
+<div class="bar" role="region" aria-label="Your choices">
+  <div class="bar-in">
+    <div><span class="kicker" style="margin:0">Your picks</span><br><code id="out">Nothing chosen yet</code></div>
+    <button type="button" id="copy">Copy picks</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var out = document.getElementById('out');
+  var btn = document.getElementById('copy');
+  var names = { d1: 'Decision 1 (Covered by)', d2: 'Decision 2 (status chips)', d3: 'Decision 3 (reading font)', d4: 'Decision 4 (admin density)' };
+  function text() {
+    var parts = [];
+    Object.keys(names).forEach(function (k) {
+      var el = document.querySelector('input[name="' + k + '"]:checked');
+      if (el) parts.push(names[k] + ': option ' + el.value);
+    });
+    return parts.join('; ');
+  }
+  function render() { out.textContent = text() || 'Nothing chosen yet'; }
+  document.addEventListener('change', render);
+  btn.addEventListener('click', function () {
+    var t = text();
+    if (!t) return;
+    function done() { btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = 'Copy picks'; }, 1600); }
+    function fallback() {
+      var r = document.createRange(); r.selectNodeContents(out);
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      btn.textContent = 'Press Ctrl+C';
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(t).then(done, fallback); } else { fallback(); }
+  });
+})();
+</script>

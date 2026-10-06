@@ -29,8 +29,7 @@ go; don't duplicate that tracking here.
 
 Scoped 2026-08-17 across several sessions: the user read the live Brief
 page section by section, comparing it against the Two-Ink Bold reference
-artifact ("The AI Race — Brief",
-`https://claude.ai/code/artifact/459ed0f0-4f72-48bd-9a7e-f932ca1d8272`),
+artifact ("The AI Race — Brief", a private claude.ai artifact),
 and reported issues/missing functionality/new feature requests per
 section. Every item below was independently verified against the actual
 code (and, where relevant, the artifact's real HTML/CSS) before being
@@ -979,7 +978,7 @@ inline mockup or small artifact), get sign-off, then build.
 Read docs/design/brief-feature/brief-page-part2-plan.md in full before
 doing anything else — §0 for context, §1 for engineering conventions.
 Also open the reference artifact
-(https://claude.ai/code/artifact/459ed0f0-4f72-48bd-9a7e-f932ca1d8272)
+("The AI Race — Brief"; ask the user for the current link)
 and look specifically at its .jumpbar (mobile) and .rail (desktop)
 implementation as a starting point to deliberately move away from, not
 copy.
@@ -1053,8 +1052,7 @@ this plan has shipped.
    app/globals.css before testing it — it may still be intentionally
    disabled.
 3. Query the "Briefs Part 2" Notion epic's Stories
-   (collection://39546e44-4969-8093-8e61-000b8cd813ae, filtered to
-   Epics containing 3bf46e44-4969-8126-9da9-c23c08905170) and confirm
+   (the Stories database in Notion, filtered to this Epic) and confirm
    every one is Done. Flag any that aren't, rather than silently closing
    this part out with open Stories remaining.
 4. Get the user's final sign-off across the whole page as one coherent

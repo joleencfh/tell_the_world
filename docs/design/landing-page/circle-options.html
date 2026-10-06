@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tell The World, circle options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,sans-serif;background:#E9E8E3;color:#26251E;line-height:1.5;padding:0 16px 80px}
+.wrap{max-width:1240px;margin:0 auto}
+.doc h1{font-size:28px;margin:40px 0 8px;font-weight:500;letter-spacing:-.02em}
+.doc p,.doc li{font-size:15px;color:#3b3a33}
+.doc ul{margin:8px 0 0 20px}
+.box{background:#F7F7F4;border:1px solid #CDCDC9;border-radius:4px;padding:18px 22px;margin-top:16px}
+.box h3{font-size:12px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;font-weight:500;color:#4a4943}
+.box p,.box li{font-size:14.5px;color:#3b3a33}.box ul{margin-left:18px}
+.opt{margin-top:64px}
+.opt>h2{font-size:24px;font-weight:500;letter-spacing:-.02em}
+.opt>.feel{font-size:16px;color:#3b3a33;margin:4px 0 12px}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:8px}
+.cap{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#4a4943;margin:22px 0 6px}
+.sugkey{border-bottom:2px dotted #8a6d00;background:#fff6cc;padding:0 2px}
+.sug{border-bottom:2px dotted #8a6d00}
+.frame{container-type:inline-size;border:1px solid #bdbbb2;border-radius:4px;overflow:hidden}
+.frame.mob{width:390px;max-width:100%}
+
+/* ===== page tokens, same as the v3 mix at colour 25 ===== */
+.G{--page:#F7F4EE;--ink:#26251E;--soft:#5E5D56;--pink:#B80F5A;--blue:#1D3AA6;--c-pink:#F0197E;--c-blue:#2150E8;--c-ov:#6B21A8;--meet:1;
+ --card-p:color-mix(in srgb,#FBDDE8 25%,#F0EEE6);--card-b:color-mix(in srgb,#DCE5FB 25%,#F0EEE6);--rule:rgba(38,37,30,.14);
+ background:var(--page);color:var(--ink);font-family:Inter,sans-serif}
+.G .mono{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.07em;text-transform:uppercase}
+.G .in{max-width:1080px;margin:0 auto;padding-inline:40px}
+.G .btn{display:inline-block;border-radius:4px;font-size:15px;padding:12px 20px;text-decoration:none;background:var(--ink);color:var(--page);border:0;font-family:Inter,sans-serif;cursor:pointer}
+.G .logo{display:inline-flex;align-items:center;gap:8px;font-weight:500;font-size:15px;letter-spacing:-.01em}
+.G .logo svg{width:32px;height:18px;overflow:visible}
+.G .nav{display:flex;align-items:center;justify-content:space-between;padding:16px 40px;background:var(--page)}
+.G .nav .r{display:flex;align-items:center;gap:22px;font-size:14px}
+.G .nav a{color:var(--soft);text-decoration:none}.G .nav a.btn{color:var(--page);padding:8px 14px;font-size:14px}
+.G .hero{padding-top:56px}
+.G .hero.two{display:grid;grid-template-columns:1fr 230px;gap:56px;align-items:start}
+.G h1{font-family:'EB Garamond',Georgia,serif;font-weight:400;font-size:clamp(38px,5.8cqw,76px);line-height:1;letter-spacing:-.03em;margin:20px 0 24px;max-width:13em}
+.G h1 em{color:var(--pink);white-space:nowrap}
+.G .sub{font-family:'EB Garamond',serif;font-size:23px;line-height:1.42;color:var(--soft);max-width:28em}
+.G .pk{color:var(--pink)}.G .bl{color:var(--blue)}
+.G .cp{fill:var(--c-pink)}.G .cb{fill:var(--c-blue)}.G .co{fill:var(--c-ov)}
+.G .circ{padding-top:44px}.G .circ svg{width:100%;height:auto;display:block;overflow:visible}
+.G .legend{list-style:none;margin-top:14px;display:grid;gap:6px}
+.G .legend li{display:flex;align-items:center;gap:8px}.G .legend i{width:10px;height:10px;border-radius:50%;flex:none}
+.G .legend li:first-child{color:var(--pink)}.G .legend li:first-child i{background:var(--c-pink)}
+.G .legend li:last-child{color:var(--blue)}.G .legend li:last-child i{background:var(--c-blue)}
+.G .ledger{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:48px}
+.G .lc{border-radius:4px;box-shadow:0 0 0 1px rgba(38,37,30,.13)}
+.G .lc.p{background:var(--card-p)}.G .lc.b{background:var(--card-b)}
+.G .lh{display:flex;align-items:center;gap:10px;padding:13px 22px;border-bottom:1px solid rgba(38,37,30,.14)}
+.G .lc.p .lh{color:#9E0B4D}.G .lc.b .lh{color:var(--blue)}
+.G .lh i{width:10px;height:10px;border-radius:50%;background:currentColor}
+.G .row{padding:20px 22px 6px}.G .row .mono{display:block;margin-bottom:6px;color:var(--soft)}
+.G .row p{font-family:'EB Garamond',serif;font-size:25px;line-height:1.3;max-width:17em}
+.G .lf{padding:18px 22px 22px}
+.G .lc.p .btn{background:var(--pink);color:#fff}.G .lc.b .btn{background:var(--blue);color:#fff}
+.G .trust{font-size:14px;color:var(--soft);padding:20px 0 56px;max-width:46em}
+.G .s{padding-block:72px;border-top:1px solid var(--rule)}
+.G h2.sec{font-family:'EB Garamond',serif;font-weight:400;font-size:clamp(30px,4.2cqw,52px);line-height:1.05;letter-spacing:-.025em;margin-top:14px}
+.G h2.sec em{color:var(--pink)}
+.G .g2{display:grid;grid-template-columns:1.15fr .85fr;gap:64px}
+.G .body{font-family:'EB Garamond',serif;font-size:21px;line-height:1.55;color:#3f3e37;padding-top:36px}
+.G .close{background:color-mix(in srgb,#C9D6F7 25%,var(--page));border-top:1px solid var(--rule);position:relative;overflow:hidden}
+.G .close .b2{position:relative;z-index:1;padding-block:72px}
+.G .close p.big{font-family:'EB Garamond',serif;font-size:clamp(26px,3.4cqw,40px);line-height:1.15;letter-spacing:-.02em;max-width:16em}
+.G .close .a{margin-top:24px}
+.G .close .cc{position:absolute;right:-60px;bottom:-80px;width:340px}.G .close .cc svg{width:100%;height:auto;display:block}
+
+/* ---- option 1: seam ---- */
+.G .seam.h{position:absolute;left:50%;top:-52px;transform:translateX(-50%);width:118px;z-index:2;pointer-events:none}
+.G .seam svg{width:100%;height:auto;display:block}
+.G .seam.v{display:none}
+/* ---- option 2: scroller ---- */
+.scroller{height:640px;overflow-y:auto;position:relative;--meet:0}
+.scroller .nav{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--rule)}
+.G .mvl{transform:translateX(calc(-44px*(1 - var(--meet))))}
+.G .mvr{transform:translateX(calc(44px*(1 - var(--meet))));mix-blend-mode:multiply}
+.G .lgl{transform:translateX(calc(-6px*(1 - var(--meet))))}.G .lgr{transform:translateX(calc(6px*(1 - var(--meet))));mix-blend-mode:multiply}
+.G .iso{isolation:isolate}
+/* ---- option 3: picker ---- */
+.G .pick{margin-top:36px;max-width:640px}
+.G .pickrow{position:relative;width:260px;height:132px}
+.G .pickrow svg{position:absolute;inset:0;width:100%;height:100%}
+.G .pickrow .ring{fill:none;stroke:var(--ink);stroke-width:3;opacity:0}
+.G[data-sel=p] .ring.rp,.G[data-sel=b] .ring.rb{opacity:1}
+.G .pickrow button{position:absolute;top:0;height:132px;background:transparent;border:0;color:#fff;font:500 14px/1.25 Inter,sans-serif;cursor:pointer;text-align:center;border-radius:66px}
+.G .pickrow button.bp{left:0;width:122px;padding:0 26px 0 16px}
+.G .pickrow button.bb{left:122px;width:138px;padding:0 14px 0 30px}
+.G .pickrow button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.G .pickcard{margin-top:20px;border-radius:4px;background:#F0EEE6;box-shadow:0 0 0 1px rgba(38,37,30,.13);padding:20px 22px;min-height:132px}
+.G[data-sel=p] .pickcard{background:var(--card-p)}.G[data-sel=b] .pickcard{background:var(--card-b)}
+.G .pickcard p{font-family:'EB Garamond',serif;font-size:25px;line-height:1.3;margin:6px 0 16px;max-width:17em}
+.G .pickcard .lab{color:var(--soft)}
+.G[data-sel=p] .pickcard .lab{color:#9E0B4D}.G[data-sel=b] .pickcard .lab{color:var(--blue)}
+.G[data-sel=p] .pickcard .btn{background:var(--pink);color:#fff}.G[data-sel=b] .pickcard .btn{background:var(--blue);color:#fff}
+
+@container (max-width:760px){
+ .G .in{padding-inline:20px}.G .nav{padding:14px 20px}.G .nav .hide{display:none}
+ .G .hero{padding-top:36px}.G .hero.two{grid-template-columns:1fr;gap:24px}.G .sub{font-size:21px}
+ .G .circ{padding-top:0;display:flex;align-items:center;gap:16px}.G .circ svg{width:150px;flex:none}.G .legend{margin-top:0}
+ .G .ledger{grid-template-columns:1fr;margin-top:36px;gap:0}.G .row p{font-size:23px}
+ .G .seam.h{display:none}
+ .G .seam.v{display:flex;justify-content:center;align-items:center;height:56px}
+ .G .seam.v svg{width:84px;height:auto}
+ .G .g2{grid-template-columns:1fr;gap:0}.G .body{padding-top:20px;font-size:20px}.G .s{padding-block:48px}
+ .G .close .cc{width:230px;right:-50px;bottom:-60px}.G .close .b2{padding-block:48px 110px}
+ .scroller{height:560px}
+ .G .pickrow{width:100%;max-width:300px;margin-inline:auto}.G .pickrow svg{position:absolute}
+ .G .pickcard p{font-size:23px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="doc">
+<h1>Circles: current treatment and three alternatives</h1>
+<div class="box"><h3>Fixed</h3><ul>
+<li>Same page, tokens and 25% colour dial as <code>direction-mix-3.html</code>. Only what the circles do changes.</li>
+<li>Pink = creators &amp; journalists, blue = researchers &amp; organisations. The overlap is where the two meet.</li>
+<li>The circles stay compact in every option. Copy is real; <span class="sugkey">dotted underline</span> marks suggested wording.</li>
+</ul></div>
+</div>
+
+<!-- baseline -->
+<section class="opt">
+<h2>0. Current: a compact pair beside the headline</h2>
+<p class="feel">For reference. A static pair with a legend, plus a small cropped pair at the close.</p>
+<div class="frame G" id="o0">
+ <div class="nav"><span class="logo"><svg viewBox="0 0 32 18"><circle cx="10" cy="9" r="8" fill="#F0197E"/><circle cx="22" cy="9" r="8" fill="#2150E8" fill-opacity=".92"/></svg>Tell The World</span><div class="r"><a class="hide" href="#">Blog</a><a class="hide" href="#">Sign in</a><a class="btn" href="#">Join the waitlist</a></div></div>
+ <div class="in hero two">
+  <div><span class="mono" style="color:var(--soft)">Opening soon</span><h1>AI safety research rarely reaches the people who could <em>tell its story.</em></h1>
+   <p class="sub">Tell The World connects AI safety researchers and organisations with the creators and journalists who can put their work in front of real audiences.</p></div>
+  <div class="circ"><svg viewBox="0 0 280 160"><defs><clipPath id="c0"><circle cx="82" cy="80" r="76"/></clipPath></defs><circle class="cp" cx="82" cy="80" r="76"/><circle class="cb" cx="198" cy="80" r="76"/><circle class="co" cx="198" cy="80" r="76" clip-path="url(#c0)"/></svg>
+   <ul class="legend mono"><li><i></i>Creators &amp; journalists</li><li><i></i>Researchers &amp; organisations</li></ul></div>
+ </div>
+ <div class="in"><div class="ledger">
+  <div class="lc p"><div class="lh mono"><i></i>Creators &amp; journalists</div><div class="row"><p>Know how to turn complicated research into stories people can relate to.</p></div><div class="lf"><a class="btn" href="#">Join the waitlist</a></div></div>
+  <div class="lc b"><div class="lh mono"><i></i>Researchers &amp; organisations</div><div class="row"><p>Have important messages on how to make AI go well.</p></div><div class="lf"><a class="btn" href="#">Join the waitlist</a></div></div>
+ </div><div style="height:56px"></div></div>
+</div>
+</section>
+
+<!-- option 1 -->
+<section class="opt">
+<h2>1. The seam: circles join the two cards</h2>
+<p class="feel">The pair sits on the gap between the audience cards, half on each, so the overlap is literally where the two sides meet.</p>
+<div class="meta">
+ <div class="box"><h3>How it works</h3><p>The headline now runs the full width and the right column disappears. A pair about 120px wide straddles the top edge of the two cards: pink over the creators card, blue over the experts card, overlap in the gap. On a phone the cards stack and the pair sits in the space between them as a connector.</p></div>
+ <div class="box"><h3>Trade-offs</h3><ul><li><b>Pro:</b> smallest footprint of any option, no legend needed, the meaning is built into the layout. Static, so no motion to manage.</li><li><b>Pro:</b> the headline gets more room.</li><li><b>Con:</b> the pair is small and sits low, so it is a detail, not the first thing you see.</li><li><b>Con:</b> it needs the two cards to stay side by side to make sense.</li></ul></div>
+</div>
+<div class="cap">Desktop</div>
+<div class="frame G" id="o1">
+ <div class="nav"><span class="logo"><svg viewBox="0 0 32 18"><circle cx="10" cy="9" r="8" fill="#F0197E"/><circle cx="22" cy="9" r="8" fill="#2150E8" fill-opacity=".92"/></svg>Tell The World</span><div class="r"><a class="hide" href="#">Blog</a><a class="hide" href="#">Sign in</a><a class="btn" href="#">Join the waitlist</a></div></div>
+ <div class="in hero">
+  <span class="mono" style="color:var(--soft)">Opening soon</span><h1>AI safety research rarely reaches the people who could <em>tell its story.</em></h1>
+  <p class="sub">Tell The World connects AI safety researchers and organisations with the creators and journalists who can put their work in front of real audiences.</p>
+ </div>
+ <div class="in"><div class="ledger" style="margin-top:64px">
+  <div class="seam h"><svg viewBox="0 0 118 64"><defs><clipPath id="s1"><circle cx="34" cy="32" r="30"/></clipPath></defs><circle class="cp" cx="34" cy="32" r="30"/><circle class="cb" cx="84" cy="32" r="30"/><circle class="co" cx="84" cy="32" r="30" clip-path="url(#s1)"/></svg></div>
+  <div class="lc p"><div class="lh mono"><i></i>Creators &amp; journalists</div><div class="row"><p>Know how to turn complicated research into stories people can relate to.</p></div><div class="lf"><a class="btn" href="#">Join the waitlist</a></div></div>
+  <div class="seam v"><svg viewBox="0 0 118 64"><defs><clipPath id="s1v"><circle cx="34" cy="32" r="30"/></clipPath></defs><circle class="cp" cx="34" cy="32" r="30"/><circle class="cb" cx="84" cy="32" r="30"/><circle class="co" cx="84" cy="32" r="30" clip-path="url(#s1v)"/></svg></div>
+  <div class="lc b"><div class="lh mono"><i></i>Researchers &amp; organisations</div><div class="row"><p>Have important messages on how to make AI go well.</p></div><div class="lf"><a class="btn" href="#">Join the waitlist</a></div></div>
+ </div><p class="trust"><span class="sug">Members are approved before they can post or sign in. We review every request and reply by email.</span></p></div>
+</div>
+<div class="cap">Mobile (390px)</div>
+<div class="frame G mob" data-src="#o1"></div>
+</section>
+
+<!-- option 2 -->
+<section class="opt">
+<h2>2. Apart, then together: the circles tell the story</h2>
+<p class="feel">The headline says research rarely reaches the people who could tell its story. The circles act that out: apart at the top, overlapping as you scroll, overlapping at the close.</p>
+<div class="meta">
+ <div class="box"><h3>How it works</h3><p>In the hero the pair starts separated. Over the first screen of scrolling the circles drift together and the overlap appears (using multiply, so the lens is a real mix of pink and blue). The small mark next to the logo does the same, and stays in the sticky header as a quiet progress cue. The closing section shows the finished, overlapped pair. For anyone with reduced motion set, it simply shows the overlapped pair from the start.</p><p style="margin-top:8px"><b>Try it:</b> scroll inside the frame below.</p></div>
+ <div class="box"><h3>Trade-offs</h3><ul><li><b>Pro:</b> turns the identity into the page's argument, which makes the circles earn their space. Costs almost no layout.</li><li><b>Pro:</b> it is the existing scroll-linked idea, just calmer. Uses transforms only.</li><li><b>Con:</b> motion, so it needs the reduced-motion fallback and some care on slow phones.</li><li><b>Con:</b> the apart state is wider than the overlapped one, so the hero column is slightly larger.</li></ul></div>
+</div>
+<div class="cap">Desktop, live scroll (scroll inside this frame)</div>
+<div class="frame G scroller" id="sc2">
+ <div class="nav"><span class="logo"><svg viewBox="0 0 32 18" class="iso"><circle class="lgl" cx="10" cy="9" r="8" fill="#F0197E"/><circle class="lgr" cx="22" cy="9" r="8" fill="#2150E8"/></svg>Tell The World</span><div class="r"><a class="hide" href="#">Blog</a><a class="hide" href="#">Sign in</a><a class="btn" href="#">Join the waitlist</a></div></div>
+ <div class="in hero two">
+  <div><span class="mono" style="color:var(--soft)">Opening soon</span><h1>AI safety research rarely reaches the people who could <em>tell its story.</em></h1>
+   <p class="sub">Tell The World connects AI safety researchers and organisations with the creators and journalists who can put their work in front of real audiences.</p></div>
+  <div class="circ"><svg viewBox="-60 0 400 160" class="iso" role="img" aria-label="Two circles that move together as you scroll"><circle class="cp mvl" cx="82" cy="80" r="76"/><circle class="cb mvr" cx="198" cy="80" r="76"/></svg>
+   <ul class="legend mono"><li><i></i>Creators &amp; journalists</li><li><i></i>Researchers &amp; organisations</li></ul></div>
+ </div>
+ <div class="in"><div class="ledger">
+  <div class="lc p"><div class="lh mono"><i></i>Creators &amp; journalists</div><div class="row"><p>Know how to turn complicated research into stories people can relate to.</p></div><div class="lf"><a class="btn" href="#">Join the waitlist</a></div></div>
+  <div class="lc b"><div class="lh mono"><i></i>Researchers &amp; organisations</div><div class="row"><p>Have important messages on how to make AI go well.</p></div><div class="lf"><a class="btn" href="#">Join the waitlist</a></div></div>
+ </div><p class="trust"><span class="sug">Members are approved before they can post or sign in. We review every request and reply by email.</span></p></div>
+ <div class="s"><div class="in g2"><div><span class="mono pk">Why this matters now</span><h2 class="sec">Attention shows up, <em>understanding doesn't always follow.</em></h2></div>
+  <p class="body">AI incidents are all over the news and existential risk is reaching the mainstream. Now that people are finally paying attention, we need a way to keep the momentum going, while providing candid &amp; credible explanations from the people and organisations who actually study this. We need to do this at scale, now.</p></div></div>
+ <div class="close"><div class="cc"><svg viewBox="0 0 280 160" class="iso"><circle class="cp" cx="82" cy="80" r="76"/><circle class="cb" cx="198" cy="80" r="76" style="mix-blend-mode:multiply"/></svg></div>
+  <div class="in b2"><p class="big">Want in sooner? Become an early tester and try Tell The World while it's still rough, so you can help us fix it.</p><div class="a"><a class="btn" href="#">Join the waitlist</a></div></div></div>
+</div>
+</section>
+
+<!-- option 3 -->
+<section class="opt">
+<h2>3. The picker: the circles are the role choice</h2>
+<p class="feel">Instead of two cards, the circles are two large buttons. Pick yours and one card appears with your sentence and the waitlist button already set to your role.</p>
+<div class="meta">
+ <div class="box"><h3>How it works</h3><p>Two labelled discs overlap slightly, so the lens is still visible. Choosing one rings it and fills a single card beneath. That choice becomes the role pre-selected in the waitlist modal, which already exists. Nothing is chosen until the visitor chooses. <span class="sug">The prompt text in the empty card is suggested copy.</span> <b>Try it:</b> click a disc below.</p></div>
+ <div class="box"><h3>Trade-offs</h3><ul><li><b>Pro:</b> the circles do real work, and the hero is shorter because one card replaces two. Shortens the waitlist form by one step.</li><li><b>Pro:</b> clear single action with a clear fork.</li><li><b>Con:</b> only one audience's message is visible at a time, so the "both audiences are equal" feel of the side-by-side ledger weakens. A skim reader may see just one.</li><li><b>Con:</b> needs proper radio-group behaviour, focus and keyboard handling.</li></ul></div>
+</div>
+<div class="cap">Desktop (click a circle)</div>
+<div class="frame G" id="o3" data-sel="">
+ <div class="nav"><span class="logo"><svg viewBox="0 0 32 18"><circle cx="10" cy="9" r="8" fill="#F0197E"/><circle cx="22" cy="9" r="8" fill="#2150E8" fill-opacity=".92"/></svg>Tell The World</span><div class="r"><a class="hide" href="#">Blog</a><a class="hide" href="#">Sign in</a><a class="btn" href="#">Join the waitlist</a></div></div>
+ <div class="in hero">
+  <span class="mono" style="color:var(--soft)">Opening soon</span><h1>AI safety research rarely reaches the people who could <em>tell its story.</em></h1>
+  <p class="sub">Tell The World connects AI safety researchers and organisations with the creators and journalists who can put their work in front of real audiences.</p>
+  <div class="pick">
+   <div class="mono" style="color:var(--soft);margin-bottom:10px"><span class="sug">Which describes you?</span></div>
+   <div class="pickrow" role="radiogroup" aria-label="Which describes you?">
+    <svg viewBox="0 0 260 132" aria-hidden="true"><defs><clipPath id="p3"><circle cx="66" cy="66" r="64"/></clipPath></defs><circle cx="66" cy="66" r="64" fill="#B80F5A"/><circle cx="194" cy="66" r="64" fill="#1D3AA6"/><circle cx="194" cy="66" r="64" fill="#4B1D7A" clip-path="url(#p3)"/><circle class="ring rp" cx="66" cy="66" r="64"/><circle class="ring rb" cx="194" cy="66" r="64"/></svg>
+    <button class="bp" role="radio" aria-checked="false" data-pick="p">Creators &amp; journalists</button>
+    <button class="bb" role="radio" aria-checked="false" data-pick="b">Researchers &amp; organisations</button>
+   </div>
+   <div class="pickcard" aria-live="polite"><div class="mono lab" data-lab></div><p data-txt></p><a class="btn" href="#" data-btn>Join the waitlist</a></div>
+  </div>
+  <div style="height:64px"></div>
+ </div>
+</div>
+<div class="cap">Mobile (390px)</div>
+<div class="frame G mob" data-src="#o3" data-sel=""></div>
+</section>
+</div>
+<script>
+document.querySelectorAll('[data-src]').forEach(function(m){m.innerHTML=document.querySelector(m.dataset.src).innerHTML});
+/* option 2 */
+var sc=document.getElementById('sc2'),red=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function upd(){sc.style.setProperty('--meet',red?1:Math.min(1,sc.scrollTop/300))}
+sc.addEventListener('scroll',upd);upd();
+/* option 3 */
+var T={p:['Creators & journalists','Know how to turn complicated research into stories people can relate to.'],b:['Researchers & organisations','Have important messages on how to make AI go well.']};
+function render(frame,k){
+ frame.dataset.sel=k||'';
+ frame.querySelectorAll('[data-pick]').forEach(function(b){b.setAttribute('aria-checked',String(b.dataset.pick===k))});
+ var lab=frame.querySelector('[data-lab]'),txt=frame.querySelector('[data-txt]'),btn=frame.querySelector('[data-btn]');
+ if(!k){lab.textContent='';txt.innerHTML='<span class="sug">Choose the circle that describes you.</span>';btn.style.visibility='hidden';}
+ else{lab.textContent=T[k][0];txt.textContent=T[k][1];btn.style.visibility='visible';}
+}
+document.querySelectorAll('[data-sel]').forEach(function(f){render(f,'')});
+document.addEventListener('click',function(e){var b=e.target.closest('[data-pick]');if(!b)return;
+ document.querySelectorAll('.G[data-sel]').forEach(function(f){render(f,b.dataset.pick)});});
+</script>
+</body>
+</html>

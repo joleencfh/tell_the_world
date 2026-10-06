@@ -29,10 +29,8 @@ with the user round by round. That artifact is the **canonical visual
 reference** for this plan, same role the "AI Race — Brief (Two-Ink Bold)"
 artifact played for the original Brief page rebuild:
 
-- **Visual reference (build against this):** "Two-Ink Bold Dashboard",
-  `https://claude.ai/code/artifact/5eb6340c-cb4f-4828-b445-62a2c3dc4ba8`.
-  Ask the user for the current link if this one is stale — artifacts
-  redeploy in place, but a link pasted into a doc can still rot.
+- **Visual reference (build against this):** "Two-Ink Bold Dashboard", a private claude.ai artifact.
+  Ask the user for the current link.
 - Decisions transcribed below so a session doesn't strictly need the
   artifact to start, but the artifact is the tie-breaker for anything
   ambiguous, especially exact spacing/sizing (the mock's CSS values are
@@ -249,8 +247,7 @@ into real components/utilities.
 Read docs/design/home-dashboard/two-ink-bold-dashboard-plan.md in full
 before doing anything else — §0 for context and the visual reference
 artifact link, §1 for engineering conventions. Also open the artifact
-(https://claude.ai/code/artifact/5eb6340c-cb4f-4828-b445-62a2c3dc4ba8,
-ask the user for a current link if this one is stale) and read its
+("Two-Ink Bold Dashboard"; ask the user for the current link) and read its
 source directly for exact CSS values — this plan describes the shapes,
 the artifact has the literal numbers.
 

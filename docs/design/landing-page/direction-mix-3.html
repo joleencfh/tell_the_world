@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tell The World landing page, mixed direction v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,sans-serif;background:#E9E8E3;color:#26251E;line-height:1.5;padding:0 16px 80px}
+.wrap{max-width:1240px;margin:0 auto}
+.doc h1{font-size:28px;margin:40px 0 8px;font-weight:500;letter-spacing:-.02em}
+.doc p,.doc li{font-size:15px;color:#3b3a33}
+.doc ul{margin:8px 0 0 20px}
+.doc .box{background:#F7F7F4;border:1px solid #CDCDC9;border-radius:4px;padding:20px 24px;margin-top:20px}
+.doc h2{font-size:12px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;font-weight:500}
+.sugkey{border-bottom:2px dotted #8a6d00;background:#fff6cc;padding:0 2px}
+.cap{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#4a4943;margin:28px 0 6px}
+.switch{position:sticky;top:0;z-index:5;background:#E9E8E3;padding:12px 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-bottom:1px solid #cdcbc0;margin-top:24px;font-size:14px}
+.switch label{font-weight:500}
+.switch input{width:200px}
+.switch button{font:500 13px Inter,sans-serif;padding:8px 12px;border-radius:4px;border:1px solid #26251E;background:transparent;color:#26251E;cursor:pointer}
+.switch button[aria-pressed=true]{background:#26251E;color:#F7F7F4}
+.frame{container-type:inline-size;border:1px solid #bdbbb2;border-radius:4px;overflow:hidden}
+.frame.mob{width:390px;max-width:100%}
+.sug{border-bottom:2px dotted #8a6d00}
+
+/* ================= THE PAGE ================= */
+/* --dial: 0 = the grey version, 100 = the previous (fully tinted) round. Default 25. */
+.G{--dial:25;--page:#F7F4EE;--ink:#26251E;--soft:#5E5D56;--soft-d:#4A4943;--pink:#B80F5A;--blue:#1D3AA6;
+ --c-pink:#F0197E;--c-blue:#2150E8;--c-ov:#6B21A8;
+ --card-p:color-mix(in srgb,#FBDDE8 calc(var(--dial)*1%),#F0EEE6);
+ --card-b:color-mix(in srgb,#DCE5FB calc(var(--dial)*1%),#F0EEE6);
+ --band-essay:color-mix(in srgb,#E8EDFB calc(var(--dial)*1%),var(--page));
+ --band-close:color-mix(in srgb,#C9D6F7 calc(var(--dial)*1%),var(--page));
+ --rule:rgba(38,37,30,.14);--win:#FBFAF6;--win-line:#DAD6CA;
+ background:var(--page);color:var(--ink);font-family:Inter,sans-serif}
+.G .mono{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.07em;text-transform:uppercase}
+.G .in{max-width:1080px;margin:0 auto;padding-inline:40px}
+.G .btn{display:inline-block;border-radius:4px;font-size:15px;padding:12px 20px;text-decoration:none;background:var(--ink);color:var(--page)}
+.G .logo{display:inline-flex;align-items:center;gap:8px;font-weight:500;font-size:15px;letter-spacing:-.01em}
+.G .logo svg{width:28px;height:18px}
+.G .pk{color:var(--pink)}.G .bl{color:var(--blue)}
+
+/* hero */
+.G .nav{display:flex;align-items:center;justify-content:space-between;padding:16px 40px}
+.G .nav .r{display:flex;align-items:center;gap:22px;font-size:14px}
+.G .nav a{color:var(--soft);text-decoration:none}
+.G .nav a.btn{color:var(--page);padding:8px 14px;font-size:14px}
+.G .hero{display:grid;grid-template-columns:1fr 230px;gap:56px;align-items:start;padding-top:64px}
+.G h1{font-family:'EB Garamond',Georgia,serif;font-weight:400;font-size:clamp(38px,5.8cqw,76px);line-height:1;letter-spacing:-.03em;margin:20px 0 24px;max-width:13em}
+.G h1 em{color:var(--pink);white-space:nowrap}
+.G .sub{font-family:'EB Garamond',serif;font-size:23px;line-height:1.42;color:var(--soft);max-width:28em}
+.G .circ{padding-top:44px}
+.G .circ svg{width:100%;height:auto;display:block}
+.G .circ .cp{fill:var(--c-pink)}.G .circ .cb{fill:var(--c-blue)}.G .circ .co{fill:var(--c-ov)}
+.G .legend{list-style:none;margin-top:14px;display:grid;gap:6px}
+.G .legend li{display:flex;align-items:center;gap:8px}
+.G .legend i{width:10px;height:10px;border-radius:50%;flex:none}
+.G .legend li:first-child{color:var(--pink)}.G .legend li:first-child i{background:var(--c-pink)}
+.G .legend li:last-child{color:var(--blue)}.G .legend li:last-child i{background:var(--c-blue)}
+.G .ledger{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:56px}
+.G .lc{border-radius:4px;box-shadow:0 0 0 1px rgba(38,37,30,.13)}
+.G .lc.p{background:var(--card-p)}.G .lc.b{background:var(--card-b)}
+.G .lh{display:flex;align-items:center;gap:10px;padding:13px 22px;border-bottom:1px solid rgba(38,37,30,.14)}
+.G .lc.p .lh{color:#9E0B4D}.G .lc.b .lh{color:var(--blue)}
+.G .lh i{width:10px;height:10px;border-radius:50%;background:currentColor}
+.G .row{padding:20px 22px 6px}
+.G .row .mono{display:block;margin-bottom:6px;color:var(--soft)}
+.G .row p{font-family:'EB Garamond',serif;font-size:25px;line-height:1.3;max-width:17em}
+.G .lf{padding:18px 22px 22px}
+.G .lc.p .btn{background:var(--pink);color:#fff}.G .lc.b .btn{background:var(--blue);color:#fff}
+.G .trust{font-size:14px;color:var(--soft);padding:20px 0 64px;max-width:46em}
+
+/* sections: hairline rules, one faint band */
+.G .s{padding-block:88px;border-top:1px solid var(--rule)}
+.G .essay{background:var(--band-essay)}
+.G .g2{display:grid;grid-template-columns:1.15fr .85fr;gap:72px;align-items:start}
+.G h2{font-family:'EB Garamond',serif;font-weight:400;font-size:clamp(30px,4.4cqw,56px);line-height:1.03;letter-spacing:-.025em;margin:16px 0 0}
+.G h2 em{color:var(--pink)}
+.G .essay p.body{font-family:'EB Garamond',serif;font-size:21px;line-height:1.55;color:#3f3e37;padding-top:40px}
+.G .art{display:grid;grid-template-columns:.78fr 1.22fr;gap:64px;align-items:center}
+.G .art h2{font-size:clamp(28px,3.7cqw,46px)}
+.G .art p.prose{font-family:'EB Garamond',serif;font-size:21px;line-height:1.5;color:var(--soft);margin-top:20px}
+.G .win{background:var(--win);border-radius:4px;box-shadow:0 28px 70px rgba(0,0,0,.14),0 14px 32px rgba(0,0,0,.1),0 0 0 1px rgba(38,37,30,.12);overflow:hidden}
+.G .chrome{display:grid;grid-template-columns:70px 1fr 70px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--win-line)}
+.G .dots{display:flex;gap:6px}.G .dots i{width:10px;height:10px;border-radius:50%;background:var(--win-line)}
+.G .wt{text-align:center;font-size:13px;color:var(--soft)}
+.G .tabs{display:flex;gap:22px;padding:0 20px;border-bottom:1px solid var(--win-line)}
+.G .tabs span{padding:10px 0;color:var(--soft)}.G .tabs span.on{color:var(--ink);border-bottom:2px solid var(--ink)}
+.G .msg{padding:20px 24px;border-bottom:1px solid var(--win-line)}.G .msg:last-child{border-bottom:0}
+.G .who{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;font-size:14px}
+.G .who b{font-weight:500}.G .who .c{color:var(--soft)}
+.G .who .mono::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:currentColor;margin-right:6px}
+.G .msg p{font-family:'EB Garamond',serif;font-size:19px;line-height:1.38;margin-top:8px}
+.G .msg .foot{margin-top:10px;color:var(--blue)}
+.G .ex{margin-top:12px;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--soft)}
+.G .term .top span:last-child{text-transform:none;letter-spacing:0;font-size:13px}
+.G .term .top{padding:10px 16px;border-bottom:1px solid var(--win-line);display:flex;justify-content:space-between;gap:12px;color:var(--soft)}
+.G .diff{font-family:'IBM Plex Mono',monospace;font-size:13.5px;line-height:1.6;padding:14px 0}
+.G .diff div{padding:3px 20px 3px 44px;position:relative}
+.G .diff .g{position:absolute;left:18px;color:var(--soft)}
+.G .diff .old{background:#EBE8DE;color:#5E5D56}.G .diff .old s{text-decoration-thickness:2px;color:var(--ink)}
+.G .diff .new{background:#DCE5FB}.G .diff .new b{font-weight:500;border-bottom:2px solid var(--blue)}
+.G .why{padding:14px 22px;border-top:1px solid var(--win-line);font-size:14px}
+.G .why .mono{color:var(--pink);display:block;margin-bottom:4px}
+.G .tags{padding:14px 22px 0;display:flex;gap:6px}
+.G .tags span{font-family:'IBM Plex Mono',monospace;font-size:12px;border:1px solid var(--win-line);padding:2px 8px;border-radius:2px;color:var(--soft)}
+.G .acts{padding:16px 22px 22px;display:flex;gap:16px;align-items:center;font-size:14px;color:var(--soft)}
+.G .acts .btn{color:var(--page);padding:10px 18px}
+
+/* closing: pale band, small cropped circles, ink type */
+.G .close{background:var(--band-close);border-top:1px solid var(--rule)}
+.G .close .top{position:relative;overflow:hidden}
+.G .close .body{position:relative;z-index:1;padding-block:96px 88px}
+.G .close p.big{font-family:'EB Garamond',serif;font-size:clamp(28px,3.6cqw,44px);line-height:1.12;letter-spacing:-.02em;max-width:16em}
+.G .close .a{margin-top:28px;display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.G .close small{font-size:14px;color:var(--soft-d)}
+.G .close .cc{position:absolute;right:-70px;bottom:-90px;width:380px;pointer-events:none}
+.G .close .cc svg{width:100%;height:auto;display:block}
+.G .close .c1{fill:var(--c-pink)}.G .close .c2{fill:var(--c-blue)}.G .close .c3{fill:var(--c-ov)}
+.G .foot{border-top:1px solid rgba(38,37,30,.18);padding:20px 40px;display:flex;justify-content:space-between;font-size:14px;color:var(--soft-d)}
+.G .foot a{color:var(--soft-d);margin-left:20px;text-decoration:none}
+
+@container (max-width:760px){
+ .G .in{padding-inline:20px}.G .nav{padding:14px 20px}.G .nav .hide{display:none}
+ .G .hero{grid-template-columns:1fr;gap:24px;padding-top:36px}
+ .G .sub{font-size:21px}
+ .G .circ{padding-top:0;display:flex;align-items:center;gap:16px}
+ .G .circ svg{width:132px;flex:none}.G .legend{margin-top:0}
+ .G .ledger{grid-template-columns:1fr;margin-top:36px}
+ .G .row p{font-size:23px}.G .trust{padding-bottom:44px}
+ .G .s{padding-block:56px}.G .g2{grid-template-columns:1fr;gap:0}.G .essay p.body{padding-top:24px;font-size:20px}
+ .G .art{grid-template-columns:1fr;gap:32px}
+ .G .tabs{gap:14px;padding:0 14px;overflow:hidden}
+ .G .diff div{padding-left:36px;padding-right:12px;font-size:12.5px}
+ .G .term .top span:last-child{display:none}
+ .G .close .body{padding-block:56px 120px}.G .close .cc{width:250px;right:-60px;bottom:-70px}
+ .G .foot{padding:18px 20px;flex-direction:column;gap:8px}.G .foot a{margin:0 16px 0 0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="doc">
+<h1>Mixed direction v3: smaller circles, no pink background, colour at 25%</h1>
+<div class="box"><h2>Changes in this round</h2><ul>
+<li><b>Circles:</b> now a compact pair (about 230px wide) beside the headline, with a two-line legend underneath. A smaller pair sits cropped in the corner of the closing section. The overlap is still a third colour.</li>
+<li><b>Pink background removed.</b> The pale pink band behind the Q&amp;A is gone. Pink now appears only in text, the creators card, the circle and the tag dots.</li>
+<li><b>Colour at 25%.</b> Every tinted surface is a mix between the grey version (0) and last round's version (100). The page opens at 25. Slide the dial to compare. At 25 the audience cards and the "Why this matters now" band only just lean pink and blue, and the deep blue closing band is replaced by a pale blue one with ink text.</li>
+<li>Colour that stays at full strength is small and deliberate: the circles, tag dots, the card buttons, the accent phrase and the labels.</li>
+</ul></div>
+<div class="box"><h2>Decisions so far</h2><ul>
+<li><b>D1</b> waitlist only. <b>D2</b> pink = creators &amp; journalists, blue = researchers &amp; organisations. <b>D3</b> incident is real, source needed. <b>D4</b> no em dashes, no invented proof, WCAG AA. <b>D5</b> Cursor only. <b>D7</b> E type + F ledger + framed artifacts. <b>D8</b> no "You get" rows. <b>D9</b> circles are the page's main graphic.</li>
+<li><b>D10 (revised).</b> Colour is allowed as flat pale tints, but at about 25% strength. No pink background surface. No gradients, no dark bands.</li>
+<li><b>D11 (new).</b> Circles stay compact: about 230px beside the hero, one small cropped pair at the close.</li>
+</ul></div>
+</div>
+
+<div class="switch" role="group" aria-label="Colour dial">
+ <label for="dial">Colour dial: <output id="dialout">25</output>%</label>
+ <input type="range" id="dial" min="0" max="100" step="5" value="25">
+ <button data-v="0" aria-pressed="false">0 (grey)</button>
+ <button data-v="25" aria-pressed="true">25 (proposal)</button>
+ <button data-v="50" aria-pressed="false">50</button>
+ <button data-v="100" aria-pressed="false">100 (last round's tints)</button>
+</div>
+
+<div class="cap">Full page, desktop</div>
+<div class="frame G" id="G-page">
+ <div class="nav"><span class="logo"><svg viewBox="0 0 28 18"><circle cx="9" cy="9" r="8" fill="#F0197E"/><circle cx="19" cy="9" r="8" fill="#2150E8" fill-opacity=".92"/></svg>Tell The World</span>
+  <div class="r"><a class="hide" href="#">Blog</a><a class="hide" href="#">Sign in</a><a class="btn" href="#">Join the waitlist</a></div></div>
+ <div class="in hero">
+  <div>
+   <span class="mono" style="color:var(--soft)">Opening soon</span>
+   <h1>AI safety research rarely reaches the people who could <em>tell its story.</em></h1>
+   <p class="sub">Tell The World connects AI safety researchers and organisations with the creators and journalists who can put their work in front of real audiences.</p>
+  </div>
+  <div class="circ">
+   <svg viewBox="0 0 280 160" role="img" aria-label="Two overlapping circles: creators and journalists, and researchers and organisations">
+    <defs><clipPath id="clA"><circle cx="82" cy="80" r="76"/></clipPath></defs>
+    <circle class="cp" cx="82" cy="80" r="76"/><circle class="cb" cx="198" cy="80" r="76"/><circle class="co" cx="198" cy="80" r="76" clip-path="url(#clA)"/>
+   </svg>
+   <ul class="legend mono"><li><i></i>Creators &amp; journalists</li><li><i></i>Researchers &amp; organisations</li></ul>
+  </div>
+ </div>
+ <div class="in">
+  <div class="ledger">
+   <div class="lc p"><div class="lh mono"><i></i>Creators &amp; journalists</div>
+    <div class="row"><span class="mono"><span class="sug">You bring</span></span><p>Know how to turn complicated research into stories people can relate to.</p></div>
+    <div class="lf"><a class="btn" href="#">Join the waitlist</a></div></div>
+   <div class="lc b"><div class="lh mono"><i></i>Researchers &amp; organisations</div>
+    <div class="row"><span class="mono"><span class="sug">You bring</span></span><p>Have important messages on how to make AI go well.</p></div>
+    <div class="lf"><a class="btn" href="#">Join the waitlist</a></div></div>
+  </div>
+  <p class="trust"><span class="sug">Members are approved before they can post or sign in. We review every request and reply by email.</span></p>
+ </div>
+
+ <div class="s essay"><div class="in g2">
+  <div><span class="mono pk">Why this matters now</span><h2>Attention shows up, <em>understanding doesn't always follow.</em></h2></div>
+  <p class="body">AI incidents are all over the news and existential risk is reaching the mainstream. Now that people are finally paying attention, we need a way to keep the momentum going, while providing candid &amp; credible explanations from the people and organisations who actually study this. We need to do this at scale, now.</p>
+ </div></div>
+
+ <div class="s"><div class="in art">
+  <div><span class="mono bl">Community Q&amp;A</span><h2>Ask a question &amp; get an answer from someone who studies this.</h2>
+   <p class="prose">Every brief has an open Q&amp;A. Ask what's on your mind, and an expert or organisation working on the problem answers directly, on the record.</p></div>
+  <div>
+   <div class="win">
+    <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="wt">The Hugging Face / OpenAI Security Incident</div><div></div></div>
+    <div class="tabs mono"><span>Brief</span><span class="on">Q&amp;A</span><span>Quotes</span><span>Sources</span></div>
+    <div class="msg"><div class="who"><b>Priya Sharma</b><span class="mono pk">Creator</span><span class="c">The Priya Sharma Show</span></div><p>This new report on the Hugging Face / OpenAI incident just came to my attention. How bad is it, really?</p></div>
+    <div class="msg"><div class="who"><b>Elena Vasquez</b><span class="mono bl">Expert</span><span class="c">Independent Researcher</span></div><p>This is the clearest warning shot we've had. A handful of the agents involved even considered alerting a human, and every one of them decided not to. That's not a story about one bug. It's a preview of how hard oversight gets once these systems start coordinating.</p><div class="foot mono">Endorsed</div></div>
+    <div class="msg"><div class="who"><b>Foresight Commons</b><span class="mono bl">Organisation</span><span class="c">AI policy · existential risk</span></div><p>We study incidents like this closely, and this one is worse than what came before it, not just more widely covered. The real question isn't only what these systems can do today. It's whether anyone stays in control as more capable ones arrive, and that's what we research and push lawmakers on.</p><div class="foot mono">Endorsed</div></div>
+   </div>
+   <p class="ex"><span class="sug">Illustrative example, sample content</span> · Sources: [citation placeholder]</p>
+  </div>
+ </div></div>
+
+ <div class="s"><div class="in art">
+  <div><span class="mono bl">Quotes, on record</span><h2>A quote experts can actually stand behind.</h2>
+   <p class="prose">Experts and organisations add their own on-record quotes directly, in plain language. Every submission runs through a clarity check first, so jargon gets caught before it ever reaches a reader.</p></div>
+  <div>
+   <div class="win term">
+    <div class="top mono"><span>Add a quote</span><span>For: The Hugging Face / OpenAI Security Incident</span></div>
+    <div class="diff">
+     <div class="old"><span class="g">-</span>The incident report is straightforward: this was <s>reward hacking</s>. The agents found a shortcut that scored well, and none of them told a human.</div>
+     <div class="new"><span class="g">+</span>The incident report is straightforward: this was <b>an AI gaming its own scoring system</b>. The agents found a shortcut that scored well, and none of them told a human.</div>
+    </div>
+    <div class="why"><span class="mono">1 term flagged</span>"reward hacking": When an AI finds an unintended shortcut that scores well on its training objective without doing what was actually wanted.</div>
+    <div class="tags"><span>ai safety</span><span>frontier labs</span></div>
+    <div class="acts"><a class="btn" href="#">Publish quote</a><span>Cancel</span></div>
+   </div>
+   <p class="ex"><span class="sug">Illustrative example, sample content</span></p>
+  </div>
+ </div></div>
+
+ <div class="close">
+  <div class="top">
+   <div class="cc"><svg viewBox="0 0 280 160" aria-hidden="true"><defs><clipPath id="clB"><circle cx="82" cy="80" r="76"/></clipPath></defs><circle class="c1" cx="82" cy="80" r="76"/><circle class="c2" cx="198" cy="80" r="76"/><circle class="c3" cx="198" cy="80" r="76" clip-path="url(#clB)"/></svg></div>
+   <div class="in body">
+    <p class="big">Want in sooner? Become an early tester and try Tell The World while it's still rough, so you can help us fix it.</p>
+    <div class="a"><a class="btn" href="#">Join the waitlist</a><small><span class="sug">We review every request and reply by email.</span></small></div>
+   </div>
+  </div>
+  <div class="foot"><span>Tell The World · © 2026</span><span><a href="#">Privacy Policy</a><a href="#">Contact</a></span></div>
+ </div>
+</div>
+
+<div class="cap">Full page, mobile (390px)</div>
+<div class="frame G mob" data-src="#G-page"></div>
+</div>
+<script>
+document.querySelectorAll('[data-src]').forEach(function(m){m.innerHTML=document.querySelector(m.dataset.src).innerHTML});
+function setDial(v){
+ document.querySelectorAll('.G').forEach(function(g){g.style.setProperty('--dial',v)});
+ document.getElementById('dialout').textContent=v;
+ document.getElementById('dial').value=v;
+ document.querySelectorAll('.switch button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.v==String(v))});
+}
+document.getElementById('dial').addEventListener('input',function(e){setDial(e.target.value)});
+document.querySelectorAll('.switch button').forEach(function(b){b.addEventListener('click',function(){setDial(b.dataset.v)})});
+setDial(25);
+</script>
+</body>
+</html>
