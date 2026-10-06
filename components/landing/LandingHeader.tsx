@@ -1,11 +1,12 @@
 import Link from 'next/link'
 import WaitlistButton from '@/components/landing/WaitlistButton'
+import MobileMenu from '@/components/landing/MobileMenu'
 
 export const BLOG_URL = 'https://telltheworldblog.substack.com/'
 
 // design-system.md, Header. The header's one action is the waitlist (the old
-// "Apply" link is gone). Blog is desktop only here and moves to the footer on
-// mobile so Sign in and the button always fit; every target is 44px on touch.
+// "Apply" link is gone). On mobile, Blog and Sign in collapse into a hamburger
+// menu so the logo and button have room; every target is 44px on touch.
 export default function LandingHeader() {
   return (
     <header className="sticky top-0 z-20 border-b border-rule bg-parchment">
@@ -28,11 +29,12 @@ export default function LandingHeader() {
           </a>
           <Link
             href="/login"
-            className="inline-flex min-h-11 items-center rounded-control px-2 text-ui-sm text-umber-soft hover:text-umber hover:underline hover:underline-offset-[3px] md:px-2.5"
+            className="hidden min-h-11 items-center rounded-control px-2.5 text-ui-sm text-umber-soft hover:text-umber hover:underline hover:underline-offset-[3px] md:inline-flex"
           >
             Sign in
           </Link>
           <WaitlistButton size="sm" />
+          <MobileMenu blogUrl={BLOG_URL} />
         </nav>
       </div>
     </header>
