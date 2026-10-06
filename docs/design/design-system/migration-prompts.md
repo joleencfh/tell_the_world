@@ -31,18 +31,18 @@ What you give up and what to expect:
 
 Everything else in the prompts below stays the same. Run Phase 1 as written but tell Claude which primitives to skip.
 
-## Decisions to make now (recommended answers)
+## Decisions (made 2026-10-06)
 
 A visual comparison of decisions 1 to 4 is in [decision-options.html](decision-options.html).
 
-The prompts assume these. Change them here if you disagree, before running Phase 4 and 5.
+Decisions 1 to 4 were chosen from the previews. The prompts below use them.
 
-| # | Decision | Assumed answer |
+| # | Topic | Decision |
 |---|---|---|
-| 1 | "Covered by" dark band | Replace with `band-soft` |
-| 2 | Status chips | Neutral everywhere, tone colours on admin only |
-| 3 | Brief reading font | Serif 19px (`text-reading`) |
-| 4 | Admin density | Inter 14px, 44px min row height |
+| 1 | "Covered by" dark band | Option A: replace with `band-soft` |
+| 2 | Status chips | Option C: neutral on public screens; on admin, tinted fill with status text colour (no border) |
+| 3 | Brief reading font | Option A: serif 19px (`text-reading`) |
+| 4 | Admin density | Option A: Inter 14px, 44px min row height |
 | 5 | "Apply" inside the app | Keep the current apply flow and wording as is; do not change flows in a styling PR |
 | 6 | Landing error colour | `brick` (done in Phase 1) |
 
@@ -82,7 +82,7 @@ Phase 1 of the design migration: foundations and primitives.
 
 1. Replace app/landing-theme.css with the contents of docs/design/design-system/app-theme.css (it supersedes it) and update the import in app/globals.css. Do not remove or edit the old tokens in globals.css.
 2. Move EB Garamond and Inter (variables --font-eb-garamond and --font-inter) from the (landing) route layout to app/layout.tsx so every route has them. Self-host them with next/font/local instead of next/font/google: today a failed Google Fonts download at build time breaks the whole build (it failed a Vercel deploy on 2026-10-06), and after this step every page depends on these fonts. Get the latin-subset woff2 files (for example from the @fontsource-variable/eb-garamond and @fontsource-variable/inter packages), commit them under app/fonts, keep the same variable names, weights and display: swap, and note in the PR that both fonts are OFL licensed. Keep IBM Plex Mono as it is. Do NOT change the <body> font class or background; unmigrated screens must look exactly as they do today.
-3. Build these primitives in components/ui, one file each, with the recipes and every state from design-system.md section 3: Button (variants primary, rose, cobalt, secondary, ghost, danger, icon, sm; pending state), Field set (Field, TextInput, Textarea, Select, Checkbox, ChoiceChips as a real radiogroup with arrow keys, FormSection), RoleLabel, Author, Avatar (replace the current one; role fills, org is a square), StatusChip, CategoryChip, Tag, Alert (4 tones), Toast (provider + hook), EmptyState, Skeleton, LockedPanel, Menu, Modal (labelled, focus trapped, rest of page inert, Escape and scrim close, focus returns to trigger, bottom sheet on mobile), ConfirmDialog.
+3. Build these primitives in components/ui, one file each, with the recipes and every state from design-system.md section 3: Button (variants primary, rose, cobalt, secondary, ghost, danger, icon, sm; pending state), Field set (Field, TextInput, Textarea, Select, Checkbox, ChoiceChips as a real radiogroup with arrow keys, FormSection), RoleLabel, Author, Avatar (replace the current one; role fills, org is a square), StatusChip (neutral, plus ochre, moss and brick tone variants with tinted fill for admin), CategoryChip, Tag, Alert (4 tones), Toast (provider + hook), EmptyState, Skeleton, LockedPanel, Menu, Modal (labelled, focus trapped, rest of page inert, Escape and scrim close, focus returns to trigger, bottom sheet on mobile), ConfirmDialog.
    Use the existing landing WaitlistModal behaviour as the reference for Modal.
 4. Keep the existing component names working: Avatar and RoleBadge keep their current props and are migrated to the new look; keep a thin compatibility mapping so callers do not break. Note which callers now look different in the PR.
 5. Switch the landing WaitlistModal to the shared Modal and change its error colour from rose-deep to brick.
@@ -176,7 +176,7 @@ Admin is the second-biggest area but mostly repetition of the same four patterns
 
 Phase 5: migrate app/admin using the Moderation template (design-system.md section 4) and decision 4 (Inter 14px rows, 44px minimum height, nothing under 12px).
 Split into PRs: (a) admin shell, tab row, applications list and detail; (b) questions, contributions, proposals; (c) brief management, any analytics screens, and remaining admin pieces.
-- Accordion rows with chevron, key-value rows, StatusChip with tone allowed here (decision 2: brick, moss, ochre border and text at 40%, always with icon and word), Pagination.
+- Accordion rows with chevron, key-value rows, StatusChip with tone on admin (decision 2, option C: tinted fill with the status text colour, no border, e.g. ochre on ochre-wash, moss on moss-wash, brick on brick-wash; always with icon and word), Pagination.
 - Destructive actions use danger Button plus ConfirmDialog naming the object.
 - Every admin server action keeps its requireAdmin() call untouched; do not edit lib/admin/*.
 - Rewrite tests/two-ink-bold-11f-admin.spec.ts to assert roles, text and behaviour instead of computed colours; delete assertions that only pin old colours, and say which in the PR.

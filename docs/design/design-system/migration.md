@@ -55,7 +55,7 @@ Where the right answer depends on role, the first column says which.
 | `bg-pink`, `bg-pink-soft` | `bg-rose-bright` (dot or graphic only), `bg-rose-wash` | |
 | `text-blue`, `text-blue-ink` | `text-cobalt` | |
 | `bg-blue`, `bg-blue-soft`, `bg-blue-ink` | `bg-cobalt-bright` (graphic only) or `bg-cobalt` (button), `bg-cobalt-wash`, `bg-cobalt-deep` | |
-| `bg-coverage-bg` / `text-coverage-fg` | `bg-band-soft text-umber` (recommended) or `bg-inverse text-parchment` | Open decision 1 |
+| `bg-coverage-bg` / `text-coverage-fg` | `bg-band-soft text-umber` | Decision 1, option A (decided 2026-10-06) |
 | `bg/text/border-red-*` | `brick`, `brick-deep`, `brick-wash` | Errors and destructive actions. Includes `bg-red-600` buttons and `text-red-700` error text |
 | `green-*` | `moss`, `moss-wash` | Success |
 | `amber-*` | `ochre`, `ochre-wash` | Warning |
@@ -98,13 +98,13 @@ Where the right answer depends on role, the first column says which.
 | `Logo` | Segoe extrabold, 12px multiply circles | Circle pair (rose-bright, cobalt-bright) and Inter 500 wordmark | S |
 | `Footer` | Plain and "bold" variants (2px ink rule) | One footer; the bold variant retires with its test | S |
 | `Pagination` | Mono uppercase buttons | Secondary `sm` buttons, `aria-current` | S |
-| `DarkBand` | Fixed dark section | `band-soft` or `inverse` (decision 1) | S |
+| `DarkBand` | Fixed dark section | `band-soft` with umber text (decision 1, decided) | S |
 | `Carousel`, `Thumb`, `DuotonePlaceholder`, `CardGoLink`, `SignOutButton` | Old tokens | Re-token; duotone becomes `rose-wash` and `cobalt-wash` on `bone` | S |
 | `ClarityFlagsPanel` | red-50 alert | Inline alert, danger tone, or the rose-wash flag panel from the demos | S |
 | `ContactModal`, `PostModal`, `ProposeBriefModal`, `EditProfileModal`, brief and coverage modals | Seven separate modal shells (`bg-black/50`, `rounded-xl`, some with no focus handling) | **One shared Modal shell** (the landing `WaitlistModal` behaviour: labelled, focus trapped, inert background, focus returned) plus a Confirm dialog | M |
 | Form fields (`app/apply/form-fields.tsx` and per-screen copies) | 10px mono uppercase labels, red asterisk, per-screen input classes | One Field set (label, hint, error), "(Optional)" convention | M |
 | Buttons | Many per-screen class strings (uppercase mono, tracking-widest) | One Button with variants | M |
-| Status and post-type badges | Per-screen stock-hue maps | Status chip (neutral) and Category chip (neutral) | S |
+| Status and post-type badges | Per-screen stock-hue maps | Status chip (neutral on public screens, tinted fill on admin, decision 2) and Category chip (neutral) | S |
 | New: Alert, Toast, Empty state, Skeleton, Locked panel, Menu | Ad hoc or missing | As in design-system.md | M |
 
 Building these primitives once (Phase 1) is what makes the later phases mostly mechanical.
@@ -128,7 +128,7 @@ Each phase is its own PR with its own tests. A phase is done when its screens us
 
 **Phase 4: the brief page.** The largest (34 files, about 1,100 uses). Split into sub-PRs: (a) hero, section nav, reading column and explainer; (b) quotes and the Quote card; (c) Q&A and contributions (the thread from the landing demo); (d) sources, timeline, related briefs, coverage; (e) modals (contribute, quote, coverage). Each sub-PR keeps the page whole.
 
-**Phase 5: admin.** 27 files, about 560 uses. Mostly lists, accordion rows, key-value rows and status chips, so it benefits most from the Phase 1 primitives. Settle decision 4 (density) before starting.
+**Phase 5: admin.** 27 files, about 560 uses. Mostly lists, accordion rows, key-value rows and status chips, so it benefits most from the Phase 1 primitives. Density is decided (decision 4: Inter 14px, 44px rows). Status chips use the tinted fill (decision 2).
 
 **Phase 6: cleanup.** Delete the old tokens and the dark-mode reference block from `app/globals.css`; delete `LegacyLandingPage.tsx` if still unused; remove the old utility classes; run the contrast and review checklist across every screen.
 
@@ -142,7 +142,7 @@ Add, per phase: a smoke test per migrated screen, and a keyboard test for any mo
 
 | Risk | Handling |
 |---|---|
-| Type floor of 12px makes dense admin and brief screens longer | Expected; decision 4. Re-check admin rows at 390px and 1440px. |
+| Type floor of 12px makes dense admin and brief screens longer | Expected; decided (decision 4). Re-check admin rows at 390px and 1440px. |
 | Replacing mono uppercase labels with a calmer hierarchy changes the product's feel | The Author block and Role label restore hierarchy; review each template in Phase 2 before scaling. |
 | Seven modal shells have slightly different behaviour | Port each to the shared shell one at a time and keep its tests; the shared shell is stricter (focus trap, inert), so test keyboard flows. |
 | Brief page is 34 files and has the most behaviour (Q&A, votes, endorse, quotes, coverage) | Sub-PRs, behaviour tests before and after, no logic changes in a styling PR. |
@@ -152,4 +152,4 @@ Add, per phase: a smoke test per migrated screen, and a keyboard test for any mo
 
 ## 8. Decisions needed before Phase 1
 
-See [design-system.md, section 8](design-system.md#8-open-decisions). Phases 1 to 3 only depend on decisions 5 and 6; decisions 1 to 4 can wait until Phases 4 and 5.
+See [design-system.md, section 8](design-system.md#8-decisions). Decisions 1 to 4 were made on 2026-10-06 (options A, C, A, A). Only decision 5 (the apply flow) is still open, and it does not block Phase 1.

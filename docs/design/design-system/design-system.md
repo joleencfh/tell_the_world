@@ -300,7 +300,7 @@ affil:   mt-0.5 text-caption text-umber-soft
 **Tag and chip.**
 - *Tag:* `rounded-tag border border-window-line px-2 py-0.5 font-mono text-label text-umber-soft`.
 - *Category chip:* `rounded-tag bg-bone px-2 py-0.5 font-mono text-label uppercase text-umber-soft` plus a 14px icon for the type. No hues.
-- *Status chip:* `rounded-tag border border-field-line px-1.5 py-px font-mono text-label uppercase text-umber` plus an icon (pending: clock, approved: check, declined: x). Neutral by default. On moderation screens, where scanning matters, a tone may colour the border at 40% and the text (`brick`, `moss`, `ochre`); the icon and word remain.
+- *Status chip:* `rounded-tag border border-field-line px-1.5 py-px font-mono text-label uppercase text-umber` plus an icon (pending: clock, approved: check, declined: x). Neutral by default. On admin and other moderation screens, where scanning long lists matters, the chip takes a tone instead: a tinted fill, the status colour for the text, no border (pending `ochre` on `ochre-wash`, approved `moss` on `moss-wash`, declined `brick` on `brick-wash`, all AA). The icon and word remain. Public screens stay neutral. Decided 2026-10-06.
 - *Count badge:* `text-label tabular-nums` in a `bone` `rounded-tag` box.
 
 **Quote card.** The quote in `font-serif text-message`, then the Author block (`sm`). A newly published quote has a 3px `cobalt` inset edge for the length of its entrance only.
@@ -343,7 +343,7 @@ affil:   mt-0.5 text-caption text-umber-soft
 
 **Reading column.** `max-w-reading`, `font-serif text-reading`, 24px between paragraphs, `text-section` subheads, links underlined, quotes as Quote cards, lists with hanging markers.
 
-**Inverse band** (restricted). `bg-inverse text-parchment` with `inverse-soft` secondary text. The system's one dark surface, allowed for a single full-width "Covered by" style block per page. The recommended replacement is `band-soft` with umber text; use inverse only if that block needs the weight.
+**Inverse band** (not used). The app has no dark surface: the "Covered by" block uses `band-soft` with umber text (decision 1, 2026-10-06). `inverse` and `inverse-soft` stay in the theme, but do not use them without a new decision.
 
 ## 4. Patterns
 
@@ -382,13 +382,16 @@ affil:   mt-0.5 text-caption text-umber-soft
 - **Review checklist for a screen:** only tokens from the theme; serif for reading and sans for controls; mono only for short uppercase labels at 12px or more; 44px targets; visible focus; no colour-only meaning; one primary action; copy has no em dashes; works at 390px and 1440px; respects reduced motion.
 - **Dark mode** is not part of v1. Because components use named roles and not raw values, a dark theme can be added later by remapping the tokens in one place.
 
-## 8. Open decisions
+## 8. Decisions
 
-These need an owner's call before migration reaches them; each has a recommendation.
+These were decided on 2026-10-06 after comparing options side by side ([decision-options.html](decision-options.html)).
 
-1. **"Covered by" dark band** (brief page, dashboard). Recommend replacing with `band-soft` (consistent with "no dark bands"); keep `inverse` only if the block needs the weight.
-2. **Status hues versus neutral chips.** The dashboard already decided on neutral bordered chips. Recommend: neutral by default, tone allowed on admin screens only.
-3. **Brief reading font.** Recommend serif 19px (`text-reading`) for brief sections, matching the Q&A and quotes. Brief sections today are in the old sans.
-4. **Admin density.** Recommend Inter 14px rows with 44px minimum height and no smaller type, accepting less density for accessibility.
+1. **"Covered by" block: decided, option A.** Replace the dark band with `band-soft` and umber text. No dark surface remains in the app.
+2. **Status chips: decided, option C.** Neutral chips on public screens. On admin and moderation screens, chips take a tone as a tinted fill with the status text colour and no border (`ochre`, `moss`, `brick` on their washes). Icon and word always stay. This replaced the earlier rule (tone on border and text only).
+3. **Brief reading font: decided, option A.** Serif at 19px (`text-reading`) for brief sections.
+4. **Admin density: decided, option A.** Inter 14px, 44px minimum row height, nothing smaller than 12px.
+
+Still open:
+
 5. **"Apply" inside the app.** The landing page has one action (join the waitlist), but the app still has an apply flow and a "Join the waitlist" or "Apply" link in locked states. Decide the final entry story, then use one verb.
 6. **Landing error colour.** The landing waitlist modal uses `rose-deep` for errors (it predates the status colours). In migration step 1 it moves to `brick` so errors are never rose.
