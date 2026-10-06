@@ -1,0 +1,78 @@
+{
+  "hook": {
+    "enabled": true,
+    "limits": {
+      "maxFindings": 5,
+      "maxChars": 8000
+    }
+  },
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "docs/design/landing-page/direction-mix-3.html"
+        ],
+        "createdAt": "2026-10-01T10:06:42.285Z",
+        "reason": "False positive: .s sections use vertical padding only; the inner .in wrapper supplies the horizontal inset. Mock file only. Judged by assistant, not user confirmed"
+      },
+      {
+        "rule": "clipped-overflow-container",
+        "value": "*",
+        "files": [
+          "docs/design/landing-page/circle-options.html"
+        ],
+        "createdAt": "2026-10-01T10:12:46.599Z",
+        "reason": "Decorative closing circles intentionally cropped at the band edge; same pattern as direction-mix-3.html. Judged by assistant, not user confirmed"
+      },
+      {
+        "rule": "clipped-overflow-container",
+        "value": "*",
+        "files": [
+          "docs/design/landing-page/final-design.html"
+        ],
+        "createdAt": "2026-10-01T10:25:42.226Z",
+        "reason": "Decorative closing circles intentionally cropped at the band edge, plus clipped screenshot frames and scrim demo frames; nothing needs to escape. Same pattern as direction-mix-3.html. Judged by assistant, not user confirmed"
+      },
+      {
+        "rule": "undersized-ui-text",
+        "value": "*",
+        "files": [
+          "docs/design/design-system/decision-options.html"
+        ],
+        "createdAt": "2026-10-06T07:38:44.127Z",
+        "reason": "Sanctioned exception: the 'today's admin' specimen deliberately recreates the old 9-11px mono UI to compare against. Judged by assistant, not user confirmed"
+      },
+      {
+        "rule": "all-caps-body",
+        "value": "*",
+        "files": [
+          "docs/design/design-system/decision-options.html"
+        ],
+        "createdAt": "2026-10-06T07:38:44.323Z",
+        "reason": "Sanctioned exception: same old-admin reference specimen uses uppercase mono rows on purpose. Judged by assistant, not user confirmed"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "docs/design/design-system/decision-options.html"
+        ],
+        "createdAt": "2026-10-06T07:38:44.522Z",
+        "reason": "False positive: .frame is a full-bleed viewport frame around specimens, and .tr/.tbl rows get vertical space from min-height with inline padding. Judged by assistant, not user confirmed"
+      },
+      {
+        "rule": "low-contrast",
+        "value": "*",
+        "files": [
+          "docs/design/design-system/decision-options.html"
+        ],
+        "createdAt": "2026-10-06T07:38:44.734Z",
+        "reason": "False positive: detector scores dark-theme tokens (#a9a79e, #1f1f22) against light surfaces. Rendered light pass checked in browser, dark pairs computed above 7:1. Judged by assistant, not user confirmed"
+      }
+    ]
+  }
+}

@@ -53,6 +53,14 @@ yarn-error.log*
 /supabase/.temp
 next-env.d.ts
 
+# impeccable: local-only state
+.impeccable/config.local.json
+.impeccable/hook.cache.json
+docs/design/landing-page/.impeccable/
+.claude/skills/impeccable/
+.github/skills/
+
+
 # scratch QA captures from build sessions
 docs/design/**/built-screenshots/
 
