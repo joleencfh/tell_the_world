@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tell The World landing page directions, round 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,sans-serif;background:#E9E8E3;color:#26251E;line-height:1.5;padding:0 16px 80px}
+.wrap{max-width:1240px;margin:0 auto}
+.doc h1{font-size:28px;margin:40px 0 8px;font-weight:500;letter-spacing:-.02em}
+.doc p,.doc li{font-size:15px;color:#3b3a33}
+.doc ul{margin:8px 0 0 20px}
+.doc .box{background:#F7F7F4;border:1px solid #CDCDC9;border-radius:4px;padding:20px 24px;margin-top:20px}
+.doc h2{font-size:12px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;font-weight:500}
+.sugkey{border-bottom:2px dotted #8a6d00;background:#fff6cc;padding:0 2px}
+.dir{margin-top:72px}
+.dir>h2{font-size:26px;font-weight:500;letter-spacing:-.02em}
+.dir .feel{font-size:17px;margin:4px 0 16px;color:#3b3a33}
+.metagrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:24px}
+.metagrid>div{background:#F7F7F4;border:1px solid #CDCDC9;border-radius:4px;padding:16px 18px;font-size:14px}
+.metagrid h3{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;font-weight:500;color:#5E5D56}
+.metagrid ul{margin-left:16px}
+.sw{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.sw span{font-family:'IBM Plex Mono',monospace;font-size:12px;padding:4px 7px;border-radius:2px;border:1px solid rgba(0,0,0,.15)}
+.cap{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#4a4943;margin:20px 0 6px}
+.frame{container-type:inline-size;border:1px solid #bdbbb2;border-radius:4px;overflow:hidden;background:#F7F7F4}
+.mobwrap{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}
+.frame.mob{width:390px;max-width:100%}
+.sug{border-bottom:2px dotted #8a6d00}
+.logo{display:inline-flex;align-items:center;gap:8px;font-weight:500;font-size:15px;letter-spacing:-.01em}
+.logo svg{width:28px;height:18px}
+
+/* shared Cursor-derived tokens */
+.D,.E,.F{--parch:#F7F7F4;--bone:#F2F1ED;--linen:#E6E5E0;--stone:#CDCDC9;--ink:#26251E;--soft:#5E5D56;--pink:#B80F5A;--blue:#1D3AA6;--pinkt:#F9DCE8;--bluet:#DDE4F8;background:var(--parch);color:var(--ink);font-family:Inter,sans-serif}
+.D .mono,.E .mono,.F .mono{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.btn{display:inline-block;border-radius:4px;font-weight:400;font-size:15px;padding:12px 20px;text-decoration:none;transition:background .15s}
+.btn.ink{background:var(--ink);color:var(--parch)}
+.btn.linen{background:var(--linen);color:var(--ink)}
+.btn.ghost{color:var(--ink);padding-left:0;padding-right:0;text-decoration:underline;text-underline-offset:3px}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:16px 40px}
+.nav .r{display:flex;align-items:center;gap:22px;font-size:14px}
+.nav a{color:var(--soft);text-decoration:none}
+.nav a.btn{color:var(--parch);padding:8px 14px;font-size:14px}
+.pk{color:var(--pink)}.bl{color:var(--blue)}
+
+/* ============ D: Product Window ============ */
+.D .hero{padding:72px 40px 0}
+.D h1{font-weight:400;font-size:clamp(34px,5.6cqw,72px);line-height:1.08;letter-spacing:-.03em;max-width:15em}
+.D h1 span{color:var(--pink)}
+.D .sub{font-size:19px;line-height:1.5;color:var(--soft);max-width:36em;margin-top:24px}
+.D .acts{display:flex;gap:18px;align-items:center;margin-top:30px;flex-wrap:wrap}
+.D .aud{margin-top:22px;display:flex;gap:22px;flex-wrap:wrap}
+.D .aud span{display:inline-flex;align-items:center;gap:8px;color:var(--soft)}
+.D .aud i{width:8px;height:8px;border-radius:50%}
+.D .win{margin:56px 40px 0;background:var(--bone);border-radius:4px;box-shadow:0 28px 70px rgba(0,0,0,.14),0 14px 32px rgba(0,0,0,.1),0 0 0 1px rgba(38,37,30,.1);overflow:hidden}
+.D .chrome{display:grid;grid-template-columns:80px 1fr 80px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--stone)}
+.D .dots{display:flex;gap:6px}.D .dots i{width:10px;height:10px;border-radius:50%;background:var(--stone)}
+.D .wt{text-align:center;font-size:13px;color:var(--soft)}
+.D .tabs{display:flex;gap:22px;padding:0 20px;border-bottom:1px solid var(--stone)}
+.D .tabs span{padding:10px 0;color:var(--soft)}
+.D .tabs span.on{color:var(--ink);border-bottom:2px solid var(--ink)}
+.D .panes{display:grid;grid-template-columns:1fr 1fr}
+.D .pane{padding:24px 28px}
+.D .pane+.pane{border-left:1px solid var(--stone)}
+.D .pane h3{font-size:12px;font-family:'IBM Plex Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);font-weight:500;margin-bottom:12px}
+.D .q{font-family:'EB Garamond',serif;font-size:21px;line-height:1.38}
+.D .by{display:flex;align-items:center;gap:8px;margin:10px 0 22px;font-size:13.5px;color:var(--soft)}
+.D .by b{color:var(--ink);font-weight:500}
+.D .tg{font-family:'IBM Plex Mono',monospace;font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+.D .a{font-size:14.5px;margin-top:10px;color:var(--ink)}
+.D .src{margin:6px 28px 24px;border:1px dashed var(--soft);border-radius:4px;padding:8px 12px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--soft)}
+.D .ex{padding:10px 40px 56px;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--soft)}
+.D .sec{display:grid;grid-template-columns:.8fr 1.2fr;gap:64px;padding:72px 40px 96px;align-items:center}
+.D h2{font-weight:400;font-size:clamp(26px,3.2cqw,40px);line-height:1.12;letter-spacing:-.025em;margin:14px 0 18px}
+.D .eyebrow{color:var(--blue)}
+.D .prose{font-size:17px;color:var(--soft)}
+.D .card{background:var(--bone);border-radius:4px;box-shadow:0 0 0 1px rgba(38,37,30,.1)}
+.D .qrow{padding:22px 26px}.D .qrow+.qrow{border-top:1px solid var(--stone)}
+@container (max-width:700px){
+ .nav{padding:14px 20px}.nav .hide{display:none}
+ .D .hero{padding:36px 20px 0}.D .win{margin:36px 20px 0}.D .panes{grid-template-columns:1fr}.D .pane+.pane{border-left:0;border-top:1px solid var(--stone)}
+ .D .sub{font-size:17px}.D .src{margin:6px 20px 20px}.D .ex{padding:10px 20px 40px}
+ .D .sec{grid-template-columns:1fr;gap:28px;padding:48px 20px}
+ .D .tabs{overflow:hidden;gap:16px;padding:0 16px}
+}
+
+/* ============ E: Reading Room ============ */
+.E{--parch:#F5F3EC;--stone:#D3CFC2}
+.E .hero{padding:96px 40px 56px;max-width:1040px;margin:0 auto}
+.E h1{font-family:'EB Garamond',Georgia,serif;font-weight:400;font-size:clamp(38px,7.2cqw,92px);line-height:1;letter-spacing:-.03em;margin:22px 0 28px}
+.E h1 em{color:var(--pink)}
+.E .sub{font-family:'EB Garamond',serif;font-size:25px;line-height:1.42;color:var(--soft);max-width:30em}
+.E .acts{margin-top:32px;display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.E .letter{max-width:1040px;margin:0 auto;padding:0 40px 80px}
+.E .cols{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--stone)}
+.E .col{padding:28px 40px 8px 0}
+.E .col+.col{padding:28px 0 8px 40px;border-left:1px solid var(--stone)}
+.E .col p{font-family:'EB Garamond',serif;font-size:26px;line-height:1.28;margin:10px 0 18px;max-width:14em}
+.E .col .btn{padding:0;font-size:15px}
+.E .essay{border-top:1px solid var(--stone);padding:88px 40px 104px}
+.E .essay .in{max-width:1040px;margin:0 auto}
+.E .essay .eyebrow{color:var(--pink)}
+.E h2{font-family:'EB Garamond',serif;font-weight:400;font-size:clamp(34px,5.4cqw,66px);line-height:1.02;letter-spacing:-.025em;margin:18px 0 36px;max-width:12em}
+.E h2 em{color:var(--pink)}
+.E .essay p{font-family:'EB Garamond',serif;font-size:23px;line-height:1.5;color:#3f3e37;max-width:32em}
+@container (max-width:700px){
+ .nav{padding:14px 20px}.nav .hide{display:none}
+ .E .hero{padding:44px 20px 32px}.E .sub{font-size:21px}
+ .E .letter{padding:0 20px 48px}.E .cols{grid-template-columns:1fr}
+ .E .col,.E .col+.col{padding:24px 0 8px;border-left:0}.E .col+.col{border-top:1px solid var(--stone)}
+ .E .essay{padding:48px 20px 64px}.E .essay p{font-size:20px}
+}
+
+/* ============ F: Ledger ============ */
+.F .hero{padding:64px 40px 0;display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:end}
+.F h1{font-weight:400;font-size:clamp(32px,4.8cqw,60px);line-height:1.08;letter-spacing:-.03em}
+.F h1 span{color:var(--pink)}
+.F .sub{font-size:18px;line-height:1.55;color:var(--soft)}
+.F .ledger{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:48px 40px 40px}
+.F .lc{background:var(--bone);border-radius:4px;box-shadow:0 0 0 1px rgba(38,37,30,.1)}
+.F .lh{display:flex;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--stone)}
+.F .lc.p .lh .mono{color:var(--pink)}.F .lc.b .lh .mono{color:var(--blue)}
+.F .row{display:grid;grid-template-columns:110px 1fr;gap:16px;padding:16px 20px;border-bottom:1px solid var(--stone);font-size:15.5px}
+.F .row .mono{color:var(--soft);padding-top:3px}
+.F .lf{padding:18px 20px}
+.F .note{padding:0 40px 56px;font-size:14px;color:var(--soft)}
+.F .sec{display:grid;grid-template-columns:.8fr 1.2fr;gap:64px;padding:72px 40px 96px;border-top:1px solid var(--stone);align-items:center}
+.F h2{font-weight:400;font-size:clamp(26px,3.2cqw,40px);line-height:1.12;letter-spacing:-.025em;margin:14px 0 18px}
+.F .eyebrow{color:var(--blue)}
+.F .prose{font-size:17px;color:var(--soft)}
+.F .term{background:var(--bone);border-radius:4px;box-shadow:0 28px 70px rgba(0,0,0,.14),0 14px 32px rgba(0,0,0,.1),0 0 0 1px rgba(38,37,30,.1);overflow:hidden}
+.F .term .top{padding:10px 16px;border-bottom:1px solid var(--stone);display:flex;justify-content:space-between;color:var(--soft)}
+.F .diff{font-family:'IBM Plex Mono',monospace;font-size:13.5px;line-height:1.6;padding:16px 0}
+.F .diff div{padding:2px 20px 2px 44px;position:relative}
+.F .diff .g{position:absolute;left:18px;color:var(--soft)}
+.F .diff .old{background:#EAE8E1;color:#5E5D56}
+.F .diff .old s{text-decoration-thickness:2px;color:#26251E}
+.F .diff .new{background:var(--bluet)}
+.F .diff .new b{font-weight:500;border-bottom:2px solid var(--blue)}
+.F .why{padding:14px 20px;border-top:1px solid var(--stone);font-size:14px}
+.F .why .mono{color:var(--pink);display:block;margin-bottom:4px}
+.F .tags{padding:0 20px 18px;display:flex;gap:6px}
+.F .tags span{font-family:'IBM Plex Mono',monospace;font-size:12px;border:1px solid var(--stone);padding:2px 8px;border-radius:2px;color:var(--soft)}
+@container (max-width:700px){
+ .nav{padding:14px 20px}.nav .hide{display:none}
+ .F .hero{grid-template-columns:1fr;gap:20px;padding:36px 20px 0}
+ .F .ledger{grid-template-columns:1fr;padding:32px 20px}.F .row{grid-template-columns:1fr;gap:4px}
+ .F .note{padding:0 20px 40px}
+ .F .sec{grid-template-columns:1fr;gap:28px;padding:48px 20px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="doc">
+<h1>Landing page: three more directions (round 2, Cursor only)</h1>
+<p>Say Briefly and Wise are out. Everything here is derived from the Cursor reference alone. Real copy is used throughout. <span class="sugkey">Dotted yellow underline</span> marks suggested wording that is not in <code>landing-page-copy.md</code>. People and quotes are the existing fictional demo content with an "illustrative" label. Source slots are placeholders. Directions A, B and C from round 1 remain in <code>direction-mocks.html</code>; B and C were Wise-influenced and are now retired.</p>
+<div class="box">
+<h2>Decisions so far</h2>
+<ul>
+<li><b>D1.</b> One action only: join the waitlist. Header "Apply" is removed.</li>
+<li><b>D2.</b> Pink = creators &amp; journalists. Blue = researchers &amp; organisations.</li>
+<li><b>D3.</b> The Hugging Face / OpenAI incident is real. A source link is needed.</li>
+<li><b>D4.</b> No em dashes, no invented proof, WCAG AA throughout.</li>
+<li><b>D5.</b> Reference: Cursor only. Say Briefly and Wise are dropped.</li>
+<li><b>Proposed.</b> A labelled example brief appears on the page. The "200,000" figure leaves the landing page.</li>
+</ul>
+</div>
+<div class="box">
+<h2>What every direction below keeps from Cursor</h2>
+<ul>
+<li>Warm parchment canvas, warm ink (never pure black or white), Bone cards, hairline borders in warm grey.</li>
+<li>Weight-400 headlines that tighten as they grow. 4px corners. Flat surfaces with soft warm shadows only on framed artifacts.</li>
+<li>Accent colour only as text. Here that is the pink and blue audience pair, used the way Cursor uses Ember: short phrases and labels, never button fills or big surfaces.</li>
+<li>One filled ink button, at most one lighter secondary. Mono for metadata only. Muted greys are darkened to pass AA (Cursor's own Ash, Driftwood and Mist fail).</li>
+<li>Contrast, measured on parchment: ink 14.3, soft text 6.2, pink 6.0, blue 8.9. On Bone cards: soft 5.9, pink 5.7, blue 8.4. On Linen: pink 5.1, blue 7.5.</li>
+</ul>
+</div>
+</div>
+
+<!-- ===================== D ===================== -->
+<section class="dir" id="dirD">
+<h2>D. Product Window</h2>
+<p class="feel">Cursor's own page structure: a plain statement, then the real thing, framed.</p>
+<div class="metagrid">
+<div><h3>Borrows from Cursor</h3><ul><li>Left-aligned weight-400 headline with one accent phrase, ink primary button, framed "window mockup" card with traffic-light dots, centred title and a tab strip, deep warm shadow, 50/50 text-and-artifact sections</li></ul></div>
+<div><h3>Palette</h3><div class="sw"><span style="background:#F7F7F4">parchment #F7F7F4</span><span style="background:#F2F1ED">bone #F2F1ED</span><span style="background:#26251E;color:#F7F7F4">ink #26251E</span><span style="background:#F7F7F4;color:#B80F5A">pink text #B80F5A</span><span style="background:#F7F7F4;color:#1D3AA6">blue text #1D3AA6</span></div></div>
+<div><h3>Type</h3><p>Inter 400 (stand-in for CursorGothic) with progressive tight tracking, EB Garamond for the quoted and editorial text inside the window, IBM Plex Mono for tabs and credentials.</p></div>
+<div><h3>Layout character</h3><p>Headline and one button, then a full-width window showing a brief with tabs (Brief, Q&amp;A, Quotes, Sources). Experts and creators both appear inside it as labelled voices. The second section is the Quotes list, text left and artifact right.</p></div>
+<div><h3>Trade-offs</h3><ul><li><b>Pro:</b> the page proves the product instantly. A journalist sees a quote with a name and a source slot in the first screen.</li><li><b>Pro:</b> a ready component system (window, tabs, cards) that carries into the app.</li><li><b>Con:</b> the two audiences are only labelled inside the window, so the "two doors" idea is quiet.</li><li><b>Con:</b> the window may read as a software tool. The content has to feel like reading, not like an IDE, which is why the text is serif.</li></ul></div>
+</div>
+
+<div class="cap">Desktop hero</div>
+<div class="frame D" id="D-hero">
+ <div class="nav"><span class="logo"><svg viewBox="0 0 28 18"><circle cx="9" cy="9" r="8" fill="#B80F5A"/><circle cx="19" cy="9" r="8" fill="#1D3AA6" fill-opacity=".92"/></svg>Tell The World</span>
+  <div class="r"><a class="hide" href="#">Blog</a><a class="hide" href="#">Sign in</a><a class="btn ink" href="#">Join the waitlist</a></div></div>
+ <div class="hero">
+  <span class="mono" style="color:var(--soft)">Opening soon</span>
+  <h1 style="margin-top:18px">AI safety research rarely reaches the people who could <span>tell its story.</span></h1>
+  <p class="sub">Tell The World connects AI safety researchers and organisations with the creators and journalists who can put their work in front of real audiences.</p>
+  <div class="acts"><a class="btn ink" href="#">Join the waitlist</a><a class="btn ghost" href="#"><span class="sug">See an example brief</span> ↓</a></div>
+  <div class="aud mono"><span><i style="background:var(--pink)"></i>Creators &amp; journalists</span><span><i style="background:var(--blue)"></i>Researchers &amp; organisations</span></div>
+ </div>
+ <div class="win">
+  <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="wt">The Hugging Face / OpenAI Security Incident</div><div></div></div>
+  <div class="tabs mono"><span class="on">Brief</span><span>Q&amp;A</span><span>Quotes</span><span>Sources</span></div>
+  <div class="panes">
+   <div class="pane"><h3>Quote</h3>
+    <p class="q">"The lesson here isn't about one model. It's about what happens once systems like this start operating faster than anyone can review."</p>
+    <div class="by"><b>Elena Vasquez</b><span class="tg bl">Expert</span><span>Independent Researcher</span></div>
+    <p class="q">"This is worse than what came before it, not just more widely covered."</p>
+    <div class="by"><b>Foresight Commons</b><span class="tg bl">Organisation</span><span>AI policy · existential risk</span></div>
+   </div>
+   <div class="pane"><h3>Q&amp;A</h3>
+    <div class="by" style="margin:0 0 8px"><b>Priya Sharma</b><span class="tg pk">Creator</span></div>
+    <p class="a" style="margin:0">This new report on the Hugging Face / OpenAI incident just came to my attention. How bad is it, really?</p>
+    <div class="by" style="margin:18px 0 8px"><b>Elena Vasquez</b><span class="tg bl">Expert</span></div>
+    <p class="a" style="margin:0">This is the clearest warning shot we've had. A handful of the agents involved even considered alerting a human, and every one of them decided not to.</p>
+   </div>
+  </div>
+  <div class="src">Sources: [citation placeholder, add the incident report link]</div>
+ </div>
+ <p class="ex"><span class="sug">Illustrative example, sample content</span></p>
+</div>
+
+<div class="cap">Desktop section: Quotes, on record</div>
+<div class="frame D" id="D-sec">
+ <div class="sec">
+  <div><span class="mono eyebrow">Quotes, on record</span>
+   <h2>A quote experts can actually stand behind.</h2>
+   <p class="prose">Experts and organisations add their own on-record quotes directly, in plain language. Every submission runs through a clarity check first, so jargon gets caught before it ever reaches a reader.</p></div>
+  <div><div class="card">
+   <div class="qrow"><p class="q">"The lesson here isn't about one model. It's about what happens once systems like this start operating faster than anyone can review."</p><div class="by" style="margin-bottom:0"><b>Elena Vasquez</b><span class="tg bl">Expert</span><span>Independent Researcher</span></div></div>
+   <div class="qrow"><p class="q">"This is worse than what came before it, not just more widely covered."</p><div class="by" style="margin-bottom:0"><b>Foresight Commons</b><span class="tg bl">Organisation</span><span>AI policy · existential risk</span></div></div>
+  </div><p class="ex" style="padding:10px 0 0"><span class="sug">Illustrative example, sample content</span></p></div>
+ </div>
+</div>
+<div class="cap">Mobile hero (390px)</div>
+<div class="mobwrap"><div class="frame D mob" data-src="#D-hero"></div></div>
+</section>
+
+<!-- ===================== E ===================== -->
+<section class="dir" id="dirE">
+<h2>E. Reading Room</h2>
+<p class="feel">A long, quiet read. The page behaves like the briefs it sells.</p>
+<div class="metagrid">
+<div><h3>Borrows from Cursor</h3><ul><li>The EB Garamond editorial voice, promoted from subheadings to the headline; tight tracking at large sizes; the "literary journal, not SaaS dashboard" feel; hairline rules instead of boxes; accent colour as text only</li></ul></div>
+<div><h3>Palette</h3><div class="sw"><span style="background:#F5F3EC">paper #F5F3EC</span><span style="background:#26251E;color:#F7F7F4">ink #26251E</span><span style="background:#F5F3EC;color:#B80F5A">pink italic</span><span style="background:#F5F3EC;color:#1D3AA6">blue label</span><span style="background:#D3CFC2">rule #D3CFC2</span></div><p style="margin-top:8px">No cards at all. Only paper, ink and two small accents.</p></div>
+<div><h3>Type</h3><p>EB Garamond 400 for headlines and reading text at large sizes, Inter only for buttons and nav, IBM Plex Mono for labels.</p></div>
+<div><h3>Layout character</h3><p>One narrow reading column with big margins. The hero is a typographic statement. Below it a ruled two-column "letter" speaks to each audience in its own colour. The second section is an essay. No product screenshots in the first screens.</p></div>
+<div><h3>Trade-offs</h3><ul><li><b>Pro:</b> the calmest, most credible and least alarmist tone. Closest to a journalist's own world, and very cheap to make accessible.</li><li><b>Pro:</b> the audience split is clear without any box or colour field.</li><li><b>Con:</b> shows nothing of the product above the fold, so it relies on the written claim.</li><li><b>Con:</b> may feel too quiet for creators. The pink italics are the only energy.</li></ul></div>
+</div>
+
+<div class="cap">Desktop hero</div>
+<div class="frame E" id="E-hero">
+ <div class="nav"><span class="logo"><svg viewBox="0 0 28 18"><circle cx="9" cy="9" r="8" fill="#B80F5A"/><circle cx="19" cy="9" r="8" fill="#1D3AA6" fill-opacity=".92"/></svg>Tell The World</span>
+  <div class="r"><a class="hide" href="#">Blog</a><a class="hide" href="#">Sign in</a></div></div>
+ <div class="hero">
+  <span class="mono" style="color:var(--soft)">Opening soon</span>
+  <h1>AI safety research rarely reaches the people who could <em>tell its story.</em></h1>
+  <p class="sub">Tell The World connects AI safety researchers and organisations with the creators and journalists who can put their work in front of real audiences.</p>
+  <div class="acts"><a class="btn ink" href="#">Join the waitlist</a><span style="font-size:14px;color:var(--soft)"><span class="sug">We review every request and reply by email.</span></span></div>
+ </div>
+ <div class="letter"><div class="cols">
+  <div class="col"><span class="mono pk">Creators &amp; journalists</span><p>Know how to turn complicated research into stories people can relate to.</p><a class="btn ghost" href="#">Join the waitlist →</a></div>
+  <div class="col"><span class="mono bl">Researchers &amp; organisations</span><p>Have important messages on how to make AI go well.</p><a class="btn ghost" href="#">Join the waitlist →</a></div>
+ </div></div>
+</div>
+
+<div class="cap">Desktop section: Why this matters now</div>
+<div class="frame E" id="E-sec">
+ <div class="essay"><div class="in">
+  <span class="mono eyebrow">Why this matters now</span>
+  <h2>Attention shows up, <em>understanding doesn't always follow.</em></h2>
+  <p>AI incidents are all over the news and existential risk is reaching the mainstream. Now that people are finally paying attention, we need a way to keep the momentum going, while providing candid &amp; credible explanations from the people and organisations who actually study this. We need to do this at scale, now.</p>
+ </div></div>
+</div>
+<div class="cap">Mobile hero (390px)</div>
+<div class="mobwrap"><div class="frame E mob" data-src="#E-hero"></div></div>
+</section>
+
+<!-- ===================== F ===================== -->
+<section class="dir" id="dirF">
+<h2>F. Ledger</h2>
+<p class="feel">Two parallel records, side by side: who you are, what you bring, what you get.</p>
+<div class="metagrid">
+<div><h3>Borrows from Cursor</h3><ul><li>Bone product cards with hairline rows, mono metadata labels, the inline diff view from the agent mockups (used for the clarity check), terminal-style field framing, flat structure with one soft shadow on the artifact</li></ul></div>
+<div><h3>Palette</h3><div class="sw"><span style="background:#F7F7F4">parchment</span><span style="background:#F2F1ED">bone #F2F1ED</span><span style="background:#26251E;color:#F7F7F4">ink</span><span style="background:#F2F1ED;color:#B80F5A">pink label</span><span style="background:#F2F1ED;color:#1D3AA6">blue label</span><span style="background:#DDE4F8">added text tint</span></div></div>
+<div><h3>Type</h3><p>Inter 400 headlines with tight tracking, Inter body, IBM Plex Mono doing real work: row labels and the diff itself.</p></div>
+<div><h3>Layout character</h3><p>Headline left, plain-language subtext right. Below it two matching Bone cards, one per audience, built from labelled rows. The second section shows the clarity check as an inline diff: the jargon struck out, the plain wording added.</p></div>
+<div><h3>Trade-offs</h3><ul><li><b>Pro:</b> treats both audiences as true equals, with identical structure and one button each. It is the most direct answer to "what do I get?".</li><li><b>Pro:</b> the diff makes the clarity check obvious without any explanation, and demonstrates "plain language" visibly.</li><li><b>Con:</b> the most "tool-like" and dense. Needs careful wording so it reads as a service, not a spec sheet.</li><li><b>Con:</b> the rows need copy that does not exist yet beyond what is shown here.</li></ul></div>
+</div>
+
+<div class="cap">Desktop hero</div>
+<div class="frame F" id="F-hero">
+ <div class="nav"><span class="logo"><svg viewBox="0 0 28 18"><circle cx="9" cy="9" r="8" fill="#B80F5A"/><circle cx="19" cy="9" r="8" fill="#1D3AA6" fill-opacity=".92"/></svg>Tell The World</span>
+  <div class="r"><a class="hide" href="#">Blog</a><a class="hide" href="#">Sign in</a><a class="btn ink" href="#">Join the waitlist</a></div></div>
+ <div class="hero">
+  <div><span class="mono" style="color:var(--soft)">Opening soon</span><h1 style="margin-top:16px">AI safety research rarely reaches the people who could <span>tell its story.</span></h1></div>
+  <p class="sub">Tell The World connects AI safety researchers and organisations with the creators and journalists who can put their work in front of real audiences.</p>
+ </div>
+ <div class="ledger">
+  <div class="lc p">
+   <div class="lh"><span class="mono">Creators &amp; journalists</span><span class="mono" style="color:var(--soft)">01</span></div>
+   <div class="row"><span class="mono">You bring</span><span>Know how to turn complicated research into stories people can relate to.</span></div>
+   <div class="row"><span class="mono">You get</span><span>Early access to briefs, quotes, and direct contact with the people doing the research.</span></div>
+   <div class="lf"><a class="btn ink" href="#">Join the waitlist</a></div>
+  </div>
+  <div class="lc b">
+   <div class="lh"><span class="mono">Researchers &amp; organisations</span><span class="mono" style="color:var(--soft)">02</span></div>
+   <div class="row"><span class="mono">You bring</span><span>Have important messages on how to make AI go well.</span></div>
+   <div class="row"><span class="mono">You get</span><span>A say in shaping the first briefs and Q&amp;A threads that creators and journalists will use. <span class="sug">(trimmed from "actually use")</span></span></div>
+   <div class="lf"><a class="btn ink" href="#">Join the waitlist</a></div>
+  </div>
+ </div>
+ <p class="note"><span class="sug">Members are approved before they can post or sign in. We review every request and reply by email.</span></p>
+</div>
+
+<div class="cap">Desktop section: Quotes, on record (clarity check as a diff)</div>
+<div class="frame F" id="F-sec">
+ <div class="sec">
+  <div><span class="mono eyebrow">Quotes, on record</span>
+   <h2>A quote experts can actually stand behind.</h2>
+   <p class="prose">Experts and organisations add their own on-record quotes directly, in plain language. Every submission runs through a clarity check first, so jargon gets caught before it ever reaches a reader.</p></div>
+  <div>
+   <div class="term">
+    <div class="top mono"><span>Add a quote</span><span>For: The Hugging Face / OpenAI Security Incident</span></div>
+    <div class="diff">
+     <div class="old"><span class="g">-</span>The incident report is straightforward: this was <s>reward hacking</s>. The agents found a shortcut that scored well, and none of them told a human.</div>
+     <div class="new"><span class="g">+</span>The incident report is straightforward: this was <b>an AI gaming its own scoring system</b>. The agents found a shortcut that scored well, and none of them told a human.</div>
+    </div>
+    <div class="why"><span class="mono">1 term flagged</span>"reward hacking": When an AI finds an unintended shortcut that scores well on its training objective without doing what was actually wanted.</div>
+    <div class="tags" style="padding-top:14px"><span>ai safety</span><span>frontier labs</span></div>
+    <div style="padding:0 20px 20px;display:flex;gap:14px;align-items:center"><a class="btn ink" href="#">Publish quote</a><span style="font-size:14px;color:var(--soft)">Cancel</span></div>
+   </div>
+   <p class="mono" style="margin-top:10px;text-align:right;color:var(--soft)"><span class="sug">Illustrative example, sample content</span></p>
+  </div>
+ </div>
+</div>
+<div class="cap">Mobile hero (390px)</div>
+<div class="mobwrap"><div class="frame F mob" data-src="#F-hero"></div></div>
+</section>
+
+</div>
+<script>
+document.querySelectorAll('[data-src]').forEach(function(m){
+  m.innerHTML=document.querySelector(m.dataset.src).innerHTML;
+});
+</script>
+</body>
+</html>

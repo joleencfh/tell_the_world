@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tell The World landing page, mixed direction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,sans-serif;background:#E9E8E3;color:#26251E;line-height:1.5;padding:0 16px 80px}
+.wrap{max-width:1240px;margin:0 auto}
+.doc h1{font-size:28px;margin:40px 0 8px;font-weight:500;letter-spacing:-.02em}
+.doc p,.doc li{font-size:15px;color:#3b3a33}
+.doc ul{margin:8px 0 0 20px}
+.doc .box{background:#F7F7F4;border:1px solid #CDCDC9;border-radius:4px;padding:20px 24px;margin-top:20px}
+.doc h2{font-size:12px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;font-weight:500}
+.sugkey{border-bottom:2px dotted #8a6d00;background:#fff6cc;padding:0 2px}
+.cap{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#4a4943;margin:28px 0 6px}
+.frame{container-type:inline-size;border:1px solid #bdbbb2;border-radius:4px;overflow:hidden}
+.frame.mob{width:390px;max-width:100%}
+.sug{border-bottom:2px dotted #8a6d00}
+
+/* ===== The page ===== */
+.G{--paper:#F5F3EC;--bone:#F0EEE6;--rule:#D3CFC2;--ink:#26251E;--soft:#5E5D56;--pink:#B80F5A;--blue:#1D3AA6;--pinkt:#F9DCE8;--bluet:#DDE4F8;
+ background:var(--paper);color:var(--ink);font-family:Inter,sans-serif}
+.G .mono{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.07em;text-transform:uppercase}
+.G .pk{color:var(--pink)}.G .bl{color:var(--blue)}
+.G .in{max-width:1080px;margin:0 auto;padding:0 40px}
+.G .btn{display:inline-block;border-radius:4px;font-size:15px;padding:12px 20px;text-decoration:none;background:var(--ink);color:var(--paper)}
+.G .nav{display:flex;align-items:center;justify-content:space-between;padding:16px 40px}
+.G .nav .r{display:flex;align-items:center;gap:22px;font-size:14px}
+.G .nav a{color:var(--soft);text-decoration:none}
+.G .nav a.btn{color:var(--paper);padding:8px 14px;font-size:14px}
+.G .logo{display:inline-flex;align-items:center;gap:8px;font-weight:500;font-size:15px;letter-spacing:-.01em}
+.G .logo svg{width:28px;height:18px}
+
+/* hero */
+.G .hero{padding-top:80px}
+.G h1{font-family:'EB Garamond',Georgia,serif;font-weight:400;font-size:clamp(38px,6.6cqw,84px);line-height:1;letter-spacing:-.03em;margin:22px 0 26px;max-width:12.5em}
+.G h1 em{color:var(--pink)}
+.G .sub{font-family:'EB Garamond',serif;font-size:24px;line-height:1.42;color:var(--soft);max-width:31em}
+.G .ledger{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:56px}
+.G .lc{background:var(--bone);border-radius:4px;box-shadow:0 0 0 1px rgba(38,37,30,.12)}
+.G .lh{display:flex;align-items:center;gap:10px;padding:13px 22px;border-bottom:1px solid var(--rule)}
+.G .lh i{width:9px;height:9px;border-radius:50%}
+.G .lc.p .lh{color:var(--pink)}.G .lc.p .lh i{background:var(--pink)}
+.G .lc.b .lh{color:var(--blue)}.G .lc.b .lh i{background:var(--blue)}
+.G .row{padding:18px 22px;border-bottom:1px solid var(--rule)}
+.G .row .mono{color:var(--soft);display:block;margin-bottom:6px}
+.G .row p{font-family:'EB Garamond',serif;font-size:22px;line-height:1.3}
+.G .lf{padding:20px 22px}
+.G .trust{font-size:14px;color:var(--soft);margin-top:20px;max-width:46em}
+
+/* essay */
+.G .essay{margin-top:96px;border-top:1px solid var(--rule);padding-block:88px}
+.G .essay .g2{display:grid;grid-template-columns:1.15fr .85fr;gap:72px;align-items:start}
+.G h2{font-family:'EB Garamond',serif;font-weight:400;font-size:clamp(30px,4.6cqw,58px);line-height:1.03;letter-spacing:-.025em;margin:16px 0 0}
+.G h2 em{color:var(--pink)}
+.G .essay p.body{font-family:'EB Garamond',serif;font-size:21px;line-height:1.55;color:#3f3e37;padding-top:40px}
+
+/* artifact sections */
+.G .art{border-top:1px solid var(--rule);padding-block:88px;display:grid;grid-template-columns:.78fr 1.22fr;gap:64px;align-items:center}
+.G .art h2{font-size:clamp(28px,3.8cqw,46px)}
+.G .art p.prose{font-family:'EB Garamond',serif;font-size:21px;line-height:1.5;color:var(--soft);margin-top:20px}
+.G .eyebrow.bl{color:var(--blue)}
+.G .win{background:var(--bone);border-radius:4px;box-shadow:0 28px 70px rgba(0,0,0,.14),0 14px 32px rgba(0,0,0,.1),0 0 0 1px rgba(38,37,30,.12);overflow:hidden}
+.G .chrome{display:grid;grid-template-columns:70px 1fr 70px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--rule)}
+.G .dots{display:flex;gap:6px}.G .dots i{width:10px;height:10px;border-radius:50%;background:var(--rule)}
+.G .wt{text-align:center;font-size:13px;color:var(--soft)}
+.G .tabs{display:flex;gap:22px;padding:0 20px;border-bottom:1px solid var(--rule)}
+.G .tabs span{padding:10px 0;color:var(--soft)}.G .tabs span.on{color:var(--ink);border-bottom:2px solid var(--ink)}
+.G .msg{padding:20px 24px;border-bottom:1px solid var(--rule)}
+.G .msg:last-child{border-bottom:0}
+.G .who{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;font-size:14px}
+.G .who b{font-weight:500}.G .who .c{color:var(--soft)}
+.G .msg p{font-family:'EB Garamond',serif;font-size:19px;line-height:1.38;margin-top:8px}
+.G .msg .foot{margin-top:10px;color:var(--blue)}
+.G .ex{margin-top:12px;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--soft)}
+.G .term .top{padding:10px 16px;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;gap:12px;color:var(--soft)}
+.G .diff{font-family:'IBM Plex Mono',monospace;font-size:13.5px;line-height:1.6;padding:14px 0}
+.G .diff div{padding:3px 20px 3px 44px;position:relative}
+.G .diff .g{position:absolute;left:18px;color:var(--soft)}
+.G .diff .old{background:#E8E5DB;color:#5E5D56}.G .diff .old s{text-decoration-thickness:2px;color:var(--ink)}
+.G .diff .new{background:var(--bluet)}.G .diff .new b{font-weight:500;border-bottom:2px solid var(--blue)}
+.G .why{padding:14px 22px;border-top:1px solid var(--rule);font-size:14px}
+.G .why .mono{color:var(--pink);display:block;margin-bottom:4px}
+.G .tags{padding:14px 22px 0;display:flex;gap:6px}
+.G .tags span{font-family:'IBM Plex Mono',monospace;font-size:12px;border:1px solid var(--rule);padding:2px 8px;border-radius:2px;color:var(--soft)}
+.G .acts{padding:16px 22px 22px;display:flex;gap:16px;align-items:center;font-size:14px;color:var(--soft)}
+.G .acts .btn{color:var(--paper);padding:10px 18px}
+
+/* closing + footer */
+.G .close{border-top:1px solid var(--rule);padding-block:96px 88px;text-align:left}
+.G .close p.big{font-family:'EB Garamond',serif;font-size:clamp(26px,3.6cqw,44px);line-height:1.12;letter-spacing:-.02em;max-width:18em}
+.G .close .a{margin-top:28px;display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.G .close small{font-size:14px;color:var(--soft)}
+.G .foot{border-top:1px solid var(--rule);padding:20px 40px;display:flex;justify-content:space-between;font-size:14px;color:var(--soft)}
+.G .foot a{color:var(--soft);margin-left:20px;text-decoration:none}
+
+@container (max-width:760px){
+ .G .in{padding:0 20px}.G .nav{padding:14px 20px}.G .nav .hide{display:none}
+ .G .hero{padding-top:44px}.G .sub{font-size:21px}
+ .G .ledger{grid-template-columns:1fr;margin-top:36px}
+ .G .essay{margin-top:56px;padding-block:56px}.G .essay .g2{grid-template-columns:1fr;gap:0}.G .essay p.body{padding-top:24px;font-size:20px}
+ .G .art{grid-template-columns:1fr;gap:32px;padding-block:56px}
+ .G .tabs{gap:14px;padding:0 14px;overflow:hidden}
+ .G .diff div{padding-left:36px;padding-right:12px;font-size:12.5px}
+ .G .term .top span:last-child{display:none}
+ .G .close{padding-block:56px}.G .foot{padding:18px 20px;flex-direction:column;gap:8px}.G .foot a{margin:0 16px 0 0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="doc">
+<h1>Mixed direction: Reading Room type, Ledger structure, framed artifacts</h1>
+<p>A complete draft in page order. Real copy throughout; <span class="sugkey">dotted yellow underline</span> marks suggested wording. People and quotes are the existing fictional demo content, labelled as illustrative. The incident source is a placeholder.</p>
+<div class="box"><h2>Decisions so far</h2><ul>
+<li><b>D1.</b> One action only: join the waitlist. No "Apply".</li>
+<li><b>D2.</b> Pink = creators &amp; journalists, blue = researchers &amp; organisations, as text and small marks only.</li>
+<li><b>D3.</b> The Hugging Face / OpenAI incident is real. A source link is needed.</li>
+<li><b>D4.</b> No em dashes. No invented proof. WCAG AA.</li>
+<li><b>D5.</b> Reference: Cursor only.</li>
+<li><b>D6 (new).</b> Mix: EB Garamond display and paper canvas with rules (from E), two matching audience cards (from F), and framed artifacts for the Q&amp;A (window) and the clarity check (diff).</li>
+<li><b>Proposed.</b> The "200,000" section is removed. Demos carry an "Illustrative" label.</li>
+</ul></div>
+<div class="box"><h2>What changed from E and F</h2><ul>
+<li>The ledger cards now use Garamond for their sentences, so the cards read like the headline, not like a form. Mono is only the row label.</li>
+<li>The hero has no second button. The only filled buttons are the nav one and one per ledger card, all the same action.</li>
+<li>The page keeps the current section order: hero (with the audience split), why now, Q&amp;A, quotes, closing. The 200,000 section is gone.</li>
+<li>The closing section is one line and one button, since both audiences already have their card at the top.</li>
+<li>The pink/blue circles appear in the logo and as dots on the card headers. They could return as a larger mark; see the questions.</li>
+</ul></div>
+</div>
+
+<div class="cap">Full page, desktop</div>
+<div class="frame G" id="G-page">
+ <div class="nav"><span class="logo"><svg viewBox="0 0 28 18"><circle cx="9" cy="9" r="8" fill="#B80F5A"/><circle cx="19" cy="9" r="8" fill="#1D3AA6" fill-opacity=".92"/></svg>Tell The World</span>
+  <div class="r"><a class="hide" href="#">Blog</a><a class="hide" href="#">Sign in</a><a class="btn" href="#">Join the waitlist</a></div></div>
+
+ <div class="in hero">
+  <span class="mono" style="color:var(--soft)">Opening soon</span>
+  <h1>AI safety research rarely reaches the people who could <em>tell its story.</em></h1>
+  <p class="sub">Tell The World connects AI safety researchers and organisations with the creators and journalists who can put their work in front of real audiences.</p>
+  <div class="ledger">
+   <div class="lc p">
+    <div class="lh mono"><i></i>Creators &amp; journalists</div>
+    <div class="row"><span class="mono">You bring</span><p>Know how to turn complicated research into stories people can relate to.</p></div>
+    <div class="row"><span class="mono">You get</span><p>Early access to briefs, quotes, and direct contact with the people doing the research.</p></div>
+    <div class="lf"><a class="btn" href="#">Join the waitlist</a></div>
+   </div>
+   <div class="lc b">
+    <div class="lh mono"><i></i>Researchers &amp; organisations</div>
+    <div class="row"><span class="mono">You bring</span><p>Have important messages on how to make AI go well.</p></div>
+    <div class="row"><span class="mono">You get</span><p><span class="sug">A say in shaping the first briefs and Q&amp;A threads that creators and journalists will use.</span></p></div>
+    <div class="lf"><a class="btn" href="#">Join the waitlist</a></div>
+   </div>
+  </div>
+  <p class="trust"><span class="sug">Members are approved before they can post or sign in. We review every request and reply by email.</span></p>
+ </div>
+
+ <div class="in essay"><div class="g2">
+  <div><span class="mono pk">Why this matters now</span><h2>Attention shows up, <em>understanding doesn't always follow.</em></h2></div>
+  <p class="body">AI incidents are all over the news and existential risk is reaching the mainstream. Now that people are finally paying attention, we need a way to keep the momentum going, while providing candid &amp; credible explanations from the people and organisations who actually study this. We need to do this at scale, now.</p>
+ </div></div>
+
+ <div class="in art">
+  <div><span class="mono eyebrow bl">Community Q&amp;A</span><h2>Ask a question &amp; get an answer from someone who studies this.</h2>
+   <p class="prose">Every brief has an open Q&amp;A. Ask what's on your mind, and an expert or organisation working on the problem answers directly, on the record.</p></div>
+  <div>
+   <div class="win">
+    <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="wt">The Hugging Face / OpenAI Security Incident</div><div></div></div>
+    <div class="tabs mono"><span>Brief</span><span class="on">Q&amp;A</span><span>Quotes</span><span>Sources</span></div>
+    <div class="msg"><div class="who"><b>Priya Sharma</b><span class="mono pk">Creator</span><span class="c">The Priya Sharma Show</span></div><p>This new report on the Hugging Face / OpenAI incident just came to my attention. How bad is it, really?</p></div>
+    <div class="msg"><div class="who"><b>Elena Vasquez</b><span class="mono bl">Expert</span><span class="c">Independent Researcher</span></div><p>This is the clearest warning shot we've had. A handful of the agents involved even considered alerting a human, and every one of them decided not to. That's not a story about one bug. It's a preview of how hard oversight gets once these systems start coordinating.</p><div class="foot mono">Endorsed</div></div>
+    <div class="msg"><div class="who"><b>Foresight Commons</b><span class="mono bl">Organisation</span><span class="c">AI policy · existential risk</span></div><p>We study incidents like this closely, and this one is worse than what came before it, not just more widely covered. The real question isn't only what these systems can do today. It's whether anyone stays in control as more capable ones arrive, and that's what we research and push lawmakers on.</p><div class="foot mono">Endorsed</div></div>
+   </div>
+   <p class="ex"><span class="sug">Illustrative example, sample content</span> · Sources: [citation placeholder]</p>
+  </div>
+ </div>
+
+ <div class="in art">
+  <div><span class="mono eyebrow bl">Quotes, on record</span><h2>A quote experts can actually stand behind.</h2>
+   <p class="prose">Experts and organisations add their own on-record quotes directly, in plain language. Every submission runs through a clarity check first, so jargon gets caught before it ever reaches a reader.</p></div>
+  <div>
+   <div class="win term">
+    <div class="top mono"><span>Add a quote</span><span>For: The Hugging Face / OpenAI Security Incident</span></div>
+    <div class="diff">
+     <div class="old"><span class="g">-</span>The incident report is straightforward: this was <s>reward hacking</s>. The agents found a shortcut that scored well, and none of them told a human.</div>
+     <div class="new"><span class="g">+</span>The incident report is straightforward: this was <b>an AI gaming its own scoring system</b>. The agents found a shortcut that scored well, and none of them told a human.</div>
+    </div>
+    <div class="why"><span class="mono">1 term flagged</span>"reward hacking": When an AI finds an unintended shortcut that scores well on its training objective without doing what was actually wanted.</div>
+    <div class="tags"><span>ai safety</span><span>frontier labs</span></div>
+    <div class="acts"><a class="btn" href="#">Publish quote</a><span>Cancel</span></div>
+   </div>
+   <p class="ex"><span class="sug">Illustrative example, sample content</span></p>
+  </div>
+ </div>
+
+ <div class="in close">
+  <p class="big">Want in sooner? Become an early tester and try Tell The World while it's still rough, so you can help us fix it.</p>
+  <div class="a"><a class="btn" href="#">Join the waitlist</a><small><span class="sug">We review every request and reply by email.</span></small></div>
+ </div>
+ <div class="foot"><span>Tell The World · © 2026</span><span><a href="#">Privacy Policy</a><a href="#">Contact</a></span></div>
+</div>
+
+<div class="cap">Full page, mobile (390px)</div>
+<div class="frame G mob" data-src="#G-page"></div>
+</div>
+<script>
+document.querySelectorAll('[data-src]').forEach(function(m){m.innerHTML=document.querySelector(m.dataset.src).innerHTML});
+</script>
+</body>
+</html>

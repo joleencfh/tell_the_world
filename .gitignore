@@ -53,5 +53,8 @@ yarn-error.log*
 /supabase/.temp
 next-env.d.ts
 
+# scratch QA captures from build sessions
+docs/design/**/built-screenshots/
+
 # varlock: generated from .env.schema
 env.d.ts
