@@ -56,3 +56,5 @@ next-env.d.ts
 .impeccable/config.local.json
 .impeccable/hook.cache.json
 docs/design/landing-page/.impeccable/
+.claude/skills/impeccable/
+.github/skills/
