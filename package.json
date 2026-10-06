@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "bun --bun varlock load",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -21,7 +22,8 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "resend": "^6.9.3",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "varlock": "^1.21.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",

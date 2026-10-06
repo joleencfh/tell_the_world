@@ -41,6 +41,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.schema
 
 # vercel
 .vercel
@@ -51,3 +52,6 @@ yarn-error.log*
 # supabase cli scratch
 /supabase/.temp
 next-env.d.ts
+
+# varlock: generated from .env.schema
+env.d.ts
