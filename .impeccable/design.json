@@ -1,0 +1,356 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-07T07:41:16.500Z",
+  "title": "Design System: Tell The World (landing page)",
+  "extensions": {
+    "colorMeta": {
+      "umber": {
+        "role": "neutral",
+        "displayName": "Umber Ink",
+        "canonical": "#26251E",
+        "tonalRamp": [
+          "#2B2A22",
+          "#474538",
+          "#64614F",
+          "#807D65",
+          "#9A967F",
+          "#BBB9AA",
+          "#DDDCD4",
+          "#F4F3F1"
+        ]
+      },
+      "parchment": {
+        "role": "neutral",
+        "displayName": "Parchment",
+        "canonical": "#F7F4EE",
+        "tonalRamp": [
+          "#342B18",
+          "#574729",
+          "#796439",
+          "#9C8149",
+          "#B69A63",
+          "#CEBC97",
+          "#E7DDCB",
+          "#F7F4EE"
+        ]
+      },
+      "vellum": {
+        "role": "neutral",
+        "displayName": "Vellum",
+        "canonical": "#FBFAF6",
+        "tonalRamp": [
+          "#352F18",
+          "#584E27",
+          "#7C6E37",
+          "#9F8D47",
+          "#B8A760",
+          "#D0C495",
+          "#E7E2CA",
+          "#F7F5ED"
+        ]
+      },
+      "rose": {
+        "role": "secondary",
+        "displayName": "Creator Rose",
+        "canonical": "#B80F5A",
+        "tonalRamp": [
+          "#470623",
+          "#760A3A",
+          "#A50D51",
+          "#D41168",
+          "#EE2B81",
+          "#F372AB",
+          "#F9B8D5",
+          "#FDE7F1"
+        ]
+      },
+      "rose-deep": {
+        "role": "secondary",
+        "displayName": "Deep Rose",
+        "canonical": "#9E0B4D",
+        "tonalRamp": [
+          "#480523",
+          "#77083A",
+          "#A70C51",
+          "#D70F69",
+          "#F02882",
+          "#F570AC",
+          "#FAB7D5",
+          "#FDE7F1"
+        ]
+      },
+      "rose-bright": {
+        "role": "tertiary",
+        "displayName": "Bright Rose (graphic only)",
+        "canonical": "#F0197E",
+        "tonalRamp": [
+          "#480524",
+          "#78083C",
+          "#A80B55",
+          "#D70E6D",
+          "#F12886",
+          "#F66FAE",
+          "#FAB7D7",
+          "#FDE7F2"
+        ]
+      },
+      "cobalt": {
+        "role": "secondary",
+        "displayName": "Researcher Cobalt",
+        "canonical": "#1D3AA6",
+        "tonalRamp": [
+          "#0B1741",
+          "#13266D",
+          "#1B3598",
+          "#2244C3",
+          "#3C5EDD",
+          "#7D94E8",
+          "#BEC9F4",
+          "#E9EDFB"
+        ]
+      },
+      "cobalt-deep": {
+        "role": "secondary",
+        "displayName": "Deep Cobalt",
+        "canonical": "#162E85",
+        "tonalRamp": [
+          "#0B1742",
+          "#12266D",
+          "#193599",
+          "#2144C5",
+          "#3A5EDE",
+          "#7C93E9",
+          "#BDC9F4",
+          "#E9EDFB"
+        ]
+      },
+      "cobalt-bright": {
+        "role": "tertiary",
+        "displayName": "Bright Cobalt (graphic only)",
+        "canonical": "#2150E8",
+        "tonalRamp": [
+          "#071645",
+          "#0C2474",
+          "#1133A2",
+          "#1642D0",
+          "#2F5BE9",
+          "#7492F1",
+          "#BAC8F8",
+          "#E8EDFD"
+        ]
+      },
+      "violet": {
+        "role": "tertiary",
+        "displayName": "Violet (graphic only)",
+        "canonical": "#6B21A8",
+        "tonalRamp": [
+          "#290D40",
+          "#44156B",
+          "#5F1D95",
+          "#7A26C0",
+          "#943FD9",
+          "#B77FE6",
+          "#DBBFF2",
+          "#F3EAFB"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Hero h1 only; weight 400, rose italic emphasis."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "\"Why this matters now\"."
+      },
+      "headline-sm": {
+        "displayName": "Headline Small",
+        "purpose": "Artifact-section h2s."
+      },
+      "statement": {
+        "displayName": "Statement",
+        "purpose": "Closing line."
+      },
+      "prose": {
+        "displayName": "Prose",
+        "purpose": "Serif section body."
+      },
+      "ui": {
+        "displayName": "UI",
+        "purpose": "Buttons, nav, form text."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Short uppercase mono metadata."
+      }
+    },
+    "shadows": [
+      {
+        "name": "hairline",
+        "value": "0 0 0 1px rgb(38 37 30 / 0.13)",
+        "purpose": "Audience cards and answer cards."
+      },
+      {
+        "name": "window",
+        "value": "0 28px 70px rgb(0 0 0 / 0.14), 0 14px 32px rgb(0 0 0 / 0.10), 0 0 0 1px rgb(38 37 30 / 0.12)",
+        "purpose": "Framed demo windows."
+      },
+      {
+        "name": "modal",
+        "value": "0 28px 70px rgb(0 0 0 / 0.28), 0 14px 32px rgb(0 0 0 / 0.16), 0 0 0 1px rgb(38 37 30 / 0.14)",
+        "purpose": "Waitlist dialog and the quote form inside the demo."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-standard",
+        "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Default easing for hover and press."
+      },
+      {
+        "name": "duration-fast",
+        "value": "150ms",
+        "purpose": "Hover and press (defined but not consumed; see Drift 8)."
+      },
+      {
+        "name": "duration-demo-step",
+        "value": "600ms",
+        "purpose": "A demo beat fading in (defined but not consumed; see Drift 8)."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "md",
+        "value": "768px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one action: Join the waitlist.",
+      "html": "<button class=\"ds-btn-primary\">Join the waitlist</button>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 22px;background:#26251E;color:#F7F4EE;border:2px solid transparent;border-radius:4px;font:500 15px/1 Inter,system-ui,sans-serif;white-space:nowrap;cursor:pointer;transition:background-color 150ms cubic-bezier(.4,0,.2,1)}.ds-btn-primary:hover{background:#3A3931}.ds-btn-primary:focus-visible{outline:2px solid #26251E;outline-offset:2px}"
+    },
+    {
+      "name": "Rose Button",
+      "kind": "button",
+      "refersTo": "button-rose",
+      "description": "Creators and journalists card only.",
+      "html": "<button class=\"ds-btn-rose\">Join the waitlist</button>",
+      "css": ".ds-btn-rose{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 22px;background:#B80F5A;color:#FFFFFF;border:2px solid transparent;border-radius:4px;font:500 15px/1 Inter,system-ui,sans-serif;white-space:nowrap;cursor:pointer;transition:background-color 150ms cubic-bezier(.4,0,.2,1)}.ds-btn-rose:hover{background:#9E0B4D}.ds-btn-rose:focus-visible{outline:2px solid #26251E;outline-offset:2px}"
+    },
+    {
+      "name": "Cobalt Button",
+      "kind": "button",
+      "refersTo": "button-cobalt",
+      "description": "Researchers and organisations card only.",
+      "html": "<button class=\"ds-btn-cobalt\">Join the waitlist</button>",
+      "css": ".ds-btn-cobalt{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 22px;background:#1D3AA6;color:#FFFFFF;border:2px solid transparent;border-radius:4px;font:500 15px/1 Inter,system-ui,sans-serif;white-space:nowrap;cursor:pointer;transition:background-color 150ms cubic-bezier(.4,0,.2,1)}.ds-btn-cobalt:hover{background:#162E85}.ds-btn-cobalt:focus-visible{outline:2px solid #26251E;outline-offset:2px}"
+    },
+    {
+      "name": "Audience Card",
+      "kind": "card",
+      "refersTo": "audience-card-rose",
+      "description": "Dot and mono label over a hairline, one serif sentence, the matching button.",
+      "html": "<section class=\"ds-card\"><h2 class=\"ds-card-h\"><span class=\"ds-dot\"></span>Creators &amp; journalists</h2><p class=\"ds-card-p\">Know how to turn complicated research into stories people can relate to.</p><div class=\"ds-card-f\"><button class=\"ds-btn-rose\">Join the waitlist</button></div></section>",
+      "css": ".ds-card{background:#F5E8EA;border-radius:4px;box-shadow:0 0 0 1px rgb(38 37 30/.13);max-width:420px;font-family:Inter,sans-serif}.ds-card-h{margin:0;display:flex;align-items:center;gap:10px;padding:13px 22px;border-bottom:1px solid rgb(38 37 30/.15);font:400 12px/1.4 \"IBM Plex Mono\",monospace;letter-spacing:.07em;text-transform:uppercase;color:#9E0B4D}.ds-dot{width:10px;height:10px;border-radius:9999px;background:currentColor}.ds-card-p{margin:0;padding:20px 22px 6px;font:400 25px/1.3 \"EB Garamond\",Georgia,serif;color:#26251E;max-width:17em}.ds-card-f{padding:18px 22px 22px}.ds-btn-rose{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 22px;background:#B80F5A;color:#FFFFFF;border:2px solid transparent;border-radius:4px;font:500 15px/1 Inter,system-ui,sans-serif;white-space:nowrap;cursor:pointer;transition:background-color 150ms cubic-bezier(.4,0,.2,1)}.ds-btn-rose:hover{background:#9E0B4D}.ds-btn-rose:focus-visible{outline:2px solid #26251E;outline-offset:2px}"
+    },
+    {
+      "name": "Role Label",
+      "kind": "chip",
+      "refersTo": "role-label-cobalt",
+      "description": "Thin bordered mono label; not a button.",
+      "html": "<span class=\"ds-role\">Expert</span>",
+      "css": ".ds-role{display:inline-flex;padding:1px 6px;border:1px solid rgb(29 58 166/.4);border-radius:2px;font:400 12px/1.4 \"IBM Plex Mono\",monospace;letter-spacing:.07em;text-transform:uppercase;color:#1D3AA6}"
+    },
+    {
+      "name": "Role Chip (selected)",
+      "kind": "chip",
+      "refersTo": "role-chip-selected-creator",
+      "description": "Radio chip: heavier border, leading dot and a side tint.",
+      "html": "<button class=\"ds-chip\" role=\"radio\" aria-checked=\"true\">Creator</button>",
+      "css": ".ds-chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:7px 9px;border:2px solid #26251E;border-radius:4px;background:#FBDDE8;color:#26251E;font:500 14px/1.2 Inter,sans-serif}.ds-chip::before{content:\"\";width:12px;height:12px;border-radius:9999px;border:1px solid #26251E;background:#26251E;box-shadow:inset 0 0 0 3px #FBFAF6}.ds-chip:focus-visible{outline:2px solid #26251E;outline-offset:2px}"
+    },
+    {
+      "name": "Form Field",
+      "kind": "input",
+      "refersTo": "form-field",
+      "description": "44px, 1px field-line border, 2px umber focus outline.",
+      "html": "<input class=\"ds-input\" placeholder=\"you@example.com\">",
+      "css": ".ds-input{box-sizing:border-box;width:100%;min-height:44px;padding:10px 12px;border:1px solid #7A786E;border-radius:4px;background:#fff;color:#26251E;font:400 16px Inter,sans-serif}.ds-input::placeholder{color:#5E5D56}.ds-input:focus-visible{border-color:#26251E;outline:2px solid #26251E;outline-offset:1px}"
+    },
+    {
+      "name": "Header",
+      "kind": "nav",
+      "refersTo": "button-header",
+      "description": "Parchment, sticky, hairline below; logo left, small primary button right.",
+      "html": "<header class=\"ds-hdr\"><span class=\"ds-logo\">Tell The World</span><nav><a class=\"ds-link\">Blog</a><a class=\"ds-link\">Sign in</a><button class=\"ds-btn-primary ds-sm\">Join the waitlist</button></nav></header>",
+      "css": ".ds-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 40px;background:#F7F4EE;border-bottom:1px solid #DEDBD3;font-family:Inter,sans-serif}.ds-hdr nav{display:flex;align-items:center;gap:8px}.ds-logo{font:500 15px Inter,sans-serif;letter-spacing:-.01em;color:#26251E}.ds-link{padding:0 10px;font-size:14px;color:#5E5D56}.ds-link:hover{color:#26251E;text-decoration:underline;text-underline-offset:3px}.ds-sm{min-height:36px;padding:0 14px;font-size:14px}.ds-btn-primary{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 22px;background:#26251E;color:#F7F4EE;border:2px solid transparent;border-radius:4px;font:500 15px/1 Inter,system-ui,sans-serif;white-space:nowrap;cursor:pointer;transition:background-color 150ms cubic-bezier(.4,0,.2,1)}.ds-btn-primary:hover{background:#3A3931}.ds-btn-primary:focus-visible{outline:2px solid #26251E;outline-offset:2px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Reading Room",
+    "overview": "Warm paper and one warm ink, with serif for everything meant to be read. The page is flat: hairlines and fills separate things, and shadow appears only on the framed artifacts (the two demo windows and the waitlist modal). Two audience colors carry all meaning. Rose is creators and journalists, cobalt is researchers and organisations, and the overlap of the two circles is violet. Color shows up as text, small marks, buttons and faint tints, never as a large saturated surface; the one exception in scale is the bright circle pair, which is graphic only and carries no text.\n\nDensity is open and unhurried: wide section padding, a single 1080px column, long serif sentences at 19 to 23px. Display type is quiet (weight 400, tight tracking) and gets its emphasis from a rose italic phrase rather than weight. Sans is reserved for controls and captions; mono for short uppercase metadata labels.\n\nThe product is a persuade surface for a vetted, invite-only network, so credibility is a visual rule as well as a copy rule: the demos are always captioned as illustrative, and nothing on the page imitates proof that does not exist.",
+    "keyCharacteristics": [
+      "Parchment canvas, umber ink, two audience colors used sparingly.",
+      "Serif for reading, Inter for controls, IBM Plex Mono for short uppercase labels.",
+      "Flat by default; elevation only on framed artifacts.",
+      "4px corners, 2px tags, circles for dots and avatars; no pills.",
+      "One action everywhere: join the waitlist.",
+      "Two pale bands only, between hairline rules."
+    ],
+    "rules": [
+      {
+        "name": "The Graphic-Only Rule",
+        "body": "Bright Rose, Bright Cobalt and Violet never carry text. Anything a reader must read uses Creator Rose, Researcher Cobalt or their deep variants.",
+        "section": "colors"
+      },
+      {
+        "name": "The Hand-Tuned Tint Rule",
+        "body": "Card Rose, Card Cobalt and the two bands were tuned by eye to about 25% strength while keeping hue. Never recompute them by mixing with paper; a plain mix turns grey.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two Bands Rule",
+        "body": "Exactly two full-bleed bands exist (pale, soft). Do not add a third.",
+        "section": "colors"
+      },
+      {
+        "name": "The Serif-For-Reading Rule",
+        "body": "Serif is for anything read; never for controls. Sans for controls and captions only. Mono for short labels, never sentences.",
+        "section": "typography"
+      },
+      {
+        "name": "The Quiet Display Rule",
+        "body": "Large type stays at weight 400 with tight tracking; hierarchy comes from size and the single italic rose phrase, not from bold. Line-height under 1.3 is allowed only on large, short text.",
+        "section": "typography"
+      },
+      {
+        "name": "The Framed-Only Rule",
+        "body": "Shadow belongs to framed artifacts only. (The mobile menu currently breaks this with Tailwind's default `shadow-lg`; see Drift.)",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** keep Bright Rose, Bright Cobalt and Violet to graphics (circles, dots, underline, borders); put all text in Creator Rose, Researcher Cobalt or their deep variants.",
+      "**Do** use serif for anything read, Inter for controls and captions, and mono only for short uppercase labels.",
+      "**Do** separate content with hairlines (`rule`, `window-line`) and the 1px `hairline` ring; reserve real shadow for framed artifacts.",
+      "**Do** keep every action named \"Join the waitlist\" (early-tester path excepted) and use the audience-colored buttons only where they match the audience.",
+      "**Do** label anything illustrative as \"Illustrative example, sample content\" and keep demos free of invented proof.",
+      "**Do** make meaning survive without color: role labels carry text, selected chips carry a dot and a heavier border, errors carry an icon and text.",
+      "**Do** keep touch targets at 44px, with a visible umber 2px focus outline."
+    ],
+    "donts": [
+      "**Don't** recompute the card and band tints by mixing with paper.",
+      "**Don't** add pills, a third band, a gradient, or a saturated full-width color surface.",
+      "**Don't** put shadow on the canvas, on cards, or on small controls.",
+      "**Don't** use serif for buttons, nav or form text, or set mono labels as sentences.",
+      "**Don't** use em dashes in user-facing copy (PRODUCT.md brand commitment).",
+      "**Don't** let demo windows contribute headings or focusable controls other than Pause/Play."
+    ]
+  }
+}
