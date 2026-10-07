@@ -1,5 +1,6 @@
 import { useId } from 'react'
 import CirclePair from '@/components/landing/CirclePair'
+import StatusChip from '@/components/landing/StatusChip'
 import WaitlistButton from '@/components/landing/WaitlistButton'
 
 // design-system.md, Audience card: one sentence per audience, side by side
@@ -23,12 +24,12 @@ function AudienceCard({
     >
       <h2
         id={headingId}
-        className={`m-0 flex items-center gap-2.5 border-b border-umber/15 px-[22px] py-[13px] font-mono text-label font-normal uppercase ${isRose ? 'text-rose-deep' : 'text-cobalt'}`}
+        className={`m-0 flex items-center gap-2.5 px-[22px] pb-0 pt-[18px] font-mono text-label font-normal uppercase ${isRose ? 'text-rose-deep' : 'text-cobalt'}`}
       >
         <span aria-hidden className="size-2.5 shrink-0 rounded-full bg-current" />
         {label}
       </h2>
-      <p className="max-w-[17em] px-[22px] pb-1.5 pt-5 font-serif text-[1.4375rem] leading-[1.3] text-umber md:text-card">
+      <p className="max-w-[17em] px-[22px] pb-1.5 pt-3 font-serif text-[1.4375rem] leading-[1.3] text-umber md:text-card">
         {children}
       </p>
       <div className="px-[22px] pb-[22px] pt-[18px]">
@@ -43,8 +44,7 @@ export default function Hero() {
     <section className="mx-auto max-w-page px-5 md:px-gutter">
       <div className="grid gap-6 pt-9 md:grid-cols-[1fr_230px] md:items-start md:gap-14 md:pt-16">
         <div>
-          <span className="font-mono text-label uppercase text-umber-soft">Opening soon</span>
-          <h1 className="mb-6 mt-5 max-w-[13em] font-serif text-display text-umber">
+          <h1 className="mb-6 max-w-[13em] font-serif text-display text-umber">
             AI safety research rarely reaches the people who could{' '}
             <em className="whitespace-nowrap text-rose">tell its story.</em>
           </h1>
@@ -57,7 +57,7 @@ export default function Hero() {
         {/* design-system.md, Circle pair: hero size with a two-line legend. */}
         <div className="flex items-center gap-4 md:block md:pt-11">
           <CirclePair className="block h-auto w-[132px] shrink-0 md:w-full" label="Two overlapping circles: creators and journalists in pink, researchers and organisations in blue" />
-          <ul className="m-0 grid list-none gap-1.5 p-0 font-mono text-label uppercase md:mt-3.5">
+          <ul className="m-0 grid list-none gap-1.5 p-0 font-ui text-ui-sm md:mt-3.5">
             <li className="flex items-center gap-2 text-rose">
               <span aria-hidden className="size-2.5 shrink-0 rounded-full bg-rose-bright" />
               Creators &amp; journalists
@@ -79,9 +79,10 @@ export default function Hero() {
         </AudienceCard>
       </div>
 
-      <p className="max-w-[46em] pb-11 pt-5 text-ui-sm text-umber-soft md:pb-16">
-        Members are approved before they can post or sign in.
-      </p>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pb-11 pt-5 md:pb-16">
+        <StatusChip className="inline-flex md:hidden" />
+        <p className="max-w-[46em] text-base text-umber-soft">Members are approved before they can post or sign in.</p>
+      </div>
     </section>
   )
 }

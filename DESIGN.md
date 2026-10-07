@@ -7,7 +7,6 @@ colors:
   vellum: "#FBFAF6"
   card-rose: "#F5E8EA"
   card-cobalt: "#E8ECF6"
-  band-pale: "#EFF2F9"
   band-soft: "#E5EAF6"
   disabled: "#E4E1D8"
   umber: "#26251E"
@@ -66,6 +65,11 @@ typography:
   prose:
     fontFamily: "EB Garamond, Georgia, serif"
     fontSize: "1.3125rem"
+    fontWeight: 400
+    lineHeight: 1.5
+  prose-sm:
+    fontFamily: "EB Garamond, Georgia, serif"
+    fontSize: "1.25rem"
     fontWeight: 400
     lineHeight: 1.5
   message:
@@ -201,7 +205,7 @@ Scope: the landing route `/` only. The rest of the app still runs on the older T
 
 Warm paper and one warm ink, with serif for everything meant to be read. The page is flat: hairlines and fills separate things, and shadow appears only on the framed artifacts (the two demo windows and the waitlist modal). Two audience colors carry all meaning. Rose is creators and journalists, cobalt is researchers and organisations, and the overlap of the two circles is violet. Color shows up as text, small marks, buttons and faint tints, never as a large saturated surface; the one exception in scale is the bright circle pair, which is graphic only and carries no text.
 
-Density is open and unhurried: wide section padding, a single 1080px column, long serif sentences at 19 to 23px. Display type is quiet (weight 400, tight tracking) and gets its emphasis from a rose italic phrase rather than weight. Sans is reserved for controls and captions; mono for short uppercase metadata labels.
+Density is open and unhurried: wide section padding, a single 1080px column, long serif sentences at 19 to 23px. Display type is quiet (weight 400, tight tracking) and gets its emphasis from one rose italic phrase in the hero h1 rather than weight. Sans is reserved for controls and captions; mono for short uppercase labels inside cards and demo windows, never as a label above a page heading.
 
 The product is a persuade surface for a vetted, invite-only network, so credibility is a visual rule as well as a copy rule: the demos are always captioned as illustrative, and nothing on the page imitates proof that does not exist.
 
@@ -221,8 +225,8 @@ A warm neutral ground with a rose and a cobalt that each come in three jobs: rea
 - **Umber Ink** (`#26251E`): all primary text and the primary button fill. Hover is **Umber Hover** (`#3A3931`).
 
 ### Secondary
-- **Creator Rose** (`#B80F5A`): creators and journalists. Accent phrases, eyebrows on pale bands, rose button fill. **Deep Rose** (`#9E0B4D`) is for rose labels on tints, error text and rose hover. **Rose Wash** (`#FBDDE8`) is the selected chip and the flagged-term panel.
-- **Researcher Cobalt** (`#1D3AA6`): researchers and organisations. Eyebrows, Endorsed counts, cobalt button fill. **Deep Cobalt** (`#162E85`) is cobalt hover. **Cobalt Wash** (`#DCE5FB`) is the selected chip and the text-selection highlight in the quote demo.
+- **Creator Rose** (`#B80F5A`): creators and journalists. The hero h1 accent phrase, card labels, rose button fill. **Deep Rose** (`#9E0B4D`) is for rose labels on tints, error text and rose hover. **Rose Wash** (`#FBDDE8`) is the selected chip and the flagged-term panel.
+- **Researcher Cobalt** (`#1D3AA6`): researchers and organisations. Card labels, Endorsed counts, cobalt button fill. **Deep Cobalt** (`#162E85`) is cobalt hover. **Cobalt Wash** (`#DCE5FB`) is the selected chip and the text-selection highlight in the quote demo.
 
 ### Tertiary (graphic only, never text)
 - **Bright Rose** (`#F0197E`), **Bright Cobalt** (`#2150E8`), **Violet** (`#6B21A8`): the circle pair, legend dots and the flagged-term underline. Bright Rose on parchment is 3.7:1 and Bright Cobalt 5.7:1, so neither is cleared for text.
@@ -261,10 +265,11 @@ Contrast was recomputed on 2026-10-07 for every pairing in design-system.md's ta
 - **Statement** (400, clamp 28 to 44px, 1.12, -0.02em): the closing line.
 - **Lead** (23px, 1.42; 21px under md): hero sub.
 - **Card** (25px, 1.3; 23px under md): the one sentence per audience card.
-- **Prose** (21px, 1.5; 20px under md): section body, max about 28em in the hero.
+- **Prose** (21px, 1.5; `prose-sm` 20px under md): section body, max about 28em in the hero.
+- **Body** (16px, `text-base`): the hero trust line. Body copy is never below 16px; 14px and 12px are for captions and labels only.
 - **Message** (19px, 1.4): serif text inside the demo windows.
-- **UI** (15px, 1.5, weight 500 on buttons): buttons, nav, form text. **UI Small** (14px, 1.5): captions, trust line, footer, header links.
-- **Label** (12px, 1.4, +0.07em, uppercase): mono eyebrows, window tabs, role labels, Endorsed counts.
+- **UI** (15px, 1.5, weight 500 on buttons): buttons, nav, form text. **UI Small** (14px, 1.5): captions, status chip, hero legend, window titles, credentials, form labels, errors, footer, header links, the small header button. 13px and 13.5px are retired.
+- **Label** (12px, 1.4, +0.07em, uppercase): mono labels inside audience cards and demo windows (card labels, window tabs, role labels, Endorsed counts). Never set above a page heading, and never below 12px.
 
 ### Named Rules
 **The Serif-For-Reading Rule.** Serif is for anything read; never for controls. Sans for controls and captions only. Mono for short labels, never sentences.
@@ -275,8 +280,8 @@ Contrast was recomputed on 2026-10-07 for every pairing in design-system.md's ta
 
 Single centered column, `max-width` 1080px, side padding 40px from md up and 20px below (the header uses 16px below md). Vertical section padding is 88px from md up and 56px below. Breakpoint is `md` (768px), viewport-based. A 4px base unit.
 
-- **Hero:** two columns from md (text, then a 230px circle-pair column), single column below with the pair at 132px beside its legend. The two audience cards sit side by side from md and stack below. The trust line follows.
-- **Pale band:** two columns (1.15fr / .85fr, 72px gap) from md; a heading and a paragraph that is offset down.
+- **Hero:** two columns from md (text, then a 230px circle-pair column), single column below with the pair at 132px beside its legend. The two audience cards sit side by side from md and stack below. The trust line follows; below md the "Opening soon" status chip sits beside it, because the header has no room for it.
+- **Why this matters now:** on the page ground under a hairline, no band. Two columns (1.15fr / .85fr, 72px gap) from md; a heading and a paragraph that sits 12px below its top. The closing is the page's only tinted band.
 - **Artifact sections:** text left (.78fr), framed window right (1.22fr), 64px gap; stacked on mobile with 32px gap. Hairline above, no band.
 - **Closing band:** statement and button, with a cropped circle pair bleeding off the bottom right.
 - **Header:** sticky, 1px rule below. Below md, Blog and Sign in move into a hamburger menu so the logo and the waitlist button fit.
@@ -307,7 +312,7 @@ The recurring motif is the two overlapping circles: bright rose left, bright cob
 - **Shape:** 4px radius, 2px transparent border, Inter 500 15px, single line.
 - **Primary (umber):** umber fill, parchment text, 44px high, 22px side padding. Hover umber-hover.
 - **Rose / Cobalt:** white text on Creator Rose or Researcher Cobalt. Hover is Deep Rose or Deep Cobalt. They appear only on the audience cards and on the modal submit that matches the chosen role.
-- **Header size:** 36px high, 14px side padding, 14px text from md; 8px side padding and 13px text below md.
+- **Header size:** 36px high, 14px side padding, 14px text from md; 8px side padding below md. Text is 14px at every width.
 - **Focus:** 2px umber outline, 2px offset. Transition is color only, 150ms.
 - The label is always "Join the waitlist". The early-tester path uses "Count me in" on submit.
 
@@ -317,17 +322,17 @@ Inline, 1px underline at 5px offset, inherits color; hover thickens to 2px. Used
 ### Header and mobile menu
 Parchment, 1px rule below, sticky. Logo (two-circle mark plus "Tell The World") left. From md: Blog, Sign in as 14px soft-umber links with 44px-high hit areas, then the small primary button. Below md: the button plus a 44px hamburger that opens a 176px popover with Blog and Sign in (44px rows, Escape and outside click close it).
 
-### Eyebrow label
-Mono 12px uppercase +0.07em. Color by meaning: soft umber (neutral), rose (creator-side topic, "Why this matters now"), cobalt (expert-side topic, the artifact sections).
+### Status chip
+"Opening soon": Inter 14px soft umber on Bone, 4px radius, 10px side padding, 4px vertical padding, no border. It sits in the header beside the small button from md and in the hero beside the trust line below md. Page headings carry no label above them: the heading opens the section.
 
 ### Audience card
-Card Rose or Card Cobalt, 4px radius, hairline ring. A header row (a 10px dot plus a mono label in Deep Rose or Cobalt) over a 15%-umber hairline, then one serif sentence (max 17em), then the matching button. Two card shapes are identical; they differ only by color and copy.
+Card Rose or Card Cobalt, 4px radius, hairline ring. A header row (a 10px dot plus a mono label in Deep Rose or Cobalt, no rule under it), then one serif sentence (max 17em), then the matching button. Two card shapes are identical; they differ only by color and copy.
 
 ### Framed window
-Vellum, 4px radius, Window shadow, clipped. Chrome row: three Window Line dots (md and up), a 13px soft-umber title (centered md and up, left below), and a Pause/Play button with a 1px field-line border (label shown from md, icon only below; 44px target below md). The interior is `aria-hidden` and the window is announced once through its `aria-label`. A caption "Illustrative example, sample content" sits below, right-aligned.
+Vellum, 4px radius, Window shadow, clipped. Chrome row: a 14px soft-umber title (left-aligned at every width, no window dots), and a Pause/Play button with a 1px field-line border (label shown from md, icon only below; 44px target below md). The interior is `aria-hidden` and the window is announced once through its `aria-label`. A caption "Illustrative example, sample content" sits below, right-aligned.
 
 ### Author and role label
-A filled initial (36px, 28px small) then the name in Inter 600 15px with a role label beside it, and the affiliation on its own line (Inter 13px, soft umber). Rose-deep circle for a creator, cobalt circle for an expert, square deep-cobalt for an organisation. The role label is a 1px bordered mono label at 40% of the role color, 2px radius, no fill, no hover.
+A filled initial (36px, 28px small) then the name in Inter 600 15px with a role label beside it, and the affiliation on its own line (Inter 14px, soft umber). Rose-deep circle for a creator, cobalt circle for an expert, square deep-cobalt for an organisation. The role label is a 1px bordered mono label at 40% of the role color, 2px radius, no fill, no hover.
 
 ### Answer card (Q&A demo)
 The question is a mono label, an Author, then serif text. Answers are indented (16px, 32px from md) on Card Cobalt with the hairline ring, each labelled "Answer", and end with a hairline and a cobalt "Endorsed · n" mono count.
@@ -356,7 +361,7 @@ Hairline above, 14px Deep Umber text inside the closing band. Left: "Tell The Wo
 - **Do** keep every action named "Join the waitlist" (early-tester path excepted) and use the audience-colored buttons only where they match the audience.
 - **Do** label anything illustrative as "Illustrative example, sample content" and keep demos free of invented proof.
 - **Do** make meaning survive without color: role labels carry text, selected chips carry a dot and a heavier border, errors carry an icon and text.
-- **Do** keep touch targets at 44px, with a visible umber 2px focus outline.
+- **Do** keep touch targets at 44px, with a visible umber 2px focus outline (set once for the whole route in `app/landing-theme.css`, under `.landing-root`, along with the rose-wash text selection and umber caret).
 
 ### Don't:
 - **Don't** recompute the card and band tints by mixing with paper.
@@ -383,13 +388,13 @@ Where the shipped page and `docs/design/landing-page/design-system.md` disagree.
 | 9 | Motion vocabulary | "Default transitions: 150ms standard ease. Nothing else animates"; demo beats 600ms | Also present: modal and step animations with their own curves (`app/globals.css:167-179`, 160 to 220ms, `ease-out`, `ease-in` and `cubic-bezier(0.16, 1, 0.3, 1)`), cursor travel 0.7s `cubic-bezier(0.65,0,0.35,1)` (`AddQuoteDemo.tsx:291`), fades of 300, 400 and 500ms (`AddQuoteDemo.tsx:164,188,193,254,268`), typing and a scale press. Only some of these use the documented `ease-standard` curve. | doc-lags |
 | 10 | Newly published quote | "A newly published quote gets a 3px cobalt edge for the length of its entrance only" | No such edge. Publishing shows a "Quote published." banner in the flag slot (`AddQuoteDemo.tsx:267-271`) and fades the list. | doc-claims |
 | 11 | Pause state semantics | Paused state is `aria-pressed=true` | Uses a swapping `aria-label` ("Play/Pause the animated example"), no `aria-pressed` (`DemoWindow.tsx:31-36`). Label text is hidden below md (icon only). | off-spec |
-| 12 | Focus ring | "Focus is always a visible 2px umber outline with offset" | Applied on `WaitlistButton`, `EarlyTesterLink`, modal fields, chips. Not applied on header links, the hamburger and its menu items, or footer links (`LandingHeader.tsx:14,26,32`, `MobileMenu.tsx:38,57,62`, `Closing.tsx:31,39,42`); `app/globals.css` has no global `:focus-visible` rule, so those fall back to the browser default. The modal close button has the outline without an offset (`WaitlistModal.tsx:218`). | off-spec |
+| 12 | Focus ring | "Focus is always a visible 2px umber outline with offset" | Applied on `WaitlistButton`, `EarlyTesterLink`, modal fields, chips. Not applied on header links, the hamburger and its menu items, or footer links (`LandingHeader.tsx:14,26,32`, `MobileMenu.tsx:38,57,62`, `Closing.tsx:31,39,42`); `app/globals.css` has no global `:focus-visible` rule, so those fall back to the browser default. The modal close button has the outline without an offset (`WaitlistModal.tsx:218`). | resolved in `landing/tells-look` (global `.landing-root :focus-visible` rule; the modal close button now gets the offset) |
 | 13 | Form field hover | Hover: border `umber-soft` | `fieldCls` has no hover state (`WaitlistModal.tsx:62`). | off-spec |
 | 14 | Submit button hover | Rose / cobalt hover is `rose-deep` / `cobalt-deep` | Modal submit uses `hover:brightness-90` for every role (`WaitlistModal.tsx:416`). | off-spec |
 | 15 | Text link | Used for "Become an early tester", footer, nav; underlined 1px at 5px offset, thicker on hover | Only "Become an early tester" matches (`EarlyTesterLink.tsx:13`). Nav uses hover-only underline at 3px offset (`LandingHeader.tsx:26`); footer uses plain `hover:underline` (`Closing.tsx:35`). | off-spec |
-| 16 | Type scale coverage | A 11-step scale; "sizes under md" only for lead, card, prose | Component code repeats the under-md sizes as literals (`text-[1.3125rem]`, `text-[1.25rem]`, `text-[1.4375rem]`) and uses 12 distinct arbitrary sizes: three restate scale tokens as literals (0.9375rem = ui, 1.1875rem = message, 1.3125rem = prose) and the rest are off-scale (13px with 6 uses, 15px with 3, 13.5px, 11px, 1.375rem, and the modal headings 1.875rem / 2.125rem). The doc's scale does not list the modal heading, the quote-card text or the "Quotes" list heading. | off-spec |
+| 16 | Type scale coverage | A 11-step scale; "sizes under md" only for lead, card, prose | Component code repeats the under-md sizes as literals (`text-[1.3125rem]`, `text-[1.25rem]`, `text-[1.4375rem]`) and uses 12 distinct arbitrary sizes: three restate scale tokens as literals (0.9375rem = ui, 1.1875rem = message, 1.3125rem = prose) and the rest are off-scale (13px with 6 uses, 15px with 3, 13.5px, 11px, 1.375rem, and the modal headings 1.875rem / 2.125rem). The doc's scale does not list the modal heading, the quote-card text or the "Quotes" list heading. | partly resolved in `landing/tells-look`: 13px, 13.5px, 11px, 1.375rem, 1.25rem demo and prose, and the modal 2.125rem now use scale tokens (`prose-sm` added); 15px and the under-md lead, card and quote-card literals remain |
 | 17 | Mono labels | `text-label` is "always uppercase" | The tag chips in the quote form render lowercase (`AddQuoteDemo.tsx:245`, "ai safety", "frontier labs"). | off-spec |
-| 18 | Hairline colors | Hairlines are `rule` and `window-line` | Audience-card header, answer-card footer and demo borders use `border-umber/15` (`Hero.tsx:26`, `QACommunityDemo.tsx:43`); the mobile menu uses `bg-rule/40` as hover (`MobileMenu.tsx:7,38`) where the doc specifies `bone`. Opacity-derived colors are not tokens. | off-spec |
+| 18 | Hairline colors | Hairlines are `rule` and `window-line` | Audience-card header, answer-card footer and demo borders use `border-umber/15` (`Hero.tsx:26`, `QACommunityDemo.tsx:43`); the mobile menu uses `bg-rule/40` as hover (`MobileMenu.tsx:7,38`) where the doc specifies `bone`. Opacity-derived colors are not tokens. | partly resolved in `landing/tells-look`: the audience-card and answer-card hairlines are removed; the mobile menu `bg-rule/40` hover remains |
 | 19 | Breakpoint model | "`md` (768px). Components switch by container width where they live in frames." | Everything switches on viewport `md`; no container queries are used. | doc-claims |
 | 20 | Circle pair sizes | Hero 230px wide with a two-line legend below | 230px column from md only. Below md it is 132px with the legend beside it (`Hero.tsx:58-59`). | doc-lags |
 | 21 | Font weights | Serif 400 | `layout.tsx:11` loads EB Garamond 400 and 500, but no component uses serif weight 500. | unused |

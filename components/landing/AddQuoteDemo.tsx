@@ -71,7 +71,7 @@ const within = (t: number, from: number, ms = 160) => t >= from && t < from + ms
 function QuoteCard({ children, name, role, credential, shape }: { children: React.ReactNode; name: string; role: string; credential: string; shape?: 'person' | 'organisation' }) {
   return (
     <div className="border-b border-window-line px-4 py-[18px] md:px-6">
-      <p className="font-serif text-[1.1875rem] leading-[1.35] md:text-[1.25rem]">{children}</p>
+      <p className="font-serif text-message leading-[1.35] md:text-prose">{children}</p>
       <div className="mt-3">
         <Author name={name} role={role} credential={credential} shape={shape} size="sm" />
       </div>
@@ -166,7 +166,7 @@ export default function AddQuoteDemo() {
           {/* the quote list, behind the form */}
           <div className="col-start-1 row-start-1">
             <div className="flex items-center justify-between border-b border-window-line px-4 py-3.5 md:px-6">
-              <b className="font-serif text-[1.375rem] font-normal tracking-[-0.01em]">Quotes</b>
+              <b className="font-serif text-prose font-normal tracking-[-0.01em]">Quotes</b>
               <span
                 ref={setTarget('addBtn')}
                 className={`inline-flex min-h-9 items-center rounded-control bg-cobalt px-3.5 text-ui-sm font-medium text-white transition-transform duration-150 ${within(t, T.click) ? 'scale-95' : ''}`}
@@ -194,8 +194,8 @@ export default function AddQuoteDemo() {
           >
             <div className="w-full max-w-[27rem] rounded-control bg-vellum shadow-modal">
               <div className="border-b border-window-line px-4 py-3 md:px-5">
-                <b className="font-serif text-[1.25rem] font-normal tracking-[-0.01em]">Add a quote</b>
-                <div className="text-[13px] text-umber-soft">{FOR_BRIEF}</div>
+                <b className="font-serif text-prose font-normal tracking-[-0.01em]">Add a quote</b>
+                <div className="text-ui-sm text-umber-soft">{FOR_BRIEF}</div>
               </div>
 
               <div className="px-4 pb-3 pt-3 md:px-5">

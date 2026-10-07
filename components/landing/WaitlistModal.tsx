@@ -61,7 +61,7 @@ const SUBMIT_VARIANT: Record<PublicRole, string> = {
 const fieldCls =
   'w-full min-h-11 rounded-control border border-field-line bg-white px-3 py-2.5 font-ui text-base text-umber placeholder:text-umber-soft focus-visible:border-umber focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-umber disabled:border-disabled disabled:bg-disabled disabled:text-umber-soft aria-[invalid=true]:border-2 aria-[invalid=true]:border-rose-deep aria-[invalid=true]:px-[11px] aria-[invalid=true]:py-[9px]'
 
-const labelCls = 'mb-1.5 mt-4 block font-ui text-[13px] font-medium text-umber'
+const labelCls = 'mb-1.5 mt-4 block font-ui text-ui-sm font-medium text-umber'
 
 const EMAIL_PATTERN = /^\S+@\S+\.\S+$/
 
@@ -73,8 +73,8 @@ const FOCUSABLE =
 
 function ErrorLine({ id, children }: { id?: string; children: React.ReactNode }) {
   return (
-    <p id={id} role="alert" className="mt-1.5 flex items-start gap-1.5 font-ui text-[13.5px] text-rose-deep">
-      <span aria-hidden className="mt-0.5 grid size-4 shrink-0 place-items-center rounded-full bg-rose-deep text-[11px] font-semibold text-white">
+    <p id={id} role="alert" className="mt-1.5 flex items-start gap-1.5 font-ui text-ui-sm text-rose-deep">
+      <span aria-hidden className="mt-0.5 grid size-4 shrink-0 place-items-center rounded-full bg-rose-deep text-label font-semibold text-white">
         !
       </span>
       <span>{children}</span>
@@ -192,7 +192,7 @@ export default function WaitlistModal({ mode, onClose, defaultRole }: WaitlistMo
     })
   }
 
-  const headingCls = 'm-0 mb-2.5 mt-2.5 font-serif text-[1.875rem] font-normal leading-[1.05] tracking-[-0.02em] text-umber outline-none md:text-[2.125rem]'
+  const headingCls = 'm-0 mb-2.5 mt-2.5 font-serif text-[1.875rem] font-normal leading-[1.05] tracking-[-0.02em] text-umber outline-none'
   const eyebrowCls = 'font-mono text-label uppercase text-umber-soft'
   const primaryBtn =
     'inline-flex min-h-11 w-full items-center justify-center rounded-control border-2 border-transparent px-[22px] font-ui text-ui font-medium leading-none transition-colors duration-150 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-umber disabled:cursor-not-allowed disabled:bg-disabled disabled:text-umber-soft'

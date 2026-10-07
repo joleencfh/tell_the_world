@@ -24,7 +24,7 @@ interface WaitlistButtonProps {
 
 export default function WaitlistButton({ role = 'creator', variant = 'primary', size = 'md', className = '' }: WaitlistButtonProps) {
   const { openWaitlist } = useWaitlist()
-  const sizing = size === 'sm' ? 'min-h-9 px-2 text-[13px] md:min-h-9 md:px-3.5 md:text-ui-sm' : 'min-h-11 px-[22px] text-ui'
+  const sizing = size === 'sm' ? 'min-h-9 px-2 text-ui-sm md:min-h-9 md:px-3.5' : 'min-h-11 px-[22px] text-ui'
   return (
     <button
       type="button"
