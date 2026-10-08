@@ -195,7 +195,7 @@ components:
 
 # Design System: Tell The World (landing page)
 
-Derived 2026-10-07 from the SHIPPED page: `app/landing-theme.css`, `app/(landing)/*`, `components/landing/*` (master `937e969`, tag `landing-before-ai-tells-cleanup`). `docs/design/landing-page/design-system.md` (v0.1, 2026-10-01) was read as a second source; every place the two disagree is listed in **Drift** at the end instead of being resolved here. Where this file states a value, it is what the code does.
+Derived 2026-10-07 from the SHIPPED page: `app/landing-theme.css`, `app/(landing)/*`, `components/landing/*` (master `937e969`, tag `landing-before-ai-tells-cleanup`). `docs/design/landing-page/current/design-system.md` (v0.1, 2026-10-01) was read as a second source; every place the two disagree is listed in **Drift** at the end instead of being resolved here. Where this file states a value, it is what the code does.
 
 Scope: the landing route `/` only. The rest of the app still runs on the older Two-Ink Bold tokens in `app/globals.css`, which are not described here. `components/landing/LegacyLandingPage.tsx` is unrouted and ignored.
 
@@ -373,7 +373,7 @@ Hairline above, 14px Deep Umber text inside the closing band. Left: "Tell The Wo
 
 ## Drift
 
-Where the shipped page and `docs/design/landing-page/design-system.md` disagree. Nothing below has been resolved; each row says what each side says and where the shipped side lives. "Type" only describes the shape of the disagreement: **doc-lags** (the code has something the doc does not describe), **doc-claims** (the doc describes something the code does not do), **off-spec** (the code departs from a rule the doc states), **unused** (a defined token nothing consumes).
+Where the shipped page and `docs/design/landing-page/current/design-system.md` disagree. Nothing below has been resolved; each row says what each side says and where the shipped side lives. "Type" only describes the shape of the disagreement: **doc-lags** (the code has something the doc does not describe), **doc-claims** (the doc describes something the code does not do), **off-spec** (the code departs from a rule the doc states), **unused** (a defined token nothing consumes).
 
 | # | Area | design-system.md says | Shipped page does | Type |
 |---|---|---|---|---|
@@ -400,7 +400,7 @@ Where the shipped page and `docs/design/landing-page/design-system.md` disagree.
 | 21 | Font weights | Serif 400 | `layout.tsx:11` loads EB Garamond 400 and 500, but no component uses serif weight 500. | unused |
 | 22 | Heading outline | "One h1; sections are h2; demo windows contribute no headings" | True for the page. The modal's heading is an `h3` with no `h2` ancestor in the dialog (`WaitlistModal.tsx:228,243,276`), and the audience-card labels are `h2` elements that read as labels. Not in the doc. | doc-lags |
 | 23 | Color scheme | Dark mode is "deliberately not included" | The root sets `color-scheme: light dark` (`app/globals.css:89`). The landing sets no dark tokens, so native controls and defaults can render dark under a light page for dark-mode visitors. | off-spec |
-| 24 | Tokens file location | `docs/design/landing-page/landing-theme.css` | Byte-identical to `app/landing-theme.css` today; two copies can drift. | doc-lags |
+| 24 | Tokens file location | `docs/design/landing-page/current/landing-theme.css` | Byte-identical to `app/landing-theme.css` today; two copies can drift. | doc-lags |
 | 25 | Open items | "Font loading: add EB Garamond and Inter via next/font on the landing route only"; demos show no source link | Fonts are done (`app/(landing)/layout.tsx`). The source-link item is still open. | doc-lags |
 
 **Checked and consistent (no drift):** every color token value; all type-scale tokens and clamps; radii; spacing tokens; the contrast table (recomputed); button variants and default state; chip, checkbox, modal, author, role-label and answer-card specs; footer; the 40% in-view rule (extended for tall demos); two-bands rule.

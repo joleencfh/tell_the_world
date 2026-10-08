@@ -3,7 +3,7 @@
 import DemoWindow, { Author, reveal } from '@/components/landing/DemoWindow'
 import { useDemoLoop } from '@/components/landing/useDemoLoop'
 
-// Community Q&A demo (docs/design/landing-page/final-design.html, Part C).
+// Community Q&A demo (docs/design/landing-page/current/final-design.html, Part C).
 // Illustrative content, labelled as such in the window caption. It reads as
 // a thread: a labelled Question, then Answers indented beneath it on their
 // own tinted cards, so an answer can never be mistaken for a question.

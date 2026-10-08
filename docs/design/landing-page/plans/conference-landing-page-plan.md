@@ -60,7 +60,7 @@ top to bottom:
   real Community Q&A card for the What's Inside screenshot placeholder.
   Built out, iterated on copy (uses the real July 2026 Hugging Face/
   OpenAI incident as example content), and saved at
-  `docs/design/landing-page/qa-feature-loop-concept.html` — see that
+  `docs/design/landing-page/explorations/archive/qa-feature-loop-concept.html` — see that
   file's own header comment for the full history.
   This is **built and signed off** as the Community Q&A demo.
 - **2026-09-23**: decided one demo animation wasn't enough to convey
@@ -73,7 +73,7 @@ top to bottom:
   Q&A). A build prompt for this second animation was written in that
   session's chat; the animation itself was then built separately (a
   different working session on this same branch, commit `7f7cabf`) —
-  see `docs/design/landing-page/quote-feature-loop-concept.html`. Note
+  see `docs/design/landing-page/explorations/archive/quote-feature-loop-concept.html`. Note
   it uses a different fictional persona (Elena Vasquez) than the Q&A
   loop (Dr. Sarah Chen) — reconcile or not, see the open question below.
 - **2026-09-23**, same session: added the new "Imagine + scale" section
@@ -82,7 +82,7 @@ top to bottom:
   after a brief attempt to shorten it, and added thin rule dividers
   bounding "Why This Matters Now" and between the two demo sections so
   sections read as visually distinct blocks. Final full-page layout
-  mockup: `docs/design/landing-page/two-demo-layout-concept.html` — **this
+  mockup: `docs/design/landing-page/explorations/archive/two-demo-layout-concept.html` — **this
   mockup is the current signed-off layout direction**, superseding the
   original Bold Ink Block mockup's section structure while keeping its
   visual language. Note: this mockup's Quotes-demo slot still shows a
@@ -130,7 +130,7 @@ Layout note: two columns on desktop (title+copy one side, demo the
 other), stacking on mobile. Title+copy on the left, demo on the right.
 The demo is a crafted CSS/JS loop animation (not a video, not a static
 screenshot) of the real Community Q&A card —
-`docs/design/landing-page/qa-feature-loop-concept.html` is the finished,
+`docs/design/landing-page/explorations/archive/qa-feature-loop-concept.html` is the finished,
 signed-off version; Part 1 ports it into a real React client component
 rather than embedding the static file. Treat the headline/body above as
 a first draft, not final copy — re-check it reads well next to the
@@ -147,7 +147,7 @@ actual animation before shipping.
 Layout note: same two-column shape as the Q&A demo, sides reversed (demo
 on the left, title+copy on the right) so the two sections don't read as
 a repeated template. The demo is built —
-`docs/design/landing-page/quote-feature-loop-concept.html` — a crafted
+`docs/design/landing-page/explorations/archive/quote-feature-loop-concept.html` — a crafted
 loop of the real Add a Quote flow (`app/briefs/[slug]/quote-modals.tsx`'s
 `AddQuoteModal`): idle state shows the real Quotes section behind the
 button, click opens the form, the clarity check flags "reward hacking,"
@@ -243,7 +243,7 @@ the Notion story "Community Q&A: threaded comments on an answer" under
 the Briefs epic.
 
 Saved for later reference:
-- In-repo source: `docs/design/landing-page/qa-feature-loop-concept.html`
+- In-repo source: `docs/design/landing-page/explorations/archive/qa-feature-loop-concept.html`
   (open directly in a browser, or drop into any static server).
 - (The original claude.ai artifact was private and is no longer linked.)
 
@@ -265,7 +265,7 @@ persona (Elena Vasquez, Independent Researcher) and same Hugging Face /
 OpenAI incident as the Q&A loop, for continuity between the two demos.
 
 Saved for later reference:
-- In-repo source: `docs/design/landing-page/quote-feature-loop-concept.html`
+- In-repo source: `docs/design/landing-page/explorations/archive/quote-feature-loop-concept.html`
 - (The original claude.ai artifact was private and is no longer linked.)
 
 Not signed off as a direction. Needs explicit sign-off before either
@@ -322,11 +322,11 @@ a named hybrid) before Part 1 starts.
 #### Prompt for next session — Part 0
 
 ```
-Read docs/design/landing-page/conference-landing-page-plan.md in full
+Read docs/design/landing-page/plans/conference-landing-page-plan.md in full
 before doing anything else — §0 for the copy and layout notes, §1 for
 engineering conventions. Also skim app/page.tsx to see its current
 structure, app/globals.css for the exact design tokens, and
-docs/design/landing-page/temp-landing-page-plan.md for context on what's
+docs/design/landing-page/plans/temp-landing-page-plan.md for context on what's
 already live and why it was kept bare.
 
 Build Part 0 (conference-landing-page-plan.md §2, Part 0) — design
@@ -382,13 +382,13 @@ Before starting, resolve two things with the user (don't assume either):
    `expert` or `organisation`, creator/journalist column -> `creator`).
    If this is more invasive than a small prop addition, flag it and ship
    the buttons without pre-selection instead.
-2. Port `docs/design/landing-page/qa-feature-loop-concept.html` into a
+2. Port `docs/design/landing-page/explorations/archive/qa-feature-loop-concept.html` into a
    new client component (e.g. `components/landing/QACommunityDemo.tsx`)
    — same markup/CSS/animation-timeline logic, translated into JSX +
    `useEffect` for the timers/`ResizeObserver`/cursor positioning math.
    Keep the `prefers-reduced-motion` fallback and the fixed-height
    fade-viewport mechanic exactly as built; don't simplify them away.
-3. Port `docs/design/landing-page/quote-feature-loop-concept.html` the
+3. Port `docs/design/landing-page/explorations/archive/quote-feature-loop-concept.html` the
    same way (e.g. `components/landing/AddQuoteDemo.tsx`).
 4. Build the six sections in `app/page.tsx` in §0's order, using the
    exact current copy from §0 (treat the demo-section headline/body
@@ -406,11 +406,11 @@ Before starting, resolve two things with the user (don't assume either):
 #### Prompt for next session — Part 1
 
 ```
-Read docs/design/landing-page/conference-landing-page-plan.md in full
+Read docs/design/landing-page/plans/conference-landing-page-plan.md in full
 before doing anything else, specifically §0's "Sign-off and revision
 history" (both demo animations are built and signed off — this is not
 blocked), the current section copy in §0, and §1 for engineering
-conventions. Also open docs/design/landing-page/two-demo-layout-concept.html
+conventions. Also open docs/design/landing-page/explorations/archive/two-demo-layout-concept.html
 directly in a browser first to see the full signed-off page flow before
 touching any code.
 
@@ -433,7 +433,7 @@ Before writing code, resolve two things with the user:
    expert or organisation, creator/journalist column -> creator). If
    this is more invasive than a small prop addition, flag it and ship
    the buttons without pre-selection instead.
-2. Port docs/design/landing-page/qa-feature-loop-concept.html into a new
+2. Port docs/design/landing-page/explorations/archive/qa-feature-loop-concept.html into a new
    client component (components/landing/QACommunityDemo.tsx or similar)
    — same markup, CSS, and animation-timeline logic, translated into
    JSX + useEffect. Keep the prefers-reduced-motion fallback and the
@@ -442,7 +442,7 @@ Before writing code, resolve two things with the user:
    plus a ResizeObserver) exactly as built — this was a real bug last
    time (an early measurement before fonts/layout settled undersized
    the box and clipped the resting state), don't simplify it away.
-3. Port docs/design/landing-page/quote-feature-loop-concept.html the
+3. Port docs/design/landing-page/explorations/archive/quote-feature-loop-concept.html the
    same way into a second client component.
 4. Add all six sections to app/page.tsx in §0's current order, using the
    exact current copy from §0 (the demo-section headline/body copy is
@@ -456,7 +456,7 @@ Before writing code, resolve two things with the user:
 
 Verify: bunx tsc --noEmit && bun run lint clean && bun run build,
 browser-check the new sections match
-docs/design/landing-page/two-demo-layout-concept.html, both demo
+docs/design/landing-page/explorations/archive/two-demo-layout-concept.html, both demo
 animations actually run in the browser (not just render statically —
 confirm the reveal timeline, the click-to-expand comments interaction
 in the Q&A one, and the clarity-check flag-then-revise interaction in
