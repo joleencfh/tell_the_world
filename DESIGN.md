@@ -321,7 +321,7 @@ Parchment, 1px rule below, sticky. Logo (two-circle mark plus "Tell The World") 
 "Opening soon": Inter 14px soft umber on Bone, 4px radius, 10px side padding, 4px vertical padding, no border. It sits in the header beside the small button from md and in the hero beside the trust line below md. Page headings carry no label above them: the heading opens the section.
 
 ### Audience card
-Card Rose or Card Cobalt, 4px radius, hairline ring. A header row (a 10px dot plus a mono label in Deep Rose or Cobalt, no rule under it), then one serif sentence (max 17em), then the matching button. The two cards are mirrored: the creator card has its marker dot on the left, the expert card on the right (label first), and from md the buttons share one baseline.
+Card Rose or Card Cobalt, 4px radius, hairline ring. A header row (a 10px dot plus a mono label in Deep Rose or Cobalt, no rule under it), then one serif sentence (max 17em), then the matching button. Both cards put the marker dot before the label, and from md the buttons share one baseline.
 
 ### Framed window
 Vellum, 4px radius, Window shadow, clipped. Chrome row: a 14px soft-umber title (left-aligned at every width, no window dots), and a Pause/Play button with a 1px field-line border (label shown from md, icon only below; 44px target below md). The interior is `aria-hidden` and the window is announced once through its `aria-label`. A caption "Illustrative example, sample content" sits below, right-aligned. The demo plays once when mostly in view, holds its last frame, stops off screen, and Play replays it; with reduced motion it shows its rest frame and Play is the opt-in.
@@ -330,7 +330,7 @@ Vellum, 4px radius, Window shadow, clipped. Chrome row: a 14px soft-umber title 
 A filled initial (36px, 28px small) then the name in Inter 600 15px with a role label beside it, and the affiliation on its own line (Inter 14px, soft umber). Rose-deep circle for a creator, cobalt circle for an expert, square deep-cobalt for an organisation. The role label is a 1px bordered mono label at 40% of the role color, 2px radius, no fill, no hover.
 
 ### Answer (Q&A demo)
-The question is a mono label, an Author, then serif text. Answers are indented (16px, 32px from md) and sit directly on the window, separated by space only: no card inside the window. Each is labelled "Answer" and ends with a cobalt "Endorsed · n" mono count. The whole thread is visible at rest; the only motion is the first answer's count ticking 1 to 2 (opacity and transform, 300ms ease-out).
+The question is a mono label, an Author, then serif text. Answers are indented (16px, 32px from md) and sit directly on the window, separated by space only: no card inside the window. Each is labelled "Answer" and ends with a cobalt "Endorsed · n" mono count. The thread is complete at rest. Played once, the first answer rises in, its count ticks 1 to 2, then the second answer rises in (opacity and transform, ease-out).
 
 ### Quote form and clarity flag (quote demo)
 The form is the window's own content: the quote list steps aside and the form replaces it, with no scrim, no inner card and no shadow. A white text area with a Field Line border; the flagged term gets a 3px Bright Rose text underline on Rose Wash. Below it a Rose Wash panel carries a Deep Rose mono "1 term flagged" label, the plain meaning, and "Try: ...". The primary action runs Publish quote, Review flags, Submitting, Published. Typing and a cursor drive one pass that holds on the published state.

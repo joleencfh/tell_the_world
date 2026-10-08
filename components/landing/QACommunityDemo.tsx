@@ -9,13 +9,25 @@ import { useDemoClock } from '@/components/landing/useDemoLoop'
 // answer can never be mistaken for a question. Answers sit directly on the
 // window, separated by space alone: no card inside the window.
 //
-// The whole thread is on screen at rest. The only motion is the one thing
-// that happens in a live thread: an expert's answer being endorsed, so its
-// count ticks from 1 to 2 once, when the demo is first in view.
-const ENDORSE_AT = 1400
-const DURATION = 2000
+// It plays once, when first in view, then holds the full thread:
+//   the question is already there
+//   1 Elena Vasquez answers (Endorsed 1)
+//   2 her Endorsed count ticks to 2
+//   3 Foresight Commons answers
+// Both answers are always in the DOM, so the window never changes height as
+// they appear; an unseen one is simply transparent.
+const ANSWER_1_AT = 600
+const ENDORSE_AT = 2600
+const ANSWER_2_AT = 3600
+const DURATION = 4200
+
+const reveal = (show: boolean) =>
+  `transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none ${
+    show ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
+  }`
 
 function Answer({
+  show,
   name,
   role,
   credential,
@@ -24,6 +36,7 @@ function Answer({
   ticked,
   children,
 }: {
+  show: boolean
   name: string
   role: string
   credential: string
@@ -34,7 +47,7 @@ function Answer({
   children: React.ReactNode
 }) {
   return (
-    <div>
+    <div className={reveal(show)}>
       <span className="font-mono text-label uppercase text-umber-soft">Answer</span>
       <div className="mt-2.5">
         <Author name={name} role={role} credential={credential} shape={shape} />
@@ -82,6 +95,7 @@ export default function QACommunityDemo() {
 
           <div className="ml-4 mt-6 grid gap-6 md:ml-8">
             <Answer
+              show={t >= ANSWER_1_AT}
               name="Elena Vasquez"
               role="Expert"
               credential="Independent Researcher"
@@ -92,7 +106,14 @@ export default function QACommunityDemo() {
               alerting a human, and every one of them decided not to. That&rsquo;s not a story about one bug.
               It&rsquo;s a preview of how hard oversight gets once these systems start coordinating.
             </Answer>
-            <Answer name="Foresight Commons" role="Organisation" credential="AI policy · existential risk" shape="organisation" endorsed={1}>
+            <Answer
+              show={t >= ANSWER_2_AT}
+              name="Foresight Commons"
+              role="Organisation"
+              credential="AI policy · existential risk"
+              shape="organisation"
+              endorsed={1}
+            >
               We study incidents like this closely, and this one is worse than what came before it, not just more
               widely covered. The real question isn&rsquo;t only what these systems can do today. It&rsquo;s whether
               anyone stays in control as more capable ones arrive, and that&rsquo;s what we research and push

@@ -5,8 +5,7 @@ import WaitlistButton from '@/components/landing/WaitlistButton'
 
 // Audience card: one sentence per audience. Rose = creators & journalists,
 // cobalt = researchers & organisations. The card's own button pre-selects the
-// matching role. The two cards are mirrored: the creator card leads with its
-// marker on the left, the expert card closes with its marker on the right.
+// matching role.
 function AudienceCard({
   tone,
   label,
@@ -25,7 +24,7 @@ function AudienceCard({
     >
       <h2
         id={headingId}
-        className={`m-0 flex items-center gap-2.5 font-mono text-label font-normal uppercase ${isRose ? 'text-rose-deep' : 'flex-row-reverse justify-between text-cobalt'}`}
+        className={`m-0 flex items-center gap-2.5 font-mono text-label font-normal uppercase ${isRose ? 'text-rose-deep' : 'text-cobalt'}`}
       >
         <span aria-hidden className="size-2.5 shrink-0 rounded-full bg-current" />
         {label}
