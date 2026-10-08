@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import WaitlistButton from '@/components/landing/WaitlistButton'
 import MobileMenu from '@/components/landing/MobileMenu'
+import StatusChip from '@/components/landing/StatusChip'
 
 export const BLOG_URL = 'https://telltheworldblog.substack.com/'
 
@@ -33,6 +34,7 @@ export default function LandingHeader() {
           >
             Sign in
           </Link>
+          <StatusChip className="mx-2 hidden md:inline-flex" />
           <WaitlistButton size="sm" />
           <MobileMenu blogUrl={BLOG_URL} />
         </nav>

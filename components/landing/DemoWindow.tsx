@@ -19,13 +19,8 @@ export default function DemoWindow({ title, ariaLabel, paused, onTogglePause, ch
   return (
     <div>
       <div role="group" aria-label={ariaLabel} className="overflow-hidden rounded-control bg-vellum shadow-window">
-        <div className="grid grid-cols-[1fr_auto] items-center gap-2 border-b border-window-line py-1.5 pl-3.5 pr-2 md:grid-cols-[96px_1fr_auto] md:pl-4 md:pr-3">
-          <div aria-hidden className="hidden gap-1.5 md:flex">
-            <i className="size-2.5 rounded-full bg-window-line" />
-            <i className="size-2.5 rounded-full bg-window-line" />
-            <i className="size-2.5 rounded-full bg-window-line" />
-          </div>
-          <div aria-hidden className="truncate text-left text-[13px] text-umber-soft md:text-center">
+        <div className="grid grid-cols-[1fr_auto] items-center gap-2 border-b border-window-line py-1.5 pl-3.5 pr-2 md:pl-4 md:pr-3">
+          <div aria-hidden className="truncate text-left text-ui-sm text-umber-soft">
             {title}
           </div>
           <button
@@ -106,7 +101,7 @@ export function Author({
     <div className="flex items-center gap-2.5">
       <span
         aria-hidden
-        className={`grid shrink-0 place-items-center font-ui font-semibold text-white ${avatar} ${size === 'sm' ? 'size-7 text-[13px]' : 'size-9 text-[15px]'}`}
+        className={`grid shrink-0 place-items-center font-ui font-semibold text-white ${avatar} ${size === 'sm' ? 'size-7 text-ui-sm' : 'size-9 text-[15px]'}`}
       >
         {name.charAt(0)}
       </span>
@@ -115,7 +110,7 @@ export function Author({
           <b className="font-ui text-[0.9375rem] font-semibold leading-tight text-umber">{name}</b>
           <RoleTag tone={tone}>{role}</RoleTag>
         </div>
-        <div className="mt-0.5 text-[13px] leading-snug text-umber-soft">{credential}</div>
+        <div className="mt-0.5 text-ui-sm leading-snug text-umber-soft">{credential}</div>
       </div>
     </div>
   )

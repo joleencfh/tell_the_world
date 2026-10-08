@@ -25,14 +25,12 @@ export default function LandingPage() {
           <Hero />
           <WhyThisMatters />
           <ArtifactSection
-            eyebrow="Community Q&A"
             heading="Ask a question & get an answer from someone who studies this."
             body="Every brief has an open Q&A. Ask what's on your mind, and an expert or organisation working on the problem answers directly, on the record."
           >
             <QACommunityDemo />
           </ArtifactSection>
           <ArtifactSection
-            eyebrow="Quotes, on record"
             heading="Expert quotes you can understand, and use."
             body="Experts and organisations add their own on-record quotes directly, in plain language. Every submission runs through a clarity check first, so jargon gets caught before it ever reaches a reader."
           >

@@ -40,7 +40,7 @@ function Answer({
         <Author name={name} role={role} credential={credential} shape={shape} />
       </div>
       <p className="mt-3 font-serif text-message">{children}</p>
-      <div className="mt-3 border-t border-umber/15 pt-2.5 font-mono text-label uppercase tabular-nums text-cobalt">
+      <div className="mt-3 font-mono text-label uppercase tabular-nums text-cobalt">
         Endorsed · {endorsed}
       </div>
     </div>

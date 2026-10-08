@@ -21,5 +21,5 @@ const inter = Inter({
 })
 
 export default function LandingLayout({ children }: { children: React.ReactNode }) {
-  return <div className={`${garamond.variable} ${inter.variable} font-ui`}>{children}</div>
+  return <div className={`landing-root ${garamond.variable} ${inter.variable} font-ui`}>{children}</div>
 }
