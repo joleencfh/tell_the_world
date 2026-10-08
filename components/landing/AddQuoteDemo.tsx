@@ -6,7 +6,7 @@ import { useDemoClock } from '@/components/landing/useDemoLoop'
 
 // Add-a-quote demo (docs/design/landing-page/final-design.html, Part C), the
 // original animation in the new design system. Illustrative content, labelled
-// as such in the window caption. One cycle, as a cursor would do it:
+// as such in the window caption. One pass, as a cursor would do it (it plays once, then holds the published state):
 //
 //   a cursor moves to "Add quote" and clicks
 //   the form opens and the quote is typed, using the term "reward hacking"
@@ -15,8 +15,8 @@ import { useDemoClock } from '@/components/landing/useDemoLoop'
 //     quote and pastes the plain wording over it
 //   the flag clears, the cursor clicks Publish quote, and it is published
 //
-// Every visual state is a pure function of one clock, `t` (ms into the cycle),
-// so pausing simply stops the clock and resuming carries on. There is no CSS
+// Every visual state is a pure function of one clock, `t` (ms into the pass),
+// so pausing simply stops the clock and resuming carries on. The quote list steps aside for the form (no scrim, no second card). There is no CSS
 // zoom and no per-frame layout reads: the cursor measures its target only when
 // the target changes, and the form reserves the space of its final state so
 // the window never changes height.
@@ -39,8 +39,7 @@ const T = {
   toPublish: 14600,
   publish: 16000, // click on Publish quote
   published: 16400,
-  fade: 18800,
-  cycle: 19800,
+  end: 18600, // the clock holds here: the quote published
 } as const
 
 // The still shown with reduced motion, before the demo is seen, or without
@@ -80,7 +79,7 @@ function QuoteCard({ children, name, role, credential, shape }: { children: Reac
 }
 
 export default function AddQuoteDemo() {
-  const { ref, t, live, paused, togglePause } = useDemoClock({ cycleMs: T.cycle, restMs: REST_T })
+  const { ref, t, live, playing, toggle } = useDemoClock({ durationMs: T.end, restMs: REST_T })
 
   const containerRef = useRef<HTMLDivElement>(null)
   const cursorRef = useRef<HTMLDivElement>(null)
@@ -128,7 +127,6 @@ export default function AddQuoteDemo() {
   const termSelected = t >= T.selectTerm && !fixed
   const suggestionSelected = t >= T.select && t < T.copy
   const publishedNow = t >= T.published
-  const faded = t >= T.fade
 
   const typedLength =
     t < T.typeStart
@@ -156,20 +154,20 @@ export default function AddQuoteDemo() {
       <DemoWindow
         title={open ? 'Add a quote' : 'Quotes'}
         ariaLabel="Example: an expert clicks Add quote and types a quote that uses the jargon term reward hacking. The clarity check flags it and suggests plainer wording, the expert pastes that wording over the term, and publishes the quote."
-        paused={paused}
-        onTogglePause={togglePause}
+        playing={playing}
+        onToggle={toggle}
       >
         <div
           ref={containerRef}
-          className={`relative grid overflow-hidden transition-opacity duration-500 ease-standard motion-reduce:transition-none ${faded ? 'opacity-[.15]' : 'opacity-100'}`}
+          className="relative grid overflow-hidden"
         >
-          {/* the quote list, behind the form */}
-          <div className="col-start-1 row-start-1">
+          {/* the quote list, which the form replaces */}
+          <div className={`col-start-1 row-start-1 transition-opacity duration-300 ease-out motion-reduce:transition-none ${open ? 'opacity-0' : 'opacity-100'}`}>
             <div className="flex items-center justify-between border-b border-window-line px-4 py-3.5 md:px-6">
               <b className="font-serif text-prose font-normal tracking-[-0.01em]">Quotes</b>
               <span
                 ref={setTarget('addBtn')}
-                className={`inline-flex min-h-9 items-center rounded-control bg-cobalt px-3.5 text-ui-sm font-medium text-white transition-transform duration-150 ${within(t, T.click) ? 'scale-95' : ''}`}
+                className={`inline-flex min-h-9 items-center rounded-control bg-cobalt px-3.5 text-ui-sm font-medium text-white transition-transform duration-150 ease-out ${within(t, T.click) ? 'scale-95' : ''}`}
               >
                 Add quote
               </span>
@@ -183,16 +181,11 @@ export default function AddQuoteDemo() {
             </QuoteCard>
           </div>
 
-          {/* scrim */}
+          {/* the Add a quote form: the window's own content once the list steps aside */}
           <div
-            className={`col-start-1 row-start-1 bg-scrim transition-opacity duration-[400ms] ease-standard motion-reduce:transition-none ${open ? 'opacity-100' : 'opacity-0'}`}
-          />
-
-          {/* the Add a quote form */}
-          <div
-            className={`col-start-1 row-start-1 grid place-items-center px-3 py-4 transition-[opacity,transform] duration-[400ms] ease-standard motion-reduce:transition-none md:px-6 md:py-5 ${open ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'}`}
+            className={`col-start-1 row-start-1 grid transition-[opacity,transform] duration-[400ms] ease-out motion-reduce:transition-none ${open ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'}`}
           >
-            <div className="w-full max-w-[27rem] rounded-control bg-vellum shadow-modal">
+            <div className="w-full">
               <div className="border-b border-window-line px-4 py-3 md:px-5">
                 <b className="font-serif text-prose font-normal tracking-[-0.01em]">Add a quote</b>
                 <div className="text-ui-sm text-umber-soft">{FOR_BRIEF}</div>
@@ -216,7 +209,7 @@ export default function AddQuoteDemo() {
                     ) : fixed ? (
                       <>
                         {QUOTE_BEFORE}
-                        <b className="border-b-2 border-cobalt font-medium">{REPLACEMENT_TERM}</b>
+                        <b className="font-medium underline decoration-cobalt decoration-2 underline-offset-2">{REPLACEMENT_TERM}</b>
                         {QUOTE_AFTER}
                       </>
                     ) : (
@@ -228,7 +221,7 @@ export default function AddQuoteDemo() {
                             termSelected
                               ? `${selection} text-umber`
                               : flagged
-                                ? 'border-b-[3px] border-rose-bright bg-rose-wash px-0.5 text-umber'
+                                ? 'bg-rose-wash px-0.5 text-umber underline decoration-rose-bright decoration-[3px] underline-offset-2'
                                 : 'bg-transparent text-umber'
                           }
                         >
@@ -251,7 +244,7 @@ export default function AddQuoteDemo() {
                 {/* One slot, two occupants: the flag, then the confirmation. */}
                 <div className="mt-3 grid">
                   <div
-                    className={`col-start-1 row-start-1 rounded-control bg-rose-wash px-3.5 py-3 text-ui-sm transition-opacity duration-300 ease-standard motion-reduce:transition-none ${flagged ? 'opacity-100' : 'opacity-0'}`}
+                    className={`col-start-1 row-start-1 rounded-control bg-rose-wash px-3.5 py-3 text-ui-sm transition-opacity duration-300 ease-out motion-reduce:transition-none ${flagged ? 'opacity-100' : 'opacity-0'}`}
                   >
                     <b className="mb-1 block font-mono text-label font-normal uppercase text-rose-deep">1 term flagged</b>
                     <span ref={setTarget('flagTerm')}>&ldquo;{FLAGGED_TERM}&rdquo;</span>: When an AI finds an
@@ -265,7 +258,7 @@ export default function AddQuoteDemo() {
                     </div>
                   </div>
                   <div
-                    className={`col-start-1 row-start-1 self-start rounded-control bg-cobalt-wash px-3.5 py-2.5 text-ui-sm transition-opacity duration-300 ease-standard motion-reduce:transition-none ${publishedNow ? 'opacity-100' : 'opacity-0'}`}
+                    className={`col-start-1 row-start-1 self-start rounded-control bg-cobalt-wash px-3.5 py-2.5 text-ui-sm transition-opacity duration-300 ease-out motion-reduce:transition-none ${publishedNow ? 'opacity-100' : 'opacity-0'}`}
                   >
                     Quote published.
                   </div>
@@ -275,7 +268,7 @@ export default function AddQuoteDemo() {
               <div className="flex items-center gap-4 px-4 pb-4 text-ui-sm text-umber-soft md:px-5">
                 <span
                   ref={setTarget('publish')}
-                  className={`inline-flex min-h-10 items-center rounded-control px-[18px] font-medium transition-[transform,background-color] duration-150 ${primaryDisabled ? 'bg-disabled text-umber-soft' : 'bg-umber text-parchment'} ${within(t, T.publish) ? 'scale-95' : ''}`}
+                  className={`inline-flex min-h-10 items-center rounded-control px-[18px] font-medium transition-transform duration-150 ease-out ${primaryDisabled ? 'bg-disabled text-umber-soft' : 'bg-umber text-parchment'} ${within(t, T.publish) ? 'scale-95' : ''}`}
                 >
                   {primaryLabel}
                 </span>
@@ -288,14 +281,14 @@ export default function AddQuoteDemo() {
           <div
             ref={cursorRef}
             aria-hidden
-            className="pointer-events-none absolute left-0 top-0 z-10 size-[18px] opacity-0 [transition:transform_0.7s_cubic-bezier(0.65,0,0.35,1),opacity_0.3s_ease] motion-reduce:hidden"
+            className="pointer-events-none absolute left-0 top-0 z-10 size-[18px] opacity-0 [transition:transform_0.7s_cubic-bezier(0.16,1,0.3,1),opacity_0.3s_ease-out]"
           >
             <svg
               width="18"
               height="18"
               viewBox="0 0 18 18"
               fill="none"
-              className={`block origin-[22%_18%] transition-transform duration-150 ${clicking ? 'scale-[.78]' : ''}`}
+              className={`block origin-[22%_18%] transition-transform duration-150 ease-out ${clicking ? 'scale-[.78]' : ''}`}
             >
               <path
                 d="M2 1.5L14.5 7.6L8.7 9.2L7.1 15L2 1.5Z"

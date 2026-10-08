@@ -145,3 +145,16 @@
     caret-color: var(--color-umber);
   }
 }
+
+/* The one micro-motion on the page outside the quote demo: an endorsement
+   count ticking up. Opacity and transform only, ease-out, 300ms. */
+@keyframes tick {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@theme inline {
+  --animate-tick: tick 300ms ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-tick { animation: none; }
+}
