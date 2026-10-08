@@ -153,11 +153,6 @@ components:
     backgroundColor: "{colors.vellum}"
     textColor: "{colors.umber}"
     rounded: "{rounded.control}"
-  answer-card:
-    backgroundColor: "{colors.card-cobalt}"
-    textColor: "{colors.umber}"
-    rounded: "{rounded.control}"
-    padding: "16px 20px"
   role-label-rose:
     textColor: "{colors.rose}"
     typography: "{typography.label}"
@@ -235,11 +230,11 @@ A warm neutral ground with a rose and a cobalt that each come in three jobs: rea
 - **Parchment** (`#F7F4EE`): page canvas.
 - **Bone** (`#F0EEE6`): neutral hover fill and the selected chip for roles with no side.
 - **Vellum** (`#FBFAF6`): framed artifacts, the demo windows and the modal.
-- **Card Rose** (`#F5E8EA`) and **Card Cobalt** (`#E8ECF6`): the two audience cards, and the answer cards inside the Q&A demo.
+- **Card Rose** (`#F5E8EA`) and **Card Cobalt** (`#E8ECF6`): the two audience cards.
 - **Pale Band** (`#EFF2F9`): "Why this matters now". **Soft Band** (`#E5EAF6`): the closing band and footer.
 - **Soft Umber** (`#5E5D56`): secondary text and labels, AA on every surface above. **Body Umber** (`#3F3E37`): long serif text on the pale band. **Deep Umber** (`#4A4943`): small text on the closing band.
 - **Field Line** (`#7A786E`): input and chip borders (4.0 to 4.4:1, needs 3:1). **Rule** (`#DEDBD3`): section hairlines. **Window Line** (`#DAD6CA`): hairlines inside windows. **Disabled** (`#E4E1D8`): disabled or pending fill.
-- **Scrim** (`rgba(38, 37, 30, 0.55)`): behind the modal and behind the quote form inside its demo.
+- **Scrim** (`rgba(38, 37, 30, 0.55)`): behind the waitlist modal.
 
 Contrast was recomputed on 2026-10-07 for every pairing in design-system.md's table and for the extra pairings the shipped page uses (soft umber on both bands, on vellum, on white and on bone; deep rose on rose wash; cobalt and rose on vellum). All clear AA.
 
@@ -280,22 +275,22 @@ Contrast was recomputed on 2026-10-07 for every pairing in design-system.md's ta
 
 Single centered column, `max-width` 1080px, side padding 40px from md up and 20px below (the header uses 16px below md). Vertical section padding is 88px from md up and 56px below. Breakpoint is `md` (768px), viewport-based. A 4px base unit.
 
-- **Hero:** two columns from md (text, then a 230px circle-pair column), single column below with the pair at 132px beside its legend. The two audience cards sit side by side from md and stack below. The trust line follows; below md the "Opening soon" status chip sits beside it, because the header has no room for it.
+- **Hero:** from md, headline and lead left, a 230px circle-pair column right, the two audience cards full width beneath, then the trust line. Below md the order is headline, both audience cards, then the lead, the 104px pair beside its legend and the trust line with the status chip, so on a 375x667 phone both buttons sit above the fold (measured: 400px and 583px).
 - **Why this matters now:** on the page ground under a hairline, no band. Two columns (1.15fr / .85fr, 72px gap) from md; a heading and a paragraph that sits 12px below its top. The closing is the page's only tinted band.
-- **Artifact sections:** text left (.78fr), framed window right (1.22fr), 64px gap; stacked on mobile with 32px gap. Hairline above, no band.
+- **Artifact sections:** the first gives the window the wider column (text .78fr, window 1.22fr, window right); the second flips sides and narrows the window (window 1fr left, text .9fr right). 64px gap from md; stacked on mobile, text first, 32px gap. Hairline above, no band. "Why this matters now" uses tighter vertical padding (80px, 48px below md) so the page does not run on one 88px beat.
 - **Closing band:** statement and button, with a cropped circle pair bleeding off the bottom right.
 - **Header:** sticky, 1px rule below. Below md, Blog and Sign in move into a hamburger menu so the logo and the waitlist button fit.
 
-Rhythm is a steady sequence of equal-weight sections separated by hairlines.
+Rhythm alternates on purpose: a tall hero, a short argument band, a wide window right, a narrow window left, then the closing band.
 
 ## Elevation & Depth
 
 Flat by default. The canvas has no shadow at all; cards use a 1px hairline ring instead. Elevation is reserved for framed artifacts, so depth reads as "this is a thing you are looking at inside the page".
 
 ### Shadow Vocabulary
-- **Hairline** (`0 0 0 1px rgb(38 37 30 / 0.13)`): audience cards and answer cards.
+- **Hairline** (`0 0 0 1px rgb(38 37 30 / 0.13)`): the audience cards.
 - **Window** (`0 28px 70px rgb(0 0 0 / 0.14), 0 14px 32px rgb(0 0 0 / 0.10), 0 0 0 1px rgb(38 37 30 / 0.12)`): the two demo windows.
-- **Modal** (`0 28px 70px rgb(0 0 0 / 0.28), 0 14px 32px rgb(0 0 0 / 0.16), 0 0 0 1px rgb(38 37 30 / 0.14)`): the waitlist dialog and the quote form inside the demo.
+- **Modal** (`0 28px 70px rgb(0 0 0 / 0.28), 0 14px 32px rgb(0 0 0 / 0.16), 0 0 0 1px rgb(38 37 30 / 0.14)`): the waitlist dialog only.
 
 ### Named Rules
 **The Framed-Only Rule.** Shadow belongs to framed artifacts only. (The mobile menu currently breaks this with Tailwind's default `shadow-lg`; see Drift.)
@@ -326,19 +321,19 @@ Parchment, 1px rule below, sticky. Logo (two-circle mark plus "Tell The World") 
 "Opening soon": Inter 14px soft umber on Bone, 4px radius, 10px side padding, 4px vertical padding, no border. It sits in the header beside the small button from md and in the hero beside the trust line below md. Page headings carry no label above them: the heading opens the section.
 
 ### Audience card
-Card Rose or Card Cobalt, 4px radius, hairline ring. A header row (a 10px dot plus a mono label in Deep Rose or Cobalt, no rule under it), then one serif sentence (max 17em), then the matching button. Two card shapes are identical; they differ only by color and copy.
+Card Rose or Card Cobalt, 4px radius, hairline ring. A header row (a 10px dot plus a mono label in Deep Rose or Cobalt, no rule under it), then one serif sentence (max 17em), then the matching button. The two cards are mirrored: the creator card has its marker dot on the left, the expert card on the right (label first), and from md the buttons share one baseline.
 
 ### Framed window
-Vellum, 4px radius, Window shadow, clipped. Chrome row: a 14px soft-umber title (left-aligned at every width, no window dots), and a Pause/Play button with a 1px field-line border (label shown from md, icon only below; 44px target below md). The interior is `aria-hidden` and the window is announced once through its `aria-label`. A caption "Illustrative example, sample content" sits below, right-aligned.
+Vellum, 4px radius, Window shadow, clipped. Chrome row: a 14px soft-umber title (left-aligned at every width, no window dots), and a Pause/Play button with a 1px field-line border (label shown from md, icon only below; 44px target below md). The interior is `aria-hidden` and the window is announced once through its `aria-label`. A caption "Illustrative example, sample content" sits below, right-aligned. The demo plays once when mostly in view, holds its last frame, stops off screen, and Play replays it; with reduced motion it shows its rest frame and Play is the opt-in.
 
 ### Author and role label
 A filled initial (36px, 28px small) then the name in Inter 600 15px with a role label beside it, and the affiliation on its own line (Inter 14px, soft umber). Rose-deep circle for a creator, cobalt circle for an expert, square deep-cobalt for an organisation. The role label is a 1px bordered mono label at 40% of the role color, 2px radius, no fill, no hover.
 
-### Answer card (Q&A demo)
-The question is a mono label, an Author, then serif text. Answers are indented (16px, 32px from md) on Card Cobalt with the hairline ring, each labelled "Answer", and end with a hairline and a cobalt "Endorsed · n" mono count.
+### Answer (Q&A demo)
+The question is a mono label, an Author, then serif text. Answers are indented (16px, 32px from md) and sit directly on the window, separated by space only: no card inside the window. Each is labelled "Answer" and ends with a cobalt "Endorsed · n" mono count. The whole thread is visible at rest; the only motion is the first answer's count ticking 1 to 2 (opacity and transform, 300ms ease-out).
 
 ### Quote form and clarity flag (quote demo)
-A vellum form on a scrim inside the window. A white text area with a Field Line border; the flagged term gets a 3px Bright Rose underline on Rose Wash. Below it a Rose Wash panel carries a Deep Rose mono "1 term flagged" label, the plain meaning, and "Try: ...". The primary action cycles Publish quote, Review flags, Submitting, Published. Typing and a cursor drive the loop.
+The form is the window's own content: the quote list steps aside and the form replaces it, with no scrim, no inner card and no shadow. A white text area with a Field Line border; the flagged term gets a 3px Bright Rose text underline on Rose Wash. Below it a Rose Wash panel carries a Deep Rose mono "1 term flagged" label, the plain meaning, and "Try: ...". The primary action runs Publish quote, Review flags, Submitting, Published. Typing and a cursor drive one pass that holds on the published state.
 
 ### Form fields (modal)
 44px high, 4px radius, 1px Field Line border on white, Inter 16px. Focus: umber border and a 2px umber outline at 1px offset. Error: 2px Deep Rose border, with an icon and a message (never color alone). Disabled: Disabled fill. Labels sit above in Inter 500 13px.
@@ -385,7 +380,7 @@ Where the shipped page and `docs/design/landing-page/design-system.md` disagree.
 | 6 | Header spacing | 12px vertical padding, 40px / 20px gutter | `py-2 px-4` (8px / 16px) below md, `md:py-3 md:px-gutter` from md (`LandingHeader.tsx:13`). Mobile gutter is 16px, not 20px. | off-spec |
 | 7 | Diff panel | A diff panel with removed line (`diff-removed`), added line (`cobalt-wash`), `+`/`-` markers; "the diff has +/- markers"; quote-demo rest frame is "the diff" | No diff panel exists. The quote demo edits text inside a text area and shows a Rose Wash flag panel plus "Try:" suggestion (`AddQuoteDemo.tsx:206-264`). The rest frame is the flagged state (`REST_T = 9000`, `AddQuoteDemo.tsx:48`). | doc-claims |
 | 8 | Unused tokens | `diff-removed`, `--duration-fast` (150ms), `--duration-demo-step` (600ms) are documented tokens | Nothing in `app/` or `components/` consumes them (grep, 2026-10-07). Components use literal `duration-150`, `duration-[600ms]`, so the reduced-motion override of those two variables (`landing-theme.css:123-126`) changes nothing. | unused |
-| 9 | Motion vocabulary | "Default transitions: 150ms standard ease. Nothing else animates"; demo beats 600ms | Also present: modal and step animations with their own curves (`app/globals.css:167-179`, 160 to 220ms, `ease-out`, `ease-in` and `cubic-bezier(0.16, 1, 0.3, 1)`), cursor travel 0.7s `cubic-bezier(0.65,0,0.35,1)` (`AddQuoteDemo.tsx:291`), fades of 300, 400 and 500ms (`AddQuoteDemo.tsx:164,188,193,254,268`), typing and a scale press. Only some of these use the documented `ease-standard` curve. | doc-lags |
+| 9 | Motion vocabulary | "Default transitions: 150ms standard ease. Nothing else animates"; demo beats 600ms | Also present: modal and step animations with their own curves (`app/globals.css:167-179`, 160 to 220ms, `ease-out`, `ease-in` and `cubic-bezier(0.16, 1, 0.3, 1)`), cursor travel 0.7s `cubic-bezier(0.65,0,0.35,1)` (`AddQuoteDemo.tsx:291`), fades of 300, 400 and 500ms (`AddQuoteDemo.tsx:164,188,193,254,268`), typing and a scale press. Only some of these use the documented `ease-standard` curve. | partly resolved in `landing/tells-layout-motion`: the fades and the cursor now use ease-out (the cursor travel was ease-in-out), the end-of-loop fade is gone; the 150ms colour transitions on controls still use `ease-standard` |
 | 10 | Newly published quote | "A newly published quote gets a 3px cobalt edge for the length of its entrance only" | No such edge. Publishing shows a "Quote published." banner in the flag slot (`AddQuoteDemo.tsx:267-271`) and fades the list. | doc-claims |
 | 11 | Pause state semantics | Paused state is `aria-pressed=true` | Uses a swapping `aria-label` ("Play/Pause the animated example"), no `aria-pressed` (`DemoWindow.tsx:31-36`). Label text is hidden below md (icon only). | off-spec |
 | 12 | Focus ring | "Focus is always a visible 2px umber outline with offset" | Applied on `WaitlistButton`, `EarlyTesterLink`, modal fields, chips. Not applied on header links, the hamburger and its menu items, or footer links (`LandingHeader.tsx:14,26,32`, `MobileMenu.tsx:38,57,62`, `Closing.tsx:31,39,42`); `app/globals.css` has no global `:focus-visible` rule, so those fall back to the browser default. The modal close button has the outline without an offset (`WaitlistModal.tsx:218`). | resolved in `landing/tells-look` (global `.landing-root :focus-visible` rule; the modal close button now gets the offset) |

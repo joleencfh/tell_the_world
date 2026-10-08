@@ -271,3 +271,10 @@ Answered by the owner on 2026-10-07: all recommendations accepted.
 - B5 Trust gap: **option A now**, example-brief section deferred to its own later epic
 - B6 Nested modal in the quote demo: **option A** (form inline, no scrim)
 - Small fixes S1 to S12: **all approved**
+
+## Step 4 outcome (landing/tells-layout-motion)
+
+- B3: both CTAs now end at y=400 and y=583 on a 375x667 phone (were about 710 and 940). Mobile order is headline, both cards, then lead, pair and trust line; from md the pair sits beside the headline and the cards span the width. The two cards are mirrored (marker left / right). They still share one structure: with no wording changes allowed, a purpose difference (what you get vs what you give) needs copy, so it is a Step 5 proposal.
+- B4: second demo section flipped and its window narrowed; the argument band has tighter padding.
+- B6 and nested cards: the quote form replaces the list inline (no scrim, no inner shadow); answers in the Q&A sit on the window without a card. The `side-tab` false positive is gone (text underline instead of a 3px border).
+- S6 and S7: both demos play once on entering view and hold; Q&A shows the whole thread at rest and animates only the endorsement tick; Play replays; with reduced motion the rest frame shows and Play is an opt-in.
