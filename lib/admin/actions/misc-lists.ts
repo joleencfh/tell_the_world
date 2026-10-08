@@ -48,7 +48,7 @@ export async function markBriefFeedbackReviewed(feedbackId: string): Promise<{ s
 }
 
 // ---------------------------------------------------------------------------
-// Waitlist signups (docs/design/landing-page/temp-landing-page-plan.md §2,
+// Waitlist signups (docs/design/landing-page/plans/temp-landing-page-plan.md §2,
 // Part 1) — silent-launch landing page's "Join Waitlist" form. Read-only
 // list, no approve/reject/convert-to-user step in this part.
 // ---------------------------------------------------------------------------

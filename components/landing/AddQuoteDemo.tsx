@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react'
 import DemoWindow, { Author } from '@/components/landing/DemoWindow'
 import { useDemoClock } from '@/components/landing/useDemoLoop'
 
-// Add-a-quote demo (docs/design/landing-page/final-design.html, Part C), the
+// Add-a-quote demo (docs/design/landing-page/current/final-design.html, Part C), the
 // original animation in the new design system. Illustrative content, labelled
 // as such in the window caption. One cycle, as a cursor would do it:
 //

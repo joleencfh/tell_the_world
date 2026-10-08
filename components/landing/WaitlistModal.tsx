@@ -6,7 +6,7 @@ import CirclePair from '@/components/landing/CirclePair'
 import type { UserRole } from '@/lib/types'
 
 // The landing page's waitlist form, in the new design system
-// (docs/design/landing-page/design-system.md, Modal / Form field / Role chip).
+// (docs/design/landing-page/current/design-system.md, Modal / Form field / Role chip).
 //
 // Behavioural shape is unchanged: mode 'waitlist' goes straight to the form,
 // 'early-tester' shows a short intro step first (with a real checkbox,

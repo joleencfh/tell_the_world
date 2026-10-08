@@ -1,7 +1,7 @@
 import RoleBadge from '@/components/ui/RoleBadge'
 import type { WaitlistSignup } from '@/lib/admin/actions'
 
-// docs/design/landing-page/temp-landing-page-plan.md §2, Part 1 — read-only
+// docs/design/landing-page/plans/temp-landing-page-plan.md §2, Part 1 — read-only
 // list card, no approve/reject action (unlike the moderation cards
 // elsewhere in this file's siblings). Follows FeedbackCard's layout shape.
 

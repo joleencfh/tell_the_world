@@ -1,5 +1,5 @@
 // Moved here verbatim from app/page.tsx by
-// docs/design/landing-page/temp-landing-page-plan.md §2, Part 3, when the
+// docs/design/landing-page/plans/temp-landing-page-plan.md §2, Part 3, when the
 // silent-launch page took over the `/` route. Not currently routed
 // anywhere — kept for reuse when a permanent, fully-built landing page
 // replaces the silent-launch one. Nothing in this file was changed during

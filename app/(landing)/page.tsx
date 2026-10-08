@@ -7,7 +7,7 @@ import QACommunityDemo from '@/components/landing/QACommunityDemo'
 import AddQuoteDemo from '@/components/landing/AddQuoteDemo'
 import Closing from '@/components/landing/Closing'
 
-// Silent-launch landing page, redesigned (docs/design/landing-page/final-design.html,
+// Silent-launch landing page, redesigned (docs/design/landing-page/current/final-design.html,
 // design-system.md). A server component: only the waitlist state (inside
 // WaitlistProvider), the two demos and the buttons run on the client.
 //

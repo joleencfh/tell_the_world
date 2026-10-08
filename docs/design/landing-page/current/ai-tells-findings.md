@@ -37,7 +37,7 @@ Counts: P0 0, P1 2 (both credibility, not code), P2 8, P3 6. Compare the old aud
 
 ## 2. Detector, compared with baseline
 
-`baseline/detect-before.json` is `[]`. It was captured when `DESIGN.md` did not exist, so design-system rules could not run.
+`../evidence/baseline/detect-before.json` is `[]`. It was captured when `DESIGN.md` did not exist, so design-system rules could not run.
 
 | Run | Result |
 |---|---|
