@@ -7,6 +7,7 @@ colors:
   vellum: "#FBFAF6"
   card-rose: "#F5E8EA"
   card-cobalt: "#E8ECF6"
+  band-pale: "#EFF2F9"
   band-soft: "#E5EAF6"
   disabled: "#E4E1D8"
   umber: "#26251E"
@@ -243,7 +244,7 @@ Contrast was recomputed on 2026-10-07 for every pairing in design-system.md's ta
 
 **The Hand-Tuned Tint Rule.** Card Rose, Card Cobalt and the two bands were tuned by eye to about 25% strength while keeping hue. Never recompute them by mixing with paper; a plain mix turns grey.
 
-**The Two Bands Rule.** Exactly two full-bleed bands exist (pale, soft). Do not add a third.
+**The Two Bands Rule.** Exactly two full-bleed bands exist (pale behind the argument, soft behind the closing), kept apart by the demo sections. Do not add a third.
 
 ## Typography
 
@@ -276,12 +277,12 @@ Contrast was recomputed on 2026-10-07 for every pairing in design-system.md's ta
 Single centered column, `max-width` 1080px, side padding 40px from md up and 20px below (the header uses 16px below md). Vertical section padding is 88px from md up and 56px below. Breakpoint is `md` (768px), viewport-based. A 4px base unit.
 
 - **Hero:** from md, headline and lead left, a 230px circle-pair column right, the two audience cards full width beneath, then the trust line. Below md the order is headline, both audience cards, then the lead, the 104px pair beside its legend and the trust line with the status chip, so on a 375x667 phone both buttons sit above the fold (measured: 400px and 583px).
-- **Why this matters now:** on the page ground under a hairline, no band. Two columns (1.15fr / .85fr, 72px gap) from md; a heading and a paragraph that sits 12px below its top. The closing is the page's only tinted band.
+- **Why this matters now:** the pale band, between hairlines (full bleed, 80px vertical padding, 56px below md). Two columns (1.15fr / .85fr, 72px gap) from md; a heading and a paragraph that sits 12px below its top. The closing is the other band (soft); the two are separated by both demo sections.
 - **Artifact sections:** the first gives the window the wider column (text .78fr, window 1.22fr, window right); the second flips sides and narrows the window (window 1fr left, text .9fr right). 64px gap from md; stacked on mobile, text first, 32px gap. Hairline above, no band. "Why this matters now" uses tighter vertical padding (80px, 48px below md) so the page does not run on one 88px beat.
 - **Closing band:** statement and button, with a cropped circle pair bleeding off the bottom right.
 - **Header:** sticky, 1px rule below. Below md, Blog and Sign in move into a hamburger menu so the logo and the waitlist button fit.
 
-Rhythm alternates on purpose: a tall hero, a short argument band, a wide window right, a narrow window left, then the closing band.
+Rhythm alternates on purpose: a tall hero, a short argument band in pale tint, a wide window right, a narrow window left, then the closing band.
 
 ## Elevation & Depth
 

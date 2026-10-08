@@ -1,9 +1,9 @@
 // "Why this matters now": the page's one argument. Copy is verbatim from
-// landing-page-copy.md. It sits on the page ground under a hairline; the
-// closing band is the page's only tinted band.
+// landing-page-copy.md. It is the page's pale band, set between hairlines; the
+// closing band is the soft one.
 export default function WhyThisMatters() {
   return (
-    <section className="border-t border-rule py-12 md:py-20">
+    <section className="border-y border-rule bg-band-pale py-14 md:py-20">
       <div className="mx-auto grid max-w-page gap-0 px-5 md:grid-cols-[1.15fr_.85fr] md:gap-[72px] md:px-gutter">
         <h2 className="font-serif text-heading text-umber">
           Attention shows up, understanding doesn&rsquo;t always follow.
