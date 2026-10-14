@@ -7,7 +7,7 @@ import { sendWaitlistNotificationEmail } from '@/lib/email/send-waitlist-notific
 import type { TablesInsert, UserRole } from '@/lib/types'
 
 // ---------------------------------------------------------------------------
-// docs/design/landing-page/temp-landing-page-plan.md §2, Part 2 — the
+// docs/design/landing-page/plans/temp-landing-page-plan.md §2, Part 2 — the
 // silent-launch landing page's "Join Waitlist" form. Mirrors
 // lib/applications/actions.ts's honeypot + rate-limit + validation shape,
 // including the confirmation-email pattern: send after a successful

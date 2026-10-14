@@ -1,6 +1,6 @@
 import { EB_Garamond, Inter } from 'next/font/google'
 
-// The landing page's two typefaces (docs/design/landing-page/design-system.md)
+// The landing page's two typefaces (docs/design/landing-page/current/design-system.md)
 // are loaded here, in the route group's own layout, so no other route pays
 // for them. The CSS variables feed --font-serif / --font-ui in
 // app/landing-theme.css. IBM Plex Mono (the mono face) is the app's existing

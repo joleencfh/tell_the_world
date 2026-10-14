@@ -13,6 +13,9 @@ in each feature's folder before assuming a spec is live.
 | Brief page — expert contributions (reviews, endorsements, takes, comments) | In progress — see [`brief-feature/build-plan.md`](brief-feature/build-plan.md) | [`brief-feature/`](brief-feature/) |
 | Profile page — rework | Draft, not started | [`profile/`](profile/) |
 | Architecture cleanup — migration renumbering, dead `/briefs` route, `/home` composition consistency, lint decomposition debt | Not started — see [`architecture-cleanup/build-plan.md`](architecture-cleanup/build-plan.md) | [`architecture-cleanup/`](architecture-cleanup/) |
+| Landing page — silent launch, redesign and AI-tells cleanup | Shipped; cleanup in progress. Start at [`landing-page/README.md`](landing-page/README.md) | [`landing-page/`](landing-page/) || Design system — sitewide rules, tokens and migration steps | Docs written; migration status tracked in the files themselves | [`design-system/`](design-system/) || Home dashboard — Two-Ink Bold rebuild | Partly built; see the plan for per-part status | [`home-dashboard/`](home-dashboard/) |
+| Design system — sitewide rules, tokens and migration steps | Docs written; migration status tracked in the files themselves | [`design-system/`](design-system/) |
+| Home dashboard — Two-Ink Bold rebuild | Partly built; see the plan for per-part status | [`home-dashboard/`](home-dashboard/) |
 
 ## Adding a new design doc
 

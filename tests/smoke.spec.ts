@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 
 // Landing page was replaced with a silent-launch page (waitlist signup,
 // no public briefs/apply flow) — see
-// docs/design/landing-page/temp-landing-page-plan.md. The old page these
+// docs/design/landing-page/plans/temp-landing-page-plan.md. The old page these
 // tests targeted (briefs teaser grid, trust strip, "Apply to join") still
 // exists at components/landing/LegacyLandingPage.tsx but isn't routed
 // anywhere right now, so there's nothing left to test it against.

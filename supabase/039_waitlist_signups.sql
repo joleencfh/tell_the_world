@@ -3,7 +3,7 @@
 -- Applied via the Supabase Management API (see
 -- memory:supabase_management_api_sql), not pasted into the SQL Editor.
 --
--- docs/design/landing-page/temp-landing-page-plan.md §2, Part 1: the
+-- docs/design/landing-page/plans/temp-landing-page-plan.md §2, Part 1: the
 -- silent-launch landing page's "Join Waitlist" form lands here. Separate
 -- table from `applications` — the waitlist's fields and review need are
 -- lighter (a list to glance at, not the existing multi-stage

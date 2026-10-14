@@ -14,7 +14,7 @@
         "rule": "cramped-padding",
         "value": "*",
         "files": [
-          "docs/design/landing-page/direction-mix-3.html"
+          "docs/design/landing-page/explorations/direction-mix-3.html"
         ],
         "createdAt": "2026-10-01T10:06:42.285Z",
         "reason": "False positive: .s sections use vertical padding only; the inner .in wrapper supplies the horizontal inset. Mock file only. Judged by assistant, not user confirmed"
@@ -23,7 +23,7 @@
         "rule": "clipped-overflow-container",
         "value": "*",
         "files": [
-          "docs/design/landing-page/circle-options.html"
+          "docs/design/landing-page/explorations/circle-options.html"
         ],
         "createdAt": "2026-10-01T10:12:46.599Z",
         "reason": "Decorative closing circles intentionally cropped at the band edge; same pattern as direction-mix-3.html. Judged by assistant, not user confirmed"
@@ -32,7 +32,7 @@
         "rule": "clipped-overflow-container",
         "value": "*",
         "files": [
-          "docs/design/landing-page/final-design.html"
+          "docs/design/landing-page/current/final-design.html"
         ],
         "createdAt": "2026-10-01T10:25:42.226Z",
         "reason": "Decorative closing circles intentionally cropped at the band edge, plus clipped screenshot frames and scrim demo frames; nothing needs to escape. Same pattern as direction-mix-3.html. Judged by assistant, not user confirmed"

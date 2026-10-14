@@ -158,13 +158,13 @@ Part 3.
 #### Prompt for next session — Part 0
 
 ```
-Read docs/design/landing-page/temp-landing-page-plan.md in full before
+Read docs/design/landing-page/plans/temp-landing-page-plan.md in full before
 doing anything else — §0 for context, §1 for engineering conventions.
 Also skim app/globals.css for the exact design tokens and
 docs/design/brief-feature/two-ink-bold-plan.md §1 for how they're meant
 to be used.
 
-Build Part 0 (docs/design/landing-page/temp-landing-page-plan.md §2,
+Build Part 0 (docs/design/landing-page/plans/temp-landing-page-plan.md §2,
 Part 0) — design proposals only, no app code changes.
 
 Produce 2-3 distinct visual directions for the new silent-launch landing
@@ -226,12 +226,12 @@ into).
 #### Prompt for next session — Part 1
 
 ```
-Read docs/design/landing-page/temp-landing-page-plan.md in full before
+Read docs/design/landing-page/plans/temp-landing-page-plan.md in full before
 doing anything else — §0 for context, §1 for engineering conventions.
 Confirm the actual highest migration number on the current branch before
 naming this one (last checked as 039, but re-verify).
 
-Build Part 1 (docs/design/landing-page/temp-landing-page-plan.md §2,
+Build Part 1 (docs/design/landing-page/plans/temp-landing-page-plan.md §2,
 Part 1) — schema + admin view, no public-facing form yet (that's Part
 2).
 
@@ -302,13 +302,13 @@ is chosen).
 #### Prompt for next session — Part 2
 
 ```
-Read docs/design/landing-page/temp-landing-page-plan.md in full before
+Read docs/design/landing-page/plans/temp-landing-page-plan.md in full before
 doing anything else — §0 for context, §1 for engineering conventions.
 Confirm Part 1 has landed and Part 0 has a signed-off design direction
 before starting — read whatever the user confirmed for the modal's
 exact look before building it from scratch.
 
-Build Part 2 (docs/design/landing-page/temp-landing-page-plan.md §2,
+Build Part 2 (docs/design/landing-page/plans/temp-landing-page-plan.md §2,
 Part 2) — lib/waitlist/actions.ts and components/landing/
 WaitlistModal.tsx.
 
@@ -372,12 +372,12 @@ Parts 0–3.
 #### Prompt for next session — Part 3
 
 ```
-Read docs/design/landing-page/temp-landing-page-plan.md in full before
+Read docs/design/landing-page/plans/temp-landing-page-plan.md in full before
 doing anything else — §0 for context, §1 for engineering conventions.
 Confirm Part 0 has a signed-off design direction and Part 2 has landed
 (WaitlistModal must exist) before starting.
 
-Build Part 3 (docs/design/landing-page/temp-landing-page-plan.md §2,
+Build Part 3 (docs/design/landing-page/plans/temp-landing-page-plan.md §2,
 Part 3) — app/page.tsx and components/landing/LegacyLandingPage.tsx.
 
 1. Move app/page.tsx's entire current contents verbatim into
@@ -444,12 +444,12 @@ reach `/home`.
 #### Prompt for next session — Part 4
 
 ```
-Read docs/design/landing-page/temp-landing-page-plan.md in full before
+Read docs/design/landing-page/plans/temp-landing-page-plan.md in full before
 doing anything else — §0 for context (specifically why this gap exists
 and what magic link already does right), §1 for engineering
 conventions.
 
-Build Part 4 (docs/design/landing-page/temp-landing-page-plan.md §2,
+Build Part 4 (docs/design/landing-page/plans/temp-landing-page-plan.md §2,
 Part 4) — app/auth/callback/route.ts and app/login/page.tsx.
 
 1. In app/auth/callback/route.ts, after exchangeCodeForSession succeeds,
@@ -504,10 +504,10 @@ Do this last, after Parts 0–4 have shipped and been signed off.
 #### Prompt for next session — Part 5
 
 ```
-Read docs/design/landing-page/temp-landing-page-plan.md in full before
+Read docs/design/landing-page/plans/temp-landing-page-plan.md in full before
 doing anything else.
 
-Build Part 5 (docs/design/landing-page/temp-landing-page-plan.md §2,
+Build Part 5 (docs/design/landing-page/plans/temp-landing-page-plan.md §2,
 Part 5) — final cleanup, only once every other part has shipped.
 
 1. bunx tsc --noEmit, bun run lint, bun run build — all clean.
