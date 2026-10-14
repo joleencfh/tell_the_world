@@ -2,7 +2,7 @@
 
 Version 1.0, 2026-10-01. The landing page's design, generalised so the whole app can adopt it.
 
-- Tokens: [app-theme.css](app-theme.css) (Tailwind 4 `@theme`)
+- Tokens: [app/app-theme.css](../../../app/app-theme.css) (Tailwind 4 `@theme`)
 - Rendered reference, with the components in every state and five app screens rebuilt in the system: [design-system.html](design-system.html)
 - How to move the existing app onto it, screen by screen: [migration.md](migration.md)
 - Where it came from: [../landing-page/current/design-system.md](../landing-page/current/design-system.md) (the landing-only v0.1, now superseded) and [../landing-page/current/design-decisions.md](../landing-page/current/design-decisions.md)

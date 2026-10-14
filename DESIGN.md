@@ -357,7 +357,7 @@ Hairline above, 14px Deep Umber text inside the closing band. Left: "Tell The Wo
 - **Do** keep every action named "Join the waitlist" (early-tester path excepted) and use the audience-colored buttons only where they match the audience.
 - **Do** label anything illustrative as "Illustrative example, sample content" and keep demos free of invented proof.
 - **Do** make meaning survive without color: role labels carry text, selected chips carry a dot and a heavier border, errors carry an icon and text.
-- **Do** keep touch targets at 44px, with a visible umber 2px focus outline (set once for the whole route in `app/landing-theme.css`, under `.landing-root`, along with the rose-wash text selection and umber caret).
+- **Do** keep touch targets at 44px, with a visible umber 2px focus outline (set once for the whole route in `app/app-theme.css`, under `.landing-root`, along with the rose-wash text selection and umber caret).
 
 ### Don't:
 - **Don't** recompute the card and band tints by mixing with paper.

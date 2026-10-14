@@ -1,6 +1,6 @@
 @import "tailwindcss";
-/* Landing page design system, additive (new token names only). */
-@import "./landing-theme.css";
+/* App design system, additive (new token names only). */
+@import "./app-theme.css";
 
 /* Tailwind's Preflight resets <button> to cursor:default, unlike native
    <a> (which already gets pointer from the browser UA stylesheet) — every

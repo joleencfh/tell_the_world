@@ -1,55 +1,80 @@
-// Shared avatar primitive — consolidates 6 near-identical implementations
-// (UserCard, QuoteCard, home, EditProfileModal, ProfileView, BriefView) that
-// each hand-rolled their own size scale, initials fallback, and background
-// treatment. Every size/palette/ring combination below reproduces one of
-// those screens' exact prior appearance — see the callers for which token
-// maps to which screen.
+import type { UserRole } from '@/lib/types'
+import { cn } from './cn'
+import { ROLE_SIDE } from './RoleLabel'
+
+// Avatar (design-system.md 3.4). A real image if there is one, otherwise the
+// initial in white on a fill chosen by ROLE, not by name: creators and
+// journalists rose-deep, experts cobalt, organisations a cobalt-deep SQUARE,
+// everyone else umber-soft. The rotating five-hue palette retired.
+//
+// Compatibility: callers written before the design system pass `palette` and
+// `shape` instead of `role`. They are mapped as follows until each screen is
+// migrated and passes `role`:
+//   palette="blue" + shape="square"    -> organisation
+//   palette="blue"                     -> expert
+//   palette="colored" + shape="square" -> organisation
+//   anything else                      -> neutral
+// New code should pass `role` and nothing else.
 
 export type AvatarSize = '2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'
 export type AvatarPalette = 'gray' | 'colored' | 'blue'
 export type AvatarShape = 'circle' | 'square'
 
-// (width/height, initials text size) per token — every distinct combination
-// found across the app, named by ascending pixel size. '2xs' is for the
-// Community Q&A card's thin metadata bar (two-ink-bold-plan.md Part 5
-// redesign, 2026-08-13) — every other token was already spoken for by an
-// existing screen and too big for that context.
-const SIZE_CLASSES: Record<AvatarSize, string> = {
-  '2xs': 'w-[18px] h-[18px] text-[7px]',
-  xs: 'w-8 h-8 text-xs',
-  sm: 'w-9 h-9 text-xs',
-  md: 'w-10 h-10 text-sm',
-  lg: 'w-11 h-11 text-sm',
-  xl: 'w-12 h-12 text-base',
-  '2xl': 'w-14 h-14 text-base',
-  '3xl': 'w-20 h-20 text-2xl',
+// Box size and initial size per token. The initial never goes under the 12px
+// floor, so the smallest avatar (18px) is a tight fit by design.
+const BOX: Record<AvatarSize, string> = {
+  '2xs': 'size-[18px]',
+  xs: 'size-8',
+  sm: 'size-9',
+  md: 'size-10',
+  lg: 'size-11',
+  xl: 'size-12',
+  '2xl': 'size-14',
+  '3xl': 'size-20',
 }
 
-// Rotating background for the "colored" palette — same 5 colors used by
-// UserCard, QuoteCard, and BriefView before this consolidation.
-const COLORED_BACKGROUNDS = [
-  'bg-amber-700',
-  'bg-emerald-700',
-  'bg-sky-700',
-  'bg-purple-700',
-  'bg-rose-700',
-]
+const INITIAL: Record<AvatarSize, string> = {
+  '2xs': 'text-label tracking-normal',
+  xs: 'text-ui-sm',
+  sm: 'text-ui-sm',
+  md: 'text-ui',
+  lg: 'text-ui',
+  xl: 'text-lg',
+  '2xl': 'text-lg',
+  '3xl': 'text-3xl',
+}
 
-function initials(name: string): string {
-  return name.charAt(0).toUpperCase()
+type Fill = { className: string; square: boolean }
+
+function fillFor(role: UserRole | undefined, palette: AvatarPalette, shape: AvatarShape): Fill {
+  if (role === 'organisation') return { className: 'bg-cobalt-deep', square: true }
+  if (role) {
+    const side = ROLE_SIDE[role]
+    if (side === 'rose') return { className: 'bg-rose-deep', square: false }
+    if (side === 'cobalt') return { className: 'bg-cobalt', square: false }
+    return { className: 'bg-umber-soft', square: false }
+  }
+  // Compatibility mapping for pre-design-system callers (see above).
+  if (palette === 'blue') {
+    return shape === 'square'
+      ? { className: 'bg-cobalt-deep', square: true }
+      : { className: 'bg-cobalt', square: false }
+  }
+  if (palette === 'colored' && shape === 'square') return { className: 'bg-cobalt-deep', square: true }
+  return { className: 'bg-umber-soft', square: false }
 }
 
 export interface AvatarProps {
   name: string
   avatarUrl: string | null
   size?: AvatarSize
+  /** The person's role. Chooses the fill and the shape. */
+  role?: UserRole
+  /** @deprecated Use `role`. Kept so existing callers keep working. */
   palette?: AvatarPalette
-  // 'square' is only meaningful with palette="blue" — the Two-Ink Bold
-  // convention for distinguishing an organisation avatar (square, blue-ink)
-  // from an individual's (circle, blue). Other palettes ignore it.
+  /** @deprecated Use `role`. Square means organisation. */
   shape?: AvatarShape
-  // Ring classes applied only to real avatar images (matches prior behavior —
-  // none of the source screens ringed the colored-initials fallback).
+  /** Ring classes applied only to real avatar images. */
   ringClassName?: string
 }
 
@@ -57,50 +82,32 @@ export default function Avatar({
   name,
   avatarUrl,
   size = 'md',
+  role,
   palette = 'gray',
   shape = 'circle',
   ringClassName,
 }: AvatarProps) {
-  const sizeClasses = SIZE_CLASSES[size]
-  const shapeClass = shape === 'square' ? 'rounded' : 'rounded-full'
+  const fill = fillFor(role, palette, shape)
+  const shapeClass = fill.square ? 'rounded-control' : 'rounded-full'
 
   if (avatarUrl) {
     return (
-      <img
-        src={avatarUrl}
-        alt={name}
-        className={`${sizeClasses} ${shapeClass} object-cover shrink-0 ${ringClassName ?? ''}`}
-      />
-    )
-  }
-
-  if (palette === 'blue') {
-    const bg = shape === 'square' ? 'bg-blue-ink' : 'bg-blue'
-    return (
-      <div
-        className={`${sizeClasses} ${shapeClass} ${bg} flex items-center justify-center shrink-0 select-none`}
-      >
-        <span className="text-white font-bold">{initials(name)}</span>
-      </div>
-    )
-  }
-
-  if (palette === 'colored') {
-    const bg = COLORED_BACKGROUNDS[name.charCodeAt(0) % COLORED_BACKGROUNDS.length]
-    return (
-      <div
-        className={`${sizeClasses} ${bg} rounded-full flex items-center justify-center shrink-0 select-none`}
-      >
-        <span className="text-white font-bold">{initials(name)}</span>
-      </div>
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={avatarUrl} alt={name} className={cn('shrink-0 object-cover', BOX[size], shapeClass, ringClassName)} />
     )
   }
 
   return (
     <div
-      className={`${sizeClasses} rounded-full bg-gray-200 text-gray-600 font-semibold flex items-center justify-center shrink-0 select-none`}
+      className={cn(
+        'flex shrink-0 select-none items-center justify-center font-ui font-semibold leading-none text-white',
+        BOX[size],
+        INITIAL[size],
+        shapeClass,
+        fill.className,
+      )}
     >
-      {initials(name)}
+      {name.charAt(0).toUpperCase()}
     </div>
   )
 }

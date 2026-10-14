@@ -55,10 +55,10 @@ Your working tree has uncommitted work on `design-system/app-wide` (`.impeccable
 ```
 Project: Tell The World (Next.js 16, Tailwind 4, Bun only; never npm/npx/node).
 We are migrating the app to the new design system, one phase per PR.
-Read first: docs/design/design-system/design-system.md, migration.md, app-theme.css.
+Read first: docs/design/design-system/design-system.md, migration.md, app/app-theme.css.
 
 Rules for every phase:
-- Use only tokens and utilities from app-theme.css and the shared primitives in components/ui. No raw hex, no stock Tailwind colours (red-*, green-*, gray-*, ...), no text under 12px.
+- Use only tokens and utilities from app/app-theme.css and the shared primitives in components/ui. No raw hex, no stock Tailwind colours (red-*, green-*, gray-*, ...), no text under 12px.
 - A migrated screen is fully new: do not mix old tokens (paper, ink, line, pink, blue, coverage, font-display, font-body) with new ones inside one component.
 - Styling PRs change no logic, data fetching, routes, copy or behaviour. If you find a bug, note it in the PR description instead of fixing it.
 - No em dashes in user-facing copy or the PR description.
