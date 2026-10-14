@@ -1,19 +1,17 @@
 /*
  * Tell The World, app design system v1.0 (Tailwind CSS 4 @theme)
  *
- * This is the landing page theme (app/landing-theme.css) PLUS everything the
- * rest of the app needs: status colours, extra type steps, layout widths,
- * menu/toast elevation, z-index layers and a focus utility.
+ * The single source of truth for the design tokens (rules and recipes are in
+ * docs/design/design-system/design-system.md). It is the landing page theme
+ * PLUS everything the rest of the app needs: status colours, extra type steps,
+ * layout widths, menu/toast elevation, z-index layers and a focus utility. It
+ * replaced app/landing-theme.css in migration Phase 1.
  *
- * It SUPERSEDES app/landing-theme.css. Never import both. To adopt it:
- *   1. replace the contents of app/landing-theme.css with this file (or point
- *      the import in app/globals.css at this one);
- *   2. migrate screens as described in migration.md;
- *   3. when the last screen is migrated, delete the old Two-Ink Bold tokens
- *      (--color-paper, --color-ink, --color-pink, --color-blue, ...) from
- *      app/globals.css.
+ * When the last screen is migrated (Phase 6), delete the old Two-Ink Bold
+ * tokens (--color-paper, --color-ink, --color-pink, --color-blue, ...) from
+ * app/globals.css.
  *
- * ADDITIVE UNTIL STEP 3. No name below collides with an existing token or with
+ * ADDITIVE UNTIL THEN. No name below collides with an existing token or with
  * a Tailwind default that is in use (radii are --radius-tag / --radius-control,
  * not --radius-sm / --radius-md, so rounded-sm and rounded-md are unchanged).
  *
@@ -207,4 +205,37 @@
     --duration-base: 0ms;
     --duration-slow: 0ms;
   }
+}
+
+/* Browser surfaces the page does not draw itself, themed from the palette.
+   Scoped to .landing-root (the landing route group's wrapper) for now: the
+   <body> defaults of unmigrated screens must not change (migration.md, Phase
+   1). Phase 6 moves these to <body>. In @layer base so a component's own
+   focus-visible utilities still win. */
+@layer base {
+  .landing-root :focus-visible {
+    outline: 2px solid var(--color-umber);
+    outline-offset: 2px;
+  }
+  .landing-root ::selection {
+    background: var(--color-rose-wash);
+    color: var(--color-umber);
+  }
+  .landing-root input,
+  .landing-root textarea {
+    caret-color: var(--color-umber);
+  }
+}
+
+/* An endorsement count ticking up: opacity and transform only, ease-out,
+   300ms. Used by the landing Q&A demo; the Q&A thread reuses it. */
+@keyframes tick {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@theme inline {
+  --animate-tick: tick 300ms ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-tick { animation: none; }
 }

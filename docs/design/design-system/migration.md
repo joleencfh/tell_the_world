@@ -1,6 +1,6 @@
 # Migrating the app to the new design system
 
-Version 1.0, 2026-10-01. Companion to [design-system.md](design-system.md) and [app-theme.css](app-theme.css).
+Version 1.0, 2026-10-01. Companion to [design-system.md](design-system.md) and [app/app-theme.css](../../../app/app-theme.css).
 
 The landing page is already on the new system. This document is the plan for moving everything else. Nothing here has been done in the app yet.
 
@@ -115,12 +115,15 @@ Each phase is its own PR with its own tests. A phase is done when its screens us
 
 **Phase 0: landing page. Done.** Theme, fonts, header, hero, demos, waitlist modal.
 
-**Phase 1: foundations and primitives.**
-- Replace `app/landing-theme.css` with `app-theme.css` (it supersedes it).
-- Move EB Garamond and Inter from the landing route layout to the root layout (every screen needs them). Keep IBM Plex Mono as is.
-- Build the shared primitives: Button, Field set, Role label, Author, Avatar, Status and Category chips, Alert, Toast, Empty state, Skeleton, Modal shell, Confirm dialog, Menu.
-- Switch the landing waitlist modal's error colour from `rose-deep` to `brick` and have it use the shared Modal shell.
-- Exit: the reference page and one screen of each template render with the primitives; no screen changes yet except landing.
+**Phase 1: foundations and primitives. Done.**
+- `app/landing-theme.css` was replaced by `app/app-theme.css` (the single token file; the copy under `docs/` was removed so the two cannot drift).
+- EB Garamond and Inter moved from the landing route layout to the root layout and are self-hosted (`app/fonts`, `next/font/local`, OFL licensed). The variables are registered on `<body>` but its own font and background are unchanged, so unmigrated screens look as before.
+- Shared primitives are in `components/ui`: Button, Field set (Field, TextInput, SearchInput, Textarea, Select, Checkbox, ChoiceChips, FormSection), RoleLabel, Author, Avatar, StatusChip, CategoryChip, Tag, Alert, Toast, EmptyState, Skeleton, LockedPanel, Menu, Modal, ConfirmDialog.
+- The landing waitlist modal is built from them and its error colour is `brick`.
+- `app/dev/design-system` renders every primitive in every state (dev only). Keyboard tests: `tests/design-system.spec.ts`.
+- `Avatar` and `RoleBadge` keep their props and take the new look (role fills, one bordered role label). Old callers keep working through a compatibility mapping, documented in each file; Phase 2 to 5 switch callers to `role` and `RoleLabel`.
+- The shared Modal makes `#app-root` (the wrapper in `app/layout.tsx`) inert while open, and nested modals work (Escape closes only the top one). A screen that renders UI outside `#app-root` must be inside a modal's own tree.
+- Exit met: build, lint and the full Playwright suite are green; no screen outside the landing page changed except where Avatar and RoleBadge appear.
 
 **Phase 2: auth, forms and small pages** (login, apply and its status pages, contact, privacy). Smallest, most visible, lowest risk; proves Field, Button, Alert and Modal in real flows. About 175 old-token uses.
 
