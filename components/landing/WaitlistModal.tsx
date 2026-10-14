@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import Link from 'next/link'
 import { submitWaitlistSignup } from '@/lib/waitlist/actions'
 import CirclePair from '@/components/landing/CirclePair'
 import Alert from '@/components/ui/Alert'
@@ -120,8 +121,8 @@ export default function WaitlistModal({ mode, onClose, defaultRole }: WaitlistMo
         <div className="anim-step-in">
           <p className="font-ui text-ui text-umber-soft">
             {wantsEarlyAccess
-              ? "We'll email you if we're ready for early testers."
-              : "We'll email you when there's something to see."}
+              ? "We’ll email you if we’re ready for early testers."
+              : "We’ll email you when there’s something to see."}
           </p>
           <Button fullWidth className="mt-6" onClick={() => setOpen(false)}>
             Close
@@ -153,8 +154,8 @@ export default function WaitlistModal({ mode, onClose, defaultRole }: WaitlistMo
         <div className="anim-step-in">
           <p className="mb-2 font-ui text-ui text-umber-soft">
             {wantsEarlyAccess
-              ? "We'll reach out by email if we're ready for early testers."
-              : "We'll reach out when Tell The World opens."}
+              ? "We’ll reach out by email if we’re ready for early testers."
+              : "We’ll reach out when Tell The World opens."}
           </p>
 
           <form onSubmit={handleSubmit} noValidate className="mt-4 flex flex-col gap-4">
@@ -250,8 +251,15 @@ export default function WaitlistModal({ mode, onClose, defaultRole }: WaitlistMo
                 !fullName.trim() || !email.trim() || (isCreator && (!affiliation.trim() || !link.trim()))
               }
             >
-              {isPending ? 'Joining…' : wantsEarlyAccess ? 'Count me in' : 'Join the waitlist'}
+              {isPending ? 'Joining…' : wantsEarlyAccess ? 'Become an early tester' : 'Join the waitlist'}
             </Button>
+            <p className="font-ui text-ui-sm text-umber-soft">
+              We use your details only to contact you about Tell The World. See our{' '}
+              <Link href="/privacy" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-umber">
+                Privacy Policy
+              </Link>
+              .
+            </p>
           </form>
         </div>
       )}

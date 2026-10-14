@@ -71,7 +71,7 @@ test.describe('Landing page', () => {
     await expect(pauses).toHaveCount(2)
     await pauses.first().click()
     await expect(page.getByRole('button', { name: 'Play the animated example' })).toHaveCount(1)
-    await expect(page.getByText('Illustrative example, sample content')).toHaveCount(2)
+    await expect(page.getByText(/^Illustrative example\./)).toHaveCount(2)
   })
 
   test('waitlist dialog — labelled, focus moves in, Escape closes and focus returns', async ({ page }) => {
