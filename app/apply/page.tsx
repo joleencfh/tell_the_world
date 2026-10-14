@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import Logo from "@/components/ui/Logo";
+import Alert from "@/components/ui/Alert";
+import Button from "@/components/ui/Button";
+import Field, { Select, Textarea, TextInput } from "@/components/ui/Field";
 import Footer from "@/components/ui/Footer";
+import FormSection from "@/components/ui/FormSection";
+import SiteHeader from "@/components/ui/SiteHeader";
 import { submitApplication } from "@/lib/applications/actions";
-import { Field, FormSection, SelectInput, TextareaInput, TextInput } from "./form-fields";
 import { CreatorFields, JournalistFields, ExpertFields, OrganisationFields, CommsSpecialistFields, ExtrasFields } from "./role-sections";
 import {
   EMPTY,
@@ -105,42 +107,27 @@ export default function ApplyPage() {
       : "A short introduction…";
 
   return (
-    <div className="min-h-screen bg-paper text-ink">
-      {/* Nav */}
-      <header className="sticky top-0 z-10 bg-paper/95 backdrop-blur-sm border-b-2 border-ink px-6">
-        <div className="mx-auto flex max-w-2xl items-center justify-between py-4">
-          <Logo href="/" />
-          <Link
-            href="/login"
-            className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors"
-          >
-            Log in
-          </Link>
-        </div>
-      </header>
+    <div className="flex min-h-screen flex-col bg-parchment font-ui text-umber">
+      <SiteHeader action={{ href: "/login", label: "Log in" }} />
 
-      <main className="px-6 py-14 sm:py-20">
-        <div className="mx-auto max-w-2xl">
+      <main className="flex-1 px-4 py-section md:px-gutter">
+        <div className="mx-auto max-w-reading">
 
           {/* Page heading */}
           <div className="mb-12">
-            <div className="mb-5 inline-flex items-center gap-2.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-ink-soft shrink-0" aria-hidden />
-              <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-ink-soft">
-                Applications open
-              </span>
-            </div>
-            <h1 className="font-display uppercase leading-[0.96] tracking-tight text-[2.75rem] sm:text-[4rem] text-ink mb-5">
-              Apply to join
-            </h1>
-            <p className="font-body text-base leading-[1.8] text-ink-soft max-w-lg">
+            <p className="mb-3 font-mono text-label uppercase text-umber-soft">Applications open</p>
+            <h1 className="mb-4 font-serif text-title text-umber">Apply to join</h1>
+            <p className="max-w-prose font-serif text-lead text-umber-soft">
               Tell us about yourself and what you want to do on the platform. We
               review every application personally and aim to get back to you
               within a few days.
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} noValidate>
+          <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-10">
+            <p className="font-ui text-ui-sm text-umber-soft">
+              All fields are required unless marked Optional.
+            </p>
 
             {/* Honeypot — visually hidden, must stay empty; bots fill it, humans don't see it */}
             <div className="absolute left-[-9999px] w-px h-px overflow-hidden" aria-hidden="true">
@@ -158,114 +145,113 @@ export default function ApplyPage() {
 
             {/* ── Section: About you ─────────────────────────────────────── */}
             <FormSection legend="About you">
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <Field label="First name" error={errors.first_name} required fieldId="first_name">
-                  <TextInput
-                    type="text"
-                    value={form.first_name}
-                    onChange={(v) => set("first_name", v)}
-                    placeholder="First name"
-                    autoComplete="given-name"
-                    hasError={!!errors.first_name}
-                  />
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <Field id="first_name" label="First name" error={errors.first_name}>
+                  {(p) => (
+                    <TextInput
+                      {...p}
+                      value={form.first_name}
+                      onChange={(e) => set("first_name", e.target.value)}
+                      placeholder="First name"
+                      autoComplete="given-name"
+                    />
+                  )}
                 </Field>
-                <Field label="Last name" error={errors.last_name} required fieldId="last_name">
-                  <TextInput
-                    type="text"
-                    value={form.last_name}
-                    onChange={(v) => set("last_name", v)}
-                    placeholder="Last name"
-                    autoComplete="family-name"
-                    hasError={!!errors.last_name}
-                  />
+                <Field id="last_name" label="Last name" error={errors.last_name}>
+                  {(p) => (
+                    <TextInput
+                      {...p}
+                      value={form.last_name}
+                      onChange={(e) => set("last_name", e.target.value)}
+                      placeholder="Last name"
+                      autoComplete="family-name"
+                    />
+                  )}
                 </Field>
               </div>
 
-              <Field label="Email address" error={errors.email} required fieldId="email">
-                <TextInput
-                  type="email"
-                  value={form.email}
-                  onChange={(v) => set("email", v)}
-                  onBlur={() => handleBlur("email")}
-                  placeholder="you@example.com"
-                  autoComplete="email"
-                  hasError={!!errors.email}
-                />
+              <Field id="email" label="Email address" error={errors.email}>
+                {(p) => (
+                  <TextInput
+                    {...p}
+                    type="email"
+                    value={form.email}
+                    onChange={(e) => set("email", e.target.value)}
+                    onBlur={() => handleBlur("email")}
+                    placeholder="you@example.com"
+                    autoComplete="email"
+                  />
+                )}
               </Field>
 
-              <Field
-                label="I am applying as a"
-                error={errors.desired_role}
-                required
-                fieldId="desired_role"
-              >
-                <SelectInput
-                  value={form.desired_role}
-                  onChange={(v) => {
-                    // Reset role-specific fields when the role changes
-                    setForm({ ...EMPTY, first_name: form.first_name, last_name: form.last_name, email: form.email, bio: form.bio, website_url: form.website_url, desired_role: v as Role });
-                    setErrors({});
-                  }}
-                  hasError={!!errors.desired_role}
-                >
-                  <option value="">Select a role…</option>
-                  <option value="creator">Creator</option>
-                  <option value="journalist">Journalist</option>
-                  <option value="expert">Expert / Researcher</option>
-                  <option value="organisation">Organisation</option>
-                  <option value="comms_specialist">Communications Specialist</option>
-                  <option value="other">Other</option>
-                </SelectInput>
+              <Field id="desired_role" label="I am applying as a" error={errors.desired_role}>
+                {(p) => (
+                  <Select
+                    {...p}
+                    value={form.desired_role}
+                    onChange={(e) => {
+                      // Reset role-specific fields when the role changes
+                      setForm({ ...EMPTY, first_name: form.first_name, last_name: form.last_name, email: form.email, bio: form.bio, website_url: form.website_url, desired_role: e.target.value as Role });
+                      setErrors({});
+                    }}
+                  >
+                    <option value="">Select a role…</option>
+                    <option value="creator">Creator</option>
+                    <option value="journalist">Journalist</option>
+                    <option value="expert">Expert / Researcher</option>
+                    <option value="organisation">Organisation</option>
+                    <option value="comms_specialist">Communications Specialist</option>
+                    <option value="other">Other</option>
+                  </Select>
+                )}
               </Field>
 
               {role === "other" && (
                 <Field
+                  id="desired_role_other"
                   label="Please describe your role"
                   hint="Tell us what you do and how you'd like to contribute to the platform."
                   error={errors.desired_role_other}
-                  required
-                  fieldId="desired_role_other"
                 >
-                  <TextInput
-                    type="text"
-                    value={form.desired_role_other}
-                    onChange={(v) => set("desired_role_other", v)}
-                    placeholder=""
-                    hasError={!!errors.desired_role_other}
-                  />
+                  {(p) => (
+                    <TextInput
+                      {...p}
+                      value={form.desired_role_other}
+                      onChange={(e) => set("desired_role_other", e.target.value)}
+                    />
+                  )}
                 </Field>
               )}
 
-              <Field
-                label={bioLabel}
-                hint={bioHint}
-                error={errors.bio}
-                required
-                fieldId="bio"
-              >
-                <TextareaInput
-                  value={form.bio}
-                  onChange={(v) => set("bio", v)}
-                  placeholder={bioPH}
-                  rows={4}
-                  hasError={!!errors.bio}
-                />
+              <Field id="bio" label={bioLabel} hint={bioHint} error={errors.bio}>
+                {(p) => (
+                  <Textarea
+                    {...p}
+                    value={form.bio}
+                    onChange={(e) => set("bio", e.target.value)}
+                    placeholder={bioPH}
+                    rows={4}
+                  />
+                )}
               </Field>
 
               <Field
+                id="website_url"
                 label="Website"
-                hint="Your personal site, YouTube channel, LinkedIn, etc. (optional)"
+                optional
+                hint="Your personal site, YouTube channel, LinkedIn, etc."
                 error={errors.website_url}
-                fieldId="website_url"
               >
-                <TextInput
-                  type="url"
-                  value={form.website_url}
-                  onChange={(v) => set("website_url", v)}
-                  onBlur={() => handleBlur("website_url")}
-                  placeholder="https://"
-                  hasError={!!errors.website_url}
-                />
+                {(p) => (
+                  <TextInput
+                    {...p}
+                    type="url"
+                    value={form.website_url}
+                    onChange={(e) => set("website_url", e.target.value)}
+                    onBlur={() => handleBlur("website_url")}
+                    placeholder="https://"
+                  />
+                )}
               </Field>
             </FormSection>
 
@@ -291,48 +277,36 @@ export default function ApplyPage() {
 
             {/* ── Submit ───────────────────────────────────────────────────── */}
             {Object.keys(errors).length > 0 && (
-              <div className="mb-6 border border-red-200 bg-red-50 p-5" role="alert" aria-live="polite">
-                <p className="font-mono text-[9px] tracking-[0.22em] uppercase text-red-700 mb-3 flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-red-500 shrink-0" aria-hidden />
-                  A few fields need your attention
-                </p>
-                <ul className="flex flex-col gap-1.5">
+              <Alert tone="danger" lead="A few fields need your attention">
+                <ul className="mt-2 flex flex-col">
                   {(Object.keys(errors) as (keyof FormValues)[])
                     .filter((key) => ERROR_LABELS[key])
                     .map((key) => (
                       <li key={key}>
                         <button
                           type="button"
-                          onClick={() =>
-                            document
-                              .getElementById(key)
-                              ?.scrollIntoView({ behavior: "smooth", block: "center" })
-                          }
-                          className="font-body text-sm text-red-600 hover:underline text-left"
+                          onClick={() => {
+                            const el = document.getElementById(key);
+                            el?.scrollIntoView({ behavior: "smooth", block: "center" });
+                            el?.focus({ preventScroll: true });
+                          }}
+                          className="min-h-11 rounded-control text-left underline underline-offset-4 hover:decoration-2 focus-ring"
                         >
                           {ERROR_LABELS[key]}
                         </button>
                       </li>
                     ))}
                 </ul>
-              </div>
+              </Alert>
             )}
 
-            {submitError && (
-              <p className="mb-6 font-mono text-[11px] text-red-600" role="alert">
-                Something went wrong: {submitError}
-              </p>
-            )}
+            {submitError && <Alert tone="danger">Something went wrong: {submitError}</Alert>}
 
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-t border-line pt-8">
-              <button
-                type="submit"
-                disabled={submitting}
-                className="font-display uppercase tracking-widest text-sm bg-ink text-paper px-8 py-4 hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
-              >
+            <div className="flex flex-col gap-4 border-t border-rule pt-8 sm:flex-row sm:items-center sm:justify-between">
+              <Button type="submit" pending={submitting}>
                 {submitting ? "Submitting…" : "Submit application"}
-              </button>
-              <p className="font-mono text-[10px] text-ink-soft leading-relaxed max-w-xs">
+              </Button>
+              <p className="max-w-xs font-ui text-caption text-umber-soft">
                 We&rsquo;ll review your application and get back to you by email
                 within a few days.
               </p>

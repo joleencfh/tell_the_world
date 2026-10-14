@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import Logo from '@/components/ui/Logo'
 import Footer from '@/components/ui/Footer'
+import SiteHeader from '@/components/ui/SiteHeader'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy | Tell The World',
@@ -11,11 +11,10 @@ export const metadata: Metadata = {
 const LAST_UPDATED = 'August 30, 2026'
 
 // ---------------------------------------------------------------------------
-// Content primitives — a plain long-form legal document, not one of the
-// data-driven brief sections elsewhere in app/briefs. Kept intentionally
-// simple: font-display uppercase h2s, font-body paragraphs/lists, the same
-// dot-bullet list treatment as the brief TL;DR (section-content.tsx), and a
-// bordered table for §3's legal-basis grid.
+// Content primitives — a plain long-form legal document in the Reading
+// layout (design-system.md 3.8): serif body, serif section headings with a
+// mono numeral, hairlines between sections, and a ruled table for §3's
+// legal-basis grid.
 // ---------------------------------------------------------------------------
 
 function Section({
@@ -30,16 +29,12 @@ function Section({
   children: React.ReactNode
 }) {
   return (
-    <section id={id} className="scroll-mt-24 py-10 border-b border-line last:border-b-0">
-      <div className="flex items-center gap-4 mb-5">
-        <span className="font-mono text-sm tracking-[0.2em] font-bold tabular-nums text-ink-soft">
-          {num}
-        </span>
-        <h2 className="font-display uppercase font-extrabold text-ink text-xl sm:text-2xl tracking-tight">
-          {title}
-        </h2>
+    <section id={id} className="scroll-mt-24 border-b border-rule py-10 last:border-b-0">
+      <div className="mb-5 flex items-baseline gap-4">
+        <span className="font-mono text-label font-semibold tabular-nums text-umber">{num}</span>
+        <h2 className="font-serif text-section text-umber">{title}</h2>
       </div>
-      <div className="font-body text-[0.95rem] leading-[1.75] text-ink-soft space-y-4 [&_strong]:text-ink [&_strong]:font-semibold [&_a]:text-ink [&_a]:underline [&_a]:underline-offset-2 [&_a]:hover:text-ink-soft [&_a]:transition-colors">
+      <div className="space-y-4 font-serif text-reading text-umber [&_strong]:font-semibold [&_a]:underline [&_a]:underline-offset-[5px] [&_a]:hover:decoration-2">
         {children}
       </div>
     </section>
@@ -51,7 +46,7 @@ function List({ items }: { items: React.ReactNode[] }) {
     <ul className="space-y-2.5">
       {items.map((item, i) => (
         <li key={i} className="flex gap-3">
-          <span className="mt-2.5 h-1.5 w-1.5 rounded-full bg-ink-faint shrink-0" aria-hidden />
+          <span className="mt-3 h-1.5 w-1.5 shrink-0 rounded-full bg-umber-soft" aria-hidden />
           <span>{item}</span>
         </li>
       ))}
@@ -61,32 +56,15 @@ function List({ items }: { items: React.ReactNode[] }) {
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="min-h-screen bg-paper text-ink flex flex-col">
-      <header className="sticky top-0 z-10 bg-paper/95 backdrop-blur-sm border-b-2 border-ink px-6">
-        <div className="mx-auto flex max-w-3xl items-center justify-between py-4">
-          <Logo href="/" />
-          <Link
-            href="/"
-            className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors"
-          >
-            Back home
-          </Link>
-        </div>
-      </header>
+    <div className="flex min-h-screen flex-col bg-parchment font-ui text-umber">
+      <SiteHeader action={{ href: '/', label: 'Back home' }} />
 
-      <main className="flex-1 px-6 py-14">
-        <div className="mx-auto max-w-3xl">
-          <div className="mb-5 flex items-center gap-2.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-ink-soft shrink-0" aria-hidden />
-            <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-ink-soft">
-              Legal
-            </span>
-          </div>
-          <h1 className="font-display uppercase leading-[0.96] tracking-tight text-[2.25rem] sm:text-[2.75rem] text-ink mb-4">
-            Privacy Policy
-          </h1>
-          <p className="font-mono text-xs text-ink-faint mb-3">Last updated: {LAST_UPDATED}</p>
-          <p className="font-body text-base leading-[1.7] text-ink-soft max-w-2xl">
+      <main className="flex-1 px-4 py-section md:px-gutter">
+        <div className="mx-auto max-w-reading">
+          <p className="mb-3 font-mono text-label uppercase text-umber-soft">Legal</p>
+          <h1 className="mb-4 font-serif text-title text-umber">Privacy Policy</h1>
+          <p className="mb-3 font-ui text-caption text-umber-soft">Last updated: {LAST_UPDATED}</p>
+          <p className="font-serif text-lead text-umber-soft [&_a]:text-umber [&_a]:underline [&_a]:underline-offset-[5px] [&_a]:hover:decoration-2">
             This Privacy Policy explains how Tell The World (&ldquo;we,&rdquo; &ldquo;us,&rdquo;
             &ldquo;the Platform&rdquo;) collects, uses, and protects your personal data when you
             visit{' '}
@@ -170,13 +148,13 @@ export default function PrivacyPolicyPage() {
 
             <Section id="legal-basis" num="03" title="Why we process your data (legal basis)">
               <div className="overflow-x-auto">
-                <table className="w-full border-collapse text-left text-sm">
+                <table className="w-full border-collapse text-left font-ui text-ui-sm">
                   <thead>
-                    <tr className="border-b border-line">
-                      <th className="font-mono text-[10px] tracking-[0.12em] uppercase text-ink-faint py-2 pr-4 font-medium">
+                    <tr className="border-b border-rule">
+                      <th scope="col" className="py-2 pr-4 font-mono text-label font-medium uppercase text-umber-soft">
                         Purpose
                       </th>
-                      <th className="font-mono text-[10px] tracking-[0.12em] uppercase text-ink-faint py-2 font-medium">
+                      <th scope="col" className="py-2 font-mono text-label font-medium uppercase text-umber-soft">
                         Legal basis
                       </th>
                     </tr>
@@ -190,9 +168,9 @@ export default function PrivacyPolicyPage() {
                       ['Keeping the Platform secure, preventing abuse, basic analytics', 'Legitimate interest (Art. 6(1)(f))'],
                       ['Complying with legal obligations (e.g. tax records)', 'Legal obligation (Art. 6(1)(c))'],
                     ].map(([purpose, basis]) => (
-                      <tr key={purpose} className="border-b border-line last:border-b-0 align-top">
-                        <td className="py-3 pr-4 text-ink">{purpose}</td>
-                        <td className="py-3 text-ink-soft">{basis}</td>
+                      <tr key={purpose} className="border-b border-rule align-top last:border-b-0">
+                        <td className="py-3 pr-4 text-umber">{purpose}</td>
+                        <td className="py-3 text-umber-soft">{basis}</td>
                       </tr>
                     ))}
                   </tbody>

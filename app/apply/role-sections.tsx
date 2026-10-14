@@ -1,10 +1,13 @@
 "use client";
 
-import { Field, FormSection, SelectInput, TextareaInput, TextInput } from "./form-fields";
+import Field, { Select, Textarea, TextInput } from "@/components/ui/Field";
+import FormSection from "@/components/ui/FormSection";
 import type { Errors, FormValues } from "./validation";
 
 // ---------------------------------------------------------------------------
-// Role-specific field sections
+// Role-specific field sections. Required fields are unmarked; optional ones
+// say "(Optional)" (design-system.md 3.2). `id` is the form key, so the error
+// summary can scroll to and focus the control.
 // ---------------------------------------------------------------------------
 
 interface SectionProps {
@@ -14,377 +17,303 @@ interface SectionProps {
   handleBlur: (field: keyof FormValues) => void;
 }
 
+type Bind = (field: keyof FormValues) => {
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement & HTMLTextAreaElement & HTMLSelectElement>) => void;
+};
+
+function binder(form: FormValues, set: SectionProps["set"]): Bind {
+  return (field) => ({
+    value: form[field] as string,
+    onChange: (e) => set(field, e.target.value),
+  });
+}
+
 export function CreatorFields({ form, errors, set, handleBlur }: SectionProps) {
+  const bind = binder(form, set);
   return (
     <FormSection legend="Your content">
       <Field
+        id="primary_platform"
         label="Primary platform"
         hint="Where is most of your content published?"
         error={errors.primary_platform}
-        required
-        fieldId="primary_platform"
       >
-        <SelectInput
-          value={form.primary_platform}
-          onChange={(v) => set("primary_platform", v)}
-          hasError={!!errors.primary_platform}
-        >
-          <option value="">Select a platform…</option>
-          <option value="youtube">YouTube</option>
-          <option value="podcast">Podcast</option>
-          <option value="instagram">Instagram</option>
-          <option value="tiktok">TikTok</option>
-          <option value="newsletter">Newsletter</option>
-          <option value="other">Other</option>
-        </SelectInput>
+        {(p) => (
+          <Select {...p} {...bind("primary_platform")}>
+            <option value="">Select a platform…</option>
+            <option value="youtube">YouTube</option>
+            <option value="podcast">Podcast</option>
+            <option value="instagram">Instagram</option>
+            <option value="tiktok">TikTok</option>
+            <option value="newsletter">Newsletter</option>
+            <option value="other">Other</option>
+          </Select>
+        )}
       </Field>
 
       {form.primary_platform === "other" && (
-        <Field
-          label="Please specify your platform"
-          error={errors.primary_platform_other}
-          required
-          fieldId="primary_platform_other"
-        >
-          <TextInput
-            type="text"
-            value={form.primary_platform_other}
-            onChange={(v) => set("primary_platform_other", v)}
-            placeholder="e.g. Substack, Twitch, blog…"
-            hasError={!!errors.primary_platform_other}
-          />
+        <Field id="primary_platform_other" label="Please specify your platform" error={errors.primary_platform_other}>
+          {(p) => <TextInput {...p} {...bind("primary_platform_other")} placeholder="e.g. Substack, Twitch, blog…" />}
         </Field>
       )}
 
-      <Field
-        label="Channel / profile URL"
-        error={errors.platform_url}
-        required
-        fieldId="platform_url"
-      >
-        <TextInput
-          type="url"
-          value={form.platform_url}
-          onChange={(v) => set("platform_url", v)}
-          onBlur={() => handleBlur("platform_url")}
-          placeholder="https://"
-          hasError={!!errors.platform_url}
-        />
+      <Field id="platform_url" label="Channel / profile URL" error={errors.platform_url}>
+        {(p) => (
+          <TextInput
+            {...p}
+            {...bind("platform_url")}
+            type="url"
+            onBlur={() => handleBlur("platform_url")}
+            placeholder="https://"
+          />
+        )}
       </Field>
 
       <Field
         label="Audience size"
+        optional
         hint="Approximate total subscribers or followers across your main platform."
       >
-        <TextInput
-          type="number"
-          value={form.audience_size}
-          onChange={(v) => set("audience_size", v)}
-          placeholder="e.g. 50000"
-          hasError={false}
-          min="0"
-        />
+        {(p) => <TextInput {...p} {...bind("audience_size")} type="number" min="0" placeholder="e.g. 50000" />}
+      </Field>
+
+      <Field label="Content language" optional hint="The primary language your content is in.">
+        {(p) => <TextInput {...p} {...bind("content_language")} placeholder="e.g. English, Spanish" />}
       </Field>
 
       <Field
-        label="Content language"
-        hint="The primary language your content is in."
-      >
-        <TextInput
-          type="text"
-          value={form.content_language}
-          onChange={(v) => set("content_language", v)}
-          placeholder="e.g. English, Spanish"
-          hasError={false}
-        />
-      </Field>
-
-      <Field
+        id="sample_work_url"
         label="Work sample"
+        optional
         hint="Link to a piece of your content relevant to AI safety, or one you're proud of and think would resonate with an audience interested in it."
         error={errors.sample_work_url}
-        fieldId="sample_work_url"
       >
-        <TextInput
-          type="url"
-          value={form.sample_work_url}
-          onChange={(v) => set("sample_work_url", v)}
-          onBlur={() => handleBlur("sample_work_url")}
-          placeholder="https://"
-          hasError={!!errors.sample_work_url}
-        />
+        {(p) => (
+          <TextInput
+            {...p}
+            {...bind("sample_work_url")}
+            type="url"
+            onBlur={() => handleBlur("sample_work_url")}
+            placeholder="https://"
+          />
+        )}
       </Field>
     </FormSection>
   );
 }
 
 export function JournalistFields({ form, errors, set, handleBlur }: SectionProps) {
+  const bind = binder(form, set);
   return (
     <FormSection legend="Your journalism">
-      <Field
-        label="Publication name"
-        error={errors.publication_name}
-        required
-        fieldId="publication_name"
-      >
-        <TextInput
-          type="text"
-          value={form.publication_name}
-          onChange={(v) => set("publication_name", v)}
-          placeholder="e.g. MIT Technology Review"
-          hasError={!!errors.publication_name}
-        />
+      <Field id="publication_name" label="Publication name" error={errors.publication_name}>
+        {(p) => <TextInput {...p} {...bind("publication_name")} placeholder="e.g. MIT Technology Review" />}
+      </Field>
+
+      <Field id="publication_url" label="Publication URL" optional error={errors.publication_url}>
+        {(p) => (
+          <TextInput
+            {...p}
+            {...bind("publication_url")}
+            type="url"
+            onBlur={() => handleBlur("publication_url")}
+            placeholder="https://"
+          />
+        )}
+      </Field>
+
+      <Field label="Reporting beat" optional hint="What topics do you primarily cover?">
+        {(p) => <TextInput {...p} {...bind("reporting_beat")} placeholder="e.g. AI and emerging technology" />}
+      </Field>
+
+      <Field label="Language you write in" optional hint="The primary language of your journalism.">
+        {(p) => <TextInput {...p} {...bind("content_language")} placeholder="e.g. English, Italian" />}
       </Field>
 
       <Field
-        label="Publication URL"
-        error={errors.publication_url}
-        fieldId="publication_url"
-      >
-        <TextInput
-          type="url"
-          value={form.publication_url}
-          onChange={(v) => set("publication_url", v)}
-          onBlur={() => handleBlur("publication_url")}
-          placeholder="https://"
-          hasError={!!errors.publication_url}
-        />
-      </Field>
-
-      <Field
-        label="Reporting beat"
-        hint="What topics do you primarily cover?"
-      >
-        <TextInput
-          type="text"
-          value={form.reporting_beat}
-          onChange={(v) => set("reporting_beat", v)}
-          placeholder="e.g. AI and emerging technology"
-          hasError={false}
-        />
-      </Field>
-
-      <Field
-        label="Language you write in"
-        hint="The primary language of your journalism."
-      >
-        <TextInput
-          type="text"
-          value={form.content_language}
-          onChange={(v) => set("content_language", v)}
-          placeholder="e.g. English, Italian"
-          hasError={false}
-        />
-      </Field>
-
-      <Field
+        id="sample_work_url"
         label="Article sample"
+        optional
         hint="Link to a published article relevant to AI safety, or one that showcases the kind of work you'd like to do on this platform."
         error={errors.sample_work_url}
-        fieldId="sample_work_url"
       >
-        <TextInput
-          type="url"
-          value={form.sample_work_url}
-          onChange={(v) => set("sample_work_url", v)}
-          onBlur={() => handleBlur("sample_work_url")}
-          placeholder="https://"
-          hasError={!!errors.sample_work_url}
-        />
+        {(p) => (
+          <TextInput
+            {...p}
+            {...bind("sample_work_url")}
+            type="url"
+            onBlur={() => handleBlur("sample_work_url")}
+            placeholder="https://"
+          />
+        )}
       </Field>
     </FormSection>
   );
 }
 
 export function ExpertFields({ form, errors, set, handleBlur }: SectionProps) {
+  const bind = binder(form, set);
   return (
     <FormSection legend="Your expertise">
       <Field
+        id="affiliation"
         label="Affiliation"
         hint="Your institution, university, or organisation."
         error={errors.affiliation}
-        required
-        fieldId="affiliation"
       >
-        <TextInput
-          type="text"
-          value={form.affiliation}
-          onChange={(v) => set("affiliation", v)}
-          placeholder="e.g. Oxford Future of Humanity Institute"
-          hasError={!!errors.affiliation}
-        />
+        {(p) => <TextInput {...p} {...bind("affiliation")} placeholder="e.g. Oxford Future of Humanity Institute" />}
       </Field>
 
-      <Field label="Job title" error={errors.job_title} required fieldId="job_title">
-        <TextInput
-          type="text"
-          value={form.job_title}
-          onChange={(v) => set("job_title", v)}
-          placeholder="e.g. Research Scientist"
-          hasError={!!errors.job_title}
-        />
+      <Field id="job_title" label="Job title" error={errors.job_title}>
+        {(p) => <TextInput {...p} {...bind("job_title")} placeholder="e.g. Research Scientist" />}
       </Field>
 
       <Field
+        id="credibility_url"
         label="Credibility link"
+        optional
         hint="A Google Scholar page, institutional profile, personal website, or similar."
         error={errors.credibility_url}
-        fieldId="credibility_url"
       >
-        <TextInput
-          type="url"
-          value={form.credibility_url}
-          onChange={(v) => set("credibility_url", v)}
-          onBlur={() => handleBlur("credibility_url")}
-          placeholder="https://"
-          hasError={!!errors.credibility_url}
-        />
+        {(p) => (
+          <TextInput
+            {...p}
+            {...bind("credibility_url")}
+            type="url"
+            onBlur={() => handleBlur("credibility_url")}
+            placeholder="https://"
+          />
+        )}
       </Field>
 
       <Field
+        id="sample_work_url"
         label="Relevant publication"
+        optional
         hint="Link to a paper, article, or piece of work you contributed to that you think is valuable for the AI safety community."
         error={errors.sample_work_url}
-        fieldId="sample_work_url"
       >
-        <TextInput
-          type="url"
-          value={form.sample_work_url}
-          onChange={(v) => set("sample_work_url", v)}
-          onBlur={() => handleBlur("sample_work_url")}
-          placeholder="https://"
-          hasError={!!errors.sample_work_url}
-        />
+        {(p) => (
+          <TextInput
+            {...p}
+            {...bind("sample_work_url")}
+            type="url"
+            onBlur={() => handleBlur("sample_work_url")}
+            placeholder="https://"
+          />
+        )}
       </Field>
     </FormSection>
   );
 }
 
 export function CommsSpecialistFields({ form, errors, set, handleBlur }: SectionProps) {
+  const bind = binder(form, set);
   return (
     <FormSection legend="Your communications work">
       <Field
+        id="affiliation"
         label="Affiliation"
+        optional
         hint="Where you currently do (or have done) communications work, e.g. an agency, org, or 'Independent'."
         error={errors.affiliation}
-        fieldId="affiliation"
       >
-        <TextInput
-          type="text"
-          value={form.affiliation}
-          onChange={(v) => set("affiliation", v)}
-          placeholder="e.g. Independent, or an org/agency name"
-          hasError={!!errors.affiliation}
-        />
+        {(p) => (
+          <TextInput {...p} {...bind("affiliation")} placeholder="e.g. Independent, or an org/agency name" />
+        )}
       </Field>
 
-      <Field label="Job title" error={errors.job_title} fieldId="job_title">
-        <TextInput
-          type="text"
-          value={form.job_title}
-          onChange={(v) => set("job_title", v)}
-          placeholder="e.g. Communications Lead"
-          hasError={!!errors.job_title}
-        />
+      <Field id="job_title" label="Job title" optional error={errors.job_title}>
+        {(p) => <TextInput {...p} {...bind("job_title")} placeholder="e.g. Communications Lead" />}
       </Field>
 
       <Field
+        id="sample_work_url"
         label="Work sample"
+        optional
         hint="Link to a piece of comms work you're proud of, e.g. a campaign, a piece of messaging, coverage you helped land."
         error={errors.sample_work_url}
-        fieldId="sample_work_url"
       >
-        <TextInput
-          type="url"
-          value={form.sample_work_url}
-          onChange={(v) => set("sample_work_url", v)}
-          onBlur={() => handleBlur("sample_work_url")}
-          placeholder="https://"
-          hasError={!!errors.sample_work_url}
-        />
+        {(p) => (
+          <TextInput
+            {...p}
+            {...bind("sample_work_url")}
+            type="url"
+            onBlur={() => handleBlur("sample_work_url")}
+            placeholder="https://"
+          />
+        )}
       </Field>
     </FormSection>
   );
 }
 
 export function OrganisationFields({ form, errors, set }: Omit<SectionProps, "handleBlur">) {
+  const bind = binder(form, set);
   return (
     <FormSection legend="Your organisation">
-      <Field
-        label="Organisation name"
-        error={errors.org_name}
-        required
-        fieldId="org_name"
-      >
-        <TextInput
-          type="text"
-          value={form.org_name}
-          onChange={(v) => set("org_name", v)}
-          placeholder="e.g. Centre for AI Safety"
-          hasError={!!errors.org_name}
-        />
+      <Field id="org_name" label="Organisation name" error={errors.org_name}>
+        {(p) => <TextInput {...p} {...bind("org_name")} placeholder="e.g. Centre for AI Safety" />}
       </Field>
 
-      <Field label="Organisation size">
-        <SelectInput
-          value={form.org_size}
-          onChange={(v) => set("org_size", v)}
-          hasError={false}
-        >
-          <option value="">Select…</option>
-          <option value="small">Small (1–10 people)</option>
-          <option value="medium">Medium (11–50 people)</option>
-          <option value="large">Large (50+ people)</option>
-        </SelectInput>
+      <Field label="Organisation size" optional>
+        {(p) => (
+          <Select {...p} {...bind("org_size")}>
+            <option value="">Select…</option>
+            <option value="small">Small (1–10 people)</option>
+            <option value="medium">Medium (11–50 people)</option>
+            <option value="large">Large (50+ people)</option>
+          </Select>
+        )}
       </Field>
     </FormSection>
   );
 }
 
 export function ExtrasFields({ form, set }: Pick<SectionProps, "form" | "set">) {
+  const bind = binder(form, set);
   return (
     <FormSection legend="A few more things">
-      <Field
-        label="How did you find us?"
-      >
-        <SelectInput
-          value={form.referral_source}
-          onChange={(v) => set("referral_source", v)}
-          hasError={false}
-        >
-          <option value="">Select…</option>
-          <option value="search_engine">Search engine</option>
-          <option value="social_media">Social media</option>
-          <option value="word_of_mouth">Word of mouth / colleague</option>
-          <option value="newsletter_podcast">Newsletter or podcast</option>
-          <option value="linkedin">LinkedIn</option>
-          <option value="other">Other</option>
-        </SelectInput>
+      <Field label="How did you find us?" optional>
+        {(p) => (
+          <Select {...p} {...bind("referral_source")}>
+            <option value="">Select…</option>
+            <option value="search_engine">Search engine</option>
+            <option value="social_media">Social media</option>
+            <option value="word_of_mouth">Word of mouth / colleague</option>
+            <option value="newsletter_podcast">Newsletter or podcast</option>
+            <option value="linkedin">LinkedIn</option>
+            <option value="other">Other</option>
+          </Select>
+        )}
       </Field>
 
       {form.referral_source === "other" && (
-        <Field label="Please specify">
-          <TextInput
-            type="text"
-            value={form.referral_source_other}
-            onChange={(v) => set("referral_source_other", v)}
-            placeholder="e.g. Conference, podcast episode, a friend…"
-            hasError={false}
-          />
+        <Field label="Please specify" optional>
+          {(p) => (
+            <TextInput
+              {...p}
+              {...bind("referral_source_other")}
+              placeholder="e.g. Conference, podcast episode, a friend…"
+            />
+          )}
         </Field>
       )}
 
       <Field
         label="Anything else you'd like to share?"
+        optional
         hint="Any other context that would help us understand your application."
       >
-        <TextareaInput
-          value={form.additional_info}
-          onChange={(v) => set("additional_info", v)}
-          placeholder="Add anything that doesn't fit elsewhere…"
-          rows={3}
-          hasError={false}
-        />
+        {(p) => (
+          <Textarea
+            {...p}
+            {...bind("additional_info")}
+            rows={3}
+            placeholder="Add anything that doesn't fit elsewhere…"
+          />
+        )}
       </Field>
     </FormSection>
   );
