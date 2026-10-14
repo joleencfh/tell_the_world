@@ -18,6 +18,8 @@ function isPublicRoute(pathname: string): boolean {
   if (pathname.startsWith('/auth/')) return true
   // Public brief pages — logged-out visitors may view public briefs; page handles visibility
   if (pathname.startsWith('/briefs/')) return true
+  // Design-system reference page: dev only (the page itself 404s in production)
+  if (process.env.NODE_ENV !== 'production' && pathname === '/dev/design-system') return true
   return false
 }
 
