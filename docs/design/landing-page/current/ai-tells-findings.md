@@ -278,3 +278,29 @@ Answered by the owner on 2026-10-07: all recommendations accepted.
 - B4: second demo section flipped and its window narrowed; the argument band has tighter padding.
 - B6 and nested cards: the quote form replaces the list inline (no scrim, no inner shadow); answers in the Q&A sit on the window without a card. The `side-tab` false positive is gone (text underline instead of a 3px border).
 - S6: both demos play once on entering view and hold; Play replays; with reduced motion the rest frame shows and Play is an opt-in. The Q&A plays as: first answer in, endorsement tick, second answer in (the dead-air fix is the short, once-only sequence).
+
+## Step 5 outcome (landing/tells-copy, PR #124)
+
+- 18 of 19 copy proposals applied (row 18, "Sign in", kept). Decisions are in `evidence/copy-archive/landing-copy-PROPOSALS.md`. Each demo has its own caption.
+
+## Before / after (Step 6, landing/tells-finish)
+
+Measured 2026-10-14 on the dev server. Not re-run: the multi-agent `/impeccable critique` and the scored audit, so there are no new heuristic scores; the numbers below are detector and measurement output only.
+
+| Measure | Before (Step 2, 2026-10-07) | After |
+|---|---|---|
+| Detector on source (`app`, `components/landing`), primary findings | 13 live font-size hits (27 more advisories in the unrouted `LegacyLandingPage.tsx`) | **0 primary** (exit 0). Advisories are not counted and not blocking |
+| Detector on the live URL, 375 and 1440 | 10 (kickers 4, nested cards 3, side-tab 1, tight leading 1, overused font 1) | 375: `overused-font` (Inter, the documented control face). 1440: the same plus `italic-serif-display` (the one hero accent kept by decision S2). Both deliberate |
+| accessibility-scan (94 rules, axe-style engine, 758px) | not run | **0 violations** |
+| Header button height at 375 | 36px | 44px (36px only with a fine pointer from md up) |
+| Early-tester link tap area at 375 | 31px | box 31px, tap area 55px (inline link; its `::after` layer extends it) |
+| Horizontal scroll at 320px | 9px over (header) | none |
+| Heading outline | h1, two audience labels as h2, then section h2s; modal h3 | h1, then section h2s; audience labels are labelled regions; modal heading is an h2 |
+| Page scroll while the waitlist dialog is open | not locked | locked and restored on close |
+| Focus ring on header links (keyboard, runtime) | not confirmed | 2px umber outline confirmed on a real Tab |
+
+Screenshots (reduced motion, full page): `evidence/baseline/after-375.png`, `after-768.png`, `after-1440.png`.
+
+Decision for the CI step: the detector runs on source (`bunx impeccable@4.5.2 detect --quiet app components/landing`), pinned, and fails on exit 2. The two live-URL findings above are not in CI scope, so no ignore entries were needed.
+
+Still needs a human: real-phone touch and on-screen keyboard behaviour in the modal, a screen reader pass (VoiceOver and NVDA), and a look at 768 to 1023 on a real tablet.

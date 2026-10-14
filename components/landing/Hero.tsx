@@ -22,13 +22,14 @@ function AudienceCard({
       aria-labelledby={headingId}
       className={`flex flex-col rounded-control p-4 shadow-hairline md:px-[22px] md:py-5 ${isRose ? 'bg-card-rose' : 'bg-card-cobalt'}`}
     >
-      <h2
+      {/* A label that names the card, not a heading: the page outline is h1, then the sections' h2s. */}
+      <p
         id={headingId}
         className={`m-0 flex items-center gap-2.5 font-mono text-label font-normal uppercase ${isRose ? 'text-rose-deep' : 'text-cobalt'}`}
       >
         <span aria-hidden className="size-2.5 shrink-0 rounded-full bg-current" />
         {label}
-      </h2>
+      </p>
       <p className="mt-2.5 max-w-[17em] font-serif text-[1.25rem] leading-[1.3] text-umber md:mt-3 md:text-card">
         {children}
       </p>

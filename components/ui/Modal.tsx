@@ -192,7 +192,7 @@ export default function Modal({
         aria-modal="true"
         aria-labelledby={headingId}
         className={cn(
-          'relative max-h-dvh w-full overflow-y-auto rounded-control bg-vellum px-5 pb-7 pt-6 font-ui text-umber shadow-modal max-md:rounded-b-none md:px-8 md:py-8',
+          'relative max-h-dvh w-full overflow-y-auto rounded-control bg-vellum px-5 pb-[max(1.75rem,env(safe-area-inset-bottom))] pt-6 font-ui text-umber shadow-modal max-md:rounded-b-none md:px-8 md:py-8',
           SIZES[size],
           closing ? 'anim-modal-panel-out' : 'anim-modal-panel-in',
         )}
