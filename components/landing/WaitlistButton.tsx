@@ -17,14 +17,14 @@ interface WaitlistButtonProps {
   /** Role pre-selected in the form (creator unless this is the experts card). */
   role?: UserRole
   variant?: Variant
-  /** 'sm' is the 36px desktop header button; it is still 44px on touch. */
+  /** 'sm' is the 36px header button for a pointer; it is 44px on any touch screen and below md. */
   size?: 'md' | 'sm'
   className?: string
 }
 
 export default function WaitlistButton({ role = 'creator', variant = 'primary', size = 'md', className = '' }: WaitlistButtonProps) {
   const { openWaitlist } = useWaitlist()
-  const sizing = size === 'sm' ? 'min-h-9 px-2 text-ui-sm md:min-h-9 md:px-3.5' : 'min-h-11 px-[22px] text-ui'
+  const sizing = size === 'sm' ? 'min-h-11 px-1.5 text-ui-sm min-[375px]:px-2 md:min-h-9 md:px-3.5 pointer-coarse:md:min-h-11' : 'min-h-11 px-[22px] text-ui'
   return (
     <button
       type="button"

@@ -147,6 +147,15 @@ export default function WaitlistModal({ mode, onClose, defaultRole }: WaitlistMo
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // The page behind is inert; also stop it scrolling under the dialog.
+  useEffect(() => {
+    const previous = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previous
+    }
+  }, [])
+
   // Focus the heading on open and whenever the step changes.
   useEffect(() => {
     headingRef.current?.focus()
@@ -210,7 +219,7 @@ export default function WaitlistModal({ mode, onClose, defaultRole }: WaitlistMo
         role="dialog"
         aria-modal="true"
         aria-labelledby={headingId}
-        className={`relative max-h-dvh w-full max-w-[520px] overflow-y-auto rounded-control bg-vellum px-5 pb-7 pt-6 text-umber shadow-modal max-md:rounded-b-none md:px-8 md:py-8 ${closing ? 'anim-modal-panel-out' : 'anim-modal-panel-in'}`}
+        className={`relative max-h-dvh w-full max-w-[520px] overflow-y-auto rounded-control bg-vellum px-5 pb-[max(1.75rem,env(safe-area-inset-bottom))] pt-6 text-umber shadow-modal max-md:rounded-b-none md:px-8 md:py-8 ${closing ? 'anim-modal-panel-out' : 'anim-modal-panel-in'}`}
       >
         <button
           type="button"
@@ -226,9 +235,9 @@ export default function WaitlistModal({ mode, onClose, defaultRole }: WaitlistMo
         {success ? (
           <div key="success" className="anim-step-in pr-8">
             <CirclePair className="mb-3 h-auto w-[72px]" />
-            <h3 id={headingId} ref={headingRef} tabIndex={-1} className={headingCls}>
+            <h2 id={headingId} ref={headingRef} tabIndex={-1} className={headingCls}>
               You&rsquo;re on the list
-            </h3>
+            </h2>
             <p className="font-ui text-ui text-umber-soft">
               {wantsEarlyAccess
                 ? "We’ll email you if we’re ready for early testers."
@@ -241,9 +250,9 @@ export default function WaitlistModal({ mode, onClose, defaultRole }: WaitlistMo
         ) : step === 'intro' ? (
           <div key="intro" className="anim-step-in pr-8">
             <span className={eyebrowCls}>Become an early tester</span>
-            <h3 id={headingId} ref={headingRef} tabIndex={-1} className={headingCls}>
+            <h2 id={headingId} ref={headingRef} tabIndex={-1} className={headingCls}>
               Before you sign up
-            </h3>
+            </h2>
             <p className="mb-5 font-ui text-ui text-umber-soft">
               We&rsquo;ll reach out soon to a handful of early testers. Thank you for wanting to help us shape it
               while it&rsquo;s still rough around the edges.
@@ -274,9 +283,9 @@ export default function WaitlistModal({ mode, onClose, defaultRole }: WaitlistMo
         ) : (
           <div key="form" className="anim-step-in">
             <span className={eyebrowCls}>{wantsEarlyAccess ? 'Become an early tester' : 'Join the waitlist'}</span>
-            <h3 id={headingId} ref={headingRef} tabIndex={-1} className={`${headingCls} pr-8`}>
+            <h2 id={headingId} ref={headingRef} tabIndex={-1} className={`${headingCls} pr-8`}>
               Tell us who you are
-            </h3>
+            </h2>
             <p className="mb-2 font-ui text-ui text-umber-soft">
               {wantsEarlyAccess
                 ? "We’ll reach out by email if we’re ready for early testers."

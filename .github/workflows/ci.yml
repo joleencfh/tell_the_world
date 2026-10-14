@@ -69,6 +69,12 @@ jobs:
       - name: Type check
         run: bunx tsc --noEmit
 
+      # Design detector on the landing page source. Exit 2 means a primary
+      # finding (advisories never fail). Version pinned so a new release can't
+      # change results under an unrelated PR; bump it deliberately.
+      - name: Landing design detector
+        run: bunx impeccable@4.5.2 detect --quiet app components/landing
+
       - name: Build
         run: bun run build
 

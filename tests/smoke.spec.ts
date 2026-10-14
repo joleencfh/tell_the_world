@@ -43,10 +43,10 @@ test.describe('Landing page', () => {
   })
 
   test('hero — both audience cards visible', async ({ page }) => {
-    // The two audience cards are headed by their labels; the circle legend
-    // repeats the same words, so query the headings, not loose text.
-    await expect(page.getByRole('heading', { name: 'Creators & journalists' })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Researchers & organisations' })).toBeVisible()
+    // The two audience cards are labelled regions (the label is not a heading, so the page outline stays h1 then section h2s); the circle legend
+    // repeats the same words, so query the regions, not loose text.
+    await expect(page.getByRole('region', { name: 'Creators & journalists' })).toBeVisible()
+    await expect(page.getByRole('region', { name: 'Researchers & organisations' })).toBeVisible()
   })
 
   test('the researchers card button pre-selects the matching role in the form', async ({ page }) => {
@@ -115,5 +115,24 @@ test.describe('Landing page', () => {
     await page.goto('/')
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Join the waitlist' }).first()).toBeVisible()
+  })
+
+  test('reflow — no horizontal scroll at 320px and a 44px header button on a phone', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 640 })
+    await page.goto('/')
+    const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth)
+    expect(scrollWidth).toBeLessThanOrEqual(320)
+    const box = await page.getByRole('banner').getByRole('button', { name: 'Join the waitlist' }).boundingBox()
+    expect(box?.height).toBeGreaterThanOrEqual(44)
+  })
+
+  test('waitlist dialog — h2 heading, page scroll locked while open', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('banner').getByRole('button', { name: 'Join the waitlist' }).click()
+    await expect(page.getByRole('dialog').getByRole('heading', { level: 2, name: 'Tell us who you are' })).toBeVisible()
+    expect(await page.evaluate(() => document.body.style.overflow)).toBe('hidden')
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+    expect(await page.evaluate(() => document.body.style.overflow)).toBe('')
   })
 })

@@ -11,8 +11,8 @@ export const BLOG_URL = 'https://telltheworldblog.substack.com/'
 export default function LandingHeader() {
   return (
     <header className="sticky top-0 z-20 border-b border-rule bg-parchment">
-      <div className="mx-auto flex max-w-page items-center justify-between gap-2 px-4 py-2 md:px-gutter md:py-3">
-        <Link href="/" className="inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap font-ui text-ui font-medium tracking-[-0.01em] text-umber">
+      <div className="mx-auto flex max-w-page items-center justify-between gap-1 px-3 py-2 min-[375px]:gap-2 min-[375px]:px-4 md:px-gutter md:py-3">
+        <Link href="/" className="inline-flex min-h-11 shrink-0 items-center gap-1.5 whitespace-nowrap font-ui min-[375px]:gap-2 text-ui font-medium tracking-[-0.01em] text-umber">
           <svg width="28" height="18" viewBox="0 0 28 18" aria-hidden="true">
             <circle cx="9" cy="9" r="8" className="fill-rose-bright" />
             <circle cx="19" cy="9" r="8" className="fill-cobalt-bright" fillOpacity=".92" />
