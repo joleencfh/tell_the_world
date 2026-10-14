@@ -8,7 +8,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "playwright test"
+    "test": "playwright test",
+    "migrate:status": "bun scripts/migrate.ts status",
+    "migrate:up": "bun scripts/migrate.ts up",
+    "migrate:check": "bun scripts/migrate.ts check"
   },
   "dependencies": {
     "@lexical/link": "^0.49.0",

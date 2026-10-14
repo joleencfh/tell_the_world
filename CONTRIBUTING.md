@@ -52,7 +52,7 @@ lib/
   directory/         Directory search queries
   email/             Resend templates (server-only)
   types.ts           Shared domain enums — single source of truth
-supabase/            Numbered SQL migrations, run manually in the SQL Editor
+supabase/            Numbered SQL migrations, applied with scripts/migrate.ts
 tests/               Playwright specs
 ```
 
@@ -75,9 +75,28 @@ These are non-negotiable — most of them close holes we have already had to fix
 
 ## Database migrations
 
-Migrations are numbered SQL files in `supabase/` (e.g. `016_search_indexes.sql`).
-Add the next number, and run it manually in the Supabase SQL Editor — there is no
-automated migration runner yet. Note in your PR that a migration needs applying.
+Migrations are numbered SQL files in `supabase/` (e.g. `016_search_indexes.sql`),
+named `NNN_snake_case.sql`. Before picking a number, check the highest one on
+`origin/master`: two branches can pick the same "next" number without git
+noticing.
+
+They are applied by `scripts/migrate.ts` through the Supabase Management API
+(needs `SUPABASE_ACCESS_TOKEN` in `.env.local`). Applied files are recorded in
+`public.schema_migrations`, so every command is safe to re-run.
+
+```bash
+bun run migrate:status   # applied / pending / changed since applied
+bun run migrate:up       # apply pending files in order, stop on first failure
+bun run migrate:check    # offline filename and numbering check (runs in CI)
+```
+
+`bun scripts/migrate.ts baseline` marks every current file as applied without
+running it. It is only for adopting the runner on a database that already has
+the schema. Pass `--project-ref <ref>` to target another project.
+
+After applying a migration, regenerate `lib/database.types.ts`:
+`bunx supabase gen types typescript --project-id <ref> --schema public > lib/database.types.ts`.
+Never edit a migration that has been applied; add a new one.
 
 ## Code style
 
