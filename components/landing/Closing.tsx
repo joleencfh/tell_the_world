@@ -15,8 +15,8 @@ export default function Closing() {
         <CirclePair className="pointer-events-none absolute -bottom-[70px] -right-[60px] h-auto w-[250px] md:-bottom-[90px] md:-right-[70px] md:w-[380px]" />
         <div className="relative mx-auto max-w-page px-5 pb-[130px] pt-14 md:px-gutter md:pb-[88px] md:pt-24">
           <p className="max-w-[16em] font-serif text-statement text-umber">
-            Want in sooner? <EarlyTesterLink /> and try Tell The World while it&rsquo;s still rough, so you
-            can help us fix it.
+            Join the waitlist and we&rsquo;ll email you when Tell The World opens. Want in sooner?{' '}
+            <EarlyTesterLink /> and help us fix what&rsquo;s still rough.
           </p>
           <div className="mt-7">
             <WaitlistButton />

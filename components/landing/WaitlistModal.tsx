@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useId, useRef, useState, useTransition } from 'react'
+import Link from 'next/link'
 import { submitWaitlistSignup } from '@/lib/waitlist/actions'
 import CirclePair from '@/components/landing/CirclePair'
 import type { UserRole } from '@/lib/types'
@@ -230,8 +231,8 @@ export default function WaitlistModal({ mode, onClose, defaultRole }: WaitlistMo
             </h3>
             <p className="font-ui text-ui text-umber-soft">
               {wantsEarlyAccess
-                ? "We'll email you if we're ready for early testers."
-                : "We'll email you when there's something to see."}
+                ? "We’ll email you if we’re ready for early testers."
+                : "We’ll email you when there’s something to see."}
             </p>
             <button type="button" onClick={handleClose} className={`${primaryBtn} mt-6 bg-umber text-parchment hover:bg-umber-hover`}>
               Close
@@ -278,8 +279,8 @@ export default function WaitlistModal({ mode, onClose, defaultRole }: WaitlistMo
             </h3>
             <p className="mb-2 font-ui text-ui text-umber-soft">
               {wantsEarlyAccess
-                ? "We'll reach out by email if we're ready for early testers."
-                : "We'll reach out when Tell The World opens."}
+                ? "We’ll reach out by email if we’re ready for early testers."
+                : "We’ll reach out when Tell The World opens."}
             </p>
 
             <form onSubmit={handleSubmit} noValidate>
@@ -415,8 +416,15 @@ export default function WaitlistModal({ mode, onClose, defaultRole }: WaitlistMo
                 }
                 className={`${primaryBtn} mt-[22px] hover:brightness-90 ${SUBMIT_VARIANT[role]}`}
               >
-                {isPending ? 'Joining…' : wantsEarlyAccess ? 'Count me in' : 'Join the waitlist'}
+                {isPending ? 'Joining…' : wantsEarlyAccess ? 'Become an early tester' : 'Join the waitlist'}
               </button>
+              <p className="mt-3 font-ui text-ui-sm text-umber-soft">
+                We use your details only to contact you about Tell The World. See our{' '}
+                <Link href="/privacy" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-umber">
+                  Privacy Policy
+                </Link>
+                .
+              </p>
             </form>
           </div>
         )}
