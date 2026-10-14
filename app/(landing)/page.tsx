@@ -31,6 +31,7 @@ export default function LandingPage() {
             <QACommunityDemo />
           </ArtifactSection>
           <ArtifactSection
+            flip
             heading="Expert quotes you can understand, and use."
             body="Experts and organisations add their own on-record quotes directly, in plain language. Every submission runs through a clarity check first, so jargon gets caught before it ever reaches a reader."
           >

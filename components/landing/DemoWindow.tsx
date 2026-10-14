@@ -5,8 +5,9 @@ interface DemoWindowProps {
   title: string
   /** Describes the whole example once, to assistive technology. */
   ariaLabel: string
-  paused: boolean
-  onTogglePause: () => void
+  /** True while the example is animating; the button then offers Pause. */
+  playing: boolean
+  onToggle: () => void
   children: React.ReactNode
 }
 
@@ -15,7 +16,7 @@ interface DemoWindowProps {
 // is aria-hidden and not focusable, so a screen reader or keyboard user never
 // lands on a control that does nothing. The Pause button is the only
 // interactive part and sits outside the hidden subtree.
-export default function DemoWindow({ title, ariaLabel, paused, onTogglePause, children }: DemoWindowProps) {
+export default function DemoWindow({ title, ariaLabel, playing, onToggle, children }: DemoWindowProps) {
   return (
     <div>
       <div role="group" aria-label={ariaLabel} className="overflow-hidden rounded-control bg-vellum shadow-window">
@@ -25,21 +26,21 @@ export default function DemoWindow({ title, ariaLabel, paused, onTogglePause, ch
           </div>
           <button
             type="button"
-            onClick={onTogglePause}
-            aria-label={paused ? 'Play the animated example' : 'Pause the animated example'}
-            className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-control border border-field-line px-2.5 font-mono text-label uppercase text-umber transition-colors duration-150 ease-standard hover:bg-bone focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-umber md:min-h-8"
+            onClick={onToggle}
+            aria-label={playing ? 'Pause the animated example' : 'Play the animated example'}
+            className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-control border border-field-line px-2.5 font-mono text-label uppercase text-umber transition-colors duration-150 ease-out hover:bg-bone focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-umber md:min-h-8"
           >
-            {paused ? (
-              <svg width="10" height="12" viewBox="0 0 10 12" aria-hidden="true">
-                <path d="M0 0L10 6L0 12Z" fill="currentColor" />
-              </svg>
-            ) : (
+            {playing ? (
               <svg width="10" height="12" viewBox="0 0 10 12" aria-hidden="true">
                 <rect width="3.5" height="12" fill="currentColor" />
                 <rect x="6.5" width="3.5" height="12" fill="currentColor" />
               </svg>
+            ) : (
+              <svg width="10" height="12" viewBox="0 0 10 12" aria-hidden="true">
+                <path d="M0 0L10 6L0 12Z" fill="currentColor" />
+              </svg>
             )}
-            <span className="hidden md:inline">{paused ? 'Play' : 'Pause'}</span>
+            <span className="hidden md:inline">{playing ? 'Pause' : 'Play'}</span>
           </button>
         </div>
         <div aria-hidden="true">{children}</div>
@@ -47,13 +48,6 @@ export default function DemoWindow({ title, ariaLabel, paused, onTogglePause, ch
       <p className="mt-3 text-right text-ui-sm text-umber-soft">Illustrative example, sample content</p>
     </div>
   )
-}
-
-/** Fade + rise used for every beat that appears (design-system.md, Motion). */
-export function reveal(show: boolean) {
-  return `transition-[opacity,transform] duration-[600ms] ease-standard motion-reduce:transition-none ${
-    show ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
-  }`
 }
 
 /**
