@@ -156,6 +156,7 @@ export default function AddQuoteDemo() {
         ariaLabel="Example: an expert clicks Add quote and types a quote that uses the jargon term reward hacking. The clarity check flags it and suggests plainer wording, the expert pastes that wording over the term, and publishes the quote."
         playing={playing}
         onToggle={toggle}
+        caption="Illustrative example. The people and quotes are sample content."
       >
         <div
           ref={containerRef}
@@ -173,11 +174,11 @@ export default function AddQuoteDemo() {
               </span>
             </div>
             <QuoteCard name="Elena Vasquez" role="Expert" credential="Independent Researcher">
-              &ldquo;The lesson here isn&rsquo;t about one model. It&rsquo;s about what happens once systems like this
-              start operating faster than anyone can review.&rdquo;
+              &ldquo;The lesson reaches past any one model: what happens once systems like this operate faster than
+              anyone can review.&rdquo;
             </QuoteCard>
             <QuoteCard name="Foresight Commons" role="Organisation" credential="AI policy · existential risk" shape="organisation">
-              &ldquo;This is worse than what came before it, not just more widely covered.&rdquo;
+              &ldquo;This is worse than what came before it.&rdquo;
             </QuoteCard>
           </div>
 

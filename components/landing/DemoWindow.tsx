@@ -8,6 +8,8 @@ interface DemoWindowProps {
   /** True while the example is animating; the button then offers Pause. */
   playing: boolean
   onToggle: () => void
+  /** Visible line under the window saying what in it is real and what is sample. */
+  caption?: string
   children: React.ReactNode
 }
 
@@ -16,7 +18,7 @@ interface DemoWindowProps {
 // is aria-hidden and not focusable, so a screen reader or keyboard user never
 // lands on a control that does nothing. The Pause button is the only
 // interactive part and sits outside the hidden subtree.
-export default function DemoWindow({ title, ariaLabel, playing, onToggle, children }: DemoWindowProps) {
+export default function DemoWindow({ title, ariaLabel, playing, onToggle, caption = 'Illustrative example, sample content', children }: DemoWindowProps) {
   return (
     <div>
       <div role="group" aria-label={ariaLabel} className="overflow-hidden rounded-control bg-vellum shadow-window">
@@ -45,7 +47,7 @@ export default function DemoWindow({ title, ariaLabel, playing, onToggle, childr
         </div>
         <div aria-hidden="true">{children}</div>
       </div>
-      <p className="mt-3 text-right text-ui-sm text-umber-soft">Illustrative example, sample content</p>
+      <p className="mt-3 text-right text-ui-sm text-umber-soft">{caption}</p>
     </div>
   )
 }

@@ -54,16 +54,19 @@ export default function Hero() {
 
         <div className="mt-5 grid gap-3 md:col-span-2 md:col-start-1 md:row-start-3 md:mt-14 md:grid-cols-2 md:gap-4">
           <AudienceCard tone="rose" label="Creators & journalists">
-            Know how to turn complicated research into stories people can relate to.
+            Get sourced briefs and on-the-record quotes from the people who study AI risk, written to be used
+            in your own work.
           </AudienceCard>
           <AudienceCard tone="cobalt" label="Researchers & organisations">
-            Have important messages on how to make AI go well.
+            Share your research and answer questions where creators and journalists will find them, in plain
+            language and on the record.
           </AudienceCard>
         </div>
 
         <p className="mt-7 max-w-[28em] font-serif text-[1.3125rem] leading-[1.42] text-umber-soft md:col-start-1 md:row-start-2 md:mt-6 md:text-lead">
           Tell The World connects AI safety researchers and organisations with the creators and
-          journalists who can put their work in front of real audiences.
+          journalists who tell their audiences what is at stake. Researchers share sourced briefs, quotes
+          and answers. Creators and journalists use them.
         </p>
 
         {/* Circle pair with its two-line legend. */}
@@ -83,7 +86,7 @@ export default function Hero() {
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pb-11 pt-6 md:col-span-2 md:row-start-4 md:pb-16 md:pt-5">
           <StatusChip className="inline-flex md:hidden" />
-          <p className="max-w-[46em] text-base text-umber-soft">Members are approved before they can post or sign in.</p>
+          <p className="max-w-[46em] text-base text-umber-soft">Every member is reviewed and approved before they can post or sign in.</p>
         </div>
       </div>
     </section>

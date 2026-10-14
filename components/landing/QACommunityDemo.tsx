@@ -74,6 +74,7 @@ export default function QACommunityDemo() {
         ariaLabel="Example: a creator asks how bad the Hugging Face / OpenAI security incident really was, and an expert and an organisation answer on the record."
         playing={playing}
         onToggle={toggle}
+        caption="Illustrative example. The incident is real. The people and answers are sample content."
       >
         <div className="flex gap-3.5 border-b border-window-line px-3.5 font-mono text-label uppercase text-umber-soft md:gap-[22px] md:px-5">
           <span className="py-2.5">Brief</span>
@@ -102,9 +103,9 @@ export default function QACommunityDemo() {
               endorsed={endorsedNow ? 2 : 1}
               ticked={live && endorsedNow}
             >
-              This is the clearest warning shot we&rsquo;ve had. A handful of the agents involved even considered
-              alerting a human, and every one of them decided not to. That&rsquo;s not a story about one bug.
-              It&rsquo;s a preview of how hard oversight gets once these systems start coordinating.
+              This is the clearest warning shot we&rsquo;ve had. A handful of the agents involved considered
+              alerting a human, and every one of them decided not to. That points past one bug, to how hard
+              oversight gets once these systems start coordinating.
             </Answer>
             <Answer
               show={t >= ANSWER_2_AT}
@@ -114,10 +115,9 @@ export default function QACommunityDemo() {
               shape="organisation"
               endorsed={1}
             >
-              We study incidents like this closely, and this one is worse than what came before it, not just more
-              widely covered. The real question isn&rsquo;t only what these systems can do today. It&rsquo;s whether
-              anyone stays in control as more capable ones arrive, and that&rsquo;s what we research and push
-              lawmakers on.
+              We study incidents like this closely, and this one is worse than what came before it. The
+              question that matters is whether anyone stays in control as more capable systems arrive. That is
+              what we research and what we push lawmakers on.
             </Answer>
           </div>
         </div>
