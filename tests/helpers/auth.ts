@@ -110,7 +110,7 @@ export async function authenticateUser(
     refresh_token: session.refresh_token,
     user: session.user,
   })
-  const cookieChunks = createChunks(COOKIE_NAME, encoded)
+  const cookieChunks = createChunks(cookieName(supabaseUrl), encoded)
 
   // 4. Launch a browser, set the cookies, and verify the session is valid
   const browser = await chromium.launch()
