@@ -23,6 +23,7 @@ export interface FieldControlProps {
  *   <Field label="Email" error={err}>{(p) => <TextInput type="email" {...p} />}</Field>
  */
 export default function Field({
+  id: idProp,
   label,
   hint,
   error,
@@ -30,6 +31,8 @@ export default function Field({
   className,
   children,
 }: {
+  /** Fixed control id, for a control something else has to scroll to or focus. Defaults to a generated one. */
+  id?: string
   label: string
   hint?: React.ReactNode
   /** Message text. Presence marks the control invalid. */
@@ -39,7 +42,7 @@ export default function Field({
   children: (props: FieldControlProps) => React.ReactNode
 }) {
   const uid = useId()
-  const id = `${uid}-control`
+  const id = idProp ?? `${uid}-control`
   const hintId = `${uid}-hint`
   const errorId = `${uid}-error`
   const describedBy = [hint ? hintId : null, error ? errorId : null].filter(Boolean).join(' ') || undefined

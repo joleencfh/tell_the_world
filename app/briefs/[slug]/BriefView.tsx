@@ -371,7 +371,7 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
 
       </main>
 
-      <Footer variant="bold" />
+      <Footer />
 
     </div>
   )

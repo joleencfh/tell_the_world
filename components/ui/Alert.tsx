@@ -39,10 +39,10 @@ export default function Alert({
       className={cn('flex gap-3 rounded-control px-4 py-3 font-ui text-ui-sm text-umber', t.surface, className)}
     >
       <Icon name={t.icon} className={cn('mt-0.5 shrink-0', t.accent)} />
-      <p>
+      <div>
         {lead && <strong className={cn('font-semibold', t.accent)}>{lead} </strong>}
         {children}
-      </p>
+      </div>
     </div>
   )
 }

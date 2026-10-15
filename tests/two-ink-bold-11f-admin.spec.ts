@@ -94,20 +94,21 @@ test.describe('Admin — Two-Ink Bold tokens', () => {
     const styles = await page.evaluate(() => {
       const header = document.querySelector('header')!
       const logo = header.querySelector('a')!
-      const mark = logo.querySelector('span')!
-      const [pinkDot, blueDot] = mark.querySelectorAll('span')
+      // Design-system Logo (Phase 2): an SVG circle pair, not two spans.
+      const [roseCircle, cobaltCircle] = logo.querySelectorAll('circle')
       return {
         headerBorder: getComputedStyle(header).borderBottomColor,
         wordmarkColor: getComputedStyle(logo).color,
-        pinkDotColor: getComputedStyle(pinkDot).backgroundColor,
-        blueDotColor: getComputedStyle(blueDot).backgroundColor,
+        roseCircleFill: getComputedStyle(roseCircle).fill,
+        cobaltCircleFill: getComputedStyle(cobaltCircle).fill,
       }
     })
 
+    // The admin header itself is still the old one until Phase 5.
     expect(styles.headerBorder).toBe(TOKEN.ink)
-    expect(styles.wordmarkColor).toBe(TOKEN.ink)
-    expect(styles.pinkDotColor).toBe(TOKEN.pink)
-    expect(styles.blueDotColor).toBe(TOKEN.blue)
+    expect(styles.wordmarkColor).toBe('rgb(38, 37, 30)') // --color-umber
+    expect(styles.roseCircleFill).toBe('rgb(240, 25, 126)') // --color-rose-bright
+    expect(styles.cobaltCircleFill).toBe('rgb(33, 80, 232)') // --color-cobalt-bright
   })
 
   test('a pending application renders a blue tab-count badge and a border-line card', async ({ page }) => {
