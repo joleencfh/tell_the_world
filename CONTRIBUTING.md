@@ -116,17 +116,20 @@ Never edit a migration that has been applied; add a new one.
    migration that must be applied.
 4. End commit messages with a `Co-Authored-By:` trailer if paired with an AI tool.
 
-## Testing against staging
+## Test database
 
-The Playwright suite should run against a separate staging Supabase project,
-never against production data. Setup (once):
+CI never touches production. Each run starts a throwaway local Supabase stack
+(`supabase start`, config in `supabase/config.toml`), replays every migration
+onto it with `scripts/migrate.ts up --db-url ...`, seeds the fixture accounts
+(`scripts/seed-test-users.ts`) and test briefs, then runs Playwright. A
+migration that does not replay cleanly on an empty database fails CI.
 
-1. Copy `.env.staging.example` to `.env.staging` and fill in the staging
-   project's values.
-2. `bun scripts/migrate.ts up --project-ref <staging-ref>` to build the schema.
-3. `bun run seed:staging` to create the fixture accounts, then
-   `bun --env-file=.env.staging scripts/seed-test-briefs.ts` for the test briefs.
+`TEST_DB_ONLY=1` (set in CI) makes the Playwright global setup and
+`seed-test-users.ts` refuse to run if the Supabase URL is the production
+project (`tests/helpers/db-guard.ts`).
 
-Then `bun run test:staging` runs the suite. `STAGING_ONLY=1` (set in the example
-file) makes the global setup, and `seed:staging`, refuse to run if the Supabase
-URL is the production project.
+Running the suite locally against the same stack needs Docker Desktop
+(`supabase start`, then export the URL and keys from `supabase status -o env`).
+Until Docker is set up, rely on CI. Running the suite locally against the
+production `.env.local` still works but writes throwaway rows to real data, so
+avoid it.

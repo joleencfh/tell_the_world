@@ -20,10 +20,11 @@ const supabase = createClient(url, serviceKey, {
   auth: { autoRefreshToken: false, persistSession: false },
 })
 
+// Names must not contain role words ("Expert"...): specs match badge text.
 const fixtures = [
-  { env: 'TEST_ADMIN_EMAIL', role: 'admin', name: 'Playwright Admin' },
-  { env: 'TEST_CREATOR_EMAIL', role: 'creator', name: 'Playwright Creator' },
-  { env: 'TEST_EXPERT_EMAIL', role: 'expert', name: 'Playwright Expert' },
+  { env: 'TEST_ADMIN_EMAIL', role: 'admin', name: 'Sam Fixture' },
+  { env: 'TEST_CREATOR_EMAIL', role: 'creator', name: 'Robin Fixture' },
+  { env: 'TEST_EXPERT_EMAIL', role: 'expert', name: 'Quinn Fixture' },
 ] as const
 
 async function findAuthUserId(email: string): Promise<string | null> {

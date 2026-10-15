@@ -87,7 +87,7 @@ jobs:
 
       # Also proves the whole migration history replays on an empty database
       - name: Apply migrations
-        run: bun scripts/migrate.ts up --keep-going --db-url postgresql://postgres:postgres@127.0.0.1:54322/postgres
+        run: bun scripts/migrate.ts up --db-url postgresql://postgres:postgres@127.0.0.1:54322/postgres
 
       - name: Type check
         run: bunx tsc --noEmit
