@@ -1,10 +1,15 @@
 # Architecture cleanup — build plan
 
-**Status: not started.** Five independent cleanup items surfaced by the
+**Status: 1 superseded by a different decision, 1 mostly done (its bundled
+"quick wins" still open), 3 not started.** Five
+independent cleanup items surfaced by the
 [2026-09-17 architecture snapshot](../../architecture/2026-09-17.md)'s "Known
 gaps" section. Unlike the brief-feature build plan, these aren't sequential
 steps toward one feature — each is a standalone fix and can be branched,
 built, and merged on its own. Ordered below cheapest/lowest-risk first.
+Status re-verified against the code for the
+[2026-10-15 architecture snapshot](../../architecture/2026-10-15.md) — see
+its §9 and §12 for detail on what changed and why.
 
 No separate design spec for this one; the scope of each item is small enough
 that this build plan *is* the spec. Once an item ships, update its status
@@ -19,15 +24,27 @@ memory of this conversation assumed).
 
 | # | Item | Status |
 | --- | --- | --- |
-| 1 | Migration numbering collisions (038, 043) | ⛔ NOT STARTED |
+| 1 | Migration numbering collisions (038, 043) | 🔁 SUPERSEDED — see note below |
 | 2 | `brief_contributions` naming history — document, don't rename | ⛔ NOT STARTED |
 | 3 | Dead `/briefs` list route → build a minimal list page | ⛔ NOT STARTED |
 | 4 | `/home` page→View composition consistency | ⛔ NOT STARTED |
-| 5 | `max-lines` lint decomposition debt (13 warnings, 7 files) | ⛔ NOT STARTED |
+| 5 | `max-lines` lint decomposition debt (13 warnings, 7 files) | 🟡 MOSTLY DONE — all 7 files split (PR #105); 5 of its bundled "quick-win" warnings still open (4 `no-img-element` + 1 `no-unused-vars` — `bun run lint` reports 5 total today, down from 13) |
 
 ---
 
 ## Step 1 — Migration numbering collisions (038, 043)
+
+**🔁 Superseded as of the 2026-10-15 snapshot — do not act on the plan below
+as written.** PR #125 added `scripts/migrate.ts check` (CI step
+`bun run migrate:check`) with a `LEGACY_DUPLICATES` map that explicitly
+allows exactly these two prefixes to have two files each, and fails CI on
+any *new* duplicate. The project has in effect decided to leave `038`/`043`
+as permanent, CI-sanctioned exceptions rather than renumber them. The
+renaming steps below were never carried out and should not be, unless that
+decision is deliberately reversed (in which case, remove the `038`/`043`
+entries from `LEGACY_DUPLICATES` in `scripts/migrate.ts` too, so `check`
+doesn't silently keep tolerating files that no longer exist). Left in place
+below as history.
 
 Two filename collisions exist in `supabase/`, both already applied to the
 live DB, both harmless in practice (different tables, no functional
@@ -291,7 +308,23 @@ lint clean before calling it done.
 
 ## Step 5 — `max-lines` lint decomposition debt
 
-`bun run lint` currently reports **13 warnings** (0 errors) — the
+**🟡 Mostly done as of the 2026-10-15 snapshot.** PR #105 ("Split files
+exceeding the 500-line max-lines threshold") split all 7 files in the table
+below; each is now under the 500-line threshold (verified directly, not
+just by absence from a lint run). The 6 bundled "quick win" warnings
+described further down (5 `no-img-element` + 1 `no-unused-vars` in the
+original write-up) were **not** done in that PR — `bun run lint` today
+reports 5 warnings (0 errors): 4 `@next/next/no-img-element`
+(`app/admin/coverage-card.tsx`, `app/briefs/[slug]/coverage-modals.tsx`,
+`app/briefs/[slug]/coverage.tsx`, `app/home/dashboard-coverage-card.tsx` —
+`components/ui/Avatar.tsx`'s own `<img>` already carries an inline
+eslint-disable, so it was never actually one of the 5 and doesn't need
+touching) and 1 `@typescript-eslint/no-unused-vars`
+(`components/PostModal.tsx:109`). The table below (file paths, line counts)
+is now historical — re-read it for context on *why* each file was split,
+not as a to-do list.
+
+`bun run lint` used to report **13 warnings** (0 errors) — the
 architecture snapshot's "13 warnings" figure includes more than just
 `max-lines`. Ran it directly to get the real breakdown:
 
