@@ -14,7 +14,7 @@ export function assertNotProduction(url: string | undefined, what: string): void
   if (isProductionSupabase(url)) {
     throw new Error(
       `${what} refused to run: NEXT_PUBLIC_SUPABASE_URL points at the production Supabase project. ` +
-        'Use the staging project (see .env.staging.example).',
+        'Tests and seeds must run against the throwaway local Supabase stack (see CI) or a dedicated non-production project.',
     )
   }
 }

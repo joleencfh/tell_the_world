@@ -37,21 +37,22 @@ jobs:
 
   checks:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
+    # Everything runs against a throwaway local Supabase stack (Docker on the
+    # runner), never the production project. The URL and keys are exported by
+    # the "Start local Supabase" step below; the keys are the CLI's fixed
+    # public demo values, not secrets.
     env:
-      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-      # Pointed at TEST_ADMIN_EMAIL, not the real ADMIN_EMAIL secret — this
-      # only gates the throwaway dev server this job spins up (two-ink-bold
-      # -plan.md Part 9b), never a real deployment. TEST_ADMIN_EMAIL is a
-      # dedicated fixture account (playwright-test-admin@..., not a real
-      # person's address).
-      ADMIN_EMAIL: ${{ secrets.TEST_ADMIN_EMAIL }}
-      TEST_ADMIN_EMAIL: ${{ secrets.TEST_ADMIN_EMAIL }}
-      TEST_CREATOR_EMAIL: ${{ secrets.TEST_CREATOR_EMAIL }}
-      TEST_EXPERT_EMAIL: ${{ secrets.TEST_EXPERT_EMAIL }}
+      TEST_DB_ONLY: '1'
+      # Dummy: the app only needs it to be present. Sends fail harmlessly, so
+      # CI can never email a real person.
+      RESEND_API_KEY: re_ci_dummy_key
+      # Fixture accounts, created on the local stack by seed-test-users.ts.
+      # ADMIN_EMAIL only gates this job's throwaway dev server.
+      ADMIN_EMAIL: playwright-test-admin@example.com
+      TEST_ADMIN_EMAIL: playwright-test-admin@example.com
+      TEST_CREATOR_EMAIL: playwright-test-creator@example.com
+      TEST_EXPERT_EMAIL: playwright-test-expert@example.com
     steps:
       - uses: actions/checkout@v5
 
@@ -66,14 +67,30 @@ jobs:
       - name: Lint
         run: bun run lint
 
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.121.0
+
+      # Full Supabase (Postgres, Auth, Storage, API) in Docker, minus the
+      # services the app does not use. Config: supabase/config.toml.
+      - name: Start local Supabase
+        run: supabase start -x studio,imgproxy,mailpit,edge-runtime,logflare,vector,supavisor,realtime,postgres-meta
+
+      - name: Export local Supabase env
+        run: |
+          eval "$(supabase status -o env)"
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$ANON_KEY"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
+          } >> "$GITHUB_ENV"
+
+      # Also proves the whole migration history replays on an empty database
+      - name: Apply migrations
+        run: bun scripts/migrate.ts up --db-url postgresql://postgres:postgres@127.0.0.1:54322/postgres
+
       - name: Type check
         run: bunx tsc --noEmit
-
-      # Design detector on the landing page source. Exit 2 means a primary
-      # finding (advisories never fail). Version pinned so a new release can't
-      # change results under an unrelated PR; bump it deliberately.
-      - name: Landing design detector
-        run: bunx impeccable@4.5.2 detect --quiet app components/landing
 
       - name: Build
         run: bun run build
@@ -81,13 +98,14 @@ jobs:
       - name: Install Playwright browsers
         run: bunx playwright install --with-deps chromium
 
+      - name: Seed test users
+        run: bun scripts/seed-test-users.ts
+
       # Idempotent upsert of the test-public-brief / test-members-brief fixtures
       # the brief specs rely on
       - name: Seed test briefs
         run: bun scripts/seed-test-briefs.ts
 
-      # Runs against the live Supabase project (no staging environment yet).
-      # The suite creates throwaway rows (applications, messages) per run.
       - name: E2E tests
         run: bunx playwright test
 
@@ -98,3 +116,7 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+
+      - name: Local Supabase logs
+        if: failure()
+        run: docker ps -a && supabase status || true

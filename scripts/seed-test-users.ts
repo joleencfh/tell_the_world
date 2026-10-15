@@ -1,17 +1,17 @@
 /**
- * Creates the fixture accounts the Playwright suite signs in as, on the
- * STAGING Supabase project: an auth user (confirmed) plus a matching row in
- * public.users. Idempotent. Refuses to run against production.
+ * Creates the fixture accounts the Playwright suite signs in as: a confirmed
+ * auth user plus a matching row in public.users. Idempotent. Refuses to run
+ * against the production project. CI runs it against the local Supabase stack.
  *
- *   bun --env-file=.env.staging scripts/seed-staging.ts
+ *   bun scripts/seed-test-users.ts
  *
  * Briefs are seeded separately by scripts/seed-test-briefs.ts.
  */
 import { createClient } from '@supabase/supabase-js'
-import { assertNotProduction } from '../tests/helpers/staging-guard'
+import { assertNotProduction } from '../tests/helpers/db-guard'
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-assertNotProduction(url, 'seed-staging')
+assertNotProduction(url, 'seed-test-users')
 
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 if (!url || !serviceKey) throw new Error('NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required')

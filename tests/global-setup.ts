@@ -45,14 +45,14 @@ import { FullConfig } from '@playwright/test'
 import { loadEnvConfig } from '@next/env'
 import * as path from 'path'
 import { authenticateUser } from './helpers/auth'
-import { assertNotProduction } from './helpers/staging-guard'
+import { assertNotProduction } from './helpers/db-guard'
 
 async function globalSetup(config: FullConfig) {
   loadEnvConfig(process.cwd())
 
   // Opt-in guard (set in .env.staging and, later, CI): never run the suite
   // against the production Supabase project.
-  if (process.env.STAGING_ONLY === '1') {
+  if (process.env.TEST_DB_ONLY === '1') {
     assertNotProduction(process.env.NEXT_PUBLIC_SUPABASE_URL, 'Playwright global setup')
   }
 
