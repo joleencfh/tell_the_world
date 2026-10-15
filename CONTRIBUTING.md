@@ -115,3 +115,18 @@ Never edit a migration that has been applied; add a new one.
 3. Open the PR against `master` with a short description and a note of any
    migration that must be applied.
 4. End commit messages with a `Co-Authored-By:` trailer if paired with an AI tool.
+
+## Testing against staging
+
+The Playwright suite should run against a separate staging Supabase project,
+never against production data. Setup (once):
+
+1. Copy `.env.staging.example` to `.env.staging` and fill in the staging
+   project's values.
+2. `bun scripts/migrate.ts up --project-ref <staging-ref>` to build the schema.
+3. `bun run seed:staging` to create the fixture accounts, then
+   `bun --env-file=.env.staging scripts/seed-test-briefs.ts` for the test briefs.
+
+Then `bun run test:staging` runs the suite. `STAGING_ONLY=1` (set in the example
+file) makes the global setup, and `seed:staging`, refuse to run if the Supabase
+URL is the production project.

@@ -9,6 +9,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "playwright test",
+    "test:staging": "bun --env-file=.env.staging run test",
+    "seed:staging": "bun --env-file=.env.staging scripts/seed-staging.ts",
     "migrate:status": "bun scripts/migrate.ts status",
     "migrate:up": "bun scripts/migrate.ts up",
     "migrate:check": "bun scripts/migrate.ts check"
