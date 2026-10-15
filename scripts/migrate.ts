@@ -12,6 +12,8 @@
  *
  * Flags: --project-ref <ref> targets another cloud project.
  *        Defaults to the ref in NEXT_PUBLIC_SUPABASE_URL.
+ *        --keep-going (up only) continues past failures and lists them all at the
+ *        end; for diagnosing replay problems, failed files are not recorded.
  *        --db-url <postgres url> runs against a Postgres directly instead of
  *        the Management API (the local Supabase stack that CI starts, e.g.
  *        postgresql://postgres:postgres@127.0.0.1:54322/postgres).
@@ -198,6 +200,8 @@ async function main() {
   // up
   for (const m of changed) console.warn(`! ${m.filename} changed since it was applied (not re-run)`)
   if (pending.length === 0) return console.log('Nothing to apply.')
+  const keepGoing = args.includes('--keep-going')
+  const failures: string[] = []
   for (const m of pending) {
     process.stdout.write(`Applying ${m.filename} ... `)
     try {
@@ -209,9 +213,17 @@ async function main() {
     } catch (err) {
       console.log('FAILED')
       console.error(err instanceof Error ? err.message : err)
-      console.error('Stopped. Later files were not applied.')
-      process.exit(1)
+      if (!keepGoing) {
+        console.error('Stopped. Later files were not applied.')
+        process.exit(1)
+      }
+      failures.push(m.filename)
     }
+  }
+  if (failures.length > 0) {
+    console.error(`
+${failures.length} migrations failed (--keep-going): ${failures.join(', ')}`)
+    process.exit(1)
   }
   console.log(`✓ Applied ${pending.length} migrations`)
 }
