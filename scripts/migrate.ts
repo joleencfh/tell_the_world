@@ -10,8 +10,13 @@
  *   bun scripts/migrate.ts baseline               mark all files applied WITHOUT running them
  *   bun scripts/migrate.ts check                  offline filename checks (used in CI)
  *
- * Flags: --project-ref <ref> targets another project (e.g. staging).
+ * Flags: --project-ref <ref> targets another cloud project.
  *        Defaults to the ref in NEXT_PUBLIC_SUPABASE_URL.
+ *        --keep-going (up only) continues past failures and lists them all at the
+ *        end; for diagnosing replay problems, failed files are not recorded.
+ *        --db-url <postgres url> runs against a Postgres directly instead of
+ *        the Management API (the local Supabase stack that CI starts, e.g.
+ *        postgresql://postgres:postgres@127.0.0.1:54322/postgres).
  * Env:   SUPABASE_ACCESS_TOKEN (personal access token, from .env.local)
  */
 import { createHash } from 'node:crypto'
@@ -103,6 +108,16 @@ function makeQuery(ref: string) {
   }
 }
 
+function makeDirectQuery(url: string) {
+  // Bun's built-in Postgres client. unsafe() without parameters uses the
+  // simple query protocol, so multi-statement migration files work.
+  const db = new Bun.SQL(url)
+  return async function query<T = Record<string, unknown>>(sql: string): Promise<T[]> {
+    const rows = await db.unsafe(sql)
+    return (Array.isArray(rows) ? rows : []) as T[]
+  }
+}
+
 const quote = (s: string) => `'${s.replace(/'/g, "''")}'`
 
 const ENSURE_TABLE = `
@@ -126,9 +141,17 @@ async function main() {
     process.exit(1)
   }
 
-  const ref = projectRef(flagRef)
-  const query = makeQuery(ref)
-  console.log(`Target project: ${ref}`)
+  const dbIdx = args.indexOf('--db-url')
+  const dbUrl = dbIdx >= 0 ? args[dbIdx + 1] : undefined
+  let query: ReturnType<typeof makeQuery>
+  if (dbUrl) {
+    query = makeDirectQuery(dbUrl)
+    console.log(`Target database: ${new URL(dbUrl).host}`)
+  } else {
+    const ref = projectRef(flagRef)
+    query = makeQuery(ref)
+    console.log(`Target project: ${ref}`)
+  }
 
   const migrations = loadMigrations()
 
@@ -177,6 +200,8 @@ async function main() {
   // up
   for (const m of changed) console.warn(`! ${m.filename} changed since it was applied (not re-run)`)
   if (pending.length === 0) return console.log('Nothing to apply.')
+  const keepGoing = args.includes('--keep-going')
+  const failures: string[] = []
   for (const m of pending) {
     process.stdout.write(`Applying ${m.filename} ... `)
     try {
@@ -188,9 +213,17 @@ async function main() {
     } catch (err) {
       console.log('FAILED')
       console.error(err instanceof Error ? err.message : err)
-      console.error('Stopped. Later files were not applied.')
-      process.exit(1)
+      if (!keepGoing) {
+        console.error('Stopped. Later files were not applied.')
+        process.exit(1)
+      }
+      failures.push(m.filename)
     }
+  }
+  if (failures.length > 0) {
+    console.error(`
+${failures.length} migrations failed (--keep-going): ${failures.join(', ')}`)
+    process.exit(1)
   }
   console.log(`✓ Applied ${pending.length} migrations`)
 }

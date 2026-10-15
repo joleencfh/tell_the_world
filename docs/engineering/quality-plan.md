@@ -18,7 +18,7 @@ from you in a dashboard; the prompt tells Claude to stop and ask for it.
 | # | Step | Size | Depends on |
 | --- | --- | --- | --- |
 | 1 | Migration tracking and runner | M | none |
-| 2 | Staging Supabase project and CI against it | L | 1 |
+| 2 | Local Supabase stack in CI (replaces a cloud staging project) | L | 1 |
 | 3 | CI runs E2E against the production build | S | 2 (safer after) |
 | 4 | Dependabot and dependency audit | S | none |
 | 5 | PR template with test-expectation checklist | S | none |
@@ -97,7 +97,12 @@ PR text. Open a PR against master.
 
 ---
 
-## Step 2: Staging Supabase project and CI against it **(manual)**
+## Step 2: Local Supabase stack in CI (done in PR #129)
+
+> Changed on 2026-10-15: the free tier has no spare project slot, so CI starts
+> `supabase start` (Docker on the runner) instead of using a cloud staging
+> project. The prompt below is the original cloud-staging version, kept for
+> reference if a second project becomes available.
 
 **Goal:** CI and local E2E never touch the real project's data.
 

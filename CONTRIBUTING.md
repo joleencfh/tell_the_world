@@ -115,3 +115,21 @@ Never edit a migration that has been applied; add a new one.
 3. Open the PR against `master` with a short description and a note of any
    migration that must be applied.
 4. End commit messages with a `Co-Authored-By:` trailer if paired with an AI tool.
+
+## Test database
+
+CI never touches production. Each run starts a throwaway local Supabase stack
+(`supabase start`, config in `supabase/config.toml`), replays every migration
+onto it with `scripts/migrate.ts up --db-url ...`, seeds the fixture accounts
+(`scripts/seed-test-users.ts`) and test briefs, then runs Playwright. A
+migration that does not replay cleanly on an empty database fails CI.
+
+`TEST_DB_ONLY=1` (set in CI) makes the Playwright global setup and
+`seed-test-users.ts` refuse to run if the Supabase URL is the production
+project (`tests/helpers/db-guard.ts`).
+
+Running the suite locally against the same stack needs Docker Desktop
+(`supabase start`, then export the URL and keys from `supabase status -o env`).
+Until Docker is set up, rely on CI. Running the suite locally against the
+production `.env.local` still works but writes throwaway rows to real data, so
+avoid it.
