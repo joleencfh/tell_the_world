@@ -13,7 +13,11 @@ import { createClient } from '@supabase/supabase-js'
 import * as fs from 'fs'
 import * as path from 'path'
 
-const COOKIE_NAME = 'sb-kofimpjhjpgjotjanglq-auth-token'
+// @supabase/ssr names the cookie after the first label of the project host:
+// the project ref for cloud URLs, "127" for the local stack (127.0.0.1).
+function cookieName(supabaseUrl: string): string {
+  return `sb-${new URL(supabaseUrl).hostname.split('.')[0]}-auth-token`
+}
 const BASE64_PREFIX = 'base64-'
 const MAX_CHUNK_SIZE = 3180
 
