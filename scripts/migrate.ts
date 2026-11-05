@@ -10,12 +10,21 @@
  *   bun scripts/migrate.ts baseline               mark all files applied WITHOUT running them
  *   bun scripts/migrate.ts check                  offline filename checks (used in CI)
  *
- * Flags: --project-ref <ref> targets another project (e.g. staging).
+ * Flags: --project-ref <ref> targets another cloud project.
  *        Defaults to the ref in NEXT_PUBLIC_SUPABASE_URL.
+ *        --keep-going (up only) continues past failures and lists them all at the
+ *        end; for diagnosing replay problems, failed files are not recorded.
+ *        --via-cli runs the SQL through `supabase db query --remote=<ref>`, using
+ *        your `supabase login` session. No access token in env files needed.
+ *        --yes (with --via-cli) confirms writes to a hosted project (baseline, up).
+ *        --db-url <postgres url> runs against a Postgres directly instead of
+ *        the Management API (the local Supabase stack that CI starts, e.g.
+ *        postgresql://postgres:postgres@127.0.0.1:54322/postgres).
  * Env:   SUPABASE_ACCESS_TOKEN (personal access token, from .env.local)
  */
 import { createHash } from 'node:crypto'
-import { readdirSync, readFileSync } from 'node:fs'
+import { readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -103,6 +112,41 @@ function makeQuery(ref: string) {
   }
 }
 
+function makeCliQuery(ref: string, mode: { readOnly: boolean; yes: boolean }) {
+  // Uses the Supabase CLI's own login (OS credential store), so no personal
+  // access token has to live in .env.local or the shell environment.
+  return async function query<T = Record<string, unknown>>(sql: string): Promise<T[]> {
+    const file = join(tmpdir(), `migrate-${process.pid}-${Date.now()}.sql`)
+    writeFileSync(file, sql)
+    try {
+      const proc = Bun.spawnSync(
+        ['bunx', 'supabase', 'db', 'query', `--remote=${ref}`, '--output-format', 'json', '--file', file,
+          // The CLI refuses hosted writes without explicit consent
+          ...(mode.readOnly ? ['--read-only'] : mode.yes ? ['--yes'] : [])],
+        { stdout: 'pipe', stderr: 'pipe' },
+      )
+      const out = proc.stdout.toString()
+      if (proc.exitCode !== 0) throw new Error(`supabase CLI failed: ${proc.stderr.toString() || out}`)
+      const start = out.indexOf('{')
+      if (start < 0) return []
+      const parsed = JSON.parse(out.slice(start)) as { rows?: T[] }
+      return parsed.rows ?? []
+    } finally {
+      rmSync(file, { force: true })
+    }
+  }
+}
+
+function makeDirectQuery(url: string) {
+  // Bun's built-in Postgres client. unsafe() without parameters uses the
+  // simple query protocol, so multi-statement migration files work.
+  const db = new Bun.SQL(url)
+  return async function query<T = Record<string, unknown>>(sql: string): Promise<T[]> {
+    const rows = await db.unsafe(sql)
+    return (Array.isArray(rows) ? rows : []) as T[]
+  }
+}
+
 const quote = (s: string) => `'${s.replace(/'/g, "''")}'`
 
 const ENSURE_TABLE = `
@@ -126,9 +170,22 @@ async function main() {
     process.exit(1)
   }
 
-  const ref = projectRef(flagRef)
-  const query = makeQuery(ref)
-  console.log(`Target project: ${ref}`)
+  const dbIdx = args.indexOf('--db-url')
+  const dbUrl = dbIdx >= 0 ? args[dbIdx + 1] : undefined
+  let query: ReturnType<typeof makeQuery>
+  if (args.includes('--via-cli')) {
+    const ref = projectRef(flagRef)
+    // status only reads; anything that writes needs an explicit --yes from you
+    query = makeCliQuery(ref, { readOnly: command === 'status', yes: args.includes('--yes') })
+    console.log(`Target project (via supabase CLI login): ${ref}`)
+  } else if (dbUrl) {
+    query = makeDirectQuery(dbUrl)
+    console.log(`Target database: ${new URL(dbUrl).host}`)
+  } else {
+    const ref = projectRef(flagRef)
+    query = makeQuery(ref)
+    console.log(`Target project: ${ref}`)
+  }
 
   const migrations = loadMigrations()
 
@@ -177,6 +234,8 @@ async function main() {
   // up
   for (const m of changed) console.warn(`! ${m.filename} changed since it was applied (not re-run)`)
   if (pending.length === 0) return console.log('Nothing to apply.')
+  const keepGoing = args.includes('--keep-going')
+  const failures: string[] = []
   for (const m of pending) {
     process.stdout.write(`Applying ${m.filename} ... `)
     try {
@@ -188,9 +247,17 @@ async function main() {
     } catch (err) {
       console.log('FAILED')
       console.error(err instanceof Error ? err.message : err)
-      console.error('Stopped. Later files were not applied.')
-      process.exit(1)
+      if (!keepGoing) {
+        console.error('Stopped. Later files were not applied.')
+        process.exit(1)
+      }
+      failures.push(m.filename)
     }
+  }
+  if (failures.length > 0) {
+    console.error(`
+${failures.length} migrations failed (--keep-going): ${failures.join(', ')}`)
+    process.exit(1)
   }
   console.log(`✓ Applied ${pending.length} migrations`)
 }

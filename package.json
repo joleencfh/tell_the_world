@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "playwright test",
+    "seed:test-users": "bun scripts/seed-test-users.ts",
     "migrate:status": "bun scripts/migrate.ts status",
     "migrate:up": "bun scripts/migrate.ts up",
     "migrate:check": "bun scripts/migrate.ts check"
@@ -33,6 +34,7 @@
     "@fontsource-variable/inter": "^5.3.0",
     "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4",
+    "@types/bun": "^1.4.3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
