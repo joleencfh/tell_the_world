@@ -80,9 +80,22 @@ named `NNN_snake_case.sql`. Before picking a number, check the highest one on
 `origin/master`: two branches can pick the same "next" number without git
 noticing.
 
-They are applied by `scripts/migrate.ts` through the Supabase Management API
-(needs `SUPABASE_ACCESS_TOKEN` in `.env.local`). Applied files are recorded in
+They are applied by `scripts/migrate.ts`. Applied files are recorded in
 `public.schema_migrations`, so every command is safe to re-run.
+
+For the production project, use `--via-cli`: it runs the SQL through
+`supabase db query --remote`, with your `supabase login` session. Do not put a
+Supabase personal access token in `.env.local` or any file in the repo; it is
+account-wide (it can run SQL on and delete every project you own). Writes
+(`up`, `baseline`) also need `--yes`:
+
+```bash
+bun scripts/migrate.ts status --via-cli
+bun scripts/migrate.ts up --via-cli --yes
+```
+
+The `migrate:*` package scripts use the Management API and need
+`SUPABASE_ACCESS_TOKEN` in the shell session only; prefer `--via-cli`.
 
 ```bash
 bun run migrate:status   # applied / pending / changed since applied
