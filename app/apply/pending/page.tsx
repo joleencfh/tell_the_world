@@ -1,54 +1,25 @@
 import Link from "next/link";
-import Logo from "@/components/ui/Logo";
+import { buttonClasses } from "@/components/ui/Button";
 import Footer from "@/components/ui/Footer";
+import { Icon } from "@/components/ui/icons";
+import SiteHeader from "@/components/ui/SiteHeader";
 
 export default function PendingPage() {
   return (
-    <div className="min-h-screen bg-paper text-ink flex flex-col">
-      {/* Nav */}
-      <header className="border-b-2 border-ink px-6">
-        <div className="mx-auto flex max-w-2xl items-center justify-between py-4">
-          <Logo href="/" />
-        </div>
-      </header>
+    <div className="flex min-h-screen flex-col bg-parchment font-ui text-umber">
+      <SiteHeader />
 
-      <main className="flex-1 flex items-center justify-center px-6 py-20">
-        <div className="mx-auto max-w-lg text-center">
-          {/* Icon */}
-          <div className="mb-8 flex items-center justify-center w-14 h-14 rounded-full border border-line bg-paper-raised mx-auto">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-ink"
-              aria-hidden
-            >
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-              <polyline points="22 4 12 14.01 9 11.01" />
-            </svg>
+      <main className="flex flex-1 items-center justify-center px-4 py-section md:px-gutter">
+        <div className="w-full max-w-narrow rounded-control bg-vellum px-6 py-8 text-center shadow-hairline md:px-8">
+          <div className="mx-auto mb-6 grid size-14 place-items-center rounded-full bg-bone text-umber">
+            <Icon name="check" size={20} />
           </div>
 
-          {/* Eyebrow */}
-          <div className="mb-5 flex justify-center items-center gap-2.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-ink-soft shrink-0" aria-hidden />
-            <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-ink-soft">
-              Application received
-            </span>
-          </div>
+          <p className="mb-3 font-mono text-label uppercase text-umber-soft">Application received</p>
 
-          {/* Heading */}
-          <h1 className="font-display uppercase leading-[0.96] tracking-tight text-[2.5rem] sm:text-[3rem] text-ink mb-6">
-            You&rsquo;re in the queue
-          </h1>
+          <h1 className="mb-5 font-serif text-section text-umber">You&rsquo;re in the queue</h1>
 
-          {/* Body */}
-          <div className="font-body text-base leading-[1.8] text-ink-soft space-y-4 mb-10">
+          <div className="mb-8 space-y-4 font-serif text-reading text-umber-soft">
             <p>Thanks for applying!</p>
             <p>
               Every application is reviewed personally. You&rsquo;ll hear back
@@ -56,17 +27,7 @@ export default function PendingPage() {
             </p>
           </div>
 
-          {/* Back to homepage */}
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.2em] uppercase text-ink-soft hover:text-ink transition-colors group"
-          >
-            <span
-              className="group-hover:-translate-x-1 transition-transform duration-150"
-              aria-hidden
-            >
-              ←
-            </span>
+          <Link href="/" className={buttonClasses({ variant: "secondary" })}>
             Back to home
           </Link>
         </div>

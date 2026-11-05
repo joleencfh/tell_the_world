@@ -69,26 +69,24 @@ test.describe('Brief page dark-token remnants — Two-Ink Bold, logged-out visit
     expect(styles.svgColor).toBe(TOKEN.pink)
   })
 
-  test('page footer resolves to border-ink (2px, reference artifact match) and the system font stack, not the retired serif stack', async ({ page }) => {
+  // The shared Footer moved to the design system in Phase 2 (one variant, no
+  // "bold" 2px ink rule): a 1px `rule` hairline above, Inter text.
+  test('page footer is the design-system footer: 1px rule hairline and the Inter UI font', async ({ page }) => {
     await page.goto(`/briefs/${PUBLIC_BRIEF_SLUG}`)
 
     const styles = await page.evaluate(() => {
       const footer = document.querySelector('footer')!
-      // The rule lives on the inner max-width wrapper, not <footer> itself —
-      // matches the reference artifact's .foot-inner structure.
-      const inner = footer.querySelector(':scope > div')!
       const span = footer.querySelector('span')!
       return {
-        borderColor: getComputedStyle(inner).borderTopColor,
-        borderWidth: getComputedStyle(inner).borderTopWidth,
+        borderColor: getComputedStyle(footer).borderTopColor,
+        borderWidth: getComputedStyle(footer).borderTopWidth,
         fontFamily: getComputedStyle(span).fontFamily,
       }
     })
 
-    expect(styles.borderColor).toBe(TOKEN.ink)
-    expect(styles.borderWidth).toBe('2px')
-    expect(styles.fontFamily).toContain('Segoe UI')
-    expect(styles.fontFamily.toLowerCase()).not.toContain('georgia')
+    expect(styles.borderColor).toBe('rgb(222, 219, 211)') // --color-rule
+    expect(styles.borderWidth).toBe('1px')
+    expect(styles.fontFamily).toContain('Inter')
   })
 })
 

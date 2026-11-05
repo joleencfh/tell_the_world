@@ -2,10 +2,13 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import Logo from '@/components/ui/Logo'
+import Alert from '@/components/ui/Alert'
+import Button from '@/components/ui/Button'
+import Field, { Select, Textarea, TextInput } from '@/components/ui/Field'
 import Footer from '@/components/ui/Footer'
+import { Icon } from '@/components/ui/icons'
+import SiteHeader from '@/components/ui/SiteHeader'
 import { submitContactForm } from '@/lib/contact/actions'
-import { Field, TextInput, TextareaInput, SelectInput } from '@/app/apply/form-fields'
 
 interface FormState {
   name: string
@@ -73,55 +76,38 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="min-h-screen bg-paper text-ink flex flex-col">
-      <header className="sticky top-0 z-10 bg-paper/95 backdrop-blur-sm border-b-2 border-ink px-6">
-        <div className="mx-auto flex max-w-2xl items-center justify-between py-4">
-          <Logo href="/" />
-          <Link
-            href="/"
-            className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors"
-          >
-            Back home
-          </Link>
-        </div>
-      </header>
+    <div className="flex min-h-screen flex-col bg-parchment font-ui text-umber">
+      <SiteHeader action={{ href: '/', label: 'Back home' }} />
 
-      <main className="flex-1 px-6 py-14">
-        <div className="mx-auto max-w-lg">
-          <div className="mb-5 flex items-center gap-2.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-ink-soft shrink-0" aria-hidden />
-            <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-ink-soft">
-              Get in touch
-            </span>
-          </div>
-          <h1 className="font-display uppercase leading-[0.96] tracking-tight text-[2.25rem] sm:text-[2.75rem] text-ink mb-4">
-            Contact us
-          </h1>
-          <p className="font-body text-base leading-[1.7] text-ink-soft mb-10 max-w-md">
+      <main className="flex-1 px-4 py-section md:px-gutter">
+        <div className="mx-auto max-w-reading">
+          <p className="mb-3 font-mono text-label uppercase text-umber-soft">Get in touch</p>
+          <h1 className="mb-4 font-serif text-title text-umber">Contact us</h1>
+          <p className="mb-10 max-w-prose font-serif text-lead text-umber-soft">
             Questions, feedback, or a data privacy request: send us a message
             and we&rsquo;ll get back to you. See our{' '}
-            <Link href="/privacy" className="text-ink underline underline-offset-2 hover:text-ink-soft transition-colors">
+            <Link
+              href="/privacy"
+              className="text-umber underline underline-offset-[5px] hover:decoration-2 focus-ring"
+            >
               privacy policy
             </Link>{' '}
             for how we handle your data.
           </p>
 
           {sent ? (
-            <div className="border border-line rounded-sm bg-paper-raised px-8 py-9 text-center">
-              <div className="w-10 h-10 rounded-full bg-ink/10 flex items-center justify-center mx-auto mb-4">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" className="stroke-ink" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  <polyline points="22 4 12 14.01 9 11.01" className="stroke-ink" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+            <div role="status" className="rounded-control bg-vellum px-6 py-8 text-center shadow-hairline md:px-8">
+              <div className="mx-auto mb-4 grid size-10 place-items-center rounded-full bg-bone text-umber">
+                <Icon name="check" size={20} />
               </div>
-              <p className="font-body text-ink mb-1.5">Message sent</p>
-              <p className="font-body italic text-sm text-ink-soft leading-relaxed">
+              <p className="mb-1.5 font-serif text-card-title text-umber">Message sent</p>
+              <p className="font-ui text-ui-sm text-umber-soft">
                 Thanks for reaching out. We&rsquo;ll get back to you at{' '}
-                <span className="not-italic text-ink">{form.email}</span>.
+                <span className="font-medium text-umber">{form.email}</span>.
               </p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} noValidate>
+            <form onSubmit={handleSubmit} noValidate className="flex max-w-narrow flex-col gap-6">
               {/* Honeypot — hidden from real users via CSS, bots fill it anyway */}
               <div className="hidden" aria-hidden="true">
                 <label>
@@ -136,66 +122,59 @@ export default function ContactPage() {
                 </label>
               </div>
 
-              <div className="flex flex-col gap-5 mb-8">
-                <Field label="Name" required error={errors.name}>
+              <Field label="Name" error={errors.name}>
+                {(p) => (
                   <TextInput
-                    type="text"
+                    {...p}
                     value={form.name}
-                    onChange={(v) => set('name', v)}
-                    hasError={!!errors.name}
+                    onChange={(e) => set('name', e.target.value)}
                     autoComplete="name"
                   />
-                </Field>
+                )}
+              </Field>
 
-                <Field label="Email" required error={errors.email}>
+              <Field label="Email" error={errors.email}>
+                {(p) => (
                   <TextInput
+                    {...p}
                     type="email"
                     value={form.email}
-                    onChange={(v) => set('email', v)}
-                    hasError={!!errors.email}
+                    onChange={(e) => set('email', e.target.value)}
                     autoComplete="email"
                   />
-                </Field>
+                )}
+              </Field>
 
-                <Field label="Topic" required error={errors.topic}>
-                  <SelectInput
-                    value={form.topic}
-                    onChange={(v) => set('topic', v)}
-                    hasError={!!errors.topic}
-                  >
+              <Field label="Topic" error={errors.topic}>
+                {(p) => (
+                  <Select {...p} value={form.topic} onChange={(e) => set('topic', e.target.value)}>
                     <option value="" disabled>Select a topic&hellip;</option>
                     <option value="privacy">Privacy / data request</option>
                     <option value="general">General enquiry</option>
                     <option value="press">Press</option>
                     <option value="partnership">Partnership</option>
                     <option value="other">Other</option>
-                  </SelectInput>
-                </Field>
+                  </Select>
+                )}
+              </Field>
 
-                <Field label="Message" required error={errors.message}>
-                  <TextareaInput
+              <Field label="Message" error={errors.message}>
+                {(p) => (
+                  <Textarea
+                    {...p}
                     value={form.message}
-                    onChange={(v) => set('message', v)}
+                    onChange={(e) => set('message', e.target.value)}
                     rows={6}
-                    hasError={!!errors.message}
                     placeholder="How can we help?"
                   />
-                </Field>
-              </div>
+                )}
+              </Field>
 
-              {submitError && (
-                <div className="font-body mb-5 px-4 py-3 bg-red-50 border border-red-200 rounded-sm text-sm text-red-700">
-                  {submitError}
-                </div>
-              )}
+              {submitError && <Alert tone="danger">{submitError}</Alert>}
 
-              <button
-                type="submit"
-                disabled={submitting}
-                className="font-body flex items-center justify-center w-full h-11 bg-ink text-paper text-sm rounded-sm hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-              >
+              <Button type="submit" fullWidth pending={submitting}>
                 {submitting ? 'Sending…' : 'Send message'}
-              </button>
+              </Button>
             </form>
           )}
         </div>
