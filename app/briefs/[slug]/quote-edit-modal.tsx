@@ -12,6 +12,10 @@ import {
   resolveSourceOrgId,
   type SourcedType,
 } from './quote-source-fields'
+import Modal from '@/components/ui/Modal'
+import Button from '@/components/ui/Button'
+import ChoiceChips from '@/components/ui/ChoiceChips'
+import Field, { Textarea } from '@/components/ui/Field'
 import type { Quote, QuotePlatform } from './page'
 
 // Full edit of an existing quote, opened from QuoteDetailModal's Edit button
@@ -123,139 +127,88 @@ export function EditQuoteModal({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center sm:p-6"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Edit quote"
-    >
-      <div className="absolute inset-0 bg-ink/60 backdrop-blur-sm" onClick={onClose} aria-hidden />
+    <Modal open onClose={onClose} size="narrow" eyebrow="Quotes" title="Edit quote">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {!isMemberQuote && (
+          <>
+            {isAdmin && (
+              <ChoiceChips
+                label="Attribute to"
+                options={SOURCE_TYPE_OPTIONS}
+                value={sourceType}
+                onChange={setSourceType}
+                disabled={isPending || isSubmitted}
+                className="grid-cols-3"
+              />
+            )}
 
-      <div className="relative flex max-h-[85vh] w-full max-w-xl flex-col overflow-hidden border border-line bg-paper">
-        <div className="flex shrink-0 items-start justify-between border-b border-line px-7 pb-5 pt-7">
-          <div>
-            <p className="mb-1 font-mono text-[9px] uppercase tracking-[0.2em] text-blue-ink">Quotes</p>
-            <h2 className="font-display text-xl uppercase leading-tight text-ink">Edit quote</h2>
-          </div>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            style={{ touchAction: 'manipulation' }}
-            className="ml-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-paper-raised text-lg leading-none text-ink-soft outline-none transition-colors hover:bg-line hover:text-ink focus-visible:ring-2 focus-visible:ring-blue"
-          >
-            ×
-          </button>
-        </div>
+            <div className="space-y-4 rounded-control border border-window-line bg-bone p-4">
+              <SourcedQuoteFields
+                idPrefix={bodyId}
+                sourceType={sourceType}
+                organizations={organizations}
+                disabled={isPending || isSubmitted}
+                state={{
+                  sourceName, setSourceName,
+                  sourceDetail, setSourceDetail,
+                  sourceUrl, setSourceUrl,
+                  platform, setPlatform,
+                  orgName, setOrgName,
+                  orgLogoFile, setOrgLogoFile,
+                }}
+              />
+            </div>
+          </>
+        )}
 
-        <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto px-7 py-6">
-          {!isMemberQuote && (
-            <>
-              {isAdmin && (
-                <div>
-                  <label className="mb-2 block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
-                    Attribute to
-                  </label>
-                  <div className="grid grid-cols-3 border border-line-strong">
-                    {SOURCE_TYPE_OPTIONS.map((opt, i) => (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        onClick={() => setSourceType(opt.value)}
-                        disabled={isPending || isSubmitted}
-                        className={`px-2 py-2.5 font-mono text-[10px] uppercase tracking-[0.03em] transition-colors disabled:opacity-50 ${
-                          i > 0 ? 'border-l border-line-strong' : ''
-                        } ${sourceType === opt.value ? 'bg-ink text-paper' : 'bg-paper text-ink-soft hover:bg-paper-raised'}`}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="space-y-4 border-l-[3px] border-blue bg-paper-sunken-blue p-4">
-                <SourcedQuoteFields
-                  idPrefix={bodyId}
-                  sourceType={sourceType}
-                  organizations={organizations}
-                  disabled={isPending || isSubmitted}
-                  state={{
-                    sourceName, setSourceName,
-                    sourceDetail, setSourceDetail,
-                    sourceUrl, setSourceUrl,
-                    platform, setPlatform,
-                    orgName, setOrgName,
-                    orgLogoFile, setOrgLogoFile,
-                  }}
-                />
-              </div>
-            </>
-          )}
-
-          <div>
-            <label htmlFor={bodyId} className="mb-2 block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
-              Quote
-            </label>
-            <textarea
-              id={bodyId}
+        <Field id={bodyId} label="Quote">
+          {(p) => (
+            <Textarea
+              {...p}
               ref={bodyRef}
               rows={4}
               value={body}
               onChange={(e) => setBody(e.target.value)}
               maxLength={500}
               disabled={isPending || isSubmitted}
-              className="w-full border border-line bg-paper px-4 py-2.5 font-body text-sm text-ink placeholder:text-ink-faint/70 transition focus:outline-none focus:ring-2 focus:ring-blue disabled:opacity-50"
             />
-          </div>
-
-          <div>
-            <label className="mb-2 block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
-              Tags
-            </label>
-            <TagInput tags={tags} onChange={setTags} />
-          </div>
-
-          {isOwnerEdit && <ClarityFlagsPanel flaggedTerms={clarityGate.flaggedTerms} variant="ink" />}
-
-          {feedback && (
-            <p
-              role={feedback.type === 'error' ? 'alert' : undefined}
-              aria-live="polite"
-              className={`font-mono text-[10px] tracking-[0.1em] leading-relaxed ${
-                feedback.type === 'error' ? 'text-pink-ink' : 'text-blue-ink'
-              }`}
-            >
-              {feedback.message}
-            </p>
           )}
+        </Field>
 
-          <div className="flex items-center gap-4 pt-1">
-            {!isSubmitted && (
-              <button
-                type="submit"
-                disabled={isPending || !canSubmit}
-                style={{ touchAction: 'manipulation' }}
-                className="bg-ink px-6 py-3 font-mono text-xs uppercase tracking-widest text-paper transition-opacity hover:opacity-90 disabled:opacity-40"
-              >
-                {isPending
-                  ? 'Saving…'
-                  : needsFlagReview
-                    ? 'Review flags'
-                    : isOwnerEdit && clarityGate.status === 'flagged'
-                      ? 'Save anyway'
-                      : 'Save changes'}
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={onClose}
-              className="font-mono text-[10px] uppercase tracking-[0.15em] text-ink-faint transition-colors hover:text-ink"
-            >
-              {isSubmitted ? 'Close' : 'Cancel'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <div>
+          <span className="mb-1.5 block font-ui text-caption font-medium text-umber">Tags</span>
+          <TagInput tags={tags} onChange={setTags} />
+        </div>
+
+        {isOwnerEdit && <ClarityFlagsPanel flaggedTerms={clarityGate.flaggedTerms} variant="ink" />}
+
+        {feedback && (
+          <p
+            role={feedback.type === 'error' ? 'alert' : undefined}
+            aria-live="polite"
+            className={`font-ui text-ui-sm ${feedback.type === 'error' ? 'text-brick' : 'text-moss'}`}
+          >
+            {feedback.message}
+          </p>
+        )}
+
+        <div className="flex flex-wrap items-center gap-3 pt-1">
+          {!isSubmitted && (
+            <Button type="submit" pending={isPending} disabled={!canSubmit}>
+              {isPending
+                ? 'Saving…'
+                : needsFlagReview
+                  ? 'Review flags'
+                  : isOwnerEdit && clarityGate.status === 'flagged'
+                    ? 'Save anyway'
+                    : 'Save changes'}
+            </Button>
+          )}
+          <Button variant="secondary" onClick={onClose}>
+            {isSubmitted ? 'Close' : 'Cancel'}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   )
 }

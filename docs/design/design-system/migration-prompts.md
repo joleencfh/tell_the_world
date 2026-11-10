@@ -150,6 +150,8 @@ Status: done on branch `plan/design-system-phase4a` (2026-11-10); header widgets
 Phase 4b: the quotes area of the brief page, including the Quote card (serif text-message + Author block), media posts, source icons and attribution, the quote add/edit modals on the shared Modal, and clarity-check flags (ClarityFlagsPanel becomes the rose-wash flag panel or an Alert). Category chips are neutral with icons. Keep all server actions, the clarity gating and the edit permissions exactly as they are.
 ```
 
+Status: done on branch `plan/design-system-phase4b` (2026-11-10): quote card, carousel, source icons, source fields, add, detail and edit modals on the shared Modal, and the clarity panel as an Alert.
+
 **4c. Q&A and contributions**
 ```
 [Standing rules]

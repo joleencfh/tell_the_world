@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import { useState, useTransition } from 'react'
 import Avatar from '@/components/ui/Avatar'
+import Button from '@/components/ui/Button'
+import Tag from '@/components/ui/Tag'
 import { Carousel } from '@/components/ui/Carousel'
 import { likeQuote, logQuoteUsage } from '@/lib/briefs/actions'
 import { getDisplayName, formatDate } from './helpers'
@@ -46,7 +48,7 @@ export function LikeButton({
       <Link
         href="/login"
         onClick={(e) => e.stopPropagation()}
-        className="inline-flex items-center gap-1.5 font-mono text-[11px] tabular-nums text-ink-faint transition-colors hover:text-ink"
+        className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-control font-mono text-label tabular-nums text-umber-soft transition-colors hover:text-umber focus-ring"
       >
         <HeartIcon filled={false} />
         {count}
@@ -76,7 +78,7 @@ export function LikeButton({
       aria-label={liked ? 'Unlike' : 'Like'}
       aria-pressed={liked}
       style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-      className="group/like inline-flex cursor-pointer items-center gap-1.5 rounded-sm p-1 -m-1 font-mono text-[11px] tabular-nums text-ink-faint outline-none transition-colors hover:text-pink focus-visible:ring-2 focus-visible:ring-pink disabled:cursor-default"
+      className="inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center gap-1.5 rounded-control font-mono text-label tabular-nums text-umber-soft transition-colors hover:text-umber focus-ring disabled:cursor-default"
     >
       <HeartIcon filled={liked} />
       {count}
@@ -100,7 +102,7 @@ export function SourceLinkButton({ url }: { url: string }) {
       aria-label="View source"
       title="View source"
       style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-      className="inline-flex cursor-pointer items-center rounded-sm p-1 -m-1 text-ink-faint outline-none transition-colors hover:text-blue focus-visible:ring-2 focus-visible:ring-blue"
+      className="inline-flex size-11 cursor-pointer items-center justify-center rounded-control text-umber-soft transition-colors hover:text-umber focus-ring"
     >
       <svg viewBox="0 0 16 16" className="h-3.5 w-3.5 shrink-0" aria-hidden>
         <path d="M6.5 9.5 13 3M13 3H8.5M13 3v4.5" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
@@ -156,7 +158,7 @@ const PLATFORM_ICON_SRC: Partial<Record<NonNullable<Quote['source_platform']>, s
 // reads better with a bit more room than the abstract fallback glyphs did.
 function BrandBadge({ src, alt }: { src: string; alt: string }) {
   return (
-    <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-line-strong bg-white">
+    <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-control border border-window-line bg-vellum">
       {/* eslint-disable-next-line @next/next/no-img-element -- external/admin-uploaded logo or a fixed brand asset, arbitrary aspect ratio */}
       <img src={src} alt={alt} className="h-full w-full object-contain p-0.5" />
     </div>
@@ -180,7 +182,7 @@ function SourceAvatar({ quote }: { quote: Quote }) {
   }
 
   return (
-    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded border-[1.5px] border-dashed border-line-strong bg-paper-raised text-ink-faint">
+    <div className="flex size-10 shrink-0 items-center justify-center rounded-control border border-dashed border-field-line bg-bone text-umber-soft">
       {quote.quote_source === 'document' ? (
         <svg viewBox="0 0 16 16" className="h-4 w-4" aria-hidden>
           <path d="M4 2h6l3 3v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1Z" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
@@ -205,26 +207,24 @@ export function QuoteAuthorFooter({ quote }: { quote: Quote }) {
   if (quote.users) {
     const authorName = getDisplayName(quote.users)
     const credential = quote.users.affiliation || quote.users.org_name
-    const isOrg = quote.users.role === 'organisation'
     return (
       <>
         <Avatar
           name={authorName}
           avatarUrl={quote.users.avatar_url}
-          palette="blue"
-          shape={isOrg ? 'square' : 'circle'}
+          role={quote.users.role}
           size="sm"
         />
         <div className="min-w-0 flex-1">
           <Link
             href={`/profile/${quote.users.id}`}
             onClick={(e) => e.stopPropagation()}
-            className="block truncate font-display text-[0.85rem] font-extrabold text-ink hover:text-blue transition-colors"
+            className="block truncate rounded-tag font-ui text-ui-sm font-semibold text-umber hover:underline focus-ring"
           >
             {authorName}
           </Link>
           {credential && (
-            <p className="mt-0.5 truncate font-mono text-[0.62rem] text-ink-soft">{credential}</p>
+            <p className="mt-0.5 truncate font-ui text-caption text-umber-soft">{credential}</p>
           )}
         </div>
       </>
@@ -235,14 +235,12 @@ export function QuoteAuthorFooter({ quote }: { quote: Quote }) {
     <>
       <SourceAvatar quote={quote} />
       <div className="min-w-0 flex-1">
-        <p className="truncate font-display text-[0.85rem] font-extrabold text-ink">{quote.source_name}</p>
+        <p className="truncate font-ui text-ui-sm font-semibold text-umber">{quote.source_name}</p>
         {quote.source_detail && (
-          <p className="mt-0.5 truncate font-mono text-[0.62rem] text-ink-soft">{quote.source_detail}</p>
+          <p className="mt-0.5 truncate font-ui text-caption text-umber-soft">{quote.source_detail}</p>
         )}
         {quote.quote_source !== 'member' && (
-          <span className="mt-1 inline-flex items-center border border-line-strong bg-paper-raised px-1.5 py-0.5 font-mono text-[0.56rem] uppercase tracking-[0.06em] text-ink-faint">
-            {sourceLabel(quote)}
-          </span>
+          <Tag className="mt-1">{sourceLabel(quote)}</Tag>
         )}
       </div>
     </>
@@ -258,7 +256,7 @@ function HeartIcon({ filled }: { filled: boolean }) {
         stroke="currentColor"
         strokeWidth="1.3"
         strokeLinejoin="round"
-        className={filled ? 'text-pink' : 'text-current group-hover/like:text-pink'}
+        className={filled ? 'text-rose' : 'text-current'}
       />
     </svg>
   )
@@ -288,10 +286,10 @@ export function CopyButton({ text, quoteId }: { text: string; quoteId: string })
       aria-label={copied ? 'Copied' : 'Copy quote'}
       title={copied ? 'Copied' : 'Copy quote'}
       style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-      className="inline-flex cursor-pointer items-center rounded-sm p-1 -m-1 text-ink-faint outline-none transition-colors hover:text-blue focus-visible:ring-2 focus-visible:ring-blue"
+      className="inline-flex size-11 cursor-pointer items-center justify-center rounded-control text-umber-soft transition-colors hover:text-umber focus-ring"
     >
       {copied ? (
-        <svg viewBox="0 0 16 16" className="h-3.5 w-3.5 shrink-0 text-blue" aria-hidden>
+        <svg viewBox="0 0 16 16" className="h-3.5 w-3.5 shrink-0 text-moss" aria-hidden>
           <path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       ) : (
@@ -340,13 +338,13 @@ export function QuoteCard({
         onClick={onOpen}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen() } }}
         style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-        className="flex h-full cursor-pointer select-none flex-col gap-[0.9rem] border border-line border-t-[3px] border-t-blue bg-paper p-5 outline-none transition-all duration-150 motion-reduce:transition-none hover:-translate-x-0.5 hover:-translate-y-0.5 hover:border-blue hover:shadow-[4px_4px_0_0_var(--color-blue)] focus-visible:ring-2 focus-visible:ring-blue"
+        className="flex h-full cursor-pointer select-none flex-col gap-3.5 rounded-control bg-vellum p-5 shadow-hairline transition-colors duration-150 motion-reduce:transition-none hover:bg-bone focus-ring"
       >
         <div className="flex items-center justify-between gap-2">
-          <span className="font-mono text-[0.62rem] tracking-[0.06em] text-ink-faint tabular-nums">
+          <span className="font-mono text-label tabular-nums text-umber-soft">
             {formatDate(quote.created_at)}
           </span>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center">
             <CopyButton text={quoteText} quoteId={quote.id} />
             <LikeButton
               quoteId={quote.id}
@@ -358,10 +356,10 @@ export function QuoteCard({
             {quote.url && <SourceLinkButton url={quote.url} />}
           </div>
         </div>
-        <p className="flex-1 font-body text-base font-normal leading-[1.5] text-ink">
+        <p className="flex-1 font-serif text-message text-umber">
           &ldquo;{quoteText}&rdquo;
         </p>
-        <div className="flex items-center gap-[0.65rem] border-t border-line pt-[0.85rem]">
+        <div className="flex items-center gap-2.5 border-t border-window-line pt-3.5">
           <QuoteAuthorFooter quote={quote} />
         </div>
       </div>
@@ -393,25 +391,12 @@ const QUOTE_FILTERS: { value: QuoteFilter; label: string }[] = [
 // creator/journalist member needs reassurance, not a button that would
 // reject them.
 function QuotesEmptyState({ canAddQuote, isLoggedIn }: { canAddQuote: boolean; isLoggedIn: boolean }) {
-  if (canAddQuote) {
-    return (
-      <p className="font-mono text-xs text-ink-faint">
-        Add the first quote, from yourself, a colleague, or a source document.
-      </p>
-    )
-  }
-  if (isLoggedIn) {
-    return (
-      <p className="font-mono text-xs text-ink-faint">
-        No quotes yet. Experts and organisations will add them as this brief develops.
-      </p>
-    )
-  }
-  return (
-    <p className="font-mono text-xs text-ink-faint">
-      Quotes from experts and organisations will appear here as this brief develops.
-    </p>
-  )
+  const message = canAddQuote
+    ? 'Add the first quote, from yourself, a colleague, or a source document.'
+    : isLoggedIn
+      ? 'No quotes yet. Experts and organisations will add them as this brief develops.'
+      : 'Quotes from experts and organisations will appear here as this brief develops.'
+  return <p className="font-ui text-ui-sm text-umber-soft">{message}</p>
 }
 
 export function QuotesCarousel({
@@ -453,7 +438,7 @@ export function QuotesCarousel({
               id="quote-filter"
               value={filter}
               onChange={(e) => setFilter(e.target.value as typeof filter)}
-              className="border-[1.5px] border-line-strong bg-paper px-3 py-2 font-mono text-[0.68rem] uppercase tracking-[0.04em] text-ink"
+              className="min-h-11 rounded-control border border-field-line bg-vellum px-3 font-ui text-ui-sm text-umber focus-ring"
             >
               {QUOTE_FILTERS.map((f) => (
                 <option key={f.value} value={f.value}>
@@ -462,14 +447,9 @@ export function QuotesCarousel({
               ))}
             </select>
             {canAddQuote && (
-              <button
-                type="button"
-                onClick={onAddQuote}
-                style={{ touchAction: 'manipulation' }}
-                className="border-2 border-blue bg-blue px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.08em] text-white outline-none transition-colors hover:bg-paper hover:text-blue focus-visible:ring-2 focus-visible:ring-blue"
-              >
+              <Button small onClick={onAddQuote}>
                 + Add quote
-              </button>
+              </Button>
             )}
           </div>
         }
@@ -478,7 +458,7 @@ export function QuotesCarousel({
         <Carousel.Provider>
           <Carousel.PrevButton />
           <Carousel.NextButton />
-          <Carousel.Track fadeColor="var(--color-paper-sunken-blue)" ariaLabel="Expert quotes">
+          <Carousel.Track fadeColor="var(--color-parchment)" ariaLabel="Expert quotes">
             {filtered.map((q) => (
               <QuoteCard
                 key={q.id}
@@ -493,7 +473,7 @@ export function QuotesCarousel({
       ) : quotes.length === 0 ? (
         <QuotesEmptyState canAddQuote={canAddQuote} isLoggedIn={isLoggedIn} />
       ) : (
-        <p className="font-mono text-xs text-ink-faint">No quotes match this filter.</p>
+        <p className="font-ui text-ui-sm text-umber-soft">No quotes match this filter.</p>
       )}
     </>
   )
