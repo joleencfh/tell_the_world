@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import AppHeader from '@/components/ui/AppHeader'
+import Button from '@/components/ui/Button'
 import Footer from '@/components/ui/Footer'
 import { SECTION_META, SectionHeader, TLDRList } from './section-content'
 import { QuotesCarousel } from './quotes'
@@ -206,22 +207,23 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
 
         {/* ── TL;DR ─────────────────────────────────────────────────────── */}
         {tldr.trim() && (
-          <div id="section-tldr" className="scroll-mt-20 border-t-4 border-line border-b border-line bg-paper px-6 py-16">
-            <div className="mx-auto max-w-4xl anim-rise" style={{ animationDelay: '0ms' }}>
+          <div id="section-tldr" className="scroll-mt-32 border-t border-rule px-4 py-14 md:px-gutter md:py-section">
+            <div className="mx-auto max-w-content anim-rise" style={{ animationDelay: '0ms' }}>
               <SectionHeader
                 num={SECTION_META.tldr.num}
                 label={SECTION_META.tldr.label}
                 description={brief.tldr_teaser || SECTION_META.tldr.description}
                 action={
                   canContribute || currentUser?.role === 'admin' ? (
-                    <button
+                    <Button
                       type="button"
+                      variant="secondary"
+                      small
                       onClick={() => setTldrFeedbackOpen(true)}
                       style={{ touchAction: 'manipulation' }}
-                      className="border-[1.5px] border-blue bg-paper px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.06em] text-blue-ink outline-none transition-colors hover:bg-blue hover:text-white focus-visible:ring-2 focus-visible:ring-blue"
                     >
                       Suggest changes
-                    </button>
+                    </Button>
                   ) : undefined
                 }
               />
@@ -235,8 +237,8 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
             block rather than threaded through the SECTION_ORDER loop below,
             same pattern as CTA/Covered By/Related Briefs further down. ─── */}
         {showSections && (quotes.length > 0 || canAddQuote) && (
-          <div id="section-quotes" className="scroll-mt-20 border-t-4 border-t-blue border-b border-b-line bg-paper-sunken-blue px-6 py-16">
-            <div className="mx-auto max-w-4xl anim-rise" style={{ animationDelay: '0ms' }}>
+          <div id="section-quotes" className="scroll-mt-32 border-t border-rule px-4 py-14 md:px-gutter md:py-section">
+            <div className="mx-auto max-w-content anim-rise" style={{ animationDelay: '0ms' }}>
               <QuotesCarousel quotes={quotes} briefSlug={brief.slug} isLoggedIn={isLoggedIn} canAddQuote={canAddQuote} onAddQuote={() => setAddQuoteOpen(true)} onOpenQuote={setSelectedQuote} />
             </div>
           </div>

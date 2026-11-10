@@ -50,18 +50,6 @@ export const SECTION_META: Record<'tldr' | ActiveSectionType, { label: string; n
     },
   }
 
-// Section background: alternates between paper and paper-raised (the grid
-// texture that used to sit on the paper indices was removed sitewide,
-// 2026-08-27 — plain white throughout, per the user's request).
-export const SECTION_BG: Record<number, string> = {
-  0: 'bg-paper',
-  1: 'bg-paper-raised',
-  2: 'bg-paper',
-  3: 'bg-paper-raised',
-  4: 'bg-paper',
-  5: 'bg-paper-raised',
-}
-
 // ---------------------------------------------------------------------------
 // TL;DR bullets — either the legacy plain-text lines (optional "**lead
 // term** — rest" shape, parsed by parseTldrBulletLead) or, once an admin
@@ -431,9 +419,9 @@ export function ContributorsList({ contributors }: { contributors: BriefContribu
 // ---------------------------------------------------------------------------
 
 const NUM_TONE_CLASSES: Record<'ink' | 'blue' | 'pink', string> = {
-  ink: 'text-ink',
-  blue: 'text-blue',
-  pink: 'text-pink',
+  ink: 'text-umber-soft',
+  blue: 'text-cobalt',
+  pink: 'text-rose',
 }
 
 export function SectionHeader({
@@ -448,69 +436,31 @@ export function SectionHeader({
   label: string
   description: string
   numTone?: 'ink' | 'blue' | 'pink'
-  // Covered By (Part 7) is the only section on the fixed dark band
-  // (coverage-bg) — text-ink/bg-line assume a light-in-light-mode /
-  // dark-in-dark-mode paper background and invert with the theme, but
-  // coverage-bg stays dark in both, so in light mode text-ink (near-black)
-  // would sit on a near-black background and vanish. onDark swaps the
-  // label/description/rule to the fixed coverage-fg token instead; numTone
-  // is untouched since text-pink/text-blue already sit fine on coverage-bg
-  // (the Members Only gate banner in BriefView.tsx already proves this
-  // combination out).
+  // The Covered By band (plan 4d) is still the fixed dark coverage-bg, so
+  // onDark swaps label, description and rule to light text until it moves
+  // to band-soft.
   onDark?: boolean
-  // Optional trailing control (e.g. Quotes' role filter, CTA's "+ New CTA")
-  // — mirrors the reference artifact's .sec-head, which is a flex row with
-  // the title block on the left and one optional control on the right.
+  // Optional trailing control (e.g. Quotes' role filter, CTA's "+ New CTA").
   action?: ReactNode
 }) {
   return (
     <div className="mb-12">
-      {/* Numbered divider — its own full-width row, independent of the
-          label/description/action row below. It used to live nested inside
-          that row's left column, sharing width with the action slot — a
-          wide action (e.g. the solid "+ New CTA" button) squeezed the
-          column enough that the rule visibly stopped short of the section's
-          edge, reading as truncated rather than as a deliberate short rule.
-          Full width here regardless of whether an action exists. */}
-      <div className="flex items-center gap-4 mb-4">
-        <span className={`font-mono text-sm tracking-[0.2em] font-bold tabular-nums ${NUM_TONE_CLASSES[numTone]}`}>
+      {/* Marker row on its own full-width line, independent of the
+          label/description/action row below, so a wide action never
+          shortens the hairline. */}
+      <div className="mb-4 flex items-center gap-4">
+        <span className={`font-mono text-label tabular-nums ${onDark ? 'text-parchment' : NUM_TONE_CLASSES[numTone]}`}>
           {num}
         </span>
-        <div className={`h-px flex-1 ${onDark ? 'bg-coverage-fg/20' : 'bg-line'}`} />
+        <div className={`h-px flex-1 ${onDark ? 'bg-parchment/20' : 'bg-rule'}`} />
       </div>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0 flex-1">
-          <h2
-            className={`font-display uppercase font-extrabold leading-[1] ${onDark ? 'text-coverage-fg' : 'text-ink'}`}
-            style={{ fontSize: 'clamp(1.7rem, 3.2vw, 2.5rem)', letterSpacing: '0.01em' }}
-          >
-            {label}
-          </h2>
-          <p className={`font-body text-sm italic mt-2 ${onDark ? 'text-coverage-fg/70' : 'text-ink-soft'}`}>{description}</p>
+          <h2 className={`font-serif text-section ${onDark ? 'text-parchment' : 'text-umber'}`}>{label}</h2>
+          <p className={`mt-2 font-ui text-ui-sm ${onDark ? 'text-parchment' : 'text-umber-soft'}`}>{description}</p>
         </div>
         {action && <div className="shrink-0">{action}</div>}
       </div>
-    </div>
-  )
-}
-
-// ---------------------------------------------------------------------------
-// Locked section placeholder
-// ---------------------------------------------------------------------------
-
-export function LockedPlaceholder() {
-  return (
-    <div className="relative overflow-hidden py-10">
-      <div className="space-y-3 select-none pointer-events-none" aria-hidden>
-        <div className="h-3 w-10 rounded bg-line/50 mb-1" />
-        <div className="h-7 w-56 rounded-lg bg-line/50" />
-        <div className="mt-5 space-y-2">
-          {[88, 75, 92, 68, 80].map((w, i) => (
-            <div key={i} className="h-3 rounded bg-line/35" style={{ width: `${w}%` }} />
-          ))}
-        </div>
-      </div>
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-paper/60 to-paper" />
     </div>
   )
 }

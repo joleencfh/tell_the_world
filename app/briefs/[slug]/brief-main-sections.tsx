@@ -1,11 +1,12 @@
 import { Fragment } from 'react'
 import Link from 'next/link'
+import Button, { buttonClasses } from '@/components/ui/Button'
+import LockedPanel from '@/components/ui/LockedPanel'
+import Skeleton from '@/components/ui/Skeleton'
 import {
   SECTION_ORDER,
   SECTION_META,
-  SECTION_BG,
   SectionHeader,
-  LockedPlaceholder,
 } from './section-content'
 import type { ContributeModalKind } from './contribute'
 import { ExplainerSections } from './explainer'
@@ -73,33 +74,30 @@ export function BriefMainSections({
 }) {
   if (!showSections) {
     return (
-      <div className="px-6 py-14">
-        <div className="mx-auto max-w-4xl space-y-2">
-          {SECTION_ORDER.map((type) => (
-            <LockedPlaceholder key={type} />
-          ))}
-        </div>
-        {/* Members-only CTA */}
-        <div className="mx-auto max-w-4xl mt-6">
-          <div className="bg-coverage-bg rounded-2xl p-10 text-center">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-coverage-fg/5 mb-5">
-              <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-pink">
-                <path fillRule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <p className="font-display uppercase text-coverage-fg text-2xl mb-3">Members Only</p>
-            <p className="font-body text-sm text-coverage-fg/50 mb-8 leading-relaxed max-w-sm mx-auto">
-              The full brief — sources, context, and expert guidance — is available to approved members of the Tell The World community.
-            </p>
-            <div className="flex items-center justify-center gap-6 flex-wrap">
-              <Link href="/apply" className="font-display uppercase tracking-widest text-xs bg-pink-ink text-white px-8 py-3 hover:opacity-90 transition-opacity">
-                Apply to Join
-              </Link>
-              <Link href="/login" className="font-mono text-[9px] tracking-[0.15em] uppercase text-coverage-fg/40 hover:text-coverage-fg/80 transition-colors">
-                Already a member? Login →
-              </Link>
-            </div>
+      <div className="border-t border-rule px-4 py-14 md:px-gutter md:py-section">
+        <div className="mx-auto max-w-content">
+          {/* Decorative preview of the locked sections; no copy. */}
+          <div aria-hidden="true" className="mb-6 space-y-3">
+            <Skeleton className="h-7 w-56" />
+            {["w-[88%]", "w-[75%]", "w-[92%]", "w-[68%]"].map((w) => (
+              <Skeleton key={w} className={`h-3 ${w}`} />
+            ))}
           </div>
+          <LockedPanel
+            title="Members Only"
+            action={
+              <div className="flex flex-wrap items-center gap-3">
+                <Link href="/apply" className={buttonClasses({ variant: 'primary' })}>
+                  Apply to Join
+                </Link>
+                <Link href="/login" className={buttonClasses({ variant: 'ghost' })}>
+                  Already a member? Login →
+                </Link>
+              </div>
+            }
+          >
+            The full brief — sources, context, and expert guidance — is available to approved members of the Tell The World community.
+          </LockedPanel>
         </div>
       </div>
     )
@@ -107,7 +105,7 @@ export function BriefMainSections({
 
   return (
     <>
-      {SECTION_ORDER.map((type, i) => {
+      {SECTION_ORDER.map((type) => {
         // A section type can have more than one row (e.g. multiple
         // titled Explainer subsections, Part 3) — render every
         // matching row, not just the first, so content isn't silently
@@ -118,10 +116,9 @@ export function BriefMainSections({
           <Fragment key={type}>
             {sections.length > 0 && (() => {
               const meta = SECTION_META[type]
-              const bgClass = SECTION_BG[i] ?? 'bg-paper'
               return (
-                <div id={`section-${type}`} className={`${bgClass} scroll-mt-20 border-t-4 border-t-blue border-b border-b-line px-6 py-16`}>
-                  <div className="mx-auto max-w-4xl anim-rise" style={{ animationDelay: '100ms' }}>
+                <div id={`section-${type}`} className="scroll-mt-32 border-t border-rule px-4 py-14 md:px-gutter md:py-section">
+                  <div className="mx-auto max-w-content anim-rise" style={{ animationDelay: '100ms' }}>
                     <SectionHeader
                       num={meta.num}
                       label={meta.label}
@@ -133,12 +130,15 @@ export function BriefMainSections({
                           // rather than a role-gated submission, so —
                           // unlike canContribute's other gated controls —
                           // it's safe to also preview for admin.
-                          <button
-                            type="button" onClick={() => onSuggestQuestion('faq-question')} style={{ touchAction: 'manipulation' }}
-                            className="border-[1.5px] border-ink bg-paper px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.06em] text-ink transition-colors hover:border-blue hover:text-blue"
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            small
+                            onClick={() => onSuggestQuestion('faq-question')}
+                            style={{ touchAction: 'manipulation' }}
                           >
                             + Suggest question
-                          </button>
+                          </Button>
                         ) : type === 'explainer' && isLoggedIn ? (
                           // Renamed from "Suggest changes" and opened to
                           // every logged-in role (Explainer Engagement
@@ -149,14 +149,15 @@ export function BriefMainSections({
                           // contentious-point/comment mechanisms in
                           // ExplainerEngagement below replace what that
                           // link's open-to-everyone reach used to cover).
-                          <button
+                          <Button
                             type="button"
+                            variant="secondary"
+                            small
                             onClick={onExplainerFeedback}
                             style={{ touchAction: 'manipulation' }}
-                            className="border-[1.5px] border-blue bg-paper px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.06em] text-blue-ink outline-none transition-colors hover:bg-blue hover:text-white focus-visible:ring-2 focus-visible:ring-blue"
                           >
                             Give feedback
-                          </button>
+                          </Button>
                         ) : undefined
                       }
                     />
