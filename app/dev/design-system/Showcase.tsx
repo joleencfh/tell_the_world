@@ -209,7 +209,7 @@ export default function Showcase() {
         <Section id="app-header" title="App header">
           <p className="max-w-reading text-ui-sm text-umber-soft">
             Sticky in the app; shown static here. Press the avatar to open the account menu (arrow keys move,
-            Escape closes and returns focus). Links hide below the sm breakpoint, as the old headers did.
+            Escape closes and returns focus). Below the sm breakpoint the links move into the menu.
           </p>
           <Row label="Links, active link (Directory), avatar image fallback to initial">
             <div className="w-full [&_header]:static">

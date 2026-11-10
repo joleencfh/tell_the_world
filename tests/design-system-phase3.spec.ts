@@ -28,7 +28,7 @@ test.describe('AppHeader (showcase)', () => {
     const nav = header.getByRole('navigation', { name: 'Main' })
     await expect(nav.getByRole('link', { name: 'Directory' })).toHaveAttribute('aria-current', 'page')
     await expect(nav.getByRole('link', { name: 'Home' })).not.toHaveAttribute('aria-current', 'page')
-    await expect(nav.getByRole('link', { name: 'Briefs' })).not.toHaveAttribute('aria-current', 'page')
+    await expect(nav.getByRole('link')).toHaveCount(2)
   })
 
   test('logo links to /home and the links keep their hrefs', async ({ page }) => {
@@ -37,7 +37,6 @@ test.describe('AppHeader (showcase)', () => {
     const nav = header.getByRole('navigation', { name: 'Main' })
     await expect(nav.getByRole('link', { name: 'Home' })).toHaveAttribute('href', '/home')
     await expect(nav.getByRole('link', { name: 'Directory' })).toHaveAttribute('href', '/directory')
-    await expect(nav.getByRole('link', { name: 'Briefs' })).toHaveAttribute('href', '/briefs')
   })
 
   test('has a 1px rule, no uppercase or mono links', async ({ page }) => {
@@ -128,6 +127,16 @@ test.describe('AppHeader (showcase)', () => {
 
   test.describe('narrow screens', () => {
     test.use({ viewport: { width: 375, height: 800 } })
+
+    test('the account menu carries Home and Directory on phones', async ({ page }) => {
+      const header = firstHeader(await appHeaderSection(page))
+      await header.getByRole('button', { name: 'Account menu' }).click()
+      const menu = header.getByRole('menu', { name: 'Account menu' })
+      await expect(menu.getByRole('menuitem', { name: 'Home' })).toHaveAttribute('href', '/home')
+      await expect(menu.getByRole('menuitem', { name: 'Directory' })).toHaveAttribute('href', '/directory')
+      await expect(menu.getByRole('menuitem', { name: 'Profile' })).toBeVisible()
+      await expect(menu.getByRole('menuitem', { name: 'Home' })).toBeFocused()
+    })
 
     test('the links hide below 640px, logo and avatar stay, nothing overflows', async ({ page }) => {
       const header = firstHeader(await appHeaderSection(page))

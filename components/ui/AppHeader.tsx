@@ -13,7 +13,7 @@ import { useSignOut } from './SignOutButton'
 // 1px rule underneath, sticky, no uppercase mono links. The public pages use
 // SiteHeader instead.
 
-export type AppHeaderPage = 'home' | 'directory' | 'briefs' | 'profile'
+export type AppHeaderPage = 'home' | 'directory' | 'profile'
 
 export interface AppHeaderUser {
   id: string
@@ -25,7 +25,6 @@ export interface AppHeaderUser {
 const LINKS: { page: AppHeaderPage; href: string; label: string }[] = [
   { page: 'home', href: '/home', label: 'Home' },
   { page: 'directory', href: '/directory', label: 'Directory' },
-  { page: 'briefs', href: '/briefs', label: 'Briefs' },
 ]
 
 export default function AppHeader({
@@ -67,6 +66,8 @@ export default function AppHeader({
               label="Account menu"
               trigger={<Avatar name={user.name} avatarUrl={user.avatarUrl} role={user.role} size="xs" />}
               items={[
+                // The inline links hide below sm, so the menu carries them on phones.
+                ...LINKS.map((link) => ({ label: link.label, href: link.href, mobileOnly: true })),
                 { label: 'Profile', href: `/profile/${user.id}` },
                 { label: 'Sign out', onSelect: signOut },
               ]}
