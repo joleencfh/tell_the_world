@@ -131,7 +131,7 @@ Each phase is its own PR with its own tests. A phase is done when its screens us
 
 **Phase 4: the brief page.** The largest (34 files, about 1,100 uses). Split into sub-PRs: (a) hero, section nav, reading column and explainer; (b) quotes and the Quote card; (c) Q&A and contributions (the thread from the landing demo); (d) sources, timeline, related briefs, coverage; (e) modals (contribute, quote, coverage). Each sub-PR keeps the page whole.
 
-*Status (2026-11-10): 4a (brief page shell) done on branch `plan/design-system-phase4a`; 4b to 4e not started.*
+*Status (2026-11-10): 4a (brief page shell) and 4b (quotes) done on branches `plan/design-system-phase4a` and `plan/design-system-phase4b`; 4c to 4e not started.*
 
 **Phase 5: admin.** 27 files, about 560 uses. Mostly lists, accordion rows, key-value rows and status chips, so it benefits most from the Phase 1 primitives. Settle decision 4 (density) before starting.
 
