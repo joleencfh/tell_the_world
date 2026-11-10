@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import Button from '@/components/ui/Button'
 import { setReviewStatus } from '@/lib/briefs/actions'
 import type { ContributionStatus } from '@/lib/data/contributions'
 
@@ -19,9 +20,6 @@ interface ReviewEndorseControlProps {
   // omitted there.
   comment?: string
 }
-
-const buttonBaseClasses =
-  'inline-flex items-center gap-1.5 rounded-full border border-blue/40 bg-blue-soft px-4 py-1.5 font-mono text-[10px] tracking-[0.12em] uppercase text-blue-ink transition-colors hover:bg-blue/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue disabled:cursor-default disabled:opacity-60'
 
 export function ReviewEndorseControl({ briefId, briefSlug, sectionId, initialStatus, comment }: ReviewEndorseControlProps) {
   const [status, setStatus] = useState<ContributionStatus>(initialStatus)
@@ -42,26 +40,28 @@ export function ReviewEndorseControl({ briefId, briefSlug, sectionId, initialSta
 
   return (
     <div className="flex flex-wrap items-center gap-3" aria-live="polite">
-      <button
+      <Button
         type="button"
+        variant="secondary"
+        small
         onClick={() => act('review')}
         disabled={isPending || status !== 'none'}
         style={{ touchAction: 'manipulation' }}
-        className={buttonBaseClasses}
       >
         {status === 'none' ? (isPending ? 'Marking…' : 'Mark as reviewed') : '✓ Reviewed'}
-      </button>
-      <button
+      </Button>
+      <Button
         type="button"
+        variant="secondary"
+        small
         onClick={() => act('endorsement')}
         disabled={isPending || status === 'none' || status === 'endorsement'}
         style={{ touchAction: 'manipulation' }}
-        className={buttonBaseClasses}
       >
         {status === 'endorsement' ? '★ Endorsed' : isPending && status === 'review' ? 'Endorsing…' : 'Endorse'}
-      </button>
+      </Button>
       {error && (
-        <p role="alert" className="font-mono text-[10px] text-pink-ink">
+        <p role="alert" className="font-ui text-ui-sm text-brick">
           {error}
         </p>
       )}

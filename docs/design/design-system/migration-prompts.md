@@ -141,6 +141,8 @@ Phase 4a: brief page shell. Work in app/briefs/[slug]. First, run the existing b
 Then migrate: the app header (shared), the page header (eyebrow, serif text-title, lead), sticky section nav as underline tabs that scroll horizontally on mobile, section markers, the reading column (max-w-reading, serif text-reading, decision 3), the explainer and its key-term, TL;DR and widgets, and the Locked panel for members-only states. Leave quotes, Q&A, sources and modals on the old styling for now, and do not mix old and new tokens inside a single component: if a component is shared across sub-areas, migrate it fully now.
 ```
 
+Status: done on branch `plan/design-system-phase4a` (2026-11-10); header widgets were also done here.
+
 **4b. Quotes**
 ```
 [Standing rules]
