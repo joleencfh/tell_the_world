@@ -151,9 +151,7 @@ test.describe('Brief quotes smoke test', () => {
       await expect(dialog).toHaveCount(0)
     })
 
-    // Enable when the Phase 4b modal migration (plan step 5) lands: the old QuoteDetailModal
-    // has no Escape handler or focus restoration, so this only holds on the new modal.
-    test.fixme('(b2) Escape closes the quote dialog and returns focus to the card', async ({ page }) => {
+    test('(b2) Escape closes the quote dialog and returns focus to the card', async ({ page }) => {
       await page.goto(`/briefs/${SLUG}`)
       const card = quotes.card(page, QUOTE_ONE)
       await card.focus()
