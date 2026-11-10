@@ -210,7 +210,7 @@ test.describe('Brief Q&A, feedback and endorse smoke test', () => {
       await expect(qa.contributeTrigger(page)).toBeFocused()
     })
 
-    test.fixme('(f2) Escape closes the voters list and returns focus to the vote count', async ({ page }) => {
+    test('(f2) Escape closes the voters list and returns focus to the vote count', async ({ page }) => {
       await page.goto(`/briefs/${SLUG}`)
       await qa.voteCount(page).click()
       await expect(qa.votersDialog(page)).toBeVisible()
