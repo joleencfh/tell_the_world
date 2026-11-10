@@ -69,7 +69,12 @@ const shell = {
   },
 
   /** The control that jumps to a section, by its visible label. */
-  sectionEntry: (page: Page, label: string) => page.getByRole('button', { name: label, exact: true }),
+  sectionEntry: (page: Page, label: string) => {
+    // The nav button's accessible name is "<number> <label>" (e.g. "02 Explainer"), so match the label
+    // at the end of the name, and never the 'Jump to section' trigger.
+    const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    return page.getByRole('button', { name: new RegExp(`^(?!Jump to section).*${escaped}$`) })
+  },
 
   /** Asserts which section the nav reports as the current one. */
   async expectCurrentSection(page: Page, label: string) {
