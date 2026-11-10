@@ -2,7 +2,10 @@
 
 import { useId, useRef, useState, useTransition } from 'react'
 import Link from 'next/link'
-import Avatar from '@/components/ui/Avatar'
+import Author from '@/components/ui/Author'
+import Button from '@/components/ui/Button'
+import Field, { Textarea } from '@/components/ui/Field'
+import Alert from '@/components/ui/Alert'
 import { submitAnswer } from '@/lib/briefs/actions'
 import { VoteButton, EndorseButton, VoteCountBadge, type VoterTone } from './qa-votes'
 import { getDisplayName, formatDate } from './helpers'
@@ -16,10 +19,9 @@ import type { QuestionAnswer } from '@/lib/data/question-answers'
 // mirrors faq-answers.tsx's relationship to faq.tsx.
 
 // ---------------------------------------------------------------------------
-// Answerer identity — avatar + name + affiliation + date. No role badge
-// here (2026-08-13 Reddit-card redesign) — the asker keeps theirs in the
-// question's author bar, but an answer is identified by who said it, not
-// what they are.
+// Answerer identity: the shared Author block (initial, name, role label,
+// affiliation) linking to the profile, with a quiet meta line for the
+// channel link and the date.
 // ---------------------------------------------------------------------------
 
 function AuthorRow({ author, date }: { author: QuestionAuthor; date: string }) {
@@ -27,52 +29,48 @@ function AuthorRow({ author, date }: { author: QuestionAuthor; date: string }) {
   const credential = author.affiliation || author.org_name
 
   return (
-    <div className="flex min-w-0 items-center gap-2">
-      <Avatar
-        name={name}
-        avatarUrl={author.avatar_url}
-        palette="blue"
-        shape={author.role === 'organisation' ? 'square' : 'circle'}
-        size="xs"
-      />
-      <div className="min-w-0 flex-1">
-        <Link
-          href={`/profile/${author.id}`}
-          className="block truncate font-display text-[0.85rem] font-extrabold text-ink transition-colors hover:text-blue"
-        >
-          {name}
-        </Link>
-        <p className="truncate font-mono text-[9px] text-ink-faint mt-0.5">
-          {author.channel_name && (
-            <>
-              {author.platform_url ? (
-                <a
-                  href={author.platform_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-blue transition-colors"
-                >
-                  {author.channel_name}
-                </a>
-              ) : (
-                author.channel_name
-              )}
-              {' · '}
-            </>
-          )}
-          {credential && `${credential} · `}
-          {formatDate(date)}
-        </p>
-      </div>
+    <div className="min-w-0 space-y-1">
+      <Link
+        href={`/profile/${author.id}`}
+        className="inline-flex min-h-11 max-w-full items-center rounded-control focus-ring hover:underline"
+      >
+        <Author
+          name={name}
+          role={author.role ?? undefined}
+          affiliation={credential}
+          avatarUrl={author.avatar_url}
+          size="sm"
+        />
+      </Link>
+      <p className="flex flex-wrap items-center gap-x-1.5 font-mono text-label uppercase text-umber-soft">
+        {author.channel_name && (
+          <>
+            {author.platform_url ? (
+              <a
+                href={author.platform_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-tag underline focus-ring hover:text-umber"
+              >
+                {author.channel_name}
+              </a>
+            ) : (
+              <span>{author.channel_name}</span>
+            )}
+            <span aria-hidden>·</span>
+          </>
+        )}
+        <span className="tabular-nums">{formatDate(date)}</span>
+      </p>
     </div>
   )
 }
 
 // ---------------------------------------------------------------------------
-// Answer card — answerer first, then the answer body, then its own vote
-// ("this was helpful", any member) and endorse ("this is accurate",
-// expert/org only) controls underneath. Blue wash background pairs with
-// the blue left border, matching the Quotes section's own blue wash.
+// Answer block (design-system.md 3.5, Q&A thread): indented 32px (16px on
+// mobile) on card-cobalt with a hairline, labelled "Answer", the answerer,
+// the answer in serif, then a hairline and the helpful-vote and endorse
+// controls ("Endorsed · n" in cobalt mono).
 // ---------------------------------------------------------------------------
 
 function AnswerCard({
@@ -87,10 +85,11 @@ function AnswerCard({
   voterTone: VoterTone
 }) {
   return (
-    <div className="space-y-2.5 border-l-[3px] border-blue bg-paper-sunken-blue px-4 py-3.5">
+    <div className="ml-4 space-y-3 rounded-control bg-card-cobalt px-4 py-4 shadow-hairline md:ml-8 md:px-5">
+      <p className="font-mono text-label uppercase text-umber-soft">Answer</p>
       <AuthorRow author={answer.users} date={answer.created_at} />
-      <p className="break-words font-body text-[0.96rem] leading-[1.68] text-ink">{answer.body}</p>
-      <div className="flex flex-wrap items-center gap-4 pt-0.5">
+      <p className="break-words font-serif text-message text-umber">{answer.body}</p>
+      <div className="flex flex-wrap items-center gap-4 border-t border-rule pt-3">
         <VoteButton
           target="answer"
           id={answer.id}
@@ -105,8 +104,8 @@ function AnswerCard({
           <EndorseButton answerId={answer.id} briefSlug={briefSlug} endorsedCount={answer.endorsedCount} myEndorsement={answer.myEndorsement} />
         ) : (
           answer.endorsedCount > 0 && (
-            <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.06em] text-blue-ink">
-              ★ Endorsed
+            <span className="inline-flex items-center gap-1.5 font-mono text-label uppercase tabular-nums text-cobalt">
+              Endorsed ·
               <VoteCountBadge
                 votes={{ pinkCount: 0, blueCount: answer.endorsedCount, myVote: false }}
                 kind="answer_endorsements"
@@ -125,22 +124,22 @@ function AnswerCard({
 // Bare, non-interactive answer-count indicator for the question card's
 // stats row — an empty speech-bubble outline + number, hover-only tooltip.
 // Replaces the old AnswersToggleButton: expand/collapse is now the
-// question card's own pink +/× control, so this is purely informational.
+// question card's own +/× control, so this is purely informational.
 // ---------------------------------------------------------------------------
 
 export function AnswerCountIndicator({ count }: { count: number }) {
   const tooltipId = useId()
 
   return (
-    <span className="group/comment relative inline-flex items-center gap-1.5 font-mono text-[11px] tabular-nums text-ink-soft">
-      <svg viewBox="0 0 14 12" strokeWidth="1.2" strokeLinejoin="round" strokeLinecap="round" className="h-3.5 w-3.5 fill-none stroke-pink" aria-hidden>
+    <span className="group/comment relative inline-flex items-center gap-1.5 font-mono text-label tabular-nums text-umber-soft">
+      <svg viewBox="0 0 14 12" strokeWidth="1.2" strokeLinejoin="round" strokeLinecap="round" className="h-3.5 w-3.5 fill-none stroke-umber-soft" aria-hidden>
         <path d="M1.5 1.5h11a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H5.3L2.3 12v-2.5h-.8a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1Z" />
       </svg>
       <span aria-describedby={tooltipId}>{count}</span>
       <span
         id={tooltipId}
         role="tooltip"
-        className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1.5 hidden -translate-x-1/2 whitespace-nowrap border border-ink bg-ink px-2 py-1 font-mono text-[10px] text-paper group-hover/comment:block"
+        className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1.5 hidden -translate-x-1/2 whitespace-nowrap rounded-control bg-vellum px-2 py-1 font-ui text-label text-umber shadow-menu group-hover/comment:block"
       >
         {count} answer{count === 1 ? '' : 's'}
       </span>
@@ -170,7 +169,7 @@ function AddAnswerForm({ briefSlug, questionId }: { briefSlug: string; questionI
         type="button"
         onClick={() => setOpen(true)}
         style={{ touchAction: 'manipulation' }}
-        className="inline-block rounded-sm font-mono text-[0.68rem] uppercase tracking-[0.08em] text-blue-ink underline decoration-dotted underline-offset-2 outline-none focus-visible:ring-2 focus-visible:ring-blue"
+        className="inline-flex min-h-11 items-center rounded-control font-mono text-label uppercase text-cobalt underline underline-offset-2 focus-ring hover:text-cobalt-deep"
       >
         + Add an answer
       </button>
@@ -198,38 +197,30 @@ function AddAnswerForm({ briefSlug, questionId }: { briefSlug: string; questionI
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-2 border-t border-line pt-4">
-      <label htmlFor={fieldId} className="block font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint">
-        Add your answer
-      </label>
-      <textarea
+    <form onSubmit={handleSubmit} className="space-y-3 border-t border-rule pt-4">
+      <Field
         id={fieldId}
-        ref={textareaRef}
-        value={body}
-        onChange={(e) => setBody(e.target.value)}
-        rows={4}
-        maxLength={2000}
-        placeholder="Share your own answer to this question…"
-        disabled={isPending || feedback?.type === 'success'}
-        className="w-full resize-none border border-line bg-paper px-3 py-2.5 font-body text-sm text-ink placeholder:text-ink-faint/70 focus:outline-none focus:ring-2 focus:ring-blue disabled:opacity-50"
-      />
-      {feedback && (
-        <p
-          role={feedback.type === 'error' ? 'alert' : undefined}
-          className={`font-mono text-[10px] ${feedback.type === 'error' ? 'text-pink-ink' : 'text-blue-ink'}`}
-        >
-          {feedback.message}
-        </p>
-      )}
+        label="Add your answer"
+        error={feedback?.type === 'error' ? feedback.message : undefined}
+      >
+        {(p) => (
+          <Textarea
+            {...p}
+            ref={textareaRef}
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            rows={4}
+            maxLength={2000}
+            placeholder="Share your own answer to this question…"
+            disabled={isPending || feedback?.type === 'success'}
+          />
+        )}
+      </Field>
+      {feedback?.type === 'success' && <Alert tone="success">{feedback.message}</Alert>}
       {feedback?.type !== 'success' && (
-        <button
-          type="submit"
-          disabled={isPending || !body.trim()}
-          style={{ touchAction: 'manipulation' }}
-          className="bg-ink px-4 py-2 font-mono text-[10px] uppercase tracking-[0.15em] text-paper transition-opacity hover:opacity-90 disabled:opacity-40"
-        >
+        <Button type="submit" disabled={!body.trim()} pending={isPending} style={{ touchAction: 'manipulation' }}>
           {isPending ? 'Submitting…' : 'Submit answer'}
-        </button>
+        </Button>
       )}
     </form>
   )
@@ -237,7 +228,7 @@ function AddAnswerForm({ briefSlug, questionId }: { briefSlug: string; questionI
 
 // ---------------------------------------------------------------------------
 // The actual list, rendered by qa.tsx's QuestionCard inside the
-// collapsible panel the pink +/× toggle controls.
+// collapsible panel the +/× toggle controls.
 // ---------------------------------------------------------------------------
 
 export function AnswersList({
@@ -258,7 +249,7 @@ export function AnswersList({
   return (
     <div className="space-y-3 pt-1">
       {answers.length === 0 ? (
-        <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-faint">No answers yet.</p>
+        <p className="ml-4 font-ui text-ui-sm text-umber-soft md:ml-8">No answers yet.</p>
       ) : (
         answers.map((a) => (
           <AnswerCard key={a.id} answer={a} briefSlug={briefSlug} canEndorse={canEndorse} voterTone={voterTone} />

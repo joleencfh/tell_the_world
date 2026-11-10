@@ -3,8 +3,10 @@
 import { useId, useState, useTransition } from 'react'
 import Link from 'next/link'
 import { submitQuestion, submitCorrectionProposal } from '@/lib/briefs/actions'
-import Avatar from '@/components/ui/Avatar'
-import RoleBadge from '@/components/ui/RoleBadge'
+import Alert from '@/components/ui/Alert'
+import Author from '@/components/ui/Author'
+import Button from '@/components/ui/Button'
+import Field, { Textarea } from '@/components/ui/Field'
 import { VoteButton, type VoterTone } from './qa-votes'
 import { AnswerCountIndicator, AnswersList } from './qa-answers'
 import { getDisplayName, formatDate } from './helpers'
@@ -12,10 +14,10 @@ import type { Question, QuestionAuthor } from '@/lib/data/questions'
 import type { QuestionAnswer } from '@/lib/data/question-answers'
 
 // ---------------------------------------------------------------------------
-// Thin author bar — the question card's byline, deliberately quiet
-// (font-mono, muted color, tiny) so the question text below it reads as
-// the headline. avatar + name + role badge + affiliation + date, all on
-// one line, separated by "·" (Reddit-card redesign, 2026-08-13).
+// Author bar: the shared Author block (initial, name, role label,
+// affiliation) linking to the profile, with a quiet meta line under it for
+// the channel link and the date. The data-qa-author-bar attribute keeps the
+// card's click-to-expand zone from firing on it.
 // ---------------------------------------------------------------------------
 
 function AuthorBar({ author, date }: { author: QuestionAuthor; date: string }) {
@@ -23,52 +25,48 @@ function AuthorBar({ author, date }: { author: QuestionAuthor; date: string }) {
   const credential = author.affiliation || author.org_name
 
   return (
-    <div data-qa-author-bar className="flex flex-wrap items-center gap-1.5 font-mono text-[9.5px] text-ink-soft">
-      <Avatar
-        name={name}
-        avatarUrl={author.avatar_url}
-        palette="colored"
-        shape={author.role === 'organisation' ? 'square' : 'circle'}
-        size="2xs"
-      />
-      <Link href={`/profile/${author.id}`} className="font-bold transition-colors hover:text-pink">
-        {name}
+    <div data-qa-author-bar className="space-y-1">
+      <Link
+        href={`/profile/${author.id}`}
+        className="inline-flex min-h-11 items-center rounded-control focus-ring hover:underline"
+      >
+        <Author
+          name={name}
+          role={author.role ?? undefined}
+          affiliation={credential}
+          avatarUrl={author.avatar_url}
+          size="sm"
+        />
       </Link>
-      {author.role && <RoleBadge role={author.role} variant="outline" />}
-      {author.channel_name && (
-        <>
-          <span className="text-ink-faint">·</span>
-          {author.platform_url ? (
-            <a
-              href={author.platform_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="truncate font-bold text-ink-soft transition-colors hover:text-pink"
-            >
-              {author.channel_name}
-            </a>
-          ) : (
-            <span className="truncate text-ink-faint">{author.channel_name}</span>
-          )}
-        </>
-      )}
-      {credential && (
-        <>
-          <span className="text-ink-faint">·</span>
-          <span className="truncate text-ink-faint">{credential}</span>
-        </>
-      )}
-      <span className="text-ink-faint">·</span>
-      <span className="text-ink-faint">{formatDate(date)}</span>
+      <p className="flex flex-wrap items-center gap-x-1.5 font-mono text-label uppercase text-umber-soft">
+        {author.channel_name && (
+          <>
+            {author.platform_url ? (
+              <a
+                href={author.platform_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="truncate rounded-tag underline focus-ring hover:text-umber"
+              >
+                {author.channel_name}
+              </a>
+            ) : (
+              <span className="truncate">{author.channel_name}</span>
+            )}
+            <span aria-hidden>·</span>
+          </>
+        )}
+        <span className="tabular-nums">{formatDate(date)}</span>
+      </p>
     </div>
   )
 }
 
 // ---------------------------------------------------------------------------
-// Pink +/× toggle — two bars forming a "+" that rotate 45° into an "×"
-// when the answers panel is open. The only control that can collapse an
-// open card; also works to expand it (a full toggle), unlike the
-// click-anywhere zone below which is expand-only.
+// +/x toggle: two bars forming a "+" that rotate 45 degrees into an "x" when
+// the answers panel is open. The only control that can collapse an open
+// card; also works to expand it (a full toggle), unlike the click-anywhere
+// zone on the card which is expand-only.
 // ---------------------------------------------------------------------------
 
 function ExpandToggle({ isOpen, onToggle, panelId }: { isOpen: boolean; onToggle: () => void; panelId: string }) {
@@ -80,15 +78,15 @@ function ExpandToggle({ isOpen, onToggle, panelId }: { isOpen: boolean; onToggle
       aria-controls={panelId}
       aria-label={isOpen ? 'Collapse answers' : 'Expand answers'}
       style={{ touchAction: 'manipulation' }}
-      className="relative h-5 w-5 shrink-0 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-pink"
+      className="relative -m-2 size-11 shrink-0 cursor-pointer rounded-control hover:bg-bone focus-ring"
     >
       <span
-        className={`absolute left-1/2 top-1/2 h-[2px] w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-pink transition-transform duration-200 motion-reduce:transition-none ${
+        className={`absolute left-1/2 top-1/2 h-[2px] w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-umber transition-transform duration-200 motion-reduce:transition-none ${
           isOpen ? 'rotate-45' : ''
         }`}
       />
       <span
-        className={`absolute left-1/2 top-1/2 h-3.5 w-[2px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-pink transition-transform duration-200 motion-reduce:transition-none ${
+        className={`absolute left-1/2 top-1/2 h-3.5 w-[2px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-umber transition-transform duration-200 motion-reduce:transition-none ${
           isOpen ? 'rotate-45' : ''
         }`}
       />
@@ -97,15 +95,11 @@ function ExpandToggle({ isOpen, onToggle, panelId }: { isOpen: boolean; onToggle
 }
 
 // ---------------------------------------------------------------------------
-// Question card — Reddit-feed style (2026-08-13 redesign, replacing the
-// earlier LinkedIn-comment layout): thin author bar, then the question
-// text as the headline with the pink +/× pinned top-right, then a plain
-// stats row (vote widget, answer count). The whole card is a click-to-
-// expand zone (except the author bar / toggle / vote widget); hovering a
-// collapsed card — and an expanded card permanently — turns it into a
-// white, pink-outlined box that bleeds edge-to-edge with the section's
-// own bg-paper-sunken wash (cancelling that wrapper's px-6 via -mx-6/px-6
-// on this card, per two-ink-bold-plan.md's Part 5 redesign notes).
+// Question block (design-system.md 3.5, Q&A thread): a mono "Question"
+// label, the Author block, the question text in serif with the +/x toggle
+// top-right, then a stats row (vote widget, answer count). A vellum card on
+// parchment. A collapsed card is a click-to-expand zone (except the author
+// bar, toggle and vote widget) and turns bone on hover.
 // ---------------------------------------------------------------------------
 
 function QuestionCard({
@@ -134,18 +128,17 @@ function QuestionCard({
     setIsOpen(true)
   }
 
-  const cardClasses = `-mx-6 space-y-3 border-t border-line px-6 py-5 outline outline-2 first:border-t-0 ${
-    isOpen
-      ? 'bg-paper outline-pink'
-      : 'cursor-pointer outline-transparent transition-colors hover:bg-paper hover:outline-pink'
+  const cardClasses = `space-y-3 rounded-control bg-vellum px-5 py-5 shadow-hairline ${
+    isOpen ? '' : 'cursor-pointer transition-colors hover:bg-bone'
   }`
 
   return (
     <div onClick={handleCardClick} className={cardClasses}>
+      <p className="font-mono text-label uppercase text-umber-soft">Question</p>
       <AuthorBar author={question.users} date={question.created_at} />
 
       <div className="flex items-start gap-3">
-        <p className="min-w-0 flex-1 break-words font-display text-base sm:text-xl font-extrabold text-ink [text-wrap:balance]">
+        <p className="min-w-0 flex-1 break-words font-serif text-message text-umber [text-wrap:balance]">
           {question.question_text}
         </p>
         <ExpandToggle isOpen={isOpen} onToggle={() => setIsOpen((v) => !v)} panelId={panelId} />
@@ -208,7 +201,7 @@ export function QuestionsList({
 }) {
   if (questions.length === 0) {
     return (
-      <p className="font-mono text-xs text-ink-faint mb-6">
+      <p className="mb-6 font-ui text-ui-sm text-umber-soft">
         {canSubmitAnswer
           ? "No questions yet. When creators or journalists ask something, you can answer it here."
           : "Ask something you're curious about. An expert or organisation will answer."}
@@ -217,7 +210,7 @@ export function QuestionsList({
   }
 
   return (
-    <div className="mb-6">
+    <div className="mb-6 space-y-4">
       {questions.map((q) => (
         <QuestionCard
           key={q.id}
@@ -260,36 +253,23 @@ export function QuestionForm({ briefId, briefSlug }: { briefId: string; briefSlu
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
-      <label className="block font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint">
-        Ask a question
-      </label>
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        rows={3}
-        maxLength={1000}
-        placeholder="Something you're curious about after reading this brief…"
-        disabled={isPending}
-        className="w-full resize-none border border-line bg-paper px-4 py-3 font-body text-sm text-ink placeholder:text-ink-faint/70 focus:outline-none focus:ring-2 focus:ring-pink disabled:opacity-50 transition"
-      />
-      {feedback && (
-        <p
-          role={feedback.type === 'error' ? 'alert' : undefined}
-          className={`font-mono text-[10px] tracking-[0.1em] ${
-            feedback.type === 'error' ? 'text-pink-ink' : 'text-blue-ink'
-          }`}
-        >
-          {feedback.message}
-        </p>
-      )}
-      <button
-        type="submit"
-        disabled={isPending || !text.trim()}
-        style={{ touchAction: 'manipulation' }}
-        className="bg-ink px-6 py-3 font-mono text-xs uppercase tracking-widest text-paper transition-opacity hover:opacity-90 disabled:opacity-40"
-      >
+      <Field label="Ask a question" error={feedback?.type === 'error' ? feedback.message : undefined}>
+        {(p) => (
+          <Textarea
+            {...p}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            rows={3}
+            maxLength={1000}
+            placeholder="Something you're curious about after reading this brief…"
+            disabled={isPending}
+          />
+        )}
+      </Field>
+      {feedback?.type === 'success' && <Alert tone="success">{feedback.message}</Alert>}
+      <Button type="submit" disabled={!text.trim()} pending={isPending} style={{ touchAction: 'manipulation' }}>
         {isPending ? 'Submitting…' : 'Submit Question'}
-      </button>
+      </Button>
     </form>
   )
 }
