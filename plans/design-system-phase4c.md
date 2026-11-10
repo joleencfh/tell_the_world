@@ -49,6 +49,7 @@ Constraints for every step: Bun only (never npm, npx or node). Do NOT run Playwr
 **Verify:** `grep -nE "OLD" "app/briefs/[slug]/qa-answers.tsx"` (substitute the OLD regex) returns nothing; in `qa.tsx` the OLD grep returns hits only inside `QuestionModal` and `ProposeCorrectionModal`; `bun run lint`, `bunx tsc --noEmit` and `bun run build` pass with no new problems; `git diff --stat` shows only `qa.tsx`, `qa-answers.tsx` and the plan file; by reading, confirm every accessible name listed above is still present and no hook, action or copy line changed. Done lists non-obvious token choices (card-cobalt, vellum, bone, rose) and any place `Author` replaced a hand-built row.
 **Done:** `f02e21f` - qa.tsx and qa-answers.tsx thread migrated (vellum question cards, card-cobalt answers indented 32/16px, Author with profile link, Field/Button/Alert forms); lint, tsc, build pass. Names and copy kept.
 > DECISION (2026-11-10): Author wraps in a profile Link with channel and date on a mono line below - Author has no link or date slot and the profile link must not be lost.
+**Approved:** 2026-11-10 (agent-review)
 
 
 ### [ ] 4. Ask-a-question and propose-correction modals [auto]
