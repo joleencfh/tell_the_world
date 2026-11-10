@@ -221,7 +221,7 @@ export default function Showcase() {
               <AppHeader user={{ id: 'demo', name: 'Dr Amara Okafor', avatarUrl: null, role: 'expert' }} current="home" />
             </div>
           </Row>
-          <Row label="No avatar fallback (no user)">
+          <Row label="Signed out (no user): logo to /, Apply and Login links, no account menu">
             <div className="w-full [&_header]:static">
               <AppHeader user={null} />
             </div>

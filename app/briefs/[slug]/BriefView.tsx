@@ -1,9 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
-import Logo from '@/components/ui/Logo'
-import SignOutButton from '@/components/ui/SignOutButton'
+import AppHeader from '@/components/ui/AppHeader'
 import Footer from '@/components/ui/Footer'
 import { SECTION_META, SectionHeader, TLDRList } from './section-content'
 import { QuotesCarousel } from './quotes'
@@ -178,29 +176,16 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
   })
 
   return (
-    <div className="min-h-screen bg-paper text-ink">
+    <div className="min-h-screen bg-parchment font-ui text-umber">
 
       {/* ── Nav ──────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-10 bg-paper/95 backdrop-blur-sm border-b-2 border-ink px-6">
-        <div className="mx-auto flex max-w-4xl items-center justify-between py-4">
-          <Logo href={isLoggedIn ? '/home' : '/'} />
-          <nav className="flex items-center gap-6">
-            {isLoggedIn ? (
-              <>
-                <Link href="/directory" className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint hover:text-ink transition-colors hidden sm:block">Directory</Link>
-                <Link href="/briefs" className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint hover:text-ink transition-colors hidden sm:block">Briefs</Link>
-                <Link href={`/profile/${currentUser.id}`} className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint hover:text-ink transition-colors">Profile</Link>
-                <SignOutButton className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint hover:text-ink transition-colors" />
-              </>
-            ) : (
-              <>
-                <Link href="/apply" className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint hover:text-ink transition-colors">Apply</Link>
-                <Link href="/login" className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint hover:text-ink transition-colors">Login</Link>
-              </>
-            )}
-          </nav>
-        </div>
-      </header>
+      <AppHeader
+        user={
+          currentUser
+            ? { id: currentUser.id, name: currentUser.display_name ?? '', avatarUrl: currentUser.avatar_url, role: currentUser.role }
+            : null
+        }
+      />
 
       <main>
 
