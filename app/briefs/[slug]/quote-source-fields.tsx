@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { getSourceOrganizations, uploadSourceOrganizationLogo, type SourceOrganizationOption } from '@/lib/admin/actions'
+import ChoiceChips from '@/components/ui/ChoiceChips'
+import Field, { TextInput } from '@/components/ui/Field'
+import Tag from '@/components/ui/Tag'
 import type { QuotePlatform, QuoteSource } from './page'
 
 // Shared between AddQuoteModal (quote-modals.tsx) and EditQuoteModal
@@ -59,22 +62,19 @@ export function TagInput({ tags, onChange }: { tags: string[]; onChange: (tags: 
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5 border border-line bg-paper px-3 py-2 focus-within:ring-2 focus-within:ring-blue">
+    <div className="flex flex-wrap items-center gap-1.5 rounded-control border border-field-line bg-white px-3 py-2 focus-within:border-umber focus-within:outline-2 focus-within:outline-offset-1 focus-within:outline-umber">
       {tags.map((tag) => (
-        <span
-          key={tag}
-          className="inline-flex items-center gap-1 border border-line-strong bg-paper-raised px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.04em] text-ink"
-        >
+        <Tag key={tag} className="inline-flex items-center gap-1">
           {tag}
           <button
             type="button"
             onClick={() => onChange(tags.filter((t) => t !== tag))}
-            className="leading-none text-ink-faint hover:text-ink"
+            className="-my-2 inline-flex min-h-11 min-w-8 items-center justify-center leading-none text-umber-soft hover:text-umber focus-ring"
             aria-label={`Remove ${tag}`}
           >
             ×
           </button>
-        </span>
+        </Tag>
       ))}
       <input
         type="text"
@@ -83,7 +83,7 @@ export function TagInput({ tags, onChange }: { tags: string[]; onChange: (tags: 
         onKeyDown={handleKeyDown}
         onBlur={() => { if (draft.trim()) addTag(draft) }}
         placeholder={tags.length === 0 ? 'Type a tag and press Enter' : ''}
-        className="min-w-[100px] flex-1 bg-transparent font-body text-sm text-ink outline-none placeholder:text-ink-faint/70"
+        className="min-h-8 min-w-[100px] flex-1 bg-transparent font-ui text-base text-umber outline-none placeholder:text-umber-soft"
       />
     </div>
   )
@@ -134,68 +134,52 @@ export function SourcedQuoteFields({
 
   return (
     <>
-      <div>
-        <label htmlFor={`${idPrefix}-name`} className="mb-2 block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
-          Name
-        </label>
-        <input
-          id={`${idPrefix}-name`}
-          type="text"
-          value={sourceName}
-          onChange={(e) => setSourceName(e.target.value)}
-          maxLength={200}
-          placeholder={sourceType === 'document' ? 'Document title…' : sourceType === 'ai' ? 'Model name…' : 'Full name…'}
-          disabled={disabled}
-          className="w-full border border-line bg-paper px-4 py-2.5 font-body text-sm text-ink placeholder:text-ink-faint/70 transition focus:outline-none focus:ring-2 focus:ring-blue disabled:opacity-50"
-        />
-      </div>
+      <Field id={`${idPrefix}-name`} label="Name">
+        {(p) => (
+          <TextInput
+            {...p}
+            value={sourceName}
+            onChange={(e) => setSourceName(e.target.value)}
+            maxLength={200}
+            placeholder={sourceType === 'document' ? 'Document title…' : sourceType === 'ai' ? 'Model name…' : 'Full name…'}
+            disabled={disabled}
+          />
+        )}
+      </Field>
 
       {sourceType === 'person' && (
-        <div>
-          <label className="mb-2 block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
-            Platform <span className="normal-case tracking-normal text-ink-faint/70">(optional — from a social post)</span>
-          </label>
-          <div className="grid grid-cols-3 border border-line-strong">
-            {PLATFORM_OPTIONS.map((opt, i) => (
-              <button
-                key={opt.value || 'none'}
-                type="button"
-                onClick={() => setPlatform(opt.value)}
-                disabled={disabled}
-                className={`px-2 py-2.5 font-mono text-[10px] uppercase tracking-[0.03em] transition-colors disabled:opacity-50 ${
-                  i > 0 ? 'border-l border-line-strong' : ''
-                } ${platform === opt.value ? 'bg-ink text-paper' : 'bg-paper text-ink-soft hover:bg-paper-raised'}`}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-        </div>
+        <ChoiceChips
+          label="Platform (optional — from a social post)"
+          options={PLATFORM_OPTIONS}
+          value={platform}
+          onChange={setPlatform}
+          disabled={disabled}
+          className="grid-cols-3"
+        />
       )}
 
       {(sourceType === 'document' || sourceType === 'ai') && (
         <div>
-          <label htmlFor={`${idPrefix}-org`} className="mb-2 block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
-            Organization <span className="normal-case tracking-normal text-ink-faint/70">(optional — shows a logo on the card)</span>
-          </label>
-          <input
-            id={`${idPrefix}-org`}
-            type="text"
-            list={`${idPrefix}-org-list`}
-            value={orgName}
-            onChange={(e) => setOrgName(e.target.value)}
-            maxLength={200}
-            placeholder="e.g. OpenAI"
-            disabled={disabled}
-            className="w-full border border-line bg-paper px-4 py-2.5 font-body text-sm text-ink placeholder:text-ink-faint/70 transition focus:outline-none focus:ring-2 focus:ring-blue disabled:opacity-50"
-          />
+          <Field id={`${idPrefix}-org`} label="Organization (optional — shows a logo on the card)">
+            {(p) => (
+              <TextInput
+                {...p}
+                list={`${idPrefix}-org-list`}
+                value={orgName}
+                onChange={(e) => setOrgName(e.target.value)}
+                maxLength={200}
+                placeholder="e.g. OpenAI"
+                disabled={disabled}
+              />
+            )}
+          </Field>
           <datalist id={`${idPrefix}-org-list`}>
             {organizations.map((org) => (
               <option key={org.id} value={org.name} />
             ))}
           </datalist>
           {orgName.trim() && matchedOrg && (
-            <p className="mt-2 flex items-center gap-2 font-mono text-[10px] text-ink-faint">
+            <p className="mt-2 flex items-center gap-2 font-ui text-caption text-umber-soft">
               {/* eslint-disable-next-line @next/next/no-img-element -- tiny inline preview of an already-uploaded logo */}
               <img src={matchedOrg.logo_url} alt="" className="h-4 w-4 object-contain" />
               Reusing the saved logo for {matchedOrg.name}.
@@ -207,7 +191,7 @@ export function SourcedQuoteFields({
                 type="button"
                 onClick={() => orgLogoInputRef.current?.click()}
                 disabled={disabled}
-                className="font-mono text-[10px] uppercase tracking-[0.1em] text-blue-ink underline decoration-dotted transition-colors hover:text-blue disabled:opacity-50"
+                className="min-h-11 font-ui text-ui-sm text-cobalt underline underline-offset-2 transition-colors hover:text-umber focus-ring disabled:opacity-50"
               >
                 {orgLogoFile ? `Logo selected: ${orgLogoFile.name}` : 'Upload a logo for this organization'}
               </button>
@@ -221,43 +205,29 @@ export function SourcedQuoteFields({
               />
             </div>
           )}
-          <p className="mt-2 font-body text-xs text-ink-faint">
+          <p className="mt-2 font-ui text-caption text-umber-soft">
             New here? Upload its logo once — every future quote from this organization reuses it automatically.
           </p>
         </div>
       )}
 
-      <div>
-        <label htmlFor={`${idPrefix}-detail`} className="mb-2 block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
-          {DETAIL_FIELD_LABEL[sourceType]} <span className="normal-case tracking-normal text-ink-faint/70">(optional)</span>
-        </label>
-        <input
-          id={`${idPrefix}-detail`}
-          type="text"
-          value={sourceDetail}
-          onChange={(e) => setSourceDetail(e.target.value)}
-          maxLength={200}
-          disabled={disabled}
-          className="w-full border border-line bg-paper px-4 py-2.5 font-body text-sm text-ink placeholder:text-ink-faint/70 transition focus:outline-none focus:ring-2 focus:ring-blue disabled:opacity-50"
-        />
-      </div>
-      <div>
-        <label htmlFor={`${idPrefix}-url`} className="mb-2 block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
-          Source link
-        </label>
-        <input
-          id={`${idPrefix}-url`}
-          type="url"
-          value={sourceUrl}
-          onChange={(e) => setSourceUrl(e.target.value)}
-          placeholder="https://…"
-          disabled={disabled}
-          className="w-full border border-line bg-paper px-4 py-2.5 font-body text-sm text-ink placeholder:text-ink-faint/70 transition focus:outline-none focus:ring-2 focus:ring-blue disabled:opacity-50"
-        />
-        <p className="mt-2 font-body text-xs text-ink-faint">
-          Required — this is what the reader taps to verify the quote.
-        </p>
-      </div>
+      <Field id={`${idPrefix}-detail`} label={`${DETAIL_FIELD_LABEL[sourceType]} (optional)`}>
+        {(p) => (
+          <TextInput {...p} value={sourceDetail} onChange={(e) => setSourceDetail(e.target.value)} maxLength={200} disabled={disabled} />
+        )}
+      </Field>
+      <Field id={`${idPrefix}-url`} label="Source link" hint="Required — this is what the reader taps to verify the quote.">
+        {(p) => (
+          <TextInput
+            {...p}
+            type="url"
+            value={sourceUrl}
+            onChange={(e) => setSourceUrl(e.target.value)}
+            placeholder="https://…"
+            disabled={disabled}
+          />
+        )}
+      </Field>
     </>
   )
 }
