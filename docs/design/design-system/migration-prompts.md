@@ -153,6 +153,8 @@ Phase 4b: the quotes area of the brief page, including the Quote card (serif tex
 Status: done on branch `plan/design-system-phase4b` (2026-11-10): quote card, carousel, source icons, source fields, add, detail and edit modals on the shared Modal, and the clarity panel as an Alert.
 
 **4c. Q&A and contributions**
+
+Status: done on branch `plan/design-system-phase4c` (2026-11-10): Q&A thread, votes and voters list, ask-a-question, propose-correction, feedback and review-endorse modals on the shared Modal, FAQ section and the Q&A section wrapper.
 ```
 [Standing rules]
 

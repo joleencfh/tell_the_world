@@ -69,7 +69,7 @@ export function CtaSection({
   onSuggestCta: () => void
 }) {
   return (
-    <div id="section-cta" className="scroll-mt-26 md:scroll-mt-28border-t-4 border-t-pink border-b border-b-line bg-paper px-6 py-16">
+    <div id="section-cta" className="scroll-mt-26 md:scroll-mt-28 border-t-4 border-t-pink border-b border-b-line bg-paper px-6 py-16">
       <div className="mx-auto max-w-4xl">
         <SectionHeader
           num="07"
@@ -113,7 +113,7 @@ export function CoverageSection({
   onOpenCoverage: (coverage: Coverage) => void
 }) {
   return (
-    <DarkBand id="section-coverage" className="scroll-mt-26 md:scroll-mt-28border-t-4 border-t-pink border-b border-b-line px-6 py-16">
+    <DarkBand id="section-coverage" className="scroll-mt-26 md:scroll-mt-28 border-t-4 border-t-pink border-b border-b-line px-6 py-16">
       <div className="mx-auto max-w-4xl">
         <SectionHeader
           num="08"
@@ -150,7 +150,7 @@ export function CoverageSection({
 
 export function RelatedBriefsSection({ relatedBriefs }: { relatedBriefs: RelatedBrief[] }) {
   return (
-    <div id="section-related" className="scroll-mt-26 md:scroll-mt-28border-t-4 border-line bg-paper-raised px-6 py-16">
+    <div id="section-related" className="scroll-mt-26 md:scroll-mt-28 border-t-4 border-line bg-paper-raised px-6 py-16">
       <div className="mx-auto max-w-4xl">
         <SectionHeader
           num="09"
