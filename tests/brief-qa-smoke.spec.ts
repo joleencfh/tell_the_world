@@ -199,7 +199,7 @@ test.describe('Brief Q&A, feedback and endorse smoke test', () => {
       await expect(qa.contributeTrigger(page)).toBeFocused()
     })
 
-    test.fixme('(b2) Escape closes the feedback dialog and returns focus to the Contribute control', async ({
+    test('(b2) Escape closes the feedback dialog and returns focus to the Contribute control', async ({
       page,
     }) => {
       await page.goto(`/briefs/${SLUG}`)
@@ -253,7 +253,7 @@ test.describe('Brief Q&A, feedback and endorse smoke test', () => {
       await expect(qa.proposeCorrectionEntry(page)).toBeFocused()
     })
 
-    test.fixme('(d2) Escape closes the review-endorse dialog and returns focus to the Contribute control', async ({
+    test('(d2) Escape closes the review-endorse dialog and returns focus to the Contribute control', async ({
       page,
     }) => {
       await page.goto(`/briefs/${SLUG}`)

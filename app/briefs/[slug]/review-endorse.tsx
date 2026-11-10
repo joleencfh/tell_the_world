@@ -2,6 +2,8 @@
 
 import { useState, useTransition } from 'react'
 import Button from '@/components/ui/Button'
+import Field, { Textarea } from '@/components/ui/Field'
+import Modal from '@/components/ui/Modal'
 import { setReviewStatus } from '@/lib/briefs/actions'
 import type { ContributionStatus } from '@/lib/data/contributions'
 
@@ -100,57 +102,31 @@ export function ReviewEndorseModal({
   const [comment, setComment] = useState('')
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center sm:p-6"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Review or endorse this brief"
-    >
-      <div className="absolute inset-0 bg-ink/60 backdrop-blur-sm" onClick={onClose} aria-hidden />
-      <div className="relative w-full max-w-md overflow-hidden border border-line bg-paper">
-        <div className="flex items-start justify-between border-b border-line px-7 pb-5 pt-7">
-          <div>
-            <p className="mb-1 font-mono text-[9px] uppercase tracking-[0.2em] text-blue-ink">Review &amp; endorse</p>
-            <h2 className="font-display text-xl uppercase leading-tight text-ink">Review or endorse this brief</h2>
-            <p className="mt-1.5 font-body text-xs italic leading-snug text-ink-soft">For: {briefTitle}</p>
-          </div>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            style={{ touchAction: 'manipulation' }}
-            className="ml-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-paper-raised text-lg leading-none text-ink-soft outline-none transition-colors hover:bg-line hover:text-ink focus-visible:ring-2 focus-visible:ring-blue"
-          >
-            ×
-          </button>
-        </div>
-        <div className="px-7 py-6">
-          <p className="mb-4 font-body text-sm text-ink-soft">
-            Mark this brief as reviewed for accuracy, or endorse it as worth sharing.
-          </p>
-          <div className="mb-4">
-            <label htmlFor="review-endorse-comment" className="mb-2 block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
-              Add a comment (optional)
-            </label>
-            <textarea
-              id="review-endorse-comment"
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              rows={3}
-              maxLength={500}
-              placeholder="Anything you'd like to add?"
-              className="w-full resize-none border border-line bg-paper px-4 py-2.5 font-body text-sm text-ink placeholder:text-ink-faint/70 transition focus:outline-none focus:ring-2 focus:ring-blue"
-            />
-            <p className="mt-1 font-mono text-[9px] text-ink-faint text-right">{comment.length} / 500</p>
-          </div>
-          <ReviewEndorseControl
-            briefId={briefId}
-            briefSlug={briefSlug}
-            sectionId={null}
-            initialStatus={initialStatus}
-            comment={comment}
+    <Modal open onClose={onClose} size="narrow" eyebrow="Review & endorse" title="Review or endorse this brief">
+      <p className="mb-1 font-ui text-ui-sm text-umber-soft">For: {briefTitle}</p>
+      <p className="mb-5 font-ui text-ui-sm text-umber">
+        Mark this brief as reviewed for accuracy, or endorse it as worth sharing.
+      </p>
+      <Field label="Add a comment" optional hint={`${comment.length} / 500`} className="mb-5">
+        {(p) => (
+          <Textarea
+            {...p}
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            rows={3}
+            maxLength={500}
+            placeholder="Anything you'd like to add?"
+            className="resize-none"
           />
-        </div>
-      </div>
-    </div>
+        )}
+      </Field>
+      <ReviewEndorseControl
+        briefId={briefId}
+        briefSlug={briefSlug}
+        sectionId={null}
+        initialStatus={initialStatus}
+        comment={comment}
+      />
+    </Modal>
   )
 }
