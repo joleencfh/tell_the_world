@@ -60,26 +60,21 @@ const shell = {
   signOutControl: (page: Page) =>
     page.getByRole('button', { name: /sign out/i }).or(page.getByRole('menuitem', { name: /sign out/i })),
 
-  /** Opens the section nav if it is collapsed behind a trigger. */
+  /** The sticky section nav landmark (buttons styled as underline tabs). */
+  sectionNav: (page: Page) => page.getByRole('navigation', { name: 'Sections' }),
+
+  /** The nav is always visible now; kept so callers need no change. */
   async openSectionNav(page: Page) {
-    const trigger = page.getByRole('button', { name: 'Jump to section' })
-    if (await trigger.count()) {
-      if ((await trigger.getAttribute('aria-expanded')) !== 'true') await trigger.click()
-    }
+    await expect(shell.sectionNav(page)).toBeVisible()
   },
 
   /** The control that jumps to a section, by its visible label. */
-  sectionEntry: (page: Page, label: string) => {
-    // The nav button's accessible name is "<number> <label>" (e.g. "02 Explainer"), so match the label
-    // at the end of the name, and never the 'Jump to section' trigger.
-    const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-    return page.getByRole('button', { name: new RegExp(`^(?!Jump to section).*${escaped}$`) })
-  },
+  sectionEntry: (page: Page, label: string) =>
+    shell.sectionNav(page).getByRole('button', { name: label, exact: true }),
 
   /** Asserts which section the nav reports as the current one. */
   async expectCurrentSection(page: Page, label: string) {
-    const trigger = page.getByRole('button', { name: 'Jump to section' })
-    await expect(trigger).toContainText(label)
+    await expect(shell.sectionEntry(page, label)).toHaveAttribute('aria-current', 'true')
   },
 
   /** The section wrapper that a nav entry scrolls to. */

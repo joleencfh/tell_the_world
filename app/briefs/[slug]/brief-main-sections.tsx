@@ -117,7 +117,7 @@ export function BriefMainSections({
             {sections.length > 0 && (() => {
               const meta = SECTION_META[type]
               return (
-                <div id={`section-${type}`} className="scroll-mt-32 border-t border-rule px-4 py-14 md:px-gutter md:py-section">
+                <div id={`section-${type}`} className="scroll-mt-26 md:scroll-mt-28 border-t border-rule px-4 py-14 md:px-gutter md:py-section">
                   <div className="mx-auto max-w-content anim-rise" style={{ animationDelay: '100ms' }}>
                     <SectionHeader
                       num={meta.num}

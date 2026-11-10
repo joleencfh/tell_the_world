@@ -205,9 +205,11 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
           onOpenReviewers={() => setReviewersModalOpen(true)}
         />
 
-        {/* ── TL;DR ─────────────────────────────────────────────────────── */}
+        <SectionNav sections={navSections} />
+
+        {/* ── TL;DR─────────────────────────────────────────────────────── */}
         {tldr.trim() && (
-          <div id="section-tldr" className="scroll-mt-32 border-t border-rule px-4 py-14 md:px-gutter md:py-section">
+          <div id="section-tldr" className="scroll-mt-26 md:scroll-mt-28 border-t border-rule px-4 py-14 md:px-gutter md:py-section">
             <div className="mx-auto max-w-content anim-rise" style={{ animationDelay: '0ms' }}>
               <SectionHeader
                 num={SECTION_META.tldr.num}
@@ -237,7 +239,7 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
             block rather than threaded through the SECTION_ORDER loop below,
             same pattern as CTA/Covered By/Related Briefs further down. ─── */}
         {showSections && (quotes.length > 0 || canAddQuote) && (
-          <div id="section-quotes" className="scroll-mt-32 border-t border-rule px-4 py-14 md:px-gutter md:py-section">
+          <div id="section-quotes" className="scroll-mt-26 md:scroll-mt-28 border-t border-rule px-4 py-14 md:px-gutter md:py-section">
             <div className="mx-auto max-w-content anim-rise" style={{ animationDelay: '0ms' }}>
               <QuotesCarousel quotes={quotes} briefSlug={brief.slug} isLoggedIn={isLoggedIn} canAddQuote={canAddQuote} onAddQuote={() => setAddQuoteOpen(true)} onOpenQuote={setSelectedQuote} />
             </div>
@@ -353,8 +355,6 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
           reviewersModalOpen={reviewersModalOpen}
           onCloseReviewersModal={() => setReviewersModalOpen(false)}
         />
-
-        <SectionNav sections={navSections} />
 
       </main>
 
