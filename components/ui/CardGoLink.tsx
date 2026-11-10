@@ -18,13 +18,13 @@ export interface CardGoLinkProps {
 }
 
 const TONE_CLASSES: Record<'ink' | 'blue', string> = {
-  ink: 'border-line-strong text-ink-soft hover:border-ink hover:bg-ink hover:text-paper',
-  blue: 'border-blue-soft text-blue-ink hover:border-blue hover:bg-blue hover:text-paper',
+  ink: 'border-field-line text-umber-soft hover:border-umber hover:bg-umber hover:text-parchment',
+  blue: 'border-cobalt text-cobalt hover:bg-cobalt hover:text-white',
 }
 
 export default function CardGoLink({ href, ariaLabel, variant = 'internal', tone = 'ink', className }: CardGoLinkProps) {
   const glyph = variant === 'external' ? '↗' : '→'
-  const classes = `flex h-7 w-7 shrink-0 items-center justify-center self-end border-[1.5px] text-[13px] transition-colors ${TONE_CLASSES[tone]} ${className ?? ''}`
+  const classes = `flex size-9 shrink-0 items-center justify-center self-end rounded-control border font-ui text-ui transition-colors focus-ring ${TONE_CLASSES[tone]} ${className ?? ''}`
 
   if (variant === 'external') {
     return (

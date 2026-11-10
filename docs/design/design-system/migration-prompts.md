@@ -112,6 +112,8 @@ Exit: five screens fully on the new system, no old tokens left in app/login, app
 
 ## Phase 3: Dashboard, directory, profile (2 to 3 sessions, split into 3a/3b/3c PRs if large)
 
+**Status:** done on branch `plan/design-system-phase3` (2026-11-06), not yet merged. Built as one plan of eight steps: shared AppHeader, shared components, home shell, home cards, directory, profile, edit profile modal, spec and docs.
+
 ```
 [Standing rules]
 
@@ -138,6 +140,8 @@ Run in order. Each PR keeps the page whole and working. Add a behaviour smoke te
 Phase 4a: brief page shell. Work in app/briefs/[slug]. First, run the existing brief tests and list which behaviours they cover; add a short behaviour-only smoke test for anything uncovered (Q&A post, vote, endorse, quote, coverage), and commit it before restyling.
 Then migrate: the app header (shared), the page header (eyebrow, serif text-title, lead), sticky section nav as underline tabs that scroll horizontally on mobile, section markers, the reading column (max-w-reading, serif text-reading, decision 3), the explainer and its key-term, TL;DR and widgets, and the Locked panel for members-only states. Leave quotes, Q&A, sources and modals on the old styling for now, and do not mix old and new tokens inside a single component: if a component is shared across sub-areas, migrate it fully now.
 ```
+
+Status: done on branch `plan/design-system-phase4a` (2026-11-10); header widgets were also done here.
 
 **4b. Quotes**
 ```

@@ -42,53 +42,34 @@ const TOKEN = {
 // ---------------------------------------------------------------------------
 
 test.describe('Brief page dark-token remnants — Two-Ink Bold, logged-out visitor', () => {
-  test('Members Only gate banner resolves to real coverage-bg/coverage-fg/pink-ink values', async ({ page }) => {
+  // The gate moved to the design-system LockedPanel in Phase 4a (no dark
+  // coverage band any more), so assert the behaviour, not old token colours.
+  test('Members Only gate shows the locked panel with Apply and Login links', async ({ page }) => {
     await page.goto(`/briefs/${MEMBERS_BRIEF_SLUG}`)
 
-    const heading = page.getByText('Members Only', { exact: true })
-    await expect(heading).toBeVisible()
-
-    const styles = await page.evaluate(() => {
-      const h = [...document.querySelectorAll('p')].find((p) => p.textContent?.trim() === 'Members Only')!
-      const card = h.closest('div')!
-      const applyLink = [...document.querySelectorAll('a')].find((a) => a.textContent?.trim() === 'Apply to Join')!
-      const svg = card.querySelector('svg')!
-      return {
-        cardBg: getComputedStyle(card).backgroundColor,
-        headingColor: getComputedStyle(h).color,
-        applyBg: getComputedStyle(applyLink).backgroundColor,
-        applyColor: getComputedStyle(applyLink).color,
-        svgColor: getComputedStyle(svg).color,
-      }
-    })
-
-    expect(styles.cardBg).toBe(TOKEN.coverageBg)
-    expect(styles.headingColor).toBe(TOKEN.coverageFg)
-    expect(styles.applyBg).toBe(TOKEN.pinkInk)
-    expect(styles.applyColor).toBe(TOKEN.paper)
-    expect(styles.svgColor).toBe(TOKEN.pink)
+    await expect(page.getByText('Members Only', { exact: true })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Apply to Join' })).toHaveAttribute('href', '/apply')
+    await expect(page.getByRole('link', { name: /Already a member\? Login/ })).toHaveAttribute('href', '/login')
   })
 
-  test('page footer resolves to border-ink (2px, reference artifact match) and the system font stack, not the retired serif stack', async ({ page }) => {
+  // The shared Footer moved to the design system in Phase 2 (one variant, no
+  // "bold" 2px ink rule): a 1px `rule` hairline above, Inter text.
+  test('page footer is the design-system footer: 1px rule hairline and the Inter UI font', async ({ page }) => {
     await page.goto(`/briefs/${PUBLIC_BRIEF_SLUG}`)
 
     const styles = await page.evaluate(() => {
       const footer = document.querySelector('footer')!
-      // The rule lives on the inner max-width wrapper, not <footer> itself —
-      // matches the reference artifact's .foot-inner structure.
-      const inner = footer.querySelector(':scope > div')!
       const span = footer.querySelector('span')!
       return {
-        borderColor: getComputedStyle(inner).borderTopColor,
-        borderWidth: getComputedStyle(inner).borderTopWidth,
+        borderColor: getComputedStyle(footer).borderTopColor,
+        borderWidth: getComputedStyle(footer).borderTopWidth,
         fontFamily: getComputedStyle(span).fontFamily,
       }
     })
 
-    expect(styles.borderColor).toBe(TOKEN.ink)
-    expect(styles.borderWidth).toBe('2px')
-    expect(styles.fontFamily).toContain('Segoe UI')
-    expect(styles.fontFamily.toLowerCase()).not.toContain('georgia')
+    expect(styles.borderColor).toBe('rgb(222, 219, 211)') // --color-rule
+    expect(styles.borderWidth).toBe('1px')
+    expect(styles.fontFamily).toContain('Inter')
   })
 })
 

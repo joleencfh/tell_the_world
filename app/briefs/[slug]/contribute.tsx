@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import Button from '@/components/ui/Button'
 import { ReviewEndorseModal } from './review-endorse'
 import { QuestionModal } from './qa'
 import { FeedbackModal } from './feedback'
@@ -38,18 +39,12 @@ function ContributeMenuGroup({
   tone: 'blue' | 'pink' | 'ink'
   items: ContributeMenuItem[]
 }) {
-  const hoverClasses =
-    tone === 'blue'
-      ? 'hover:bg-blue-soft hover:text-blue-ink'
-      : tone === 'pink'
-        ? 'hover:bg-pink-soft hover:text-pink-ink'
-        : 'hover:bg-paper-raised hover:text-ink'
-  const labelClasses = tone === 'blue' ? 'text-blue' : tone === 'pink' ? 'text-pink' : 'text-ink-faint'
+  const labelClasses = tone === 'blue' ? 'text-cobalt' : tone === 'pink' ? 'text-rose' : 'text-umber-soft'
 
   return (
-    <div>
+    <div className="border-b border-window-line last:border-b-0">
       {label && (
-        <div className={`px-[0.9rem] pb-1 pt-[0.55rem] font-mono text-[9px] tracking-[0.08em] ${labelClasses}`}>
+        <div className={`px-4 pb-1 pt-3 font-mono text-label uppercase ${labelClasses}`}>
           {label}
         </div>
       )}
@@ -59,7 +54,7 @@ function ContributeMenuGroup({
           type="button"
           onClick={item.onClick}
           style={{ touchAction: 'manipulation' }}
-          className={`block w-full border-b border-line px-[0.9rem] py-[0.7rem] text-left font-mono text-[0.68rem] uppercase tracking-[0.03em] text-ink last:border-b-0 ${hoverClasses}`}
+          className="focus-ring block min-h-11 w-full px-4 py-2.5 text-left font-ui text-ui-sm text-umber transition-colors hover:bg-bone"
         >
           {item.label}
         </button>
@@ -114,18 +109,17 @@ export function ContributeMenu({
 
   return (
     <div ref={wrapRef} className="relative shrink-0">
-      <button
+      <Button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="true"
         style={{ touchAction: 'manipulation' }}
-        className="inline-flex items-center gap-1.5 border-[1.5px] border-ink bg-ink px-4 py-2.5 font-mono text-[0.68rem] font-semibold uppercase tracking-[0.06em] text-paper transition-opacity hover:opacity-90"
       >
         Contribute <span aria-hidden>▾</span>
-      </button>
+      </Button>
       {open && (
-        <div className="absolute right-0 top-[calc(100%+0.4rem)] z-20 min-w-[240px] border-[1.5px] border-ink bg-paper shadow-[0_10px_28px_rgba(0,0,0,0.14)]">
+        <div className="absolute right-0 top-[calc(100%+0.4rem)] z-[var(--z-dropdown)]min-w-[240px] overflow-hidden rounded-control bg-vellum shadow-menu">
           {showExpertGroup && (
             <ContributeMenuGroup
               label="Expert / Org — verify"

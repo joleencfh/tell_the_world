@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 import Avatar from '@/components/ui/Avatar'
+import Button from '@/components/ui/Button'
 import { getDisplayName, formatDate } from './helpers'
 import { parseRichContent, parseTldrBulletLead, type RichTextParagraphNode } from '@/lib/richtext/types'
 import { renderRichTextInline } from '@/lib/richtext/render'
@@ -50,18 +51,6 @@ export const SECTION_META: Record<'tldr' | ActiveSectionType, { label: string; n
     },
   }
 
-// Section background: alternates between paper and paper-raised (the grid
-// texture that used to sit on the paper indices was removed sitewide,
-// 2026-08-27 — plain white throughout, per the user's request).
-export const SECTION_BG: Record<number, string> = {
-  0: 'bg-paper',
-  1: 'bg-paper-raised',
-  2: 'bg-paper',
-  3: 'bg-paper-raised',
-  4: 'bg-paper',
-  5: 'bg-paper-raised',
-}
-
 // ---------------------------------------------------------------------------
 // TL;DR bullets — either the legacy plain-text lines (optional "**lead
 // term** — rest" shape, parsed by parseTldrBulletLead) or, once an admin
@@ -90,8 +79,8 @@ export function parseTLDR(content: string): TLDRBullet[] | null {
 function TLDRBulletRow({ children }: { children: ReactNode }) {
   return (
     <li className="flex gap-3">
-      <span className="mt-2.5 h-1.5 w-1.5 rounded-full bg-ink-faint shrink-0" aria-hidden />
-      <p className="font-body text-[1.05rem] text-ink leading-[1.7]">{children}</p>
+      <span className="mt-3 h-1.5 w-1.5 rounded-full bg-umber-soft shrink-0" aria-hidden />
+      <p className="font-serif text-lead text-umber">{children}</p>
     </li>
   )
 }
@@ -103,7 +92,7 @@ export function TLDRList({ content, richContent }: { content: string; richConten
     const bullets = doc.root.children.filter((node): node is RichTextParagraphNode => node.type === 'paragraph')
     if (bullets.length === 0) return null
     return (
-      <ul className="space-y-4 max-w-2xl">
+      <ul className="space-y-4 max-w-reading">
         {bullets.map((bullet, i) => (
           <TLDRBulletRow key={i}>{renderRichTextInline(bullet.children)}</TLDRBulletRow>
         ))}
@@ -115,10 +104,10 @@ export function TLDRList({ content, richContent }: { content: string; richConten
   if (!bullets) return null
 
   return (
-    <ul className="space-y-4 max-w-2xl">
+    <ul className="space-y-4 max-w-reading">
       {bullets.map((bullet, i) => (
         <TLDRBulletRow key={i}>
-          {bullet.lead && <strong className="font-semibold text-ink">{bullet.lead} — </strong>}
+          {bullet.lead && <strong className="font-semibold text-umber">{bullet.lead} — </strong>}
           {bullet.rest}
         </TLDRBulletRow>
       ))}
@@ -131,16 +120,16 @@ export function TLDRList({ content, richContent }: { content: string; richConten
 // ---------------------------------------------------------------------------
 
 const CHIP_TONE_CLASSES: Record<'blue' | 'pink' | 'default' | 'tag' | 'spotlight', string> = {
-  blue: 'bg-blue-soft text-blue-ink border-blue/30',
-  pink: 'bg-pink-soft text-pink-ink border-pink/30',
-  default: 'bg-paper-raised text-ink-soft border-line',
-  tag: 'bg-paper-raised text-ink border-line',
+  blue: 'bg-cobalt-wash text-cobalt border-transparent',
+  pink: 'bg-rose-wash text-rose-deep border-transparent',
+  default: 'bg-bone text-umber-soft border-transparent',
+  tag: 'bg-transparent text-umber-soft border-window-line',
   // Solid-filled variant — home dashboard's Highlighted section eyebrow
   // (home-dashboard-plan.md §2 Part 0 step 4), used nowhere else. Extending
   // this component rather than adding a dashboard-local one since it's a
   // pure color/fill reskin of the same chip shape, not a different markup
   // shape.
-  spotlight: 'bg-blue text-paper border-blue',
+  spotlight: 'bg-umber text-parchment border-transparent',
 }
 
 export function HeaderChip({
@@ -152,7 +141,7 @@ export function HeaderChip({
 }) {
   return (
     <span
-      className={`inline-flex items-center whitespace-nowrap font-mono text-[9px] tracking-[0.1em] uppercase px-3 py-1 border-[1.5px] ${CHIP_TONE_CLASSES[tone]}`}
+      className={`inline-flex items-center whitespace-nowrap rounded-tag border px-2 py-0.5 font-mono text-label uppercase ${CHIP_TONE_CLASSES[tone]}`}
     >
       {children}
     </span>
@@ -341,15 +330,9 @@ function ReviewedByButton({
   ].filter(Boolean)
 
   return (
-    <button
-      type="button"
-      onClick={onOpen}
-      aria-haspopup="dialog"
-      style={{ touchAction: 'manipulation' }}
-      className={`inline-flex items-center whitespace-nowrap font-mono text-[9px] tracking-[0.1em] uppercase px-3 py-1 border-[1.5px] outline-none transition-colors ${CHIP_TONE_CLASSES.blue} hover:bg-blue/20 focus-visible:ring-2 focus-visible:ring-blue`}
-    >
+    <Button type="button" variant="secondary" small onClick={onOpen} aria-haspopup="dialog" style={{ touchAction: 'manipulation' }}>
       {parts.join(' · ')}
-    </button>
+    </Button>
   )
 }
 
@@ -406,15 +389,15 @@ export function ContributorsList({ contributors }: { contributors: BriefContribu
 
   return (
     <div className="flex flex-wrap items-center gap-3 mt-4 anim-rise" style={{ animationDelay: '175ms' }}>
-      <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-ink-faint">Contributors</span>
-      <div className="flex flex-wrap gap-3">
+      <span className="font-mono text-label uppercase text-umber-soft">Contributors</span>
+      <div className="flex flex-wrap gap-x-4">
         {contributors.map((c) => {
           const name = getDisplayName({ display_name: c.display_name })
           return (
             <Link
               key={c.id}
               href={`/profile/${c.id}`}
-              className="inline-flex items-center gap-1.5 font-mono text-[10px] text-ink-soft hover:text-ink transition-colors"
+              className="focus-ring inline-flex min-h-11 items-center gap-2 font-ui text-ui-sm text-umber-soft transition-colors hover:text-umber"
             >
               <Avatar name={name} avatarUrl={c.avatar_url} size="2xs" />
               {name}
@@ -431,9 +414,9 @@ export function ContributorsList({ contributors }: { contributors: BriefContribu
 // ---------------------------------------------------------------------------
 
 const NUM_TONE_CLASSES: Record<'ink' | 'blue' | 'pink', string> = {
-  ink: 'text-ink',
-  blue: 'text-blue',
-  pink: 'text-pink',
+  ink: 'text-umber-soft',
+  blue: 'text-cobalt',
+  pink: 'text-rose',
 }
 
 export function SectionHeader({
@@ -448,69 +431,31 @@ export function SectionHeader({
   label: string
   description: string
   numTone?: 'ink' | 'blue' | 'pink'
-  // Covered By (Part 7) is the only section on the fixed dark band
-  // (coverage-bg) — text-ink/bg-line assume a light-in-light-mode /
-  // dark-in-dark-mode paper background and invert with the theme, but
-  // coverage-bg stays dark in both, so in light mode text-ink (near-black)
-  // would sit on a near-black background and vanish. onDark swaps the
-  // label/description/rule to the fixed coverage-fg token instead; numTone
-  // is untouched since text-pink/text-blue already sit fine on coverage-bg
-  // (the Members Only gate banner in BriefView.tsx already proves this
-  // combination out).
+  // The Covered By band (plan 4d) is still the fixed dark coverage-bg, so
+  // onDark swaps label, description and rule to light text until it moves
+  // to band-soft.
   onDark?: boolean
-  // Optional trailing control (e.g. Quotes' role filter, CTA's "+ New CTA")
-  // — mirrors the reference artifact's .sec-head, which is a flex row with
-  // the title block on the left and one optional control on the right.
+  // Optional trailing control (e.g. Quotes' role filter, CTA's "+ New CTA").
   action?: ReactNode
 }) {
   return (
     <div className="mb-12">
-      {/* Numbered divider — its own full-width row, independent of the
-          label/description/action row below. It used to live nested inside
-          that row's left column, sharing width with the action slot — a
-          wide action (e.g. the solid "+ New CTA" button) squeezed the
-          column enough that the rule visibly stopped short of the section's
-          edge, reading as truncated rather than as a deliberate short rule.
-          Full width here regardless of whether an action exists. */}
-      <div className="flex items-center gap-4 mb-4">
-        <span className={`font-mono text-sm tracking-[0.2em] font-bold tabular-nums ${NUM_TONE_CLASSES[numTone]}`}>
+      {/* Marker row on its own full-width line, independent of the
+          label/description/action row below, so a wide action never
+          shortens the hairline. */}
+      <div className="mb-4 flex items-center gap-4">
+        <span className={`font-mono text-label tabular-nums ${onDark ? 'text-parchment' : NUM_TONE_CLASSES[numTone]}`}>
           {num}
         </span>
-        <div className={`h-px flex-1 ${onDark ? 'bg-coverage-fg/20' : 'bg-line'}`} />
+        <div className={`h-px flex-1 ${onDark ? 'bg-parchment/20' : 'bg-rule'}`} />
       </div>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0 flex-1">
-          <h2
-            className={`font-display uppercase font-extrabold leading-[1] ${onDark ? 'text-coverage-fg' : 'text-ink'}`}
-            style={{ fontSize: 'clamp(1.7rem, 3.2vw, 2.5rem)', letterSpacing: '0.01em' }}
-          >
-            {label}
-          </h2>
-          <p className={`font-body text-sm italic mt-2 ${onDark ? 'text-coverage-fg/70' : 'text-ink-soft'}`}>{description}</p>
+          <h2 className={`font-serif text-section ${onDark ? 'text-parchment' : 'text-umber'}`}>{label}</h2>
+          <p className={`mt-2 font-ui text-ui-sm ${onDark ? 'text-parchment' : 'text-umber-soft'}`}>{description}</p>
         </div>
         {action && <div className="shrink-0">{action}</div>}
       </div>
-    </div>
-  )
-}
-
-// ---------------------------------------------------------------------------
-// Locked section placeholder
-// ---------------------------------------------------------------------------
-
-export function LockedPlaceholder() {
-  return (
-    <div className="relative overflow-hidden py-10">
-      <div className="space-y-3 select-none pointer-events-none" aria-hidden>
-        <div className="h-3 w-10 rounded bg-line/50 mb-1" />
-        <div className="h-7 w-56 rounded-lg bg-line/50" />
-        <div className="mt-5 space-y-2">
-          {[88, 75, 92, 68, 80].map((w, i) => (
-            <div key={i} className="h-3 rounded bg-line/35" style={{ width: `${w}%` }} />
-          ))}
-        </div>
-      </div>
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-paper/60 to-paper" />
     </div>
   )
 }

@@ -1,46 +1,30 @@
 import Link from 'next/link'
 
-interface FooterProps {
-  // 'bold' matches the Brief page's reference-artifact footer (2px
-  // border-ink on the inner wrapper, tighter max-width) — see
-  // tests/two-ink-bold-11g-remnants.spec.ts, which regression-tests that
-  // exact treatment. Every other page uses the plain 1px border-line look.
-  variant?: 'default' | 'bold'
-}
+// design-system.md 3.3: a hairline above, text-ui-sm, 44px link targets. One
+// variant; the old "bold" brief footer (2px ink rule) is retired.
+const LINK =
+  'inline-flex min-h-11 items-center rounded-control text-umber-deep underline decoration-umber-deep/40 underline-offset-[5px] hover:text-umber hover:decoration-umber focus-ring'
 
-export default function Footer({ variant = 'default' }: FooterProps) {
-  const isBold = variant === 'bold'
+export default function Footer() {
   return (
-    <footer className={isBold ? 'px-6 pt-8 pb-12' : 'border-t border-line px-6 py-8 mt-16'}>
-      <div
-        className={`mx-auto flex flex-wrap items-center justify-between gap-4 ${
-          isBold ? 'max-w-4xl border-t-2 border-ink pt-6' : 'max-w-5xl'
-        }`}
-      >
-        <span className="inline-flex items-center gap-[0.55rem] font-body text-sm font-bold text-ink-soft tracking-tight opacity-80">
-          <span className="relative inline-block h-3 w-3 shrink-0" aria-hidden>
-            <span className="absolute inset-0 rounded-full bg-pink" />
-            <span className="absolute left-1.5 top-0 h-3 w-3 rounded-full bg-blue mix-blend-multiply" />
-          </span>
-          <span style={{ wordSpacing: '-1.3px' }}>Tell The World</span>
+    <footer className="mt-16 border-t border-rule px-4 py-6 md:px-gutter">
+      <div className="mx-auto flex max-w-page flex-wrap items-center justify-between gap-x-6 gap-y-2 font-ui text-ui-sm text-umber-deep">
+        <span className="inline-flex min-h-11 items-center gap-2">
+          <svg width="28" height="18" viewBox="0 0 28 18" aria-hidden="true">
+            <circle cx="9" cy="9" r="8" className="fill-rose-bright" />
+            <circle cx="19" cy="9" r="8" className="fill-cobalt-bright" fillOpacity=".92" />
+          </svg>
+          Tell The World
         </span>
-        <div className="flex items-center gap-5">
-          <Link
-            href="/privacy"
-            className="font-mono text-[11px] tracking-[0.05em] text-ink-faint hover:text-ink-soft transition-colors"
-          >
+        <nav aria-label="Footer" className="flex flex-wrap items-center gap-x-5">
+          <Link href="/privacy" className={LINK}>
             Privacy Policy
           </Link>
-          <Link
-            href="/contact"
-            className="font-mono text-[11px] tracking-[0.05em] text-ink-faint hover:text-ink-soft transition-colors"
-          >
+          <Link href="/contact" className={LINK}>
             Contact
           </Link>
-          <span className="font-mono text-[11px] tracking-[0.05em] text-ink-faint opacity-80">
-            © {new Date().getFullYear()}
-          </span>
-        </div>
+          <span className="tabular-nums">© {new Date().getFullYear()}</span>
+        </nav>
       </div>
     </footer>
   )

@@ -1,10 +1,12 @@
+import Skeleton from '@/components/ui/Skeleton'
+
 export default function BriefLoading() {
   return (
-    <div className="min-h-screen bg-paper">
-      <header className="sticky top-0 z-10 bg-paper/95 backdrop-blur-sm border-b border-line px-6">
-        <div className="mx-auto flex max-w-3xl items-center justify-between py-4">
-          <div className="h-5 w-40 bg-line/60 rounded animate-pulse" />
-          <div className="h-4 w-24 bg-line/60 rounded animate-pulse" />
+    <div aria-busy="true" className="min-h-screen bg-parchment font-ui text-umber">
+      <header className="sticky top-0 z-20 border-b border-rule bg-parchment">
+        <div className="mx-auto flex max-w-page items-center justify-between gap-2 px-4 py-2 md:px-gutter md:py-3">
+          <Skeleton className="h-5 w-40" />
+          <Skeleton className="h-4 w-24" />
         </div>
       </header>
 
@@ -12,25 +14,25 @@ export default function BriefLoading() {
         <div className="mx-auto max-w-3xl space-y-14">
           {/* Header skeleton */}
           <div className="space-y-4">
-            <div className="h-3 w-12 bg-line/60 rounded animate-pulse" />
-            <div className="h-14 w-3/4 bg-line/60 rounded animate-pulse" />
-            <div className="h-3 w-full bg-line/40 rounded animate-pulse" />
-            <div className="h-3 w-5/6 bg-line/40 rounded animate-pulse" />
+            <Skeleton className="h-3 w-12" />
+            <Skeleton className="h-14 w-3/4" />
+            <Skeleton className="h-3 w-full" />
+            <Skeleton className="h-3 w-5/6" />
           </div>
 
           {/* Section skeletons */}
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="space-y-5">
               <div className="flex items-center gap-4">
-                <div className="h-3 w-36 bg-line/60 rounded animate-pulse" />
-                <div className="flex-1 h-px bg-line/40" />
+                <Skeleton className="h-3 w-36" />
+                <div className="h-px flex-1 bg-rule" />
               </div>
               <div className="space-y-2">
-                <div className="h-3 w-full bg-line/40 rounded animate-pulse" />
-                <div className="h-3 w-11/12 bg-line/40 rounded animate-pulse" />
-                <div className="h-3 w-4/5 bg-line/40 rounded animate-pulse" />
-                <div className="h-3 w-full bg-line/40 rounded animate-pulse" />
-                <div className="h-3 w-9/12 bg-line/40 rounded animate-pulse" />
+                <Skeleton className="h-3 w-full" />
+                <Skeleton className="h-3 w-11/12" />
+                <Skeleton className="h-3 w-4/5" />
+                <Skeleton className="h-3 w-full" />
+                <Skeleton className="h-3 w-9/12" />
               </div>
             </div>
           ))}

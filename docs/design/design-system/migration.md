@@ -2,7 +2,7 @@
 
 Version 1.0, 2026-10-01. Companion to [design-system.md](design-system.md) and [app/app-theme.css](../../../app/app-theme.css).
 
-The landing page is already on the new system. This document is the plan for moving everything else. Nothing here has been done in the app yet.
+The landing page is already on the new system. This document is the plan for moving everything else. Status: Phases 1 and 2 are merged (PRs 126 and 128). Phase 3 (dashboard, directory, profile) is done on the branch `plan/design-system-phase3`. The brief page and admin are not migrated yet.
 
 ## 1. How the move works
 
@@ -130,6 +130,8 @@ Each phase is its own PR with its own tests. A phase is done when its screens us
 **Phase 3: dashboard, directory, profile** (home, directory, profile and its edit modal). Proves Card, Author, Brief card, Member card, filters, tabs, carousel and pagination. About 360 uses.
 
 **Phase 4: the brief page.** The largest (34 files, about 1,100 uses). Split into sub-PRs: (a) hero, section nav, reading column and explainer; (b) quotes and the Quote card; (c) Q&A and contributions (the thread from the landing demo); (d) sources, timeline, related briefs, coverage; (e) modals (contribute, quote, coverage). Each sub-PR keeps the page whole.
+
+*Status (2026-11-10): 4a (brief page shell) done on branch `plan/design-system-phase4a`; 4b to 4e not started.*
 
 **Phase 5: admin.** 27 files, about 560 uses. Mostly lists, accordion rows, key-value rows and status chips, so it benefits most from the Phase 1 primitives. Settle decision 4 (density) before starting.
 

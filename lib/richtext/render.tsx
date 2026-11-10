@@ -114,7 +114,7 @@ function renderInline(node: RichTextInlineNode, key: number, keyterms: KeytermSt
 
   // node.type === 'link'
   const linkClassName =
-    'text-blue-ink underline decoration-dotted underline-offset-2 outline-none focus-visible:ring-2 focus-visible:ring-blue'
+    'text-cobalt underline underline-offset-2 focus-ring'
   const children = renderInlineList(node.children, `${key}`, keyterms)
 
   return isInternalPath(node.url) ? (
@@ -176,10 +176,10 @@ function renderParagraph(
   )
 }
 
-const DEFAULT_PARAGRAPH_CLASSNAME = 'font-body text-[0.95rem] leading-[1.7] text-ink-soft'
+const DEFAULT_PARAGRAPH_CLASSNAME = 'font-serif text-reading text-umber'
 const DEFAULT_HEADING_CLASSNAME: Record<RichTextHeadingLevel, string> = {
-  h2: 'font-display text-[1.5rem] font-extrabold leading-[1.25] text-ink',
-  h3: 'font-display text-[1.2rem] font-bold leading-[1.3] text-ink',
+  h2: 'font-serif text-section text-umber',
+  h3: 'font-serif text-card-title text-umber',
 }
 
 function renderBlock(
@@ -212,7 +212,7 @@ function renderBlock(
   // (Avatar.tsx, coverage.tsx).
   return (
     // eslint-disable-next-line @next/next/no-img-element
-    <img key={key} src={node.url} alt={node.alt} referrerPolicy="no-referrer" className="w-full border border-line" />
+    <img key={key} src={node.url} alt={node.alt} referrerPolicy="no-referrer" className="w-full border border-rule" />
   )
 }
 

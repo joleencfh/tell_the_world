@@ -1,12 +1,19 @@
 import Link from 'next/link'
+import { buttonClasses } from './Button'
+import { cn } from './cn'
 
 export interface PaginationProps {
   page: number
   pageSize: number
   total: number
   buildHref: (page: number) => string
+  /** For use on the inverse (dark) surface. */
   dark?: boolean
 }
+
+// Same box as a small secondary Button, for the controls that cannot be used.
+const DISABLED_BASE =
+  'inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-control border-2 border-transparent px-[22px] font-ui text-ui font-medium leading-none md:min-h-9 md:px-3.5 md:text-ui-sm'
 
 export default function Pagination({ page, pageSize, total, buildHref, dark = false }: PaginationProps) {
   const totalPages = Math.max(1, Math.ceil(total / pageSize))
@@ -21,62 +28,40 @@ export default function Pagination({ page, pageSize, total, buildHref, dark = fa
   // only show the jump controls when there's an actual middle to skip.
   const showJump = totalPages > 2
 
-  const borderCls = dark ? 'border-white/10' : 'border-line'
-  const mutedCls = dark ? 'text-white/40' : 'text-ink-soft/60'
+  const ruleCls = dark ? 'border-inverse-soft' : 'border-rule'
+  const mutedCls = dark ? 'text-inverse-soft' : 'text-umber-soft'
   const linkCls = dark
-    ? 'text-white/70 hover:text-white transition-colors'
-    : 'text-ink-soft hover:text-ink transition-colors'
-  const disabledCls = dark ? 'text-white/15' : 'text-ink-soft/30'
+    ? cn(DISABLED_BASE, 'border-inverse-soft text-parchment hover:bg-umber-hover focus-ring')
+    : buttonClasses({ variant: 'secondary', small: true })
+  const disabledCls = dark
+    ? cn(DISABLED_BASE, 'text-inverse-soft opacity-50')
+    : cn(DISABLED_BASE, 'bg-disabled text-umber-soft')
+
+  function control(label: string, enabled: boolean, target: number, ariaLabel?: string) {
+    return enabled ? (
+      <Link href={buildHref(target)} aria-label={ariaLabel} className={linkCls}>
+        {label}
+      </Link>
+    ) : (
+      <span aria-disabled="true" className={disabledCls}>
+        {label}
+      </span>
+    )
+  }
 
   return (
-    <div className={`flex items-center justify-between gap-4 mt-8 pt-6 border-t ${borderCls}`}>
-      <span className={`font-mono text-[9px] tracking-[0.15em] uppercase ${mutedCls}`}>
+    <div className={cn('mt-8 flex flex-wrap items-center justify-between gap-4 border-t pt-6', ruleCls)}>
+      <span className={cn('font-ui text-ui-sm tabular-nums', mutedCls)}>
         Showing {from}–{to} of {total}
       </span>
-      <nav className="flex items-center gap-4" aria-label="Pagination">
-        {showJump && (
-          hasPrev ? (
-            <Link href={buildHref(1)} aria-label="First page" className={`font-mono text-[10px] tracking-[0.15em] uppercase ${linkCls}`}>
-              « First
-            </Link>
-          ) : (
-            <span className={`font-mono text-[10px] tracking-[0.15em] uppercase ${disabledCls}`}>
-              « First
-            </span>
-          )
-        )}
-        {hasPrev ? (
-          <Link href={buildHref(page - 1)} className={`font-mono text-[10px] tracking-[0.15em] uppercase ${linkCls}`}>
-            ← Prev
-          </Link>
-        ) : (
-          <span className={`font-mono text-[10px] tracking-[0.15em] uppercase ${disabledCls}`}>
-            ← Prev
-          </span>
-        )}
-        <span className={`font-mono text-[9px] tracking-[0.15em] uppercase ${mutedCls}`}>
+      <nav className="flex flex-wrap items-center gap-2" aria-label="Pagination">
+        {showJump && control('« First', hasPrev, 1, 'First page')}
+        {control('← Prev', hasPrev, page - 1)}
+        <span className={cn('px-1 font-ui text-ui-sm tabular-nums', mutedCls)}>
           Page {page} of {totalPages}
         </span>
-        {hasNext ? (
-          <Link href={buildHref(page + 1)} className={`font-mono text-[10px] tracking-[0.15em] uppercase ${linkCls}`}>
-            Next →
-          </Link>
-        ) : (
-          <span className={`font-mono text-[10px] tracking-[0.15em] uppercase ${disabledCls}`}>
-            Next →
-          </span>
-        )}
-        {showJump && (
-          hasNext ? (
-            <Link href={buildHref(totalPages)} aria-label="Last page" className={`font-mono text-[10px] tracking-[0.15em] uppercase ${linkCls}`}>
-              Last »
-            </Link>
-          ) : (
-            <span className={`font-mono text-[10px] tracking-[0.15em] uppercase ${disabledCls}`}>
-              Last »
-            </span>
-          )
-        )}
+        {control('Next →', hasNext, page + 1)}
+        {showJump && control('Last »', hasNext, totalPages, 'Last page')}
       </nav>
     </div>
   )

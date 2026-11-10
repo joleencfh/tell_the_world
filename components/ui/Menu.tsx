@@ -14,6 +14,8 @@ export interface MenuItem {
   href?: string
   onSelect?: () => void
   destructive?: boolean
+  /** Shown only below the sm breakpoint (e.g. links the header shows inline from sm up). */
+  mobileOnly?: boolean
 }
 
 export default function Menu({
@@ -45,10 +47,14 @@ export default function Menu({
     if (returnFocus) triggerRef.current?.focus()
   }
 
+  // Items that are actually shown (a mobileOnly item is display:none from sm up).
+  const visibleItems = () =>
+    (itemRefs.current.filter(Boolean) as HTMLElement[]).filter((el) => el.offsetParent !== null)
+
   // Focus the first (or last) item when it opens.
   useEffect(() => {
     if (!open) return
-    const list = itemRefs.current.filter(Boolean) as HTMLElement[]
+    const list = visibleItems()
     ;(openAt.current === 'last' ? list[list.length - 1] : list[0])?.focus()
   }, [open])
 
@@ -71,7 +77,7 @@ export default function Menu({
   }
 
   function onMenuKeyDown(e: React.KeyboardEvent) {
-    const list = itemRefs.current.filter(Boolean) as HTMLElement[]
+    const list = visibleItems()
     const at = list.indexOf(document.activeElement as HTMLElement)
     if (e.key === 'ArrowDown') {
       e.preventDefault()
@@ -93,10 +99,11 @@ export default function Menu({
     }
   }
 
-  const itemClass = (destructive?: boolean) =>
+  const itemClass = (destructive?: boolean, mobileOnly?: boolean) =>
     cn(
       'flex min-h-11 w-full items-center px-3 text-left font-ui text-ui hover:bg-bone focus-visible:bg-bone focus-visible:outline-none',
       destructive ? 'text-brick' : 'text-umber',
+      mobileOnly && 'sm:hidden',
     )
 
   return (
@@ -135,7 +142,7 @@ export default function Menu({
             const common = {
               role: 'menuitem' as const,
               tabIndex: -1,
-              className: itemClass(item.destructive),
+              className: itemClass(item.destructive, item.mobileOnly),
               ref: (el: HTMLElement | null) => {
                 itemRefs.current[i] = el
               },

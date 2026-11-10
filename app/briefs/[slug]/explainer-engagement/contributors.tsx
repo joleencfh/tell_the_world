@@ -37,20 +37,20 @@ function ContributorCard({ user }: { user: EngagementAuthor }) {
   return (
     <div
       role="tooltip"
-      className="pointer-events-none absolute left-0 top-full z-30 mt-2 w-60 translate-y-1 border-[1.5px] border-ink bg-paper text-left opacity-0 shadow-lg transition-all duration-150 motion-reduce:transition-none group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100"
+      className="pointer-events-none absolute left-0 top-full z-30 mt-2 w-60 translate-y-1 rounded-control bg-vellum text-left opacity-0 shadow-menu transition-all duration-150 motion-reduce:transition-none group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100"
     >
-      <div className="flex items-center gap-3 border-b border-line px-4 py-3">
-        <Avatar name={name} avatarUrl={user.avatar_url} size="sm" palette="colored" shape={user.role === 'organisation' ? 'square' : 'circle'} />
+      <div className="flex items-center gap-3 border-b border-window-line px-4 py-3">
+        <Avatar name={name} avatarUrl={user.avatar_url} size="sm" role={user.role} />
         <div className="min-w-0">
-          <p className="truncate font-display text-[0.8rem] font-extrabold uppercase leading-tight text-ink">{name}</p>
-          <div className="mt-1"><RoleBadge role={user.role} size="xs" /></div>
+          <p className="truncate font-ui text-ui-sm font-semibold text-umber">{name}</p>
+          <div className="mt-1"><RoleBadge role={user.role} /></div>
         </div>
       </div>
       <div className="px-4 py-3">
         {credential ? (
-          <p className="font-body text-[0.72rem] leading-snug text-ink-soft">{credential}</p>
+          <p className="font-ui text-caption text-umber-soft">{credential}</p>
         ) : (
-          <p className="font-body text-[0.72rem] italic leading-snug text-ink-faint">
+          <p className="font-ui text-caption text-umber-soft">
             {user.role === 'organisation' ? 'Organisation account' : 'No affiliation on file'}
           </p>
         )}
@@ -69,7 +69,7 @@ export function ContributorsStrip({ points, comments }: { points: ContentiousPoi
 
   return (
     <div className="space-y-2">
-      <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-ink-faint">Contributors</p>
+      <p className="font-mono text-label uppercase text-umber-soft">Contributors</p>
       <div className="flex flex-wrap items-center">
         {contributors.map((user, i) => {
           const name = getDisplayName({ display_name: user.display_name })
@@ -77,13 +77,13 @@ export function ContributorsStrip({ points, comments }: { points: ContentiousPoi
             <span key={user.id} className="group relative inline-flex items-center">
               <Link
                 href={`/profile/${user.id}`}
-                className="border-b-[1.5px] border-transparent py-0.5 font-mono text-[0.78rem] text-ink outline-none transition-colors hover:border-blue hover:text-blue-ink focus-visible:border-blue focus-visible:text-blue-ink"
+                className="inline-flex min-h-11 items-center border-b-2 border-transparent font-ui text-ui-sm text-umber transition-colors hover:border-cobalt hover:text-cobalt focus-ring"
               >
                 {name}
               </Link>
               <ContributorCard user={user} />
               {i < contributors.length - 1 && (
-                <span className="ml-2 text-line-strong" aria-hidden>&middot;</span>
+                <span className="ml-2 text-field-line" aria-hidden>&middot;</span>
               )}
             </span>
           )

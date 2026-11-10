@@ -16,9 +16,11 @@ import type { EngagementAuthor } from '@/lib/data/explainer-engagement'
 // so the two no longer need different font sizes the way the smaller
 // 1.05rem/0.95rem baseline did.
 function explainerParagraphClassName(index: number): string {
-  return `font-body text-[1.125rem] leading-[1.7] ${
-    index === 0 ? 'font-medium text-ink' : 'text-ink-soft'
-  }`
+  // The lead-paragraph emphasis (medium weight, ink vs soft colour) is
+  // dropped: the design system has no non-colour treatment for it, so every
+  // paragraph reads the same.
+  void index
+  return 'font-serif text-reading text-umber'
 }
 
 // In-content headings (H2/H3 in the rich text editor's toolbar) — sized
@@ -29,8 +31,8 @@ function explainerParagraphClassName(index: number): string {
 // freeform headings an author can drop in anywhere while writing.
 function explainerHeadingClassName(level: 'h2' | 'h3'): string {
   return level === 'h2'
-    ? 'font-display text-[1.45rem] font-extrabold leading-[1.3] text-ink'
-    : 'font-display text-[1.2rem] font-bold leading-[1.35] text-ink'
+    ? 'font-serif text-section text-umber'
+    : 'font-serif text-card-title text-umber'
 }
 
 function ExplainerBody({
@@ -45,7 +47,7 @@ function ExplainerBody({
   const doc = parseRichContent(richContent)
   if (doc) {
     return (
-      <div className="max-w-2xl space-y-6">
+      <div className="max-w-reading space-y-6">
         {renderRichText(doc, {
           paragraphClassName: explainerParagraphClassName,
           headingClassName: explainerHeadingClassName,
@@ -61,7 +63,7 @@ function ExplainerBody({
   const paragraphs = content.split(/\n\n+/).filter(Boolean)
 
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="max-w-reading space-y-6">
       {paragraphs.map((paragraph, i) => {
         const tokens = tokenizeKeyterms(paragraph.trim())
         return (
@@ -105,7 +107,7 @@ function ExplainerSubsection({ section }: { section: ExplainerSectionRow }) {
   return (
     <div className="space-y-4">
       {section.title && (
-        <h3 className="font-body text-[1.28rem] font-medium italic text-ink-soft">{section.title}</h3>
+        <h3 className="font-serif text-card-title text-umber">{section.title}</h3>
       )}
       <ExplainerBody sectionId={section.id} content={section.content} richContent={section.rich_content} />
     </div>
@@ -163,7 +165,7 @@ export function ExplainerSections({
     <div className="space-y-10">
       <div className="space-y-4">
         {explainerTitle && (
-          <h2 className="max-w-2xl font-display text-[1.8rem] font-extrabold leading-[1.2] text-ink" style={{ fontSize: 'clamp(1.5rem, 2.4vw, 1.8rem)' }}>
+          <h2 className="max-w-reading font-serif text-section text-umber">
             {explainerTitle}
           </h2>
         )}
@@ -189,8 +191,8 @@ export function ExplainerSections({
         </Fragment>
       ))}
       {sourceGroups.length > 0 && (
-        <div className="space-y-6 border-t border-line pt-10">
-          <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-blue-ink">Sources</p>
+        <div className="space-y-6 border-t border-rule pt-10">
+          <p className="font-mono text-label uppercase text-umber-soft">Sources</p>
           {sourceGroups.map((group) => (
             <SourcesGrid key={group.id} items={group.items} />
           ))}

@@ -1,9 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
-import Logo from '@/components/ui/Logo'
-import SignOutButton from '@/components/ui/SignOutButton'
+import AppHeader from '@/components/ui/AppHeader'
+import Button from '@/components/ui/Button'
 import Footer from '@/components/ui/Footer'
 import { SECTION_META, SectionHeader, TLDRList } from './section-content'
 import { QuotesCarousel } from './quotes'
@@ -178,29 +177,16 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
   })
 
   return (
-    <div className="min-h-screen bg-paper text-ink">
+    <div className="min-h-screen bg-parchment font-ui text-umber">
 
       {/* ── Nav ──────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-10 bg-paper/95 backdrop-blur-sm border-b-2 border-ink px-6">
-        <div className="mx-auto flex max-w-4xl items-center justify-between py-4">
-          <Logo href={isLoggedIn ? '/home' : '/'} />
-          <nav className="flex items-center gap-6">
-            {isLoggedIn ? (
-              <>
-                <Link href="/directory" className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint hover:text-ink transition-colors hidden sm:block">Directory</Link>
-                <Link href="/briefs" className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint hover:text-ink transition-colors hidden sm:block">Briefs</Link>
-                <Link href={`/profile/${currentUser.id}`} className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint hover:text-ink transition-colors">Profile</Link>
-                <SignOutButton className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint hover:text-ink transition-colors" />
-              </>
-            ) : (
-              <>
-                <Link href="/apply" className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint hover:text-ink transition-colors">Apply</Link>
-                <Link href="/login" className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint hover:text-ink transition-colors">Login</Link>
-              </>
-            )}
-          </nav>
-        </div>
-      </header>
+      <AppHeader
+        user={
+          currentUser
+            ? { id: currentUser.id, name: currentUser.display_name ?? '', avatarUrl: currentUser.avatar_url, role: currentUser.role }
+            : null
+        }
+      />
 
       <main>
 
@@ -219,24 +205,27 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
           onOpenReviewers={() => setReviewersModalOpen(true)}
         />
 
-        {/* ── TL;DR ─────────────────────────────────────────────────────── */}
+        <SectionNav sections={navSections} />
+
+        {/* ── TL;DR─────────────────────────────────────────────────────── */}
         {tldr.trim() && (
-          <div id="section-tldr" className="scroll-mt-20 border-t-4 border-line border-b border-line bg-paper px-6 py-16">
-            <div className="mx-auto max-w-4xl anim-rise" style={{ animationDelay: '0ms' }}>
+          <div id="section-tldr" className="scroll-mt-26 md:scroll-mt-28 border-t border-rule px-4 py-14 md:px-gutter md:py-section">
+            <div className="mx-auto max-w-content anim-rise" style={{ animationDelay: '0ms' }}>
               <SectionHeader
                 num={SECTION_META.tldr.num}
                 label={SECTION_META.tldr.label}
                 description={brief.tldr_teaser || SECTION_META.tldr.description}
                 action={
                   canContribute || currentUser?.role === 'admin' ? (
-                    <button
+                    <Button
                       type="button"
+                      variant="secondary"
+                      small
                       onClick={() => setTldrFeedbackOpen(true)}
                       style={{ touchAction: 'manipulation' }}
-                      className="border-[1.5px] border-blue bg-paper px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.06em] text-blue-ink outline-none transition-colors hover:bg-blue hover:text-white focus-visible:ring-2 focus-visible:ring-blue"
                     >
                       Suggest changes
-                    </button>
+                    </Button>
                   ) : undefined
                 }
               />
@@ -250,8 +239,8 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
             block rather than threaded through the SECTION_ORDER loop below,
             same pattern as CTA/Covered By/Related Briefs further down. ─── */}
         {showSections && (quotes.length > 0 || canAddQuote) && (
-          <div id="section-quotes" className="scroll-mt-20 border-t-4 border-t-blue border-b border-b-line bg-paper-sunken-blue px-6 py-16">
-            <div className="mx-auto max-w-4xl anim-rise" style={{ animationDelay: '0ms' }}>
+          <div id="section-quotes" className="scroll-mt-26 md:scroll-mt-28 border-t border-rule px-4 py-14 md:px-gutter md:py-section">
+            <div className="mx-auto max-w-content anim-rise" style={{ animationDelay: '0ms' }}>
               <QuotesCarousel quotes={quotes} briefSlug={brief.slug} isLoggedIn={isLoggedIn} canAddQuote={canAddQuote} onAddQuote={() => setAddQuoteOpen(true)} onOpenQuote={setSelectedQuote} />
             </div>
           </div>
@@ -367,11 +356,9 @@ export default function BriefView({ brief, quotes, endorsementBar, endorsementDe
           onCloseReviewersModal={() => setReviewersModalOpen(false)}
         />
 
-        <SectionNav sections={navSections} />
-
       </main>
 
-      <Footer variant="bold" />
+      <Footer />
 
     </div>
   )
