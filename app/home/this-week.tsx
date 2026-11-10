@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Tag from '@/components/ui/Tag'
 import Thumb from '@/components/ui/Thumb'
 import type { ActivityItem } from '@/lib/data/activity'
 import DashboardSectionHeader, { DASH_SECTION_BORDER_CLASSES } from './dashboard-section-header'
@@ -22,27 +23,6 @@ const TAG_LABEL: Record<ActivityItem['kind'], string> = {
   quote: 'Quote',
   external: 'External',
   coverage: 'Coverage',
-}
-
-// Matches the artifact's .week-tag rules exactly: brief is an unfilled
-// neutral outline, quote fills blue, coverage/external both fill pink (the
-// same "external content" meaning pink already carries sitewide).
-const TAG_CLASSES: Record<ActivityItem['kind'], string> = {
-  brief_new: 'border-line-strong bg-paper text-ink-soft',
-  brief_updated: 'border-line-strong bg-paper text-ink-soft',
-  quote: 'border-blue-soft bg-blue-soft text-blue-ink',
-  external: 'border-pink-soft bg-pink-soft text-pink-ink',
-  coverage: 'border-pink-soft bg-pink-soft text-pink-ink',
-}
-
-// Row background tint by kind — no tint for Brief rows, blue-wash for
-// Quote, pink-wash for External/Coverage (this part's write-up).
-const ROW_TINT_CLASSES: Record<ActivityItem['kind'], string> = {
-  brief_new: '',
-  brief_updated: '',
-  quote: 'bg-blue-wash',
-  external: 'bg-pink-wash',
-  coverage: 'bg-pink-wash',
 }
 
 function rowHeading(item: ActivityItem): string {
@@ -70,32 +50,28 @@ function Row({ item }: { item: ActivityItem }) {
 
   const inner = (
     <>
-      <span className="font-mono text-[10px] tracking-[0.06em] text-ink-faint tabular-nums">
-        {formatRowDate(item.created_at)}
-      </span>
-      <span
-        className={`w-fit shrink-0 border font-mono text-[8.5px] uppercase tracking-[0.08em] px-[7px] py-1 ${TAG_CLASSES[item.kind]}`}
-      >
-        {TAG_LABEL[item.kind]}
-      </span>
+      <span className="font-mono text-label tabular-nums text-umber-soft">{formatRowDate(item.created_at)}</span>
+      {/* The kind is told by the word, not by a hue. */}
+      <Tag className="w-fit shrink-0">{TAG_LABEL[item.kind]}</Tag>
       <div className="flex min-w-0 items-center gap-3">
-        {showThumb && <Thumb id={item.id} className="h-9 w-9 shrink-0" />}
+        {showThumb && <Thumb id={item.id} className="size-9 shrink-0 rounded-control" />}
         <div className="min-w-0">
-          <div className="truncate font-body text-[0.92rem] font-bold text-ink">{heading}</div>
-          {description && <div className="mt-0.5 truncate text-[0.78rem] text-ink-faint">{description}</div>}
+          <div className="truncate font-ui text-ui font-semibold text-umber">{heading}</div>
+          {description && <div className="mt-0.5 truncate text-caption text-umber-soft">{description}</div>}
         </div>
       </div>
     </>
   )
 
-  const rowClassName = `grid grid-cols-1 items-start gap-1.5 border-b border-line px-2.5 py-2.5 transition-colors hover:bg-paper-raised sm:grid-cols-[84px_auto_1fr_auto] sm:items-center sm:gap-4 ${ROW_TINT_CLASSES[item.kind]}`
+  const rowClassName =
+    'grid min-h-11 grid-cols-1 items-start gap-1.5 px-5 py-4 transition-colors hover:bg-bone focus-ring sm:grid-cols-[84px_auto_1fr_auto] sm:items-center sm:gap-4'
   const goLabel = item.kind === 'external' || item.kind === 'coverage' ? 'Open ↗' : 'Read →'
 
   if (item.kind === 'external' || item.kind === 'coverage') {
     return (
       <a href={item.url} target="_blank" rel="noopener noreferrer" className={rowClassName}>
         {inner}
-        <span className="font-mono text-[10px] text-ink-soft">{goLabel}</span>
+        <span className="font-ui text-ui-sm text-umber-soft">{goLabel}</span>
       </a>
     )
   }
@@ -112,21 +88,21 @@ function Row({ item }: { item: ActivityItem }) {
   return (
     <Link href={`/briefs/${item.slug}`} className={rowClassName}>
       {inner}
-      <span className="font-mono text-[10px] text-ink-soft">{goLabel}</span>
+      <span className="font-ui text-ui-sm text-umber-soft">{goLabel}</span>
     </Link>
   )
 }
 
 export default function ThisWeek({ items }: { items: ActivityItem[] }) {
   return (
-    <section className={`border-t-4 ${DASH_SECTION_BORDER_CLASSES.pink} pt-8`}>
+    <section className={`${DASH_SECTION_BORDER_CLASSES.rose} pt-8`}>
       <DashboardSectionHeader
-        tone="pink"
+        tone="rose"
         label="This Week"
         title="What moved since Monday"
         description="Brief updates and outside coverage, in the order they happened, not split into separate feeds."
       />
-      <div className="flex flex-col">
+      <div className="flex flex-col divide-y divide-rule overflow-hidden rounded-control bg-vellum shadow-hairline">
         {items.map((item) => (
           <Row key={`${item.kind}-${item.id}`} item={item} />
         ))}

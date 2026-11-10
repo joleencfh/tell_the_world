@@ -26,11 +26,10 @@ export interface SlidingTabItem {
   label: string
   content: ReactNode
   /** Full override for this tab's active-state classes (border + text
-   *  color) — e.g. Highlighted's Quotes/Covered By tabs use blue/pink
-   *  instead of the default ink. Defaults to the ink treatment when
-   *  omitted. Provide a complete class string, not just a color, since
-   *  Tailwind utility precedence isn't source-order-safe when mixed with
-   *  the default active classes. */
+   *  color). Defaults to the neutral umber underline when omitted. Provide a
+   *  complete class string, not just a color, since Tailwind utility
+   *  precedence isn't source-order-safe when mixed with the default active
+   *  classes. */
   activeClassName?: string
 }
 
@@ -39,8 +38,8 @@ export interface SlidingTabTrackProps {
   defaultTabId?: string
 }
 
-const DEFAULT_ACTIVE_CLASSES = 'border-b-ink bg-paper text-ink'
-const INACTIVE_CLASSES = 'border-b-transparent text-ink-faint hover:text-ink-soft'
+const DEFAULT_ACTIVE_CLASSES = 'border-b-umber text-umber'
+const INACTIVE_CLASSES = 'border-b-transparent text-umber-soft hover:text-umber'
 
 export default function SlidingTabTrack({ tabs, defaultTabId }: SlidingTabTrackProps) {
   const [activeId, setActiveId] = useState(defaultTabId ?? tabs[0]?.id)
@@ -51,7 +50,7 @@ export default function SlidingTabTrack({ tabs, defaultTabId }: SlidingTabTrackP
 
   return (
     <div>
-      <div role="tablist" className="flex border-y border-line">
+      <div role="tablist" className="flex border-b border-rule">
         {tabs.map((tab) => {
           const active = tab.id === activeId
           return (
@@ -61,7 +60,7 @@ export default function SlidingTabTrack({ tabs, defaultTabId }: SlidingTabTrackP
               role="tab"
               aria-selected={active}
               onClick={() => setActiveId(tab.id)}
-              className={`flex-1 border-b-[3px] px-2.5 py-[13px] text-center font-mono text-[10px] tracking-[0.1em] uppercase transition-colors ${
+              className={`min-h-11 flex-1 border-b-2 px-2.5 py-2.5 text-center font-ui text-ui-sm transition-colors focus-ring ${
                 active ? (tab.activeClassName ?? DEFAULT_ACTIVE_CLASSES) : INACTIVE_CLASSES
               }`}
             >

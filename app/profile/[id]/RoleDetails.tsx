@@ -1,4 +1,5 @@
 import type { ProfileUser } from './page'
+import Tag from '@/components/ui/Tag'
 
 // ---------------------------------------------------------------------------
 // Utilities
@@ -16,14 +17,44 @@ export function extractDomain(url: string): string {
 // Sub-components
 // ---------------------------------------------------------------------------
 
-function DetailRow({ label, value }: { label: string; value: string }) {
+// Key-value rows (design-system.md 3.5): a two-column grid, the label in
+// mono (160px), the value in text-ui-sm, a hairline between rows.
+const ROW = 'grid gap-x-4 gap-y-1 py-3 sm:grid-cols-[160px_1fr]'
+const LABEL = 'font-mono text-label uppercase text-umber-soft'
+
+function DetailRow({ label, value, multiline }: { label: string; value: string; multiline?: boolean }) {
   return (
-    <div className="flex flex-col gap-0.5">
-      <span className="font-mono text-[9px] tracking-[0.15em] uppercase text-ink-soft">
-        {label}
-      </span>
-      <span className="font-body text-sm text-ink">{value}</span>
+    <div className={ROW}>
+      <dt className={LABEL}>{label}</dt>
+      <dd className={`font-ui text-ui-sm text-umber${multiline ? ' leading-relaxed' : ''}`}>{value}</dd>
     </div>
+  )
+}
+
+function DetailLinkRow({ label, url }: { label: string; url: string }) {
+  return (
+    <div className={ROW}>
+      <dt className={LABEL}>{label}</dt>
+      <dd className="min-w-0">
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block truncate rounded-control font-ui text-ui-sm text-umber underline decoration-umber-soft/40 underline-offset-[5px] hover:decoration-umber focus-ring"
+        >
+          {extractDomain(url)}
+        </a>
+      </dd>
+    </div>
+  )
+}
+
+function DetailsSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="border-t border-rule pt-10">
+      <h2 className="mb-2 font-mono text-label uppercase text-umber-soft">{title}</h2>
+      <dl className="divide-y divide-rule">{children}</dl>
+    </section>
   )
 }
 
@@ -40,75 +71,34 @@ export function RoleDetails({ user }: { user: ProfileUser }) {
       return null
     }
     return (
-      <section className="border-t border-line pt-8">
-        <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-ink-soft mb-5">
-          Expert details
-        </p>
-        <div className="grid sm:grid-cols-2 gap-5">
-          {user.job_title && <DetailRow label="Job title" value={user.job_title} />}
-          {user.affiliation && <DetailRow label="Affiliation" value={user.affiliation} />}
-          {user.credibility_url && (
-            <div className="flex flex-col gap-0.5">
-              <span className="font-mono text-[9px] tracking-[0.15em] uppercase text-ink-soft">
-                Credibility
-              </span>
-              <a
-                href={user.credibility_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-body text-sm text-blue-ink hover:opacity-75 transition-opacity truncate"
-              >
-                {extractDomain(user.credibility_url)}
-              </a>
-            </div>
-          )}
-          {user.areas_of_focus && user.areas_of_focus.length > 0 && (
-            <div className="flex flex-col gap-2 sm:col-span-2">
-              <span className="font-mono text-[9px] tracking-[0.15em] uppercase text-ink-soft">
-                Areas of focus
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {user.areas_of_focus.map((area) => (
-                  <span
-                    key={area}
-                    className="px-2.5 py-0.5 bg-green-50 text-green-700 rounded-full font-mono text-[9px] tracking-[0.1em]"
-                  >
-                    {area}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
+      <DetailsSection title="Expert details">
+        {user.job_title && <DetailRow label="Job title" value={user.job_title} />}
+        {user.affiliation && <DetailRow label="Affiliation" value={user.affiliation} />}
+        {user.credibility_url && <DetailLinkRow label="Credibility" url={user.credibility_url} />}
+        {user.areas_of_focus && user.areas_of_focus.length > 0 && (
+          <div className={ROW}>
+            <dt className={LABEL}>Areas of focus</dt>
+            <dd className="flex flex-wrap gap-2">
+              {user.areas_of_focus.map((area) => (
+                <Tag key={area}>{area}</Tag>
+              ))}
+            </dd>
+          </div>
+        )}
+      </DetailsSection>
     )
   }
 
   if (user.role === 'organisation') {
     if (!hasAny([user.org_name, user.org_size, user.org_mission])) return null
     return (
-      <section className="border-t border-line pt-8">
-        <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-ink-soft mb-5">
-          Organisation details
-        </p>
-        <div className="grid sm:grid-cols-2 gap-5">
-          {user.org_name && <DetailRow label="Organisation" value={user.org_name} />}
-          {user.org_size && (
-            <DetailRow
-              label="Size"
-              value={user.org_size.charAt(0).toUpperCase() + user.org_size.slice(1)}
-            />
-          )}
-          {user.org_mission && (
-            <div className="flex flex-col gap-0.5 sm:col-span-2">
-              <span className="font-mono text-[9px] tracking-[0.15em] uppercase text-ink-soft">
-                Mission
-              </span>
-              <p className="font-body text-sm text-ink leading-relaxed">{user.org_mission}</p>
-            </div>
-          )}
-        </div>
-      </section>
+      <DetailsSection title="Organisation details">
+        {user.org_name && <DetailRow label="Organisation" value={user.org_name} />}
+        {user.org_size && (
+          <DetailRow label="Size" value={user.org_size.charAt(0).toUpperCase() + user.org_size.slice(1)} />
+        )}
+        {user.org_mission && <DetailRow label="Mission" value={user.org_mission} multiline />}
+      </DetailsSection>
     )
   }
 
@@ -125,67 +115,25 @@ export function RoleDetails({ user }: { user: ProfileUser }) {
     if (!hasAny(fields)) return null
 
     return (
-      <section className="border-t border-line pt-8">
-        <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-ink-soft mb-5">
-          {isJournalist ? 'Journalist details' : 'Creator details'}
-        </p>
-        <div className="grid sm:grid-cols-2 gap-5">
-          {user.channel_name && (
-            <DetailRow label="Channel / publication" value={user.channel_name} />
-          )}
-          {user.primary_platform && (
-            <DetailRow
-              label="Primary platform"
-              value={user.primary_platform.charAt(0).toUpperCase() + user.primary_platform.slice(1)}
-            />
-          )}
-          {user.platform_url && (
-            <div className="flex flex-col gap-0.5">
-              <span className="font-mono text-[9px] tracking-[0.15em] uppercase text-ink-soft">
-                Channel / page
-              </span>
-              <a
-                href={user.platform_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-body text-sm text-pink-ink hover:opacity-75 transition-opacity truncate"
-              >
-                {extractDomain(user.platform_url)}
-              </a>
-            </div>
-          )}
-          {user.audience_size != null && (
-            <DetailRow
-              label="Audience size"
-              value={user.audience_size.toLocaleString()}
-            />
-          )}
-          {user.content_language && (
-            <DetailRow label="Content language" value={user.content_language} />
-          )}
-          {isJournalist && user.publication_name && (
-            <DetailRow label="Publication" value={user.publication_name} />
-          )}
-          {isJournalist && user.publication_url && (
-            <div className="flex flex-col gap-0.5">
-              <span className="font-mono text-[9px] tracking-[0.15em] uppercase text-ink-soft">
-                Publication URL
-              </span>
-              <a
-                href={user.publication_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-body text-sm text-pink-ink hover:opacity-75 transition-opacity truncate"
-              >
-                {extractDomain(user.publication_url)}
-              </a>
-            </div>
-          )}
-          {isJournalist && user.reporting_beat && (
-            <DetailRow label="Reporting beat" value={user.reporting_beat} />
-          )}
-        </div>
-      </section>
+      <DetailsSection title={isJournalist ? 'Journalist details' : 'Creator details'}>
+        {user.channel_name && <DetailRow label="Channel / publication" value={user.channel_name} />}
+        {user.primary_platform && (
+          <DetailRow
+            label="Primary platform"
+            value={user.primary_platform.charAt(0).toUpperCase() + user.primary_platform.slice(1)}
+          />
+        )}
+        {user.platform_url && <DetailLinkRow label="Channel / page" url={user.platform_url} />}
+        {user.audience_size != null && (
+          <DetailRow label="Audience size" value={user.audience_size.toLocaleString()} />
+        )}
+        {user.content_language && <DetailRow label="Content language" value={user.content_language} />}
+        {isJournalist && user.publication_name && <DetailRow label="Publication" value={user.publication_name} />}
+        {isJournalist && user.publication_url && (
+          <DetailLinkRow label="Publication URL" url={user.publication_url} />
+        )}
+        {isJournalist && user.reporting_beat && <DetailRow label="Reporting beat" value={user.reporting_beat} />}
+      </DetailsSection>
     )
   }
 

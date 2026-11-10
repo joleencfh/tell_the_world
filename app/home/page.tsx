@@ -7,11 +7,13 @@ import { getUserBasic, getRecentUsers, getExpertOrgIds } from '@/lib/data/users'
 import { getPostsByAuthors } from '@/lib/data/posts'
 import { getHeroDigest } from '@/lib/data/home'
 import { getThisWeekActivity } from '@/lib/data/activity'
-import Avatar from '@/components/ui/Avatar'
-import RoleBadge from '@/components/ui/RoleBadge'
-import Logo from '@/components/ui/Logo'
+import Author from '@/components/ui/Author'
+import { buttonClasses } from '@/components/ui/Button'
+import CategoryChip, { type PostCategory } from '@/components/ui/CategoryChip'
+import EmptyState from '@/components/ui/EmptyState'
+import StatusChip from '@/components/ui/StatusChip'
 import Footer from '@/components/ui/Footer'
-import SignOutButton from '@/components/ui/SignOutButton'
+import AppHeader from '@/components/ui/AppHeader'
 import ThisWeek from './this-week'
 import Highlighted, { getHighlightedSectionData } from './highlighted'
 import Thumb from '@/components/ui/Thumb'
@@ -73,27 +75,13 @@ function truncate(text: string, max: number): string {
 // Sub-components
 // ---------------------------------------------------------------------------
 
-function PostTypeBadge({ type }: { type: string }) {
-  const cls: Record<string, string> = {
-    video: 'bg-red-100 text-red-700',
-    article: 'bg-blue-100 text-blue-700',
-    paper: 'bg-green-100 text-green-700',
-    quote: 'bg-purple-100 text-purple-700',
-    resource: 'bg-amber-100 text-amber-700',
-  }
-  return (
-    <span
-      className={`inline-block px-2 py-0.5 rounded-full font-mono text-[9px] tracking-[0.1em] uppercase ${cls[type] ?? 'bg-gray-100 text-gray-600'}`}
-    >
-      {type}
-    </span>
-  )
-}
+const POST_CATEGORIES: readonly PostCategory[] = ['video', 'article', 'paper', 'quote', 'resource']
 
-function EmptyState({ message }: { message: string }) {
-  return (
-    <p className="font-body text-sm text-ink-soft/60 italic py-4">{message}</p>
-  )
+// Post types are told apart by an icon and a word, never by hue. A type the
+// design system does not know falls back to "resource".
+function PostTypeBadge({ type }: { type: string }) {
+  const category = POST_CATEGORIES.find((c) => c === type) ?? 'resource'
+  return <CategoryChip category={category} />
 }
 
 // Part 10 (docs/design/brief-feature/brief-page-part2-plan.md §2) — status
@@ -104,32 +92,23 @@ const PROPOSAL_STATUS_LABEL: Record<UserBriefProposal['status'], string> = {
   declined: 'Declined',
 }
 
-// Two-Ink Bold treats proposal status as a status axis, not a role axis —
-// one neutral bordered mono chip for every status rather than borrowing
-// blue/pink or a stock traffic-light palette (home-dashboard-plan.md §2
-// Part 5 step 4).
-const PROPOSAL_STATUS_CLASS = 'border border-ink-faint text-ink-soft'
-
 function ProposalCard({ proposal }: { proposal: UserBriefProposal }) {
   return (
-    <article className="bg-paper-raised border border-line p-5 flex flex-col gap-3">
+    <article className="flex flex-col gap-3 rounded-control bg-vellum p-5 shadow-hairline">
       <div className="flex items-start justify-between gap-3">
-        <h3 className="font-body text-sm font-bold text-ink leading-snug flex-1">
+        <h3 className="min-w-0 flex-1 font-ui text-ui font-semibold leading-snug text-umber">
           {proposal.topic_title}
         </h3>
-        <span
-          className={`shrink-0 inline-block px-2 py-0.5 font-mono text-[9px] tracking-[0.1em] uppercase ${PROPOSAL_STATUS_CLASS}`}
-        >
-          {PROPOSAL_STATUS_LABEL[proposal.status]}
-        </span>
+        {/* Neutral for every status outside admin (design decision 2). */}
+        <StatusChip status={proposal.status} label={PROPOSAL_STATUS_LABEL[proposal.status]} className="shrink-0" />
       </div>
       {proposal.status === 'approved' && proposal.published_brief_slug && (
         <Link
           href={`/briefs/${proposal.published_brief_slug}`}
-          className="font-mono text-[9px] tracking-[0.15em] uppercase text-ink-soft hover:text-ink transition-colors inline-flex items-center gap-1 group mt-auto"
+          className="group mt-auto inline-flex min-h-11 items-center gap-1 rounded-control font-ui text-ui-sm text-umber-soft underline decoration-umber-soft/40 underline-offset-[5px] hover:text-umber hover:decoration-umber focus-ring"
         >
           Read brief{' '}
-          <span className="group-hover:translate-x-0.5 transition-transform" aria-hidden>
+          <span className="transition-transform group-hover:translate-x-0.5" aria-hidden>
             →
           </span>
         </Link>
@@ -141,15 +120,11 @@ function ProposalCard({ proposal }: { proposal: UserBriefProposal }) {
 function BriefCard({ brief }: { brief: Brief }) {
   return (
     <div className="w-[250px] shrink-0 snap-start pt-1 first:pl-1">
-      <article className="flex h-full flex-col border border-line border-t-[3px] border-t-ink bg-paper">
+      <article className="flex h-full flex-col overflow-hidden rounded-control bg-vellum shadow-hairline">
         <Thumb id={brief.id} className="h-[92px] w-full" />
-        <div className="flex flex-1 flex-col gap-3 p-4">
-          <h3 className="font-body text-sm font-bold text-ink leading-snug">
-            {brief.title}
-          </h3>
-          <p className="font-body text-sm text-ink-soft leading-relaxed flex-1">
-            {truncate(brief.tldr, 120)}
-          </p>
+        <div className="flex flex-1 flex-col gap-3 p-5">
+          <h3 className="font-serif text-card-title text-umber">{brief.title}</h3>
+          <p className="flex-1 font-ui text-ui-sm text-umber-soft">{truncate(brief.tldr, 120)}</p>
           <CardGoLink href={`/briefs/${brief.slug}`} ariaLabel={`Read ${brief.title}`} />
         </div>
       </article>
@@ -164,35 +139,23 @@ function PostCard({ post, showThumb }: { post: ContentPost; showThumb: boolean }
   const authorName = getDisplayName(post.users)
   return (
     <div className="w-[260px] shrink-0 snap-start pt-1 first:pl-1">
-      <article className="flex h-full flex-col gap-3 border border-line border-t-[3px] border-t-blue bg-paper">
-        <div className="flex items-center gap-3 px-4 pt-4">
-          <Avatar name={authorName} avatarUrl={post.users.avatar_url} size="xs" />
-          <div className="min-w-0 flex-1">
-            <Link
-              href={`/profile/${post.user_id}`}
-              className="font-body text-xs font-semibold text-ink hover:text-blue-ink transition-colors block truncate"
-            >
-              {authorName}
-            </Link>
-            <div className="mt-0.5">
-              <RoleBadge role={post.users.role} size="sm" />
-            </div>
-          </div>
+      <article className="flex h-full flex-col gap-3 overflow-hidden rounded-control bg-vellum shadow-hairline">
+        <div className="flex items-start justify-between gap-3 px-5 pt-5">
+          <Link
+            href={`/profile/${post.user_id}`}
+            className="min-w-0 rounded-control hover:underline focus-ring"
+          >
+            <Author name={authorName} avatarUrl={post.users.avatar_url} role={post.users.role} size="xs" />
+          </Link>
           <PostTypeBadge type={post.post_type} />
         </div>
         {showThumb && <Thumb id={post.id} className="h-[100px] w-full" />}
-        <div className="flex-1 px-4">
-          <p className="font-body text-sm font-semibold text-ink leading-snug mb-1">
-            {post.title}
-          </p>
-          {post.body && (
-            <p className="font-body text-sm text-ink-soft leading-relaxed">
-              {truncate(post.body, 180)}
-            </p>
-          )}
+        <div className="flex-1 px-5">
+          <p className="mb-1 font-ui text-ui font-semibold leading-snug text-umber">{post.title}</p>
+          {post.body && <p className="font-ui text-ui-sm text-umber-soft">{truncate(post.body, 180)}</p>}
         </div>
         {post.url && (
-          <div className="flex justify-end px-4 pb-4">
+          <div className="flex justify-end px-5 pb-5">
             <CardGoLink
               href={post.url}
               ariaLabel={`View source: ${post.title}`}
@@ -206,33 +169,17 @@ function PostCard({ post, showThumb }: { post: ContentPost; showThumb: boolean }
   )
 }
 
-// Left-border accent per role, same split as app/directory/UserCard.tsx's
-// ROLE_BORDER: blue = expert/org, pink = creator/journalist, neutral for
-// admin/comms_specialist/other.
-const ROLE_BORDER: Record<UserRole, string> = {
-  creator: 'border-l-pink/40',
-  journalist: 'border-l-pink/40',
-  expert: 'border-l-blue/40',
-  organisation: 'border-l-blue/40',
-  admin: 'border-l-line-strong',
-  comms_specialist: 'border-l-line-strong',
-  other: 'border-l-line-strong',
-}
-
+// Member card: the Author block is the whole card, one link to the profile.
+// The role label beside the name tells the side (rose or cobalt); there is no
+// coloured edge any more.
 function UserChip({ user }: { user: RecentUser }) {
   const name = getDisplayName(user)
   return (
     <Link
       href={`/profile/${user.id}`}
-      className={`flex items-center gap-2.5 bg-paper border border-line border-l-[3px] ${ROLE_BORDER[user.role]} px-3 py-2 hover:bg-paper-raised transition-colors shrink-0`}
+      className="flex min-h-11 shrink-0 items-center rounded-control bg-vellum px-4 py-3 shadow-hairline transition-colors hover:bg-bone focus-ring"
     >
-      <Avatar name={name} avatarUrl={user.avatar_url} size="xs" />
-      <div className="min-w-0">
-        <p className="font-body text-xs font-semibold text-ink truncate max-w-[100px]">
-          {name}
-        </p>
-        <RoleBadge role={user.role} size="sm" />
-      </div>
+      <Author name={name} avatarUrl={user.avatar_url} role={user.role} size="xs" />
     </Link>
   )
 }
@@ -278,58 +225,28 @@ export default async function HomePage() {
   )[0]
 
   return (
-    <div className="min-h-screen bg-paper text-ink">
-      {/* Nav */}
-      <header className="sticky top-0 z-10 bg-paper/95 backdrop-blur-sm border-b-2 border-ink px-6">
-        <div className="mx-auto flex max-w-5xl items-center justify-between py-4">
-          <Logo href="/home" />
-          <nav className="flex items-center gap-6">
-            <Link
-              href="/directory"
-              className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors hidden sm:block"
-            >
-              Directory
-            </Link>
-            <Link
-              href="/briefs"
-              className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors hidden sm:block"
-            >
-              Briefs
-            </Link>
-            {currentUser && (
-              <Link
-                href={`/profile/${currentUser.id}`}
-                className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors"
-              >
-                Profile
-              </Link>
-            )}
-            <SignOutButton className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors" />
-          </nav>
-        </div>
-      </header>
+    <div className="min-h-screen bg-parchment font-ui text-umber">
+      <AppHeader
+        user={
+          currentUser
+            ? { id: currentUser.id, name: getDisplayName(currentUser), avatarUrl: currentUser.avatar_url, role: currentUser.role }
+            : null
+        }
+        current="home"
+      />
 
-      <main className="px-6 py-12">
-        <div className="mx-auto max-w-5xl space-y-16">
+      <main className="px-4 py-10 md:px-gutter md:py-14">
+        <div className="mx-auto max-w-page space-y-14">
 
           {/* Welcome */}
           <section className="anim-rise" style={{ animationDelay: '0ms' }}>
-            <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-ink-soft mb-3">
-              Dashboard
-            </p>
-            <h1 className="font-display font-extrabold uppercase leading-none tracking-tight text-balance text-ink mb-6 text-[2.5rem] sm:text-[3.5rem]">
-              Welcome back, {welcomeName}
-            </h1>
+            <p className="mb-3 font-mono text-label uppercase text-umber-soft">Dashboard</p>
+            <h1 className="mb-6 text-balance font-serif text-title text-umber">Welcome back, {welcomeName}</h1>
             {heroDigest && (
-              <p className="font-body text-base text-ink-soft leading-relaxed max-w-xl mb-6">
-                {heroDigest}
-              </p>
+              <p className="mb-6 max-w-reading font-serif text-lead text-umber-soft">{heroDigest}</p>
             )}
-            <div className="flex items-center gap-6 flex-wrap">
-              <Link
-                href="/directory"
-                className="font-display uppercase tracking-widest text-xs bg-ink text-paper px-6 py-3 hover:opacity-90 transition-opacity"
-              >
+            <div className="flex flex-wrap items-center gap-6">
+              <Link href="/directory" className={buttonClasses({ variant: 'primary' })}>
                 Browse Directory
               </Link>
             </div>
@@ -337,8 +254,8 @@ export default async function HomePage() {
 
           {/* Profile not set up yet */}
           {!currentUser && (
-            <div className="border-2 border-ink bg-paper-raised p-5 anim-rise" style={{ animationDelay: '60ms' }}>
-              <p className="font-body text-sm text-ink">
+            <div className="anim-rise rounded-control bg-bone p-5" style={{ animationDelay: '60ms' }}>
+              <p className="font-ui text-ui text-umber">
                 Your profile isn&rsquo;t set up yet. Contact the platform admin to
                 complete your onboarding.
               </p>
@@ -364,9 +281,9 @@ export default async function HomePage() {
               same "additive, no empty-state chip" spirit as the
               Contributors list this pairs with on BriefView.tsx. */}
           {myProposals.length > 0 && (
-            <section className={`border-t-4 ${DASH_SECTION_BORDER_CLASSES.ink} pt-8 anim-rise`} style={{ animationDelay: '100ms' }}>
-              <DashboardSectionHeader tone="ink" label="Your Proposals" title="Awaiting review" />
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <section className={`${DASH_SECTION_BORDER_CLASSES.neutral} pt-8 anim-rise`} style={{ animationDelay: '100ms' }}>
+              <DashboardSectionHeader tone="neutral" label="Your Proposals" title="Awaiting review" />
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {myProposals.map((p) => (
                   <ProposalCard key={p.id} proposal={p} />
                 ))}
@@ -375,9 +292,9 @@ export default async function HomePage() {
           )}
 
           {/* Active Briefs */}
-          <section className={`border-t-4 ${DASH_SECTION_BORDER_CLASSES.ink} pt-8 anim-rise`} style={{ animationDelay: '140ms' }}>
+          <section className={`${DASH_SECTION_BORDER_CLASSES.neutral} pt-8 anim-rise`} style={{ animationDelay: '140ms' }}>
             <DashboardSectionHeader
-              tone="ink"
+              tone="neutral"
               label="Active Briefs"
               title="Following"
               action={
@@ -387,36 +304,36 @@ export default async function HomePage() {
               }
             />
             {briefs.length > 0 ? (
-              <DashboardCarousel fadeColor="var(--color-paper)" ariaLabel="Active briefs">
+              <DashboardCarousel fadeColor="var(--color-parchment)" ariaLabel="Active briefs">
                 {briefs.map((b) => (
                   <BriefCard key={b.id} brief={b} />
                 ))}
               </DashboardCarousel>
             ) : (
-              <EmptyState message="No briefs published yet. Check back soon." />
+              <EmptyState title="No briefs published yet. Check back soon." />
             )}
           </section>
 
           {/* From Your Network — recent posts from experts and organisations */}
-          <section className={`border-t-4 ${DASH_SECTION_BORDER_CLASSES.blue} pt-8 anim-rise`} style={{ animationDelay: '180ms' }}>
-            <DashboardSectionHeader tone="blue" label="From Your Network" title="Recent posts from experts & orgs" />
+          <section className={`${DASH_SECTION_BORDER_CLASSES.cobalt} pt-8 anim-rise`} style={{ animationDelay: '180ms' }}>
+            <DashboardSectionHeader tone="cobalt" label="From Your Network" title="Recent posts from experts & orgs" />
             {posts.length > 0 ? (
-              <div className="bg-paper-sunken-blue p-5 sm:p-6">
-                <DashboardCarousel fadeColor="var(--color-paper-sunken-blue)" ariaLabel="Recent posts from your network">
+              <div className="rounded-control bg-card-cobalt p-5 sm:p-6">
+                <DashboardCarousel fadeColor="var(--color-card-cobalt)" ariaLabel="Recent posts from your network">
                   {posts.map((p, i) => (
                     <PostCard key={p.id} post={p} showThumb={i % 3 !== 1} />
                   ))}
                 </DashboardCarousel>
               </div>
             ) : (
-              <EmptyState message="No posts from experts and organisations yet." />
+              <EmptyState title="No posts from experts and organisations yet." />
             )}
           </section>
 
           {/* Community — recently joined members */}
-          <section className={`border-t-4 ${DASH_SECTION_BORDER_CLASSES.ink} pt-8 anim-rise`} style={{ animationDelay: '220ms' }}>
+          <section className={`${DASH_SECTION_BORDER_CLASSES.neutral} pt-8 anim-rise`} style={{ animationDelay: '220ms' }}>
             <DashboardSectionHeader
-              tone="ink"
+              tone="neutral"
               label="Community"
               title="Recently joined"
               action={
@@ -432,7 +349,7 @@ export default async function HomePage() {
                 ))}
               </div>
             ) : (
-              <EmptyState message="You're the first one here. Others will join soon." />
+              <EmptyState title="You're the first one here. Others will join soon." />
             )}
           </section>
 

@@ -6,10 +6,11 @@ import { getEndorsementBar } from '@/lib/data/contributions'
 import { getQuotesForBrief, type Quote } from '@/lib/data/posts'
 import { getPublishedCoverage, type Coverage } from '@/lib/data/coverage'
 import { computeReadTimeMinutes, formatDate } from '@/app/briefs/[slug]/helpers'
-import { TLDRList, HeaderChip } from '@/app/briefs/[slug]/section-content'
+import { TLDRList } from '@/app/briefs/[slug]/section-content'
+import Tag from '@/components/ui/Tag'
 import { QuoteAuthorFooter } from '@/app/briefs/[slug]/quotes'
 import SlidingTabTrack from './sliding-tabs'
-import { DASH_SECTION_BORDER_CLASSES } from './dashboard-section-header'
+import DashboardSectionHeader, { DASH_SECTION_BORDER_CLASSES } from './dashboard-section-header'
 import DashboardCoverageCard from './dashboard-coverage-card'
 
 // Highlighted module (home-dashboard-plan.md §2, Part 3) — a single admin-
@@ -90,12 +91,10 @@ export async function getHighlightedSectionData(db: DB, userId: string): Promise
 function DashboardQuoteCard({ quote }: { quote: Quote }) {
   const quoteText = quote.body || quote.title
   return (
-    <div className="flex h-full flex-col gap-3 border border-line border-t-[3px] border-t-blue bg-paper p-5">
-      <span className="font-mono text-[0.62rem] tracking-[0.06em] text-ink-faint tabular-nums">
-        {formatDate(quote.created_at)}
-      </span>
-      <p className="flex-1 line-clamp-3 font-body text-base font-normal leading-[1.5] text-ink">&ldquo;{quoteText}&rdquo;</p>
-      <div className="flex items-center gap-[0.65rem] border-t border-line pt-[0.85rem]">
+    <div className="flex h-full flex-col gap-3 rounded-control bg-card-cobalt p-5">
+      <span className="font-mono text-label tabular-nums text-umber-soft">{formatDate(quote.created_at)}</span>
+      <p className="line-clamp-3 flex-1 font-serif text-message text-umber">&ldquo;{quoteText}&rdquo;</p>
+      <div className="flex items-center gap-2.5 border-t border-window-line pt-3.5">
         <QuoteAuthorFooter quote={quote} />
       </div>
     </div>
@@ -103,15 +102,15 @@ function DashboardQuoteCard({ quote }: { quote: Quote }) {
 }
 
 function OverviewEmptyState() {
-  return <p className="font-body text-sm italic text-ink-soft/60">This brief has no TL;DR yet.</p>
+  return <p className="font-ui text-ui-sm text-umber-soft">This brief has no TL;DR yet.</p>
 }
 
 function QuotesEmptyState() {
-  return <p className="font-mono text-xs text-ink-faint">No quotes attached to this brief yet.</p>
+  return <p className="font-ui text-ui-sm text-umber-soft">No quotes attached to this brief yet.</p>
 }
 
 function CoverageEmptyState() {
-  return <p className="font-mono text-xs text-ink-faint">No press coverage attached to this brief yet.</p>
+  return <p className="font-ui text-ui-sm text-umber-soft">No press coverage attached to this brief yet.</p>
 }
 
 // ---------------------------------------------------------------------------
@@ -122,32 +121,25 @@ export default function Highlighted({ data }: { data: HighlightedSectionData }) 
   const { brief, tldr, tldrRichContent, readTimeMinutes, reviewedCount, endorsedCount, quotes, coverage } = data
 
   return (
-    <section className={`border-t-4 ${DASH_SECTION_BORDER_CLASSES.blue} pt-8`}>
-      <div className="mb-[22px]">
-        <HeaderChip tone="spotlight">★ Spotlight</HeaderChip>
-        <h2 className="mt-3 text-[1.4rem] font-extrabold uppercase tracking-[0.005em]">
-          This brief is worth your time
-        </h2>
-      </div>
+    <section className={`${DASH_SECTION_BORDER_CLASSES.cobalt} pt-8`}>
+      <DashboardSectionHeader tone="cobalt" label="★ Spotlight" title="This brief is worth your time" />
 
-      <div className="shadow-block">
-        <div className="border-2 border-ink bg-paper-raised p-6 sm:p-8">
-          <h3 className="font-display text-2xl font-extrabold leading-tight text-ink">{brief.title}</h3>
+      <div>
+        <div className="rounded-control bg-vellum p-6 shadow-hairline sm:p-8">
+          <h3 className="font-serif text-section text-umber">{brief.title}</h3>
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            {reviewedCount > 0 && <HeaderChip tone="blue">✓ Reviewed by {reviewedCount}</HeaderChip>}
-            {endorsedCount > 0 && <HeaderChip tone="blue">★ Endorsed by {endorsedCount}</HeaderChip>}
-            <HeaderChip>{readTimeMinutes} min read</HeaderChip>
+            {reviewedCount > 0 && <Tag>✓ Reviewed by {reviewedCount}</Tag>}
+            {endorsedCount > 0 && <Tag>★ Endorsed by {endorsedCount}</Tag>}
+            <Tag>{readTimeMinutes} min read</Tag>
             {brief.topicTags.map((tag) => (
-              <HeaderChip key={tag} tone="tag">
-                {tag}
-              </HeaderChip>
+              <Tag key={tag}>{tag}</Tag>
             ))}
           </div>
 
           <Link
             href={`/briefs/${brief.slug}`}
-            className="mt-4 inline-flex items-center gap-1 font-mono text-[9px] tracking-[0.15em] uppercase text-ink-soft transition-colors hover:text-ink group"
+            className="group mt-4 inline-flex min-h-11 items-center gap-1 rounded-control font-ui text-ui-sm text-umber-soft underline decoration-umber-soft/40 underline-offset-[5px] hover:text-umber hover:decoration-umber focus-ring"
           >
             Read full brief{' '}
             <span className="transition-transform group-hover:translate-x-0.5" aria-hidden>
@@ -170,7 +162,6 @@ export default function Highlighted({ data }: { data: HighlightedSectionData }) 
                 {
                   id: 'quotes',
                   label: 'Selected Quotes',
-                  activeClassName: 'border-b-blue bg-paper text-blue-ink',
                   content: (
                     <div className="pt-6">
                       {quotes.length > 0 ? (
@@ -188,7 +179,6 @@ export default function Highlighted({ data }: { data: HighlightedSectionData }) 
                 {
                   id: 'coverage',
                   label: 'Covered By',
-                  activeClassName: 'border-b-pink bg-paper text-pink-ink',
                   content: (
                     <div className="pt-6">
                       {coverage.length > 0 ? (

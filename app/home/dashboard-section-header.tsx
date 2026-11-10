@@ -1,39 +1,32 @@
-// Home dashboard's own section header — a lighter sibling to the Brief
-// page's numbered SectionHeader (app/briefs/[slug]/section-content.tsx),
-// not a variant of it. Deliberately has no numeral: the Brief page's
-// sections are read in a fixed narrative order, so 01/02/03 communicates
-// something real; dashboard modules are scanned independently, so
-// numbering them would imply an order that isn't there (see
-// home-dashboard-plan.md §0). Keeps the family resemblance instead — mono
-// eyebrow, tone-colored square dot, italic description.
-//
-// Reference: "Two-Ink Bold Dashboard" artifact, .dash-head/.eyebrow.
+// Home dashboard's own section header: a mono eyebrow with a tone dot, a
+// serif section title and an optional description. No numeral: dashboard
+// modules are scanned independently, so numbering them would imply an order
+// that is not there. Tones are graphic only (a dot): neutral, cobalt for the
+// experts and organisations side, rose for the creators and journalists side.
 
 import type { ReactNode } from 'react'
 
-export type DashboardTone = 'ink' | 'blue' | 'pink'
+export type DashboardTone = 'neutral' | 'cobalt' | 'rose'
 
 const DOT_TONE_CLASSES: Record<DashboardTone, string> = {
-  ink: 'bg-ink',
-  blue: 'bg-blue',
-  pink: 'bg-pink',
+  neutral: 'bg-umber-soft',
+  cobalt: 'bg-cobalt-bright',
+  rose: 'bg-rose-bright',
 }
 
-// Each dash-section's own 4px top-accent border shares the same tone as
-// this header's eyebrow dot (artifact: section.dash-section.tone-*) — a
-// section's <section> tag pulls its border class from here rather than
-// re-deriving the tone-to-color mapping at every call site.
+// Sections are separated by a hairline and space, not boxes or coloured
+// rules (design-system.md 2.3). Kept per tone so a section's <section> tag
+// pulls its border from one place.
 export const DASH_SECTION_BORDER_CLASSES: Record<DashboardTone, string> = {
-  ink: 'border-t-ink',
-  blue: 'border-t-blue',
-  pink: 'border-t-pink',
+  neutral: 'border-t border-rule',
+  cobalt: 'border-t border-rule',
+  rose: 'border-t border-rule',
 }
 
 // Shared style for a section's trailing "View all →" / "Browse directory →"
-// link (artifact: .dash-head .action) — centralized so the four sections
-// that use it don't each redeclare the same mono/uppercase/hover treatment.
+// link: an underlined text link with a 44px target.
 export const DASH_ACTION_LINK_CLASSES =
-  'shrink-0 whitespace-nowrap font-mono text-[10px] tracking-[0.1em] uppercase text-ink-soft transition-colors hover:text-ink'
+  'inline-flex min-h-11 shrink-0 items-center whitespace-nowrap rounded-control font-ui text-ui-sm text-umber-soft underline decoration-umber-soft/40 underline-offset-[5px] hover:text-umber hover:decoration-umber focus-ring'
 
 export interface DashboardSectionHeaderProps {
   label: string
@@ -45,14 +38,14 @@ export interface DashboardSectionHeaderProps {
 
 export default function DashboardSectionHeader({ label, tone, title, description, action }: DashboardSectionHeaderProps) {
   return (
-    <div className="mb-[22px] flex flex-wrap items-end justify-between gap-5">
+    <div className="mb-6 flex flex-wrap items-end justify-between gap-x-5 gap-y-2">
       <div>
-        <div className="mb-1.5 flex items-center gap-[9px] font-mono text-[10px] tracking-[0.16em] uppercase text-ink-faint">
-          <span className={`h-2 w-2 shrink-0 ${DOT_TONE_CLASSES[tone]}`} aria-hidden />
+        <div className="mb-1.5 flex items-center gap-2 font-mono text-label uppercase text-umber-soft">
+          <span className={`size-2 shrink-0 rounded-full ${DOT_TONE_CLASSES[tone]}`} aria-hidden />
           {label}
         </div>
-        <h2 className="text-[1.4rem] font-extrabold uppercase tracking-[0.005em]">{title}</h2>
-        {description && <p className="mt-1 max-w-[40em] text-[0.88rem] italic text-ink-soft">{description}</p>}
+        <h2 className="font-serif text-section text-umber">{title}</h2>
+        {description && <p className="mt-1 max-w-[40em] font-ui text-ui-sm text-umber-soft">{description}</p>}
       </div>
       {action && <div className="shrink-0">{action}</div>}
     </div>

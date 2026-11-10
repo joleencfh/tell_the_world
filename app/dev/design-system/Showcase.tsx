@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Alert, { type AlertTone } from '@/components/ui/Alert'
+import AppHeader from '@/components/ui/AppHeader'
 import Author from '@/components/ui/Author'
 import Avatar, { type AvatarSize } from '@/components/ui/Avatar'
 import Button, { type ButtonVariant } from '@/components/ui/Button'
@@ -202,6 +203,28 @@ export default function Showcase() {
             <Author name="Jordan Reyes" role="creator" affiliation="YouTube, Jordan’s AI Corner" />
             <Author name="Dr Amara Okafor" role="expert" affiliation="Institute for Applied Safety" />
             <Author name="Open Horizon" role="organisation" affiliation="Policy research nonprofit" />
+          </Row>
+        </Section>
+
+        <Section id="app-header" title="App header">
+          <p className="max-w-reading text-ui-sm text-umber-soft">
+            Sticky in the app; shown static here. Press the avatar to open the account menu (arrow keys move,
+            Escape closes and returns focus). Links hide below the sm breakpoint, as the old headers did.
+          </p>
+          <Row label="Links, active link (Directory), avatar image fallback to initial">
+            <div className="w-full [&_header]:static">
+              <AppHeader user={{ id: 'demo', name: 'Jordan Reyes', avatarUrl: null, role: 'creator' }} current="directory" />
+            </div>
+          </Row>
+          <Row label="Home active, expert, menu closed">
+            <div className="w-full [&_header]:static">
+              <AppHeader user={{ id: 'demo', name: 'Dr Amara Okafor', avatarUrl: null, role: 'expert' }} current="home" />
+            </div>
+          </Row>
+          <Row label="No avatar fallback (no user)">
+            <div className="w-full [&_header]:static">
+              <AppHeader user={null} />
+            </div>
           </Row>
         </Section>
 
