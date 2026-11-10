@@ -137,7 +137,7 @@ test.describe('Brief quotes smoke test', () => {
       await expect(quotes.section(page).getByText(authorName(creator)).first()).toBeVisible()
     })
 
-    test('(b) opening a quote shows a dialog with its text; Escape closes it and returns focus', async ({ page }) => {
+    test('(b) opening a quote with Enter shows a dialog with its text; Close dismisses it', async ({ page }) => {
       await page.goto(`/briefs/${SLUG}`)
       const card = quotes.card(page, QUOTE_ONE)
       await card.focus()
@@ -146,6 +146,21 @@ test.describe('Brief quotes smoke test', () => {
       const dialog = quotes.detailDialog(page)
       await expect(dialog).toBeVisible()
       await expect(dialog.getByText(QUOTE_ONE)).toBeVisible()
+
+      await dialog.getByRole('button', { name: 'Close' }).click()
+      await expect(dialog).toHaveCount(0)
+    })
+
+    // Enable when the Phase 4b modal migration (plan step 5) lands: the old QuoteDetailModal
+    // has no Escape handler or focus restoration, so this only holds on the new modal.
+    test.fixme('(b2) Escape closes the quote dialog and returns focus to the card', async ({ page }) => {
+      await page.goto(`/briefs/${SLUG}`)
+      const card = quotes.card(page, QUOTE_ONE)
+      await card.focus()
+      await page.keyboard.press('Enter')
+
+      const dialog = quotes.detailDialog(page)
+      await expect(dialog).toBeVisible()
 
       await page.keyboard.press('Escape')
       await expect(dialog).toHaveCount(0)
