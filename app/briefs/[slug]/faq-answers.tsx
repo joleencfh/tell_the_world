@@ -2,7 +2,9 @@
 
 import { useEffect, useId, useRef, useState, useTransition } from 'react'
 import Link from 'next/link'
-import Avatar from '@/components/ui/Avatar'
+import Author from '@/components/ui/Author'
+import Button from '@/components/ui/Button'
+import Alert from '@/components/ui/Alert'
 import { submitFaqAnswer } from '@/lib/briefs/actions'
 import { getDisplayName, formatDate } from './helpers'
 import { parseRichContent } from '@/lib/richtext/types'
@@ -12,8 +14,8 @@ import type { FaqAnswer } from '@/lib/data/faq-answers'
 import type { FaqMeta } from '@/lib/data/faq-meta'
 
 // ---------------------------------------------------------------------------
-// Answer card — matches the reference artifact's .answer-card: blue-left-
-// border card, avatar + name/role/date meta, answer text. Split out of
+// Answer card — the same answer surface as the Q&A thread (card-cobalt with a
+// hairline): Author block, date line, answer text in serif. Split out of
 // section-content.tsx (which FAQBlock still lives in) to keep that file
 // under the project's ~500-line convention (CONTRIBUTING.md).
 // ---------------------------------------------------------------------------
@@ -21,34 +23,29 @@ import type { FaqMeta } from '@/lib/data/faq-meta'
 function AnswerCard({ answer }: { answer: FaqAnswer }) {
   const name = getDisplayName(answer.users)
   const credential = answer.users.affiliation || answer.users.org_name
-  const isOrg = answer.users.role === 'organisation'
 
   return (
-    <div className="border border-line border-l-[3px] border-l-blue bg-paper-raised p-4">
-      <div className="mb-2 flex items-center gap-2.5">
-        <Avatar
-          name={name}
-          avatarUrl={answer.users.avatar_url}
-          palette="blue"
-          shape={isOrg ? 'square' : 'circle'}
-          size="xs"
-        />
-        <div className="min-w-0 flex-1">
-          <Link
-            href={`/profile/${answer.users.id}`}
-            className="block truncate font-display text-[0.82rem] font-extrabold text-ink hover:text-blue transition-colors"
-          >
-            {name}
-          </Link>
-          <p className="truncate font-mono text-[0.6rem] text-ink-faint">
-            {credential && `${credential} · `}
-            {formatDate(answer.created_at)}
-          </p>
-        </div>
+    <div className="space-y-3 rounded-control bg-card-cobalt px-4 py-4 shadow-hairline">
+      <div className="min-w-0 space-y-1">
+        <Link
+          href={`/profile/${answer.users.id}`}
+          className="inline-flex min-h-11 max-w-full items-center rounded-control focus-ring hover:underline"
+        >
+          <Author
+            name={name}
+            role={answer.users.role ?? undefined}
+            affiliation={credential}
+            avatarUrl={answer.users.avatar_url}
+            size="sm"
+          />
+        </Link>
+        <p className="font-mono text-label uppercase tabular-nums text-umber-soft">
+          {formatDate(answer.created_at)}
+        </p>
       </div>
       {(() => {
         const doc = parseRichContent(answer.rich_content)
-        const paragraphClassName = () => 'break-words font-body text-[0.88rem] leading-[1.6] text-ink'
+        const paragraphClassName = () => 'break-words font-serif text-message text-umber'
         return doc ? (
           renderRichText(doc, { paragraphClassName })
         ) : (
@@ -80,7 +77,7 @@ export function MoreAnswersToggle({ answers }: { answers: FaqAnswer[] }) {
         aria-controls={panelId}
         onClick={() => setOpen((v) => !v)}
         style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-        className="inline-flex items-center gap-1.5 rounded-sm font-mono text-[0.68rem] uppercase tracking-[0.08em] text-blue-ink outline-none focus-visible:ring-2 focus-visible:ring-blue"
+        className="inline-flex min-h-11 items-center gap-1.5 rounded-control font-mono text-label uppercase text-cobalt focus-ring hover:text-cobalt-deep"
       >
         More answers ({answers.length})
         <span
@@ -90,7 +87,7 @@ export function MoreAnswersToggle({ answers }: { answers: FaqAnswer[] }) {
           ▾
         </span>
       </button>
-      <div id={panelId} role="region" hidden={!open} className="mt-3 grid gap-[0.7rem]">
+      <div id={panelId} role="region" hidden={!open} className="mt-3 grid gap-3">
         {open && answers.map((answer) => <AnswerCard key={answer.id} answer={answer} />)}
       </div>
     </div>
@@ -126,7 +123,7 @@ export function AddAnswerForm({
         type="button"
         onClick={() => setOpen(true)}
         style={{ touchAction: 'manipulation' }}
-        className="inline-block rounded-sm font-mono text-[0.68rem] uppercase tracking-[0.08em] text-blue-ink underline decoration-dotted underline-offset-2 outline-none focus-visible:ring-2 focus-visible:ring-blue"
+        className="inline-flex min-h-11 items-center rounded-control font-mono text-label uppercase text-cobalt underline underline-offset-2 focus-ring hover:text-cobalt-deep"
       >
         + Add an answer
       </button>
@@ -152,8 +149,8 @@ export function AddAnswerForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-2 border-t border-line pt-4">
-      <label htmlFor={fieldId} className="block font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint">
+    <form onSubmit={handleSubmit} className="space-y-3 border-t border-rule pt-4">
+      <label htmlFor={fieldId} className="block font-mono text-label uppercase text-umber-soft">
         Add your answer
       </label>
       {feedback?.type !== 'success' && (
@@ -165,23 +162,17 @@ export function AddAnswerForm({
           />
         </div>
       )}
-      {feedback && (
-        <p
-          role={feedback.type === 'error' ? 'alert' : undefined}
-          className={`font-mono text-[10px] ${feedback.type === 'error' ? 'text-pink-ink' : 'text-blue-ink'}`}
-        >
-          {feedback.message}
-        </p>
-      )}
+      {feedback?.type === 'error' && <Alert tone="danger">{feedback.message}</Alert>}
+      {feedback?.type === 'success' && <Alert tone="success">{feedback.message}</Alert>}
       {feedback?.type !== 'success' && (
-        <button
+        <Button
           type="submit"
-          disabled={isPending || !plainText.trim()}
+          disabled={!plainText.trim()}
+          pending={isPending}
           style={{ touchAction: 'manipulation' }}
-          className="bg-ink px-4 py-2 font-mono text-[10px] uppercase tracking-[0.15em] text-paper transition-opacity hover:opacity-90 disabled:opacity-40"
         >
           {isPending ? 'Submitting…' : 'Submit answer'}
-        </button>
+        </Button>
       )}
     </form>
   )
@@ -202,6 +193,9 @@ export function AddAnswerForm({
 // "Suggest changes" button.
 // ---------------------------------------------------------------------------
 
+const PANEL_LINK =
+  'inline-flex min-h-11 items-center rounded-control font-ui text-caption text-umber transition-colors focus-ring hover:text-cobalt'
+
 function FaqInfoPanel({ meta, onClose }: { meta: FaqMeta | undefined; onClose: () => void }) {
   const collaborators = meta?.collaborators ?? []
   const feedbackGivers = meta?.feedbackGivers ?? []
@@ -210,28 +204,28 @@ function FaqInfoPanel({ meta, onClose }: { meta: FaqMeta | undefined; onClose: (
     <div
       role="dialog"
       aria-label="Answer info"
-      className="absolute right-0 top-full z-20 mt-1 w-72 border-[1.5px] border-ink bg-paper shadow-[0_10px_28px_rgba(0,0,0,0.14)]"
+      className="absolute right-0 top-full z-20 mt-1 w-72 rounded-control border border-rule bg-vellum shadow-menu"
     >
-      <div className="flex items-center justify-between border-b border-line px-4 py-2.5">
-        <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-ink-faint">Answer info</span>
+      <div className="flex items-center justify-between border-b border-rule py-1 pl-4 pr-1">
+        <span className="font-mono text-label uppercase text-umber-soft">Answer info</span>
         <button
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="text-ink-faint hover:text-ink"
+          className="inline-flex size-11 items-center justify-center rounded-control text-umber-soft focus-ring hover:bg-bone hover:text-umber"
         >
           ×
         </button>
       </div>
       <div className="space-y-3 px-4 py-3">
-        <p className="font-body text-xs text-ink-soft">Written by Tell The World staff.</p>
+        <p className="font-ui text-caption text-umber-soft">Written by Tell The World staff.</p>
         {collaborators.length > 0 && (
           <div>
-            <p className="mb-1 font-mono text-[9px] uppercase tracking-[0.1em] text-blue-ink">Collaborators</p>
-            <ul className="space-y-0.5">
+            <p className="mb-1 font-mono text-label uppercase text-cobalt">Collaborators</p>
+            <ul>
               {collaborators.map((u) => (
                 <li key={u.id}>
-                  <Link href={`/profile/${u.id}`} className="font-body text-xs text-ink hover:text-blue transition-colors">
+                  <Link href={`/profile/${u.id}`} className={PANEL_LINK}>
                     {getDisplayName(u)}
                   </Link>
                 </li>
@@ -241,11 +235,11 @@ function FaqInfoPanel({ meta, onClose }: { meta: FaqMeta | undefined; onClose: (
         )}
         {feedbackGivers.length > 0 && (
           <div>
-            <p className="mb-1 font-mono text-[9px] uppercase tracking-[0.1em] text-blue-ink">Feedback from</p>
-            <ul className="space-y-0.5">
+            <p className="mb-1 font-mono text-label uppercase text-cobalt">Feedback from</p>
+            <ul>
               {feedbackGivers.map((u) => (
                 <li key={u.id}>
-                  <Link href={`/profile/${u.id}`} className="font-body text-xs text-ink hover:text-blue transition-colors">
+                  <Link href={`/profile/${u.id}`} className={PANEL_LINK}>
                     {getDisplayName(u)}
                   </Link>
                 </li>
@@ -294,17 +288,17 @@ export function FaqMetaMenu({
         aria-expanded={open}
         aria-label="Answer options"
         style={{ touchAction: 'manipulation' }}
-        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-sm font-mono text-sm text-ink-faint outline-none transition-colors hover:bg-paper-raised hover:text-ink focus-visible:ring-2 focus-visible:ring-blue"
+        className="flex size-11 shrink-0 items-center justify-center rounded-control font-mono text-ui text-umber-soft transition-colors focus-ring hover:bg-bone hover:text-umber"
       >
         ⋯
       </button>
       {open && (
-        <div className="absolute right-0 top-full z-20 mt-1 min-w-[160px] border-[1.5px] border-ink bg-paper shadow-[0_10px_28px_rgba(0,0,0,0.14)]">
+        <div className="absolute right-0 top-full z-20 mt-1 min-w-[160px] overflow-hidden rounded-control border border-rule bg-vellum shadow-menu">
           <button
             type="button"
             onClick={() => { setOpen(false); setInfoOpen(true) }}
             style={{ touchAction: 'manipulation' }}
-            className="block w-full border-b border-line px-3 py-2 text-left font-mono text-[0.68rem] uppercase tracking-[0.03em] text-ink hover:bg-paper-raised"
+            className="block min-h-11 w-full border-b border-rule px-3 py-2 text-left font-mono text-label uppercase text-umber focus-ring hover:bg-bone"
           >
             Info
           </button>
@@ -313,7 +307,7 @@ export function FaqMetaMenu({
               type="button"
               onClick={() => { setOpen(false); onGiveFeedback(question) }}
               style={{ touchAction: 'manipulation' }}
-              className="block w-full px-3 py-2 text-left font-mono text-[0.68rem] uppercase tracking-[0.03em] text-ink hover:bg-paper-raised"
+              className="block min-h-11 w-full px-3 py-2 text-left font-mono text-label uppercase text-umber focus-ring hover:bg-bone"
             >
               Give feedback
             </button>
