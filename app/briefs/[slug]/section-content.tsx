@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 import Avatar from '@/components/ui/Avatar'
+import Button from '@/components/ui/Button'
 import { getDisplayName, formatDate } from './helpers'
 import { parseRichContent, parseTldrBulletLead, type RichTextParagraphNode } from '@/lib/richtext/types'
 import { renderRichTextInline } from '@/lib/richtext/render'
@@ -119,16 +120,16 @@ export function TLDRList({ content, richContent }: { content: string; richConten
 // ---------------------------------------------------------------------------
 
 const CHIP_TONE_CLASSES: Record<'blue' | 'pink' | 'default' | 'tag' | 'spotlight', string> = {
-  blue: 'bg-blue-soft text-blue-ink border-blue/30',
-  pink: 'bg-pink-soft text-pink-ink border-pink/30',
-  default: 'bg-paper-raised text-ink-soft border-line',
-  tag: 'bg-paper-raised text-ink border-line',
+  blue: 'bg-cobalt-wash text-cobalt border-transparent',
+  pink: 'bg-rose-wash text-rose-deep border-transparent',
+  default: 'bg-bone text-umber-soft border-transparent',
+  tag: 'bg-transparent text-umber-soft border-window-line',
   // Solid-filled variant — home dashboard's Highlighted section eyebrow
   // (home-dashboard-plan.md §2 Part 0 step 4), used nowhere else. Extending
   // this component rather than adding a dashboard-local one since it's a
   // pure color/fill reskin of the same chip shape, not a different markup
   // shape.
-  spotlight: 'bg-blue text-paper border-blue',
+  spotlight: 'bg-umber text-parchment border-transparent',
 }
 
 export function HeaderChip({
@@ -140,7 +141,7 @@ export function HeaderChip({
 }) {
   return (
     <span
-      className={`inline-flex items-center whitespace-nowrap font-mono text-[9px] tracking-[0.1em] uppercase px-3 py-1 border-[1.5px] ${CHIP_TONE_CLASSES[tone]}`}
+      className={`inline-flex items-center whitespace-nowrap rounded-tag border px-2 py-0.5 font-mono text-label uppercase ${CHIP_TONE_CLASSES[tone]}`}
     >
       {children}
     </span>
@@ -329,15 +330,9 @@ function ReviewedByButton({
   ].filter(Boolean)
 
   return (
-    <button
-      type="button"
-      onClick={onOpen}
-      aria-haspopup="dialog"
-      style={{ touchAction: 'manipulation' }}
-      className={`inline-flex items-center whitespace-nowrap font-mono text-[9px] tracking-[0.1em] uppercase px-3 py-1 border-[1.5px] outline-none transition-colors ${CHIP_TONE_CLASSES.blue} hover:bg-blue/20 focus-visible:ring-2 focus-visible:ring-blue`}
-    >
+    <Button type="button" variant="secondary" small onClick={onOpen} aria-haspopup="dialog" style={{ touchAction: 'manipulation' }}>
       {parts.join(' · ')}
-    </button>
+    </Button>
   )
 }
 
@@ -394,15 +389,15 @@ export function ContributorsList({ contributors }: { contributors: BriefContribu
 
   return (
     <div className="flex flex-wrap items-center gap-3 mt-4 anim-rise" style={{ animationDelay: '175ms' }}>
-      <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-ink-faint">Contributors</span>
-      <div className="flex flex-wrap gap-3">
+      <span className="font-mono text-label uppercase text-umber-soft">Contributors</span>
+      <div className="flex flex-wrap gap-x-4">
         {contributors.map((c) => {
           const name = getDisplayName({ display_name: c.display_name })
           return (
             <Link
               key={c.id}
               href={`/profile/${c.id}`}
-              className="inline-flex items-center gap-1.5 font-mono text-[10px] text-ink-soft hover:text-ink transition-colors"
+              className="focus-ring inline-flex min-h-11 items-center gap-2 font-ui text-ui-sm text-umber-soft transition-colors hover:text-umber"
             >
               <Avatar name={name} avatarUrl={c.avatar_url} size="2xs" />
               {name}

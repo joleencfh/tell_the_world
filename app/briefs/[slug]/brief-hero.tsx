@@ -6,7 +6,7 @@ import { getBriefNumber, getBriefCategory } from './helpers'
 import type { Brief, CurrentUser, ContributionStatus, BriefContributor } from './page'
 
 // ---------------------------------------------------------------------------
-// Hero — neutral ink, no blue/pink tint (§1.1)
+// Hero — page header (design-system.md 3.3): eyebrow, serif title, lead
 // ---------------------------------------------------------------------------
 
 export function BriefHero({
@@ -37,17 +37,14 @@ export function BriefHero({
   onOpenReviewers: () => void
 }) {
   return (
-    <div id="section-top" className="relative overflow-hidden border-b border-line px-6 pt-12 pb-14">
-      {/* Bottom fade to next section */}
-      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent to-paper pointer-events-none" />
-
-      <div className="mx-auto max-w-4xl relative">
+    <div id="section-top" className="border-b border-rule px-4 pb-10 pt-14 md:px-gutter">
+      <div className="mx-auto max-w-content">
         {/* Numbered eyebrow — 01, so the SectionHeader sequence starting
             at 02 (TL;DR, just below) doesn't appear to skip 01 (§1.3). */}
-        <div className="flex items-center gap-4 mb-[0.9rem] anim-rise" style={{ animationDelay: '0ms' }}>
-          <span className="font-mono text-sm tracking-[0.2em] text-ink font-bold tabular-nums">01</span>
-          <div className="h-px flex-1 bg-line" />
-          <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-ink-faint">
+        <div className="flex items-center gap-4 mb-4 anim-rise" style={{ animationDelay: '0ms' }}>
+          <span className="font-mono text-label tabular-nums text-umber-soft">01</span>
+          <div className="h-px flex-1 bg-rule" />
+          <span className="font-mono text-label uppercase text-umber-soft">
             Brief No. {getBriefNumber(brief.id)} — {getBriefCategory(brief.topic_tag)}
           </span>
           {/* Admin-only entry point into the existing brief editor (Part 5
@@ -56,7 +53,7 @@ export function BriefHero({
           {currentUser?.role === 'admin' && (
             <Link
               href={`/admin/briefs/${brief.id}`}
-              className="shrink-0 font-mono text-[10px] tracking-[0.3em] uppercase text-ink-faint hover:text-ink transition-colors"
+              className="focus-ring inline-flex min-h-11 shrink-0 items-center font-mono text-label uppercase text-umber-soft transition-colors hover:text-umber"
             >
               Edit this brief →
             </Link>
@@ -64,29 +61,18 @@ export function BriefHero({
         </div>
 
         {/* Title/subtitle block + Contribute — flex row so the hero's
-            role-gated dropdown (Part 9) sits top-right of the title,
-            matching the reference artifact's .hero-top layout. */}
-        <div className="flex flex-wrap items-start justify-between gap-10">
-          <div className="min-w-0 flex-1">
+            role-gated dropdown (Part 9) sits top-right of the title on wide
+            screens and drops below it on phones. */}
+        <div className="flex flex-wrap items-start justify-between gap-6 md:gap-10">
+          <div className="min-w-0 flex-1 basis-full md:basis-0">
             {/* Title — large, dominant */}
-            <h1
-              className="font-display font-extrabold text-ink anim-rise break-words"
-              style={{
-                fontSize: 'clamp(1.98rem, 4.99vw, 4.22rem)',
-                lineHeight: '0.96',
-                letterSpacing: '-0.035em',
-                animationDelay: '80ms',
-              }}
-            >
+            <h1 className="font-serif text-title text-umber anim-rise break-words" style={{ animationDelay: '80ms' }}>
               {brief.title}
             </h1>
 
             {/* Subtitle — one sentence, allowed a point of view */}
             {brief.subtitle && (
-              <p
-                className="font-body text-base sm:text-lg text-ink-soft italic mt-6 max-w-2xl anim-rise"
-                style={{ animationDelay: '120ms' }}
-              >
+              <p className="font-serif text-lead text-umber-soft mt-6 max-w-reading anim-rise" style={{ animationDelay: '120ms' }}>
                 {brief.subtitle}
               </p>
             )}
