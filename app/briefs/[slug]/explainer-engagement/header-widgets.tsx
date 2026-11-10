@@ -28,7 +28,7 @@ function Tooltip({ label, children }: { label: string; children: ReactElement })
       <span
         role="tooltip"
         id={id}
-        className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-max max-w-[11rem] -translate-x-1/2 rounded bg-ink px-2.5 py-1.5 text-center font-body text-[11px] font-normal not-italic leading-snug text-paper opacity-0 shadow-lg transition-opacity duration-150 motion-reduce:transition-none group-hover:opacity-100 group-focus-within:opacity-100"
+        className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-max max-w-[11rem] -translate-x-1/2 rounded-control bg-umber px-2.5 py-1.5 text-center font-ui text-caption font-normal not-italic text-parchment opacity-0 shadow-menu transition-opacity duration-150 motion-reduce:transition-none group-hover:opacity-100 group-focus-within:opacity-100"
       >
         {label}
       </span>
@@ -87,7 +87,7 @@ function UsefulWidget({
         : 'Mark as useful'
 
   return (
-    <div className="flex items-center gap-1 sm:gap-1.5 border sm:border-0 border-line px-1 py-1 sm:px-0 sm:py-0" aria-live="polite">
+    <div className="flex items-center gap-1.5" aria-live="polite">
       <Tooltip label={iconTooltip}>
         <button
           type="button"
@@ -96,10 +96,10 @@ function UsefulWidget({
           aria-pressed={liked}
           aria-label={liked ? 'Unlike' : 'Like'}
           style={{ touchAction: 'manipulation' }}
-          className={`flex h-7 w-7 items-center justify-center border-0 sm:border outline-none transition-colors focus-visible:ring-2 focus-visible:ring-blue disabled:cursor-default ${
+          className={`flex size-11 items-center justify-center rounded-control border transition-colors focus-ring disabled:cursor-default ${
             liked
-              ? 'sm:border-blue sm:bg-blue-soft text-blue-ink'
-              : 'sm:border-line-strong bg-paper text-ink-faint hover:text-blue-ink sm:hover:border-blue disabled:hover:text-ink-faint sm:disabled:hover:border-line-strong'
+              ? 'border-cobalt bg-cobalt-wash text-cobalt'
+              : 'border-field-line bg-vellum text-umber-soft hover:border-cobalt hover:text-cobalt disabled:hover:border-field-line disabled:hover:text-umber-soft'
           }`}
         >
           <ThumbsUpIcon filled={liked} />
@@ -110,7 +110,7 @@ function UsefulWidget({
           type="button"
           onClick={onShowLikers}
           style={{ touchAction: 'manipulation' }}
-          className="font-mono text-xs sm:text-sm font-semibold text-ink-soft no-underline sm:underline sm:decoration-dotted sm:underline-offset-2 outline-none transition-colors hover:text-blue-ink focus-visible:ring-2 focus-visible:ring-blue"
+          className="inline-flex min-h-11 min-w-11 items-center justify-center font-ui text-ui-sm font-semibold tabular-nums text-umber-soft underline underline-offset-2 transition-colors hover:text-cobalt focus-ring"
         >
           {count}
         </button>
@@ -125,10 +125,10 @@ function ScrollWidget({ href, icon, count, label }: { href: string; icon: string
       <a
         href={href}
         style={{ touchAction: 'manipulation' }}
-        className="inline-flex items-center gap-1 sm:gap-1.5 border sm:border-0 border-line px-1 py-1 sm:px-0 sm:py-0 font-mono text-ink-soft no-underline outline-none transition-colors hover:text-blue-ink focus-visible:ring-2 focus-visible:ring-blue"
+        className="inline-flex min-h-11 items-center gap-1.5 font-ui text-umber-soft no-underline transition-colors hover:text-cobalt focus-ring"
       >
-        <span aria-hidden className="text-[0.85rem] sm:text-[0.95rem] leading-none">{icon}</span>
-        <span className="text-xs sm:text-sm font-semibold">{count}</span>
+        <span aria-hidden className="text-ui leading-none">{icon}</span>
+        <span className="text-ui-sm font-semibold tabular-nums">{count}</span>
       </a>
     </Tooltip>
   )

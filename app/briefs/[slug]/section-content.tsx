@@ -79,8 +79,8 @@ export function parseTLDR(content: string): TLDRBullet[] | null {
 function TLDRBulletRow({ children }: { children: ReactNode }) {
   return (
     <li className="flex gap-3">
-      <span className="mt-2.5 h-1.5 w-1.5 rounded-full bg-ink-faint shrink-0" aria-hidden />
-      <p className="font-body text-[1.05rem] text-ink leading-[1.7]">{children}</p>
+      <span className="mt-3 h-1.5 w-1.5 rounded-full bg-umber-soft shrink-0" aria-hidden />
+      <p className="font-serif text-lead text-umber">{children}</p>
     </li>
   )
 }
@@ -92,7 +92,7 @@ export function TLDRList({ content, richContent }: { content: string; richConten
     const bullets = doc.root.children.filter((node): node is RichTextParagraphNode => node.type === 'paragraph')
     if (bullets.length === 0) return null
     return (
-      <ul className="space-y-4 max-w-2xl">
+      <ul className="space-y-4 max-w-reading">
         {bullets.map((bullet, i) => (
           <TLDRBulletRow key={i}>{renderRichTextInline(bullet.children)}</TLDRBulletRow>
         ))}
@@ -104,10 +104,10 @@ export function TLDRList({ content, richContent }: { content: string; richConten
   if (!bullets) return null
 
   return (
-    <ul className="space-y-4 max-w-2xl">
+    <ul className="space-y-4 max-w-reading">
       {bullets.map((bullet, i) => (
         <TLDRBulletRow key={i}>
-          {bullet.lead && <strong className="font-semibold text-ink">{bullet.lead} — </strong>}
+          {bullet.lead && <strong className="font-semibold text-umber">{bullet.lead} — </strong>}
           {bullet.rest}
         </TLDRBulletRow>
       ))}

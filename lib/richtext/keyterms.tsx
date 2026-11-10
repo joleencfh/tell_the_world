@@ -49,14 +49,14 @@ export function Keyterm({ term, definition, id }: { term: string; definition: st
       <span
         tabIndex={0}
         aria-describedby={id}
-        className="cursor-help border-b-2 border-blue font-semibold not-italic text-blue-ink outline-none focus-visible:ring-2 focus-visible:ring-blue"
+        className="cursor-help border-b-2 border-cobalt font-semibold not-italic text-umber focus-ring"
       >
         {term}
       </span>
       <span
         role="tooltip"
         id={id}
-        className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-56 -translate-x-1/2 rounded bg-ink px-3 py-2 text-left font-body text-xs font-normal not-italic leading-snug text-paper opacity-0 shadow-lg transition-opacity duration-150 motion-reduce:transition-none group-hover:opacity-100 group-focus-within:opacity-100"
+        className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-56 -translate-x-1/2 rounded-control bg-umber px-3 py-2 text-left font-ui text-caption font-normal not-italic text-parchment opacity-0 shadow-menu transition-opacity duration-150 motion-reduce:transition-none group-hover:opacity-100 group-focus-within:opacity-100"
       >
         {definition}
       </span>
