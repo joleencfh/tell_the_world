@@ -188,7 +188,7 @@ test.describe('Brief Q&A, feedback and endorse smoke test', () => {
 
     // Escape and focus return are not old-UI behaviour. The step that moves
     // each modal to the shared Modal enables its test (see the plan).
-    test.fixme('(a2) Escape closes the ask-a-question dialog and returns focus to the Contribute control', async ({
+    test('(a2) Escape closes the ask-a-question dialog and returns focus to the Contribute control', async ({
       page,
     }) => {
       await page.goto(`/briefs/${SLUG}`)
@@ -244,7 +244,7 @@ test.describe('Brief Q&A, feedback and endorse smoke test', () => {
       await expect(dialog).toHaveCount(0)
     })
 
-    test.fixme('(c2) Escape closes the propose-correction dialog and returns focus to its entry', async ({ page }) => {
+    test('(c2) Escape closes the propose-correction dialog and returns focus to its entry', async ({ page }) => {
       await page.goto(`/briefs/${SLUG}`)
       await qa.proposeCorrectionEntry(page).click()
       await expect(qa.correctionDialog(page)).toBeVisible()

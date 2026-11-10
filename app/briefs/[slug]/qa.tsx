@@ -7,6 +7,7 @@ import Alert from '@/components/ui/Alert'
 import Author from '@/components/ui/Author'
 import Button from '@/components/ui/Button'
 import Field, { Textarea } from '@/components/ui/Field'
+import Modal from '@/components/ui/Modal'
 import { VoteButton, type VoterTone } from './qa-votes'
 import { AnswerCountIndicator, AnswersList } from './qa-answers'
 import { getDisplayName, formatDate } from './helpers'
@@ -295,34 +296,10 @@ export function QuestionModal({
   onClose: () => void
 }) {
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center sm:p-6"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Ask a question"
-    >
-      <div className="absolute inset-0 bg-ink/60 backdrop-blur-sm" onClick={onClose} aria-hidden />
-      <div className="relative w-full max-w-xl overflow-hidden border border-line bg-paper">
-        <div className="flex items-start justify-between border-b border-line px-7 pb-5 pt-7">
-          <div>
-            <p className="mb-1 font-mono text-[9px] uppercase tracking-[0.2em] text-pink">Community Q&amp;A</p>
-            <h2 className="font-display text-xl uppercase leading-tight text-ink">Ask a question</h2>
-            <p className="mt-1.5 font-body text-xs italic leading-snug text-ink-soft">For: {briefTitle}</p>
-          </div>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            style={{ touchAction: 'manipulation' }}
-            className="ml-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-paper-raised text-lg leading-none text-ink-soft outline-none transition-colors hover:bg-line hover:text-ink focus-visible:ring-2 focus-visible:ring-pink"
-          >
-            ×
-          </button>
-        </div>
-        <div className="px-7 py-6">
-          <QuestionForm briefId={briefId} briefSlug={briefSlug} />
-        </div>
-      </div>
-    </div>
+    <Modal open onClose={onClose} size="narrow" eyebrow="Community Q&A" title="Ask a question">
+      <p className="mb-5 font-ui text-ui-sm text-umber-soft">For: {briefTitle}</p>
+      <QuestionForm briefId={briefId} briefSlug={briefSlug} />
+    </Modal>
   )
 }
 
@@ -365,96 +342,47 @@ export function ProposeCorrectionModal({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 sm:p-6"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Propose a correction or addition"
-    >
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-ink/60 backdrop-blur-sm"
-        onClick={onClose}
-        aria-hidden
-      />
-
-      {/* Panel */}
-      <div className="relative w-full max-w-xl bg-paper rounded-2xl shadow-2xl overflow-hidden">
-        {/* Header */}
-        <div className="flex items-start justify-between px-7 pt-7 pb-5 border-b border-line">
-          <div>
-            <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-blue-ink mb-1">
-              Correction proposal
-            </p>
-            <h2 className="font-display uppercase text-ink text-xl leading-tight">
-              Propose a correction or addition
-            </h2>
-            <p className="font-body text-xs text-ink-soft mt-1.5 leading-snug">
-              For: <em>{briefTitle}</em>
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            className="shrink-0 w-8 h-8 rounded-full bg-paper-raised hover:bg-line flex items-center justify-center text-ink-soft hover:text-ink transition-all text-lg leading-none ml-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue"
-          >
-            ×
-          </button>
-        </div>
-
-        {/* Body */}
-        <form onSubmit={handleSubmit} className="px-7 py-6 space-y-4">
-          <div>
-            <label className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-faint block mb-2">
-              Your correction
-            </label>
-            <textarea
+    <Modal open onClose={onClose} size="narrow" eyebrow="Correction proposal" title="Propose a correction or addition">
+      <p className="mb-5 font-ui text-ui-sm text-umber-soft">
+        For: <em>{briefTitle}</em>
+      </p>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Field
+          label="Your correction"
+          hint={`${text.length} / 3000`}
+          error={feedback?.type === 'error' ? feedback.message : undefined}
+        >
+          {(p) => (
+            <Textarea
+              {...p}
               value={text}
               onChange={(e) => setText(e.target.value)}
               rows={6}
               maxLength={3000}
               placeholder="Describe what you'd like to correct or add — include any sources or context that would help the admin review your suggestion…"
               disabled={isPending || feedback?.type === 'success'}
-              className="w-full bg-paper border border-line rounded-xl px-4 py-3 font-body text-sm text-ink placeholder:text-ink-faint/70 focus:outline-none focus:ring-2 focus:ring-blue resize-none disabled:opacity-50 transition"
             />
-            <p className="font-mono text-[9px] text-ink-faint mt-1 text-right">
-              {text.length} / 3000
-            </p>
-          </div>
-
-          {feedback && (
-            <p
-              role={feedback.type === 'error' ? 'alert' : undefined}
-              aria-live="polite"
-              className={`font-mono text-[10px] tracking-[0.1em] leading-relaxed ${
-                feedback.type === 'error' ? 'text-pink-ink' : 'text-blue-ink'
-              }`}
-            >
-              {feedback.message}
-            </p>
           )}
+        </Field>
 
-          <div className="flex items-center gap-4 pt-1">
-            {feedback?.type !== 'success' && (
-              <button
-                type="submit"
-                disabled={isPending || !text.trim()}
-                style={{ touchAction: 'manipulation' }}
-                className="bg-ink px-6 py-3 font-mono text-xs uppercase tracking-widest text-paper transition-opacity hover:opacity-90 disabled:opacity-40"
-              >
-                {isPending ? 'Submitting…' : 'Submit for review'}
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={onClose}
-              className="font-mono text-[10px] tracking-[0.15em] uppercase text-ink-soft hover:text-ink transition-colors"
+        {feedback?.type === 'success' && <Alert tone="success">{feedback.message}</Alert>}
+
+        <div className="flex items-center gap-3 pt-1">
+          {feedback?.type !== 'success' && (
+            <Button
+              type="submit"
+              disabled={!text.trim()}
+              pending={isPending}
+              style={{ touchAction: 'manipulation' }}
             >
-              {feedback?.type === 'success' ? 'Close' : 'Cancel'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+              {isPending ? 'Submitting…' : 'Submit for review'}
+            </Button>
+          )}
+          <Button type="button" variant="secondary" onClick={onClose}>
+            {feedback?.type === 'success' ? 'Close' : 'Cancel'}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   )
 }
