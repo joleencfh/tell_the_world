@@ -71,7 +71,7 @@ const qa = {
   /** Open the Contribute menu and click one of its items by name. */
   async openFromContribute(page: Page, item: string | RegExp) {
     await qa.contributeTrigger(page).click()
-    await page.getByRole('button', { name: item }).click()
+    await page.getByRole('button', { name: item, exact: typeof item === 'string' }).click()
   },
 
   /** The footer link that opens the propose-correction dialog (expert and organisation only). */
