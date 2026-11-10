@@ -20,9 +20,11 @@ export default function DuotonePlaceholder({ id, className }: DuotonePlaceholder
   const isBlue = hash % 2 === 0
   const gradientId = `duotone-gradient-${id}`
   const dotsId = `duotone-dots-${id}`
+  // Soft wash on bone: rose-wash or cobalt-wash, no dark fills.
   const [colorA, colorB] = isBlue
-    ? ['var(--color-blue-ink)', 'var(--color-blue)']
-    : ['var(--color-pink-ink)', 'var(--color-pink)']
+    ? ['var(--color-cobalt-wash)', 'var(--color-bone)']
+    : ['var(--color-rose-wash)', 'var(--color-bone)']
+  const shapeColor = isBlue ? 'var(--color-cobalt-wash)' : 'var(--color-rose-wash)'
 
   const shapes = [0, 1, 2].map((i) => {
     const seed = (hash >> (i * 6)) & 0xff
@@ -42,14 +44,14 @@ export default function DuotonePlaceholder({ id, className }: DuotonePlaceholder
           <stop offset="100%" stopColor={colorB} />
         </linearGradient>
         <pattern id={dotsId} width="4" height="4" patternUnits="userSpaceOnUse">
-          <circle cx="1" cy="1" r="0.6" fill="#000" />
+          <circle cx="1" cy="1" r="0.6" fill="var(--color-umber)" />
         </pattern>
       </defs>
       <rect width="100" height="75" fill={`url(#${gradientId})`} />
       {shapes.map((s, i) => (
-        <circle key={i} cx={s.cx} cy={s.cy} r={s.r} fill="#fff" fillOpacity={0.08 + i * 0.04} />
+        <circle key={i} cx={s.cx} cy={s.cy} r={s.r} fill={shapeColor} fillOpacity={0.5 + i * 0.15} />
       ))}
-      <rect width="100" height="75" fill={`url(#${dotsId})`} opacity={0.25} style={{ mixBlendMode: 'multiply' }} />
+      <rect width="100" height="75" fill={`url(#${dotsId})`} opacity={0.06} />
     </svg>
   )
 }

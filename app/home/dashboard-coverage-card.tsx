@@ -22,8 +22,8 @@ export default function DashboardCoverageCard({ coverage }: { coverage: Coverage
   const dateLabel = coverage.published_date ? formatDate(coverage.published_date) : formatDate(coverage.created_at)
 
   return (
-    <div className="flex gap-4 border border-line border-t-[3px] border-t-pink bg-paper p-5">
-      <div className="relative h-14 w-14 shrink-0 overflow-hidden">
+    <div className="flex gap-4 rounded-control bg-band-soft p-5 text-umber">
+      <div className="relative size-14 shrink-0 overflow-hidden rounded-control">
         {showImage ? (
           // Arbitrary third-party host — can't be allow-listed for next/image (matches coverage.tsx's own tradeoff).
           <img
@@ -39,13 +39,13 @@ export default function DashboardCoverageCard({ coverage }: { coverage: Coverage
         )}
       </div>
       <div className="flex min-w-0 flex-1 flex-col justify-center gap-1">
-        <span className="truncate font-mono text-[0.62rem] uppercase tracking-[0.06em] text-ink-faint">
+        <span className="truncate font-mono text-label uppercase text-umber-soft">
           {coverage.outlet_name}
         </span>
-        <p className="break-words font-display text-sm font-bold leading-snug text-ink line-clamp-2">
+        <p className="line-clamp-2 break-words font-ui text-ui font-semibold leading-snug text-umber">
           {coverage.title}
         </p>
-        <span className="font-mono text-[0.58rem] text-ink-faint">{dateLabel}</span>
+        <span className="text-caption tabular-nums text-umber-soft">{dateLabel}</span>
       </div>
       <CardGoLink
         href={coverage.url}

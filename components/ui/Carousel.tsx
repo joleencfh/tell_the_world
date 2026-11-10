@@ -113,7 +113,7 @@ function CarouselTrack({
 // Hidden below sm (640px) — small viewports rely on native touch-scroll,
 // matching the reference artifact's .car-btn treatment.
 const buttonBaseClasses =
-  'absolute top-1/2 z-10 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-line-strong bg-paper/90 text-ink-soft shadow-sm backdrop-blur-sm transition-opacity duration-200 motion-reduce:transition-none hover:border-blue hover:bg-paper hover:text-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue disabled:pointer-events-none disabled:opacity-0 sm:flex'
+  'absolute top-1/2 z-10 hidden size-11 -translate-y-1/2 items-center justify-center rounded-control bg-vellum text-umber-soft shadow-menu transition-opacity duration-200 motion-reduce:transition-none hover:text-cobalt focus-ring disabled:pointer-events-none disabled:opacity-0 sm:flex'
 
 function ChevronIcon({ direction }: { direction: 'left' | 'right' }) {
   const d = direction === 'left' ? 'M8 3 3 8l5 5' : 'M4 3l5 5-5 5'

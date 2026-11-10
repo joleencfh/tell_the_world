@@ -100,7 +100,7 @@ test.describe('Design system primitives (keyboard)', () => {
 
   test.describe('Menu', () => {
     test('ArrowDown opens on the first item; arrows wrap; Enter selects and returns focus to the trigger', async ({ page }) => {
-      const trigger = page.getByRole('button', { name: 'Account menu' })
+      const trigger = page.getByRole('region', { name: 'Overlays' }).getByRole('button', { name: 'Account menu' })
       await expect(trigger).toHaveAttribute('aria-expanded', 'false')
       await trigger.focus()
       await page.keyboard.press('ArrowDown')
@@ -127,7 +127,7 @@ test.describe('Design system primitives (keyboard)', () => {
     })
 
     test('Escape closes it and returns focus to the trigger', async ({ page }) => {
-      const trigger = page.getByRole('button', { name: 'Account menu' })
+      const trigger = page.getByRole('region', { name: 'Overlays' }).getByRole('button', { name: 'Account menu' })
       await trigger.click()
       await expect(page.getByRole('menuitem').first()).toBeFocused()
       await page.keyboard.press('Escape')
@@ -136,7 +136,7 @@ test.describe('Design system primitives (keyboard)', () => {
     })
 
     test('an outside click closes it', async ({ page }) => {
-      await page.getByRole('button', { name: 'Account menu' }).click()
+      await page.getByRole('region', { name: 'Overlays' }).getByRole('button', { name: 'Account menu' }).click()
       await expect(page.getByRole('menu')).toBeVisible()
       await page.getByRole('heading', { name: 'Design system primitives' }).click()
       await expect(page.getByRole('menu')).toHaveCount(0)

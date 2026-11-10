@@ -1,6 +1,6 @@
 # Engineering quality plan
 
-**Status: not started.** Written 2026-10-08 after a review of the repo's CI,
+**Status: in progress.** Step 1 (migration tracking and runner) is merged (PR 125). Step 2 (staging Supabase project) has not started: CI still runs against the live project. Written 2026-10-08 after a review of the repo's CI,
 tests, tooling and docs. Each step is a standalone PR with its own Notion
 Story under the epic "Engineering Quality Foundations". Steps are ordered so
 that each one makes the next one safer.

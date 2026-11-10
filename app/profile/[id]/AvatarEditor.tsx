@@ -3,8 +3,11 @@
 import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { uploadAvatar, removeAvatar } from './actions'
+import Alert from '@/components/ui/Alert'
 import Avatar from '@/components/ui/Avatar'
-import RoleBadge from '@/components/ui/RoleBadge'
+import Button from '@/components/ui/Button'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import RoleLabel from '@/components/ui/RoleLabel'
 import type { UserRole } from './page'
 
 interface AvatarEditorProps {
@@ -25,6 +28,7 @@ export default function AvatarEditor({
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
+  const [confirmOpen, setConfirmOpen] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -50,6 +54,7 @@ export default function AvatarEditor({
     setError(null)
     startTransition(async () => {
       const result = await removeAvatar(userId)
+      setConfirmOpen(false)
       if (result.error) {
         setError(result.error)
         return
@@ -60,51 +65,56 @@ export default function AvatarEditor({
   }
 
   return (
-    <>
-      <div className="relative shrink-0">
-        <Avatar name={displayName} avatarUrl={avatarUrl} size="xl" />
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={isPending}
-          className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs leading-none hover:bg-blue-700 disabled:opacity-50"
-          aria-label="Change photo"
-        >
-          {isPending ? '…' : '✎'}
-        </button>
+    <div>
+      <div className="flex items-center gap-4">
+        <Avatar name={displayName} avatarUrl={avatarUrl} role={role} size="2xl" />
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <p className="truncate font-ui text-ui font-semibold text-umber">{displayName}</p>
+            <RoleLabel role={role} />
+          </div>
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant="secondary"
+              small
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isPending}
+            >
+              Change photo
+            </Button>
+            {avatarUrl && (
+              <Button type="button" variant="ghost" small onClick={() => setConfirmOpen(true)} disabled={isPending}>
+                Remove
+              </Button>
+            )}
+          </div>
+        </div>
         <input
           ref={fileInputRef}
           type="file"
           accept="image/jpeg,image/png,image/webp,image/gif"
           onChange={handleFileChange}
           className="hidden"
+          aria-label="Choose a photo"
         />
       </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-gray-900 truncate">{displayName}</p>
-        <div className="mt-0.5 flex items-center gap-2 flex-wrap">
-          <RoleBadge role={role} />
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isPending}
-            className="text-xs text-blue-600 hover:text-blue-700 disabled:opacity-50"
-          >
-            Change photo
-          </button>
-          {avatarUrl && (
-            <button
-              type="button"
-              onClick={handleRemove}
-              disabled={isPending}
-              className="text-xs text-gray-400 hover:text-red-600 disabled:opacity-50"
-            >
-              Remove
-            </button>
-          )}
-        </div>
-        {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
-      </div>
-    </>
+      {error && (
+        <Alert tone="danger" className="mt-3">
+          {error}
+        </Alert>
+      )}
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Remove profile photo"
+        confirmLabel="Remove photo"
+        pending={isPending}
+        onConfirm={handleRemove}
+        onCancel={() => setConfirmOpen(false)}
+      >
+        Your photo will be removed and your initial shown instead.
+      </ConfirmDialog>
+    </div>
   )
 }

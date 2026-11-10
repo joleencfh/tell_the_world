@@ -2,6 +2,10 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Button from '@/components/ui/Button'
+import CategoryChip, { type PostCategory } from '@/components/ui/CategoryChip'
+import StatusChip from '@/components/ui/StatusChip'
+import Tag from '@/components/ui/Tag'
 import { withdrawReview } from '@/lib/briefs/actions'
 import type { ProfilePost, ProfileCorrectionProposal, ProfileReview } from './page'
 
@@ -24,60 +28,40 @@ function formatDate(dateStr: string): string {
 // Sub-components
 // ---------------------------------------------------------------------------
 
+const POST_CATEGORIES: readonly PostCategory[] = ['video', 'article', 'paper', 'quote', 'resource']
+
+// Post types are told apart by an icon and a word, never by hue. A type the
+// design system does not know falls back to "resource".
 function PostTypeBadge({ type }: { type: string }) {
-  const cls: Record<string, string> = {
-    video: 'bg-red-100 text-red-700',
-    article: 'bg-blue-100 text-blue-700',
-    paper: 'bg-green-100 text-green-700',
-    quote: 'bg-purple-100 text-purple-700',
-    resource: 'bg-amber-100 text-amber-700',
-  }
-  return (
-    <span
-      className={`inline-block px-2 py-0.5 rounded-full font-mono text-[9px] tracking-[0.1em] uppercase ${cls[type] ?? 'bg-gray-100 text-gray-600'}`}
-    >
-      {type}
-    </span>
-  )
+  const category = POST_CATEGORIES.find((c) => c === type) ?? 'resource'
+  return <CategoryChip category={category} />
 }
+
+const CARD = 'flex flex-col gap-3 rounded-control bg-vellum p-5 shadow-hairline'
+const TEXT_LINK =
+  'inline-flex min-h-11 items-center gap-1 rounded-control font-ui text-ui-sm text-cobalt underline decoration-cobalt/40 underline-offset-[5px] hover:decoration-cobalt focus-ring'
 
 export function PostCard({ post, onEdit }: { post: ProfilePost; onEdit?: () => void }) {
   return (
-    <article className="bg-paper-raised border border-line rounded-xl p-5 flex flex-col gap-3">
+    <article className={CARD}>
       <div className="flex items-start justify-between gap-3">
-        <p className="font-body text-sm font-bold text-ink leading-snug flex-1">
-          {post.title}
-        </p>
-        <div className="flex items-center gap-2 shrink-0">
+        <p className="flex-1 font-ui text-ui font-semibold leading-snug text-umber">{post.title}</p>
+        <div className="flex shrink-0 items-center gap-2">
           <PostTypeBadge type={post.post_type} />
           {onEdit && (
-            <button
-              type="button"
-              onClick={onEdit}
-              className="font-mono text-[9px] tracking-[0.1em] uppercase text-ink-soft/60 hover:text-ink transition-colors"
-              aria-label="Edit post"
-            >
+            <Button type="button" variant="ghost" small onClick={onEdit} aria-label="Edit post">
               Edit
-            </button>
+            </Button>
           )}
         </div>
       </div>
-      {post.body && (
-        <p className="font-body text-sm text-ink-soft leading-relaxed">
-          {truncate(post.body, 200)}
-        </p>
-      )}
-      <div className="flex items-center justify-between gap-3 mt-auto pt-1">
-        <span className="font-mono text-[9px] text-ink-soft/70">{formatDate(post.created_at)}</span>
+      {post.body && <p className="font-ui text-ui-sm text-umber-soft">{truncate(post.body, 200)}</p>}
+      <div className="mt-auto flex items-center justify-between gap-3 pt-1">
+        <span className="text-caption tabular-nums text-umber-soft">{formatDate(post.created_at)}</span>
         {post.url && (
-          <a
-            href={post.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-mono text-[9px] tracking-[0.15em] uppercase text-ink-soft hover:text-ink transition-colors inline-flex items-center gap-1 group"
-          >
+          <a href={post.url} target="_blank" rel="noopener noreferrer" className={`group ${TEXT_LINK}`}>
             View source{' '}
-            <span className="group-hover:translate-x-0.5 transition-transform" aria-hidden>
+            <span className="transition-transform group-hover:translate-x-0.5" aria-hidden>
               →
             </span>
           </a>
@@ -100,24 +84,17 @@ export function CorrectionProposalCard({
 }) {
   const isPending = proposal.status === 'pending'
   return (
-    <article className="bg-paper-raised border border-line rounded-xl p-5 flex flex-col gap-3">
+    <article className={CARD}>
       <div className="flex items-start justify-between gap-3">
-        <Link
-          href={`/briefs/${proposal.briefs.slug}`}
-          className="font-mono text-[9px] tracking-[0.15em] uppercase text-blue-ink hover:opacity-75 transition-opacity"
-        >
+        <Link href={`/briefs/${proposal.briefs.slug}`} className={TEXT_LINK}>
           {proposal.briefs.title} →
         </Link>
         {isOwnProfile && isPending && (
-          <span className="shrink-0 font-mono text-[9px] tracking-[0.1em] uppercase text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
-            Pending review
-          </span>
+          <StatusChip status="pending" label="Pending review" className="shrink-0" />
         )}
       </div>
-      <p className="font-body text-sm text-ink leading-relaxed whitespace-pre-wrap">
-        {proposal.contribution_text}
-      </p>
-      <span className="font-mono text-[9px] text-ink-soft/70">{formatDate(proposal.created_at)}</span>
+      <p className="whitespace-pre-wrap font-ui text-ui-sm text-umber">{proposal.contribution_text}</p>
+      <span className="text-caption tabular-nums text-umber-soft">{formatDate(proposal.created_at)}</span>
     </article>
   )
 }
@@ -152,40 +129,32 @@ export function ReviewHistoryCard({
   }
 
   return (
-    <article className={`border rounded-xl p-5 flex flex-col gap-3 ${isArchived ? 'border-line/60 bg-paper-raised/50 opacity-70' : 'border-line bg-paper-raised'}`}>
+    <article className={`${CARD} ${isArchived ? 'bg-bone opacity-70 shadow-none' : ''}`}>
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <Link
-          href={`/briefs/${review.briefs.slug}`}
-          className="font-mono text-[9px] tracking-[0.15em] uppercase text-blue-ink hover:opacity-75 transition-opacity"
-        >
+        <Link href={`/briefs/${review.briefs.slug}`} className={TEXT_LINK}>
           {review.briefs.title} →
         </Link>
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-ink-soft bg-paper px-2 py-0.5 rounded-full">
-            {isEndorsement ? '★ Endorsed' : '✓ Reviewed'}
-          </span>
-          {isArchived && (
-            <span className="font-mono text-[9px] tracking-[0.1em] uppercase text-ink-soft/70">Withdrawn</span>
-          )}
+        <div className="flex shrink-0 items-center gap-2">
+          <Tag>{isEndorsement ? '★ Endorsed' : '✓ Reviewed'}</Tag>
+          {isArchived && <span className="font-mono text-label uppercase text-umber-soft">Withdrawn</span>}
         </div>
       </div>
       {review.body && (
-        <p className="font-body text-sm text-ink leading-relaxed whitespace-pre-wrap">&ldquo;{review.body}&rdquo;</p>
+        <p className="whitespace-pre-wrap font-serif text-message text-umber">&ldquo;{review.body}&rdquo;</p>
       )}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <span className="font-mono text-[9px] text-ink-soft/70">{formatDate(review.updated_at)}</span>
+        <span className="text-caption tabular-nums text-umber-soft">{formatDate(review.updated_at)}</span>
         {isOwnProfile && !isArchived && (
-          <button
-            type="button"
-            onClick={handleWithdraw}
-            disabled={loading}
-            className="font-mono text-[9px] tracking-[0.1em] uppercase text-ink-soft hover:text-ink disabled:opacity-40 disabled:cursor-not-allowed"
-          >
+          <Button type="button" variant="ghost" small onClick={handleWithdraw} disabled={loading}>
             {loading ? 'Withdrawing…' : 'Withdraw'}
-          </button>
+          </Button>
         )}
       </div>
-      {error && <p className="font-mono text-[9px] text-red-600">{error}</p>}
+      {error && (
+        <p role="alert" className="font-ui text-caption text-brick">
+          {error}
+        </p>
+      )}
     </article>
   )
 }

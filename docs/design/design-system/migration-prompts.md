@@ -112,6 +112,8 @@ Exit: five screens fully on the new system, no old tokens left in app/login, app
 
 ## Phase 3: Dashboard, directory, profile (2 to 3 sessions, split into 3a/3b/3c PRs if large)
 
+**Status:** done on branch `plan/design-system-phase3` (2026-11-06), not yet merged. Built as one plan of eight steps: shared AppHeader, shared components, home shell, home cards, directory, profile, edit profile modal, spec and docs.
+
 ```
 [Standing rules]
 

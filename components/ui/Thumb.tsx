@@ -21,12 +21,13 @@ function hashKey(key: string): number {
   return hash
 }
 
+// Soft washes on bone: the no-photo placeholder carries no dark fills.
 const THUMB_VARIANTS = [
-  'radial-gradient(130% 150% at 12% 15%, #6E8CFF 0%, var(--color-blue) 45%, var(--color-blue-ink) 100%)',
-  'radial-gradient(130% 150% at 88% 20%, #FF7EB8 0%, var(--color-pink) 45%, var(--color-pink-ink) 100%)',
-  'linear-gradient(135deg, var(--color-blue) 0%, var(--color-pink) 100%)',
-  'radial-gradient(140% 170% at 50% 110%, var(--color-ink) 0%, #232527 55%, var(--color-blue-ink) 100%)',
-  'linear-gradient(160deg, var(--color-pink-ink) 0%, var(--color-ink) 55%, var(--color-blue) 100%)',
+  'radial-gradient(130% 150% at 12% 15%, var(--color-cobalt-wash) 0%, var(--color-bone) 100%)',
+  'radial-gradient(130% 150% at 88% 20%, var(--color-rose-wash) 0%, var(--color-bone) 100%)',
+  'linear-gradient(135deg, var(--color-cobalt-wash) 0%, var(--color-rose-wash) 100%)',
+  'radial-gradient(140% 170% at 50% 110%, var(--color-cobalt-wash) 0%, var(--color-bone) 70%)',
+  'linear-gradient(160deg, var(--color-rose-wash) 0%, var(--color-bone) 55%, var(--color-cobalt-wash) 100%)',
 ] as const
 
 export interface ThumbProps {
@@ -48,10 +49,9 @@ export default function Thumb({ id, className, style }: ThumbProps) {
       <div
         className="absolute inset-0"
         style={{
-          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,.4) 1px, transparent 1.4px)',
+          backgroundImage: 'radial-gradient(circle, var(--color-umber) 1px, transparent 1.4px)',
           backgroundSize: '7px 7px',
-          mixBlendMode: 'overlay',
-          opacity: 0.55,
+          opacity: 0.08,
         }}
       />
     </div>

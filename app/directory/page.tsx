@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { searchUsers, searchQuotes } from '@/lib/directory/queries'
 import type { SearchParams } from '@/lib/directory/queries'
+import { getUserBasic } from '@/lib/data/users'
 import DirectoryView from './DirectoryView'
 
 function toPage(v: string | string[] | undefined): number {
@@ -39,9 +40,10 @@ export default async function DirectoryPage({
     qpage:        str(raw.qpage),
   }
 
-  const [users, quotes] = await Promise.all([
+  const [users, quotes, me] = await Promise.all([
     searchUsers(supabase, params, toPage(raw.upage)),
     searchQuotes(supabase, params, toPage(raw.qpage)),
+    getUserBasic(supabase, user.id),
   ])
 
   return (
@@ -51,7 +53,11 @@ export default async function DirectoryPage({
       quotes={quotes.data}
       quotesCount={quotes.count}
       searchParams={params}
-      currentUserId={user.id}
+      currentUser={
+        me
+          ? { id: me.id, name: me.display_name?.trim() || me.email.split('@')[0], avatarUrl: me.avatar_url, role: me.role }
+          : null
+      }
     />
   )
 }

@@ -1,11 +1,18 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState, useTransition } from 'react'
+import { useCallback, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { updateProfile } from './actions'
 import type { ProfileUser, AvailabilityStatus, PrimaryPlatform, OrgSize } from './page'
 import type { ProfileUpdatePayload } from './actions'
 import AvatarEditor from './AvatarEditor'
+import Alert from '@/components/ui/Alert'
+import Button from '@/components/ui/Button'
+import ChoiceChips from '@/components/ui/ChoiceChips'
+import Field, { CONTROL, Select, TextInput, Textarea } from '@/components/ui/Field'
+import FormSection from '@/components/ui/FormSection'
+import Modal from '@/components/ui/Modal'
+import { cn } from '@/components/ui/cn'
 
 // ---------------------------------------------------------------------------
 // Utilities
@@ -16,48 +23,20 @@ function getDisplayName(user: Pick<ProfileUser, 'display_name' | 'email'>): stri
 }
 
 // ---------------------------------------------------------------------------
-// Small UI pieces
-// ---------------------------------------------------------------------------
-
-function SectionDivider({ label }: { label: string }) {
-  return (
-    <div className="border-t border-gray-100 pt-5">
-      <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">{label}</p>
-    </div>
-  )
-}
-
-function Field({
-  label,
-  error,
-  children,
-}: {
-  label: string
-  error?: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="flex flex-col gap-1">
-      <label className="text-xs font-medium text-gray-700">{label}</label>
-      {children}
-      {error && <p className="text-xs text-red-600">{error}</p>}
-    </div>
-  )
-}
-
-const inputCls =
-  'border border-gray-300 rounded-lg px-3 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-500'
-
-// ---------------------------------------------------------------------------
 // Tag input for areas_of_focus
 // ---------------------------------------------------------------------------
 
 function TagInput({
+  id,
   tags,
   onChange,
+  ...aria
 }: {
+  id: string
   tags: string[]
   onChange: (tags: string[]) => void
+  'aria-describedby'?: string
+  'aria-invalid'?: true
 }) {
   const [draft, setDraft] = useState('')
 
@@ -83,17 +62,22 @@ function TagInput({
   }
 
   return (
-    <div className="border border-gray-300 rounded-lg px-3 py-2 flex flex-wrap gap-1.5 focus-within:ring-2 focus-within:ring-blue-500">
+    <div
+      className={cn(
+        CONTROL,
+        'flex flex-wrap items-center gap-1.5 focus-within:border-umber focus-within:outline-2 focus-within:outline-offset-1 focus-within:outline-umber',
+      )}
+    >
       {tags.map((tag) => (
         <span
           key={tag}
-          className="bg-gray-100 text-gray-700 rounded-full px-2 py-0.5 text-xs inline-flex items-center gap-1"
+          className="inline-flex items-center gap-1 rounded-tag border border-window-line px-2 py-0.5 font-mono text-label uppercase text-umber-soft"
         >
           {tag}
           <button
             type="button"
             onClick={() => removeTag(tag)}
-            className="text-gray-400 hover:text-gray-700 leading-none"
+            className="inline-flex size-6 items-center justify-center rounded-tag leading-none text-umber-soft hover:bg-bone hover:text-umber focus-ring"
             aria-label={`Remove ${tag}`}
           >
             ×
@@ -101,13 +85,15 @@ function TagInput({
         </span>
       ))}
       <input
+        id={id}
         type="text"
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
         onKeyDown={handleKeyDown}
         onBlur={() => { if (draft.trim()) addTag(draft) }}
         placeholder={tags.length === 0 ? 'Type a topic and press Enter' : ''}
-        className="text-sm outline-none flex-1 min-w-[140px] bg-transparent"
+        className="min-w-[140px] flex-1 bg-transparent font-ui text-base text-umber outline-none placeholder:text-umber-soft"
+        {...aria}
       />
     </div>
   )
@@ -147,6 +133,12 @@ function isDirty(original: ProfileUpdatePayload, current: ProfileUpdatePayload):
   return JSON.stringify(original) !== JSON.stringify(current)
 }
 
+const AVAILABILITY_OPTIONS: { value: AvailabilityStatus; label: string }[] = [
+  { value: 'open', label: 'Open to work' },
+  { value: 'limited', label: 'Limited availability' },
+  { value: 'unavailable', label: 'Not available' },
+]
+
 // ---------------------------------------------------------------------------
 // Props
 // ---------------------------------------------------------------------------
@@ -162,6 +154,7 @@ interface EditProfileModalProps {
 
 export default function EditProfileModal({ user, onClose }: EditProfileModalProps) {
   const router = useRouter()
+  const [open, setOpen] = useState(true)
   const [isPending, startTransition] = useTransition()
   const [serverError, setServerError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<{ display_name?: string; full_name?: string }>({})
@@ -173,21 +166,14 @@ export default function EditProfileModal({ user, onClose }: EditProfileModalProp
 
   const displayName = getDisplayName(user)
 
+  // A request to close (Escape, the scrim, the X button, Cancel). The shared
+  // Modal plays its exit animation and then calls onExited, which unmounts us.
   const handleClose = useCallback(() => {
     if (isDirty(initial.current, form)) {
       if (!window.confirm('Discard changes?')) return
     }
-    onClose()
-  }, [form, onClose])
-
-  // Close on Escape
-  useEffect(() => {
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') handleClose()
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [handleClose])
+    setOpen(false)
+  }, [form])
 
   function set<K extends keyof ProfileUpdatePayload>(key: K, value: ProfileUpdatePayload[K]) {
     setForm((prev) => ({ ...prev, [key]: value }))
@@ -213,7 +199,7 @@ export default function EditProfileModal({ user, onClose }: EditProfileModalProp
         return
       }
       router.refresh()
-      onClose()
+      setOpen(false)
     })
   }
 
@@ -224,130 +210,106 @@ export default function EditProfileModal({ user, onClose }: EditProfileModalProp
   const isOrg = role === 'organisation'
 
   return (
-    // Backdrop
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
-      onMouseDown={(e) => { if (e.target === e.currentTarget) handleClose() }}
-    >
-      {/* Card */}
-      <div className="bg-white rounded-xl w-full max-w-lg overflow-y-auto max-h-[90vh] shadow-xl">
-        {/* Header */}
-        <div className="flex items-center gap-3 px-6 py-5 border-b border-gray-100 sticky top-0 bg-white rounded-t-xl">
-          <AvatarEditor
-            userId={user.id}
-            displayName={displayName}
-            role={user.role}
-            avatarUrl={avatarUrl}
-            onAvatarChange={setAvatarUrl}
-          />
-          <button
-            type="button"
-            onClick={handleClose}
-            className="text-gray-400 hover:text-gray-700 text-xl leading-none ml-2 shrink-0"
-            aria-label="Close"
-          >
-            ×
-          </button>
-        </div>
+    <Modal open={open} onClose={handleClose} onExited={onClose} title="Edit profile" dismissible={!isPending}>
+      <div className="mt-4">
+        <AvatarEditor
+          userId={user.id}
+          displayName={displayName}
+          role={user.role}
+          avatarUrl={avatarUrl}
+          onAvatarChange={setAvatarUrl}
+        />
+      </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="px-6 py-6 space-y-6" noValidate>
+      <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-8" noValidate>
 
-          {/* Section 1 — Basic Info */}
-          <div className="space-y-4">
-            <SectionDivider label="Basic Info" />
-            <Field label="Full name" error={fieldErrors.full_name}>
-              <input
-                type="text"
+        {/* Section 1 — Basic Info */}
+        <FormSection legend="Basic Info">
+          <Field label="Full name" error={fieldErrors.full_name}>
+            {(p) => (
+              <TextInput
+                {...p}
                 value={form.full_name ?? ''}
                 onChange={(e) => set('full_name', e.target.value)}
-                className={inputCls}
                 required
               />
-            </Field>
-            <Field label="Display name" error={fieldErrors.display_name}>
-              <input
-                type="text"
+            )}
+          </Field>
+          <Field label="Display name" error={fieldErrors.display_name}>
+            {(p) => (
+              <TextInput
+                {...p}
                 value={form.display_name ?? ''}
                 onChange={(e) => set('display_name', e.target.value)}
-                className={inputCls}
                 required
               />
-            </Field>
-            <Field label="Bio">
-              <textarea
+            )}
+          </Field>
+          <Field label="Bio">
+            {(p) => (
+              <Textarea
+                {...p}
                 rows={4}
                 value={form.bio ?? ''}
                 onChange={(e) => set('bio', e.target.value || null)}
-                className={inputCls}
               />
-            </Field>
-            <Field label="Website">
-              <input
+            )}
+          </Field>
+          <Field label="Website">
+            {(p) => (
+              <TextInput
+                {...p}
                 type="url"
                 value={form.website_url ?? ''}
                 onChange={(e) => set('website_url', e.target.value || null)}
                 placeholder="https://example.com"
-                className={inputCls}
               />
-            </Field>
-            <Field label="Preferred language">
-              <input
-                type="text"
+            )}
+          </Field>
+          <Field label="Preferred language">
+            {(p) => (
+              <TextInput
+                {...p}
                 value={form.preferred_language ?? ''}
                 onChange={(e) => set('preferred_language', e.target.value || null)}
                 placeholder="en"
-                className={inputCls}
               />
-            </Field>
-          </div>
+            )}
+          </Field>
+        </FormSection>
 
-          {/* Section 2 — Availability (creator + journalist) */}
-          {isCreatorOrJournalist && (
-            <div className="space-y-3">
-              <SectionDivider label="Availability" />
-              {(
-                [
-                  { value: 'open', label: 'Open to work' },
-                  { value: 'limited', label: 'Limited availability' },
-                  { value: 'unavailable', label: 'Not available' },
-                ] as { value: AvailabilityStatus; label: string }[]
-              ).map(({ value, label }) => (
-                <label key={value} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="availability"
-                    value={value}
-                    checked={form.availability === value}
-                    onChange={() => set('availability', value)}
-                    className="accent-blue-600"
-                  />
-                  <span className="text-sm text-gray-700">{label}</span>
-                </label>
-              ))}
-            </div>
-          )}
+        {/* Section 2 — Availability (creator + journalist) */}
+        {isCreatorOrJournalist && (
+          <ChoiceChips<AvailabilityStatus>
+            label="Availability"
+            options={AVAILABILITY_OPTIONS}
+            value={form.availability ?? 'open'}
+            onChange={(value) => set('availability', value)}
+            className="grid-cols-1 sm:grid-cols-3"
+          />
+        )}
 
-          {/* Section 3 — Content (creator + journalist) */}
-          {isCreatorOrJournalist && (
-            <div className="space-y-4">
-              <SectionDivider label="Content" />
-              <Field label="Channel / publication name">
-                <input
-                  type="text"
+        {/* Section 3 — Content (creator + journalist) */}
+        {isCreatorOrJournalist && (
+          <FormSection legend="Content">
+            <Field label="Channel / publication name">
+              {(p) => (
+                <TextInput
+                  {...p}
                   value={form.channel_name ?? ''}
                   onChange={(e) => set('channel_name', e.target.value || null)}
                   placeholder="e.g. The Daily Signal"
-                  className={inputCls}
                 />
-              </Field>
-              <Field label="Primary platform">
-                <select
+              )}
+            </Field>
+            <Field label="Primary platform">
+              {(p) => (
+                <Select
+                  {...p}
                   value={form.primary_platform ?? ''}
                   onChange={(e) =>
                     set('primary_platform', (e.target.value || null) as PrimaryPlatform | null)
                   }
-                  className={inputCls}
                 >
                   <option value="">— Select —</option>
                   <option value="youtube">YouTube</option>
@@ -355,174 +317,179 @@ export default function EditProfileModal({ user, onClose }: EditProfileModalProp
                   <option value="instagram">Instagram</option>
                   <option value="tiktok">TikTok</option>
                   <option value="other">Other</option>
-                </select>
-              </Field>
-              <Field label="Platform URL">
-                <input
+                </Select>
+              )}
+            </Field>
+            <Field label="Platform URL">
+              {(p) => (
+                <TextInput
+                  {...p}
                   type="url"
                   value={form.platform_url ?? ''}
                   onChange={(e) => set('platform_url', e.target.value || null)}
                   placeholder="https://"
-                  className={inputCls}
                 />
-              </Field>
-              <Field label="Audience size">
-                <input
+              )}
+            </Field>
+            <Field label="Audience size">
+              {(p) => (
+                <TextInput
+                  {...p}
                   type="number"
                   min={0}
                   value={form.audience_size ?? ''}
                   onChange={(e) =>
                     set('audience_size', e.target.value === '' ? null : parseInt(e.target.value, 10))
                   }
-                  className={inputCls}
                 />
-              </Field>
-              <Field label="Content language">
-                <input
-                  type="text"
+              )}
+            </Field>
+            <Field label="Content language">
+              {(p) => (
+                <TextInput
+                  {...p}
                   value={form.content_language ?? ''}
                   onChange={(e) => set('content_language', e.target.value || null)}
                   placeholder="en"
-                  className={inputCls}
                 />
-              </Field>
-            </div>
-          )}
+              )}
+            </Field>
+          </FormSection>
+        )}
 
-          {/* Section 4 — Publication (journalist only) */}
-          {isJournalist && (
-            <div className="space-y-4">
-              <SectionDivider label="Publication" />
-              <Field label="Publication name">
-                <input
-                  type="text"
+        {/* Section 4 — Publication (journalist only) */}
+        {isJournalist && (
+          <FormSection legend="Publication">
+            <Field label="Publication name">
+              {(p) => (
+                <TextInput
+                  {...p}
                   value={form.publication_name ?? ''}
                   onChange={(e) => set('publication_name', e.target.value || null)}
-                  className={inputCls}
                 />
-              </Field>
-              <Field label="Publication URL">
-                <input
+              )}
+            </Field>
+            <Field label="Publication URL">
+              {(p) => (
+                <TextInput
+                  {...p}
                   type="url"
                   value={form.publication_url ?? ''}
                   onChange={(e) => set('publication_url', e.target.value || null)}
                   placeholder="https://"
-                  className={inputCls}
                 />
-              </Field>
-              <Field label="Reporting beat">
-                <input
-                  type="text"
+              )}
+            </Field>
+            <Field label="Reporting beat">
+              {(p) => (
+                <TextInput
+                  {...p}
                   value={form.reporting_beat ?? ''}
                   onChange={(e) => set('reporting_beat', e.target.value || null)}
                   placeholder="e.g. AI policy, climate"
-                  className={inputCls}
                 />
-              </Field>
-            </div>
-          )}
+              )}
+            </Field>
+          </FormSection>
+        )}
 
-          {/* Section 5 — Expertise (expert only) */}
-          {isExpert && (
-            <div className="space-y-4">
-              <SectionDivider label="Expertise" />
-              <Field label="Affiliation">
-                <input
-                  type="text"
+        {/* Section 5 — Expertise (expert only) */}
+        {isExpert && (
+          <FormSection legend="Expertise">
+            <Field label="Affiliation">
+              {(p) => (
+                <TextInput
+                  {...p}
                   value={form.affiliation ?? ''}
                   onChange={(e) => set('affiliation', e.target.value || null)}
                   placeholder="University or organisation"
-                  className={inputCls}
                 />
-              </Field>
-              <Field label="Job title">
-                <input
-                  type="text"
+              )}
+            </Field>
+            <Field label="Job title">
+              {(p) => (
+                <TextInput
+                  {...p}
                   value={form.job_title ?? ''}
                   onChange={(e) => set('job_title', e.target.value || null)}
-                  className={inputCls}
                 />
-              </Field>
-              <Field label="Credibility URL">
-                <input
+              )}
+            </Field>
+            <Field label="Credibility URL">
+              {(p) => (
+                <TextInput
+                  {...p}
                   type="url"
                   value={form.credibility_url ?? ''}
                   onChange={(e) => set('credibility_url', e.target.value || null)}
                   placeholder="Link to profile, paper, or CV"
-                  className={inputCls}
                 />
-              </Field>
-              <Field label="Areas of focus">
+              )}
+            </Field>
+            <Field label="Areas of focus" hint="Press Enter or comma to add a topic">
+              {(p) => (
                 <TagInput
+                  {...p}
                   tags={form.areas_of_focus ?? []}
                   onChange={(tags) => set('areas_of_focus', tags.length > 0 ? tags : null)}
                 />
-                <p className="text-xs text-gray-400">Press Enter or comma to add a topic</p>
-              </Field>
-            </div>
-          )}
+              )}
+            </Field>
+          </FormSection>
+        )}
 
-          {/* Section 6 — Organisation */}
-          {isOrg && (
-            <div className="space-y-4">
-              <SectionDivider label="Organisation" />
-              <Field label="Organisation name">
-                <input
-                  type="text"
+        {/* Section 6 — Organisation */}
+        {isOrg && (
+          <FormSection legend="Organisation">
+            <Field label="Organisation name">
+              {(p) => (
+                <TextInput
+                  {...p}
                   value={form.org_name ?? ''}
                   onChange={(e) => set('org_name', e.target.value || null)}
-                  className={inputCls}
                 />
-              </Field>
-              <Field label="Organisation size">
-                <select
+              )}
+            </Field>
+            <Field label="Organisation size">
+              {(p) => (
+                <Select
+                  {...p}
                   value={form.org_size ?? ''}
                   onChange={(e) => set('org_size', (e.target.value || null) as OrgSize | null)}
-                  className={inputCls}
                 >
                   <option value="">— Select —</option>
                   <option value="small">Small (1–20)</option>
                   <option value="medium">Medium (21–100)</option>
                   <option value="large">Large (100+)</option>
-                </select>
-              </Field>
-              <Field label="Mission">
-                <textarea
+                </Select>
+              )}
+            </Field>
+            <Field label="Mission">
+              {(p) => (
+                <Textarea
+                  {...p}
                   rows={4}
                   value={form.org_mission ?? ''}
                   onChange={(e) => set('org_mission', e.target.value || null)}
-                  className={inputCls}
                 />
-              </Field>
-            </div>
-          )}
+              )}
+            </Field>
+          </FormSection>
+        )}
 
-          {/* Server error */}
-          {serverError && (
-            <p className="text-sm text-red-600 border border-red-200 rounded-lg px-3 py-2 bg-red-50">
-              {serverError}
-            </p>
-          )}
+        {/* Server error */}
+        {serverError && <Alert tone="danger">{serverError}</Alert>}
 
-          {/* Actions */}
-          <div className="flex items-center justify-end gap-3 pt-2">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="text-gray-500 hover:text-gray-700 text-sm"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isPending}
-              className="bg-blue-600 text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
-            >
-              {isPending ? 'Saving…' : 'Save'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        {/* Actions */}
+        <div className="flex flex-col-reverse gap-2 md:flex-row md:justify-end">
+          <Button type="button" variant="secondary" onClick={handleClose} disabled={isPending}>
+            Cancel
+          </Button>
+          <Button type="submit" variant="primary" pending={isPending}>
+            {isPending ? 'Saving…' : 'Save'}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   )
 }

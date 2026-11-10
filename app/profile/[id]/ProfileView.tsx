@@ -9,10 +9,11 @@ import ContactModal from '@/components/ContactModal'
 import type { PostData } from '@/components/PostModal'
 import type { ProfileUser, ProfilePost, ProfileCorrectionProposal, ProfileReview, UserRole, AvailabilityStatus } from './page'
 import Avatar from '@/components/ui/Avatar'
-import RoleBadge from '@/components/ui/RoleBadge'
-import Logo from '@/components/ui/Logo'
-import SignOutButton from '@/components/ui/SignOutButton'
+import RoleLabel from '@/components/ui/RoleLabel'
+import Button, { buttonClasses } from '@/components/ui/Button'
+import EmptyState from '@/components/ui/EmptyState'
 import Footer from '@/components/ui/Footer'
+import AppHeader from '@/components/ui/AppHeader'
 import { PostCard, CorrectionProposalCard, ReviewHistoryCard } from './cards'
 import { RoleDetails, extractDomain } from './RoleDetails'
 
@@ -28,18 +29,18 @@ function getDisplayName(user: { display_name: string | null; email: string }): s
 // Sub-components
 // ---------------------------------------------------------------------------
 
+// A dot plus a word, so it is never colour alone: cobalt for "open", neutral
+// for "limited".
 function AvailabilityBadge({ status }: { status: AvailabilityStatus }) {
   if (status === 'unavailable') return null
   const isOpen = status === 'open'
   return (
     <span className="inline-flex items-center gap-1.5">
       <span
-        className={`h-2 w-2 rounded-full shrink-0 ${isOpen ? 'bg-green-500' : 'bg-amber-400'}`}
+        className={`size-2 shrink-0 rounded-full ${isOpen ? 'bg-cobalt-bright' : 'bg-umber-soft'}`}
         aria-hidden
       />
-      <span
-        className={`font-mono text-[9px] tracking-[0.12em] uppercase ${isOpen ? 'text-green-700' : 'text-amber-600'}`}
-      >
+      <span className={`font-mono text-label uppercase ${isOpen ? 'text-cobalt' : 'text-umber-soft'}`}>
         {isOpen ? 'Available' : 'Limited availability'}
       </span>
     </span>
@@ -57,7 +58,7 @@ interface ProfileViewProps {
   reviews: ProfileReview[]
   isOwnProfile: boolean
   currentUserId: string
-  currentUser: { id: string; display_name: string | null; email: string; role: UserRole } | null
+  currentUser: { id: string; display_name: string | null; email: string; role: UserRole; avatar_url: string | null } | null
 }
 
 export default function ProfileView({
@@ -102,75 +103,58 @@ export default function ProfileView({
   const profileName = profileUser ? getDisplayName(profileUser) : null
 
   return (
-    <div className="min-h-screen bg-paper text-ink">
-      {/* Nav */}
-      <header className="sticky top-0 z-10 bg-paper/95 backdrop-blur-sm border-b-2 border-ink px-6">
-        <div className="mx-auto flex max-w-5xl items-center justify-between py-4">
-          <Logo href="/home" />
-          <nav className="flex items-center gap-6">
-            <Link
-              href="/directory"
-              className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors hidden sm:block"
-            >
-              Directory
-            </Link>
-            <Link
-              href="/briefs"
-              className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors hidden sm:block"
-            >
-              Briefs
-            </Link>
-            <Link
-              href={`/profile/${currentUserId}`}
-              className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors"
-            >
-              Profile
-            </Link>
-            <SignOutButton className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors" />
-          </nav>
-        </div>
-      </header>
+    <div className="min-h-screen bg-parchment font-ui text-umber">
+      <AppHeader
+        user={
+          currentUser
+            ? {
+                id: currentUser.id,
+                name: currentUser.display_name?.trim() || currentUser.email.split('@')[0],
+                avatarUrl: currentUser.avatar_url,
+                role: currentUser.role,
+              }
+            : null
+        }
+        current={isOwnProfile ? 'profile' : undefined}
+      />
 
-      <main className="px-6 py-12">
-        <div className="mx-auto max-w-3xl space-y-14">
+      <main className="px-4 py-10 md:px-gutter md:py-14">
+        <div className="mx-auto max-w-content space-y-12">
 
           {/* Profile not found */}
           {!profileUser && (
-            <div className="py-20 text-center">
-              <p className="font-display uppercase text-3xl text-ink mb-3">
-                Profile not found
-              </p>
-              <p className="font-body text-sm text-ink-soft mb-8">
-                This profile doesn&rsquo;t exist or the link may be incorrect.
-              </p>
-              <Link
-                href="/directory"
-                className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors inline-flex items-center gap-2"
-              >
-                ← Browse directory
-              </Link>
-            </div>
+            <EmptyState
+              title="Profile not found"
+              className="py-16"
+              action={
+                <Link href="/directory" className={buttonClasses({ variant: 'secondary', small: true })}>
+                  ← Browse directory
+                </Link>
+              }
+            >
+              This profile doesn&rsquo;t exist or the link may be incorrect.
+            </EmptyState>
           )}
 
           {/* Profile header */}
           {profileUser && (
             <>
               <section>
-                <div className="flex flex-col sm:flex-row sm:items-start gap-6">
+                <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
                   {/* Avatar */}
                   <Avatar
                     name={profileName!}
                     avatarUrl={profileUser.avatar_url}
+                    role={profileUser.role}
                     size="3xl"
                   />
 
-                  {/* Identity */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-3 mb-2">
-                      <h1 className="font-display uppercase text-2xl sm:text-3xl text-ink leading-tight">
-                        {profileName}
-                      </h1>
-                      <RoleBadge role={profileUser.role} />
+                  {/* Identity: the Author parts (initial, name with role
+                      label), with the name as the page's h1. */}
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <h1 className="font-serif text-title text-umber">{profileName}</h1>
+                      <RoleLabel role={profileUser.role} />
                     </div>
 
                     {/* Availability — creator and journalist only */}
@@ -182,9 +166,7 @@ export default function ProfileView({
 
                     {/* Bio */}
                     {profileUser.bio && (
-                      <p className="font-body text-base leading-[1.8] text-ink mb-3 max-w-xl">
-                        {profileUser.bio}
-                      </p>
+                      <p className="mb-3 max-w-reading font-serif text-reading text-umber">{profileUser.bio}</p>
                     )}
 
                     {/* Website */}
@@ -193,39 +175,30 @@ export default function ProfileView({
                         href={profileUser.website_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="font-mono text-[10px] tracking-[0.15em] uppercase text-ink-soft hover:text-ink transition-colors inline-flex items-center gap-1 group mb-4 block"
+                        className="group inline-flex min-h-11 items-center gap-1 rounded-control font-ui text-ui-sm text-umber-soft underline decoration-umber-soft/40 underline-offset-[5px] hover:text-umber hover:decoration-umber focus-ring"
                       >
                         {extractDomain(profileUser.website_url)}{' '}
-                        <span className="group-hover:translate-x-0.5 transition-transform" aria-hidden>
+                        <span className="transition-transform group-hover:translate-x-0.5" aria-hidden>
                           →
                         </span>
                       </a>
                     )}
 
                     {/* Action buttons */}
-                    <div className="flex items-center gap-3 flex-wrap mt-4">
+                    <div className="mt-4 flex flex-wrap items-center gap-3">
                       {isOwnProfile ? (
                         <>
-                          <button
-                            onClick={() => setEditOpen(true)}
-                            className="font-display uppercase tracking-widest text-xs bg-ink text-paper px-5 py-2.5 hover:opacity-80 transition-opacity"
-                          >
+                          <Button variant="primary" onClick={() => setEditOpen(true)}>
                             Edit Profile
-                          </button>
-                          <button
-                            onClick={openNewPost}
-                            className="font-display uppercase tracking-widest text-xs border border-line text-ink-soft px-5 py-2.5 hover:text-ink hover:border-ink transition-colors"
-                          >
+                          </Button>
+                          <Button variant="secondary" onClick={openNewPost}>
                             New Post
-                          </button>
+                          </Button>
                         </>
                       ) : (
-                        <button
-                          onClick={() => setContactOpen(true)}
-                          className="font-display uppercase tracking-widest text-xs bg-ink text-paper px-5 py-2.5 hover:opacity-80 transition-opacity"
-                        >
+                        <Button variant="primary" onClick={() => setContactOpen(true)}>
                           Contact
-                        </button>
+                        </Button>
                       )}
                     </div>
                   </div>
@@ -236,16 +209,11 @@ export default function ProfileView({
               <RoleDetails user={profileUser} />
 
               {/* Posts section */}
-              <section>
-                <div className="flex items-center gap-5 mb-7">
-                  <h2 className="font-display uppercase tracking-[0.18em] text-ink text-sm shrink-0">
-                    Posts by {profileName}
-                  </h2>
-                  <div className="flex-1 h-px bg-line" />
-                </div>
+              <section className="border-t border-rule pt-10">
+                <h2 className="mb-6 font-serif text-section text-umber">Posts by {profileName}</h2>
 
                 {posts.length > 0 ? (
-                  <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
                     {posts.map((post) => (
                       <PostCard
                         key={post.id}
@@ -255,7 +223,7 @@ export default function ProfileView({
                     ))}
                   </div>
                 ) : (
-                  <p className="font-body text-sm text-ink-soft/60 italic py-4">
+                  <p className="py-2 font-ui text-ui-sm text-umber-soft">
                     {isOwnProfile
                       ? "You haven't shared any posts yet. Share your first post to get started."
                       : 'No posts yet.'}
@@ -266,13 +234,8 @@ export default function ProfileView({
               {/* Correction proposals section — experts and organisations only */}
               {(profileUser.role === 'expert' || profileUser.role === 'organisation') &&
                 (correctionProposals.length > 0 || isOwnProfile) && (
-                <section>
-                  <div className="flex items-center gap-5 mb-7">
-                    <h2 className="font-display uppercase tracking-[0.18em] text-ink text-sm shrink-0">
-                      Correction proposals
-                    </h2>
-                    <div className="flex-1 h-px bg-line" />
-                  </div>
+                <section className="border-t border-rule pt-10">
+                  <h2 className="mb-6 font-serif text-section text-umber">Correction proposals</h2>
 
                   {correctionProposals.length > 0 ? (
                     <div className="space-y-4">
@@ -281,9 +244,7 @@ export default function ProfileView({
                       ))}
                     </div>
                   ) : (
-                    <p className="font-body text-sm text-ink-soft/60 italic py-4">
-                      No correction proposals yet.
-                    </p>
+                    <p className="py-2 font-ui text-ui-sm text-umber-soft">No correction proposals yet.</p>
                   )}
                 </section>
               )}
@@ -294,13 +255,8 @@ export default function ProfileView({
                   only appear when isOwnProfile. */}
               {(profileUser.role === 'expert' || profileUser.role === 'organisation') &&
                 (reviews.length > 0 || isOwnProfile) && (
-                <section>
-                  <div className="flex items-center gap-5 mb-7">
-                    <h2 className="font-display uppercase tracking-[0.18em] text-ink text-sm shrink-0">
-                      Reviews &amp; endorsements
-                    </h2>
-                    <div className="flex-1 h-px bg-line" />
-                  </div>
+                <section className="border-t border-rule pt-10">
+                  <h2 className="mb-6 font-serif text-section text-umber">Reviews &amp; endorsements</h2>
 
                   {reviews.length > 0 ? (
                     <div className="space-y-4">
@@ -309,9 +265,7 @@ export default function ProfileView({
                       ))}
                     </div>
                   ) : (
-                    <p className="font-body text-sm text-ink-soft/60 italic py-4">
-                      No briefs reviewed or endorsed yet.
-                    </p>
+                    <p className="py-2 font-ui text-ui-sm text-umber-soft">No briefs reviewed or endorsed yet.</p>
                   )}
                 </section>
               )}
