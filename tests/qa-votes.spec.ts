@@ -63,7 +63,7 @@ test.describe('Community Q&A — upvote toggle', () => {
 
   test('clicking the upvote button casts a vote, and clicking it again removes it', async ({ page }) => {
     await page.goto(`/briefs/${BRIEF_SLUG}`)
-    const card = page.locator('div.outline', { has: page.getByText(question.question_text, { exact: true }) })
+    const card = page.getByTestId('question-card').filter({ has: page.getByText(question.question_text, { exact: true }) })
 
     const voteBtn = card.getByRole('button', { name: 'Upvote' })
     await expect(voteBtn).toBeVisible()
@@ -84,7 +84,7 @@ test.describe('Community Q&A — upvote toggle', () => {
 
   test('the upvote button shows an "Upvote" / "Remove upvote" tooltip on hover', async ({ page }) => {
     await page.goto(`/briefs/${BRIEF_SLUG}`)
-    const card = page.locator('div.outline', { has: page.getByText(question.question_text, { exact: true }) })
+    const card = page.getByTestId('question-card').filter({ has: page.getByText(question.question_text, { exact: true }) })
     const voteBtn = card.getByRole('button', { name: 'Upvote' })
 
     const tooltipId = await voteBtn.getAttribute('aria-describedby')
@@ -103,7 +103,7 @@ test.describe('Community Q&A — upvote toggle', () => {
 
   test('the upvote button and vote count show a pointer cursor, not the default arrow', async ({ page }) => {
     await page.goto(`/briefs/${BRIEF_SLUG}`)
-    const card = page.locator('div.outline', { has: page.getByText(question.question_text, { exact: true }) })
+    const card = page.getByTestId('question-card').filter({ has: page.getByText(question.question_text, { exact: true }) })
 
     const voteBtn = card.getByRole('button', { name: 'Upvote' })
     await expect(voteBtn).toHaveCSS('cursor', 'pointer')

@@ -134,7 +134,7 @@ function QuestionCard({
   }`
 
   return (
-    <div onClick={handleCardClick} className={cardClasses}>
+    <div onClick={handleCardClick} className={cardClasses} data-testid="question-card">
       <p className="font-mono text-label uppercase text-umber-soft">Question</p>
       <AuthorBar author={question.users} date={question.created_at} />
 
