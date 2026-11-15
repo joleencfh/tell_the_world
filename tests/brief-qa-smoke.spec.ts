@@ -170,7 +170,8 @@ test.describe('Brief Q&A, feedback and endorse smoke test', () => {
     test('(e) shows the seeded question, the answer count and, once expanded, the answer text', async ({ page }) => {
       await page.goto(`/briefs/${SLUG}`)
       await expect(qa.questionText(page, QUESTION_TEXT)).toBeVisible()
-      await expect(qa.answerCount(page)).toBeVisible()
+      // "1 answer" lives in a hover tooltip (display:none until hover), so assert it is attached.
+      await expect(qa.answerCount(page)).toBeAttached()
 
       await qa.expandAnswers(page).click()
       await expect(qa.answerText(page, ANSWER_TEXT)).toBeVisible()
