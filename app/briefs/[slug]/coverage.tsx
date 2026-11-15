@@ -51,7 +51,7 @@ export function LikeButton({
       <Link
         href="/login"
         onClick={(e) => e.stopPropagation()}
-        className="inline-flex items-center gap-1.5 font-mono text-[11px] tabular-nums text-coverage-fg/50 transition-colors hover:text-coverage-fg"
+        className="focus-ring -m-1 inline-flex min-h-11 items-center gap-1.5 rounded-control p-1 font-mono text-label tabular-nums text-umber-soft transition-colors hover:text-umber"
       >
         <HeartIcon filled={false} />
         {count}
@@ -84,13 +84,13 @@ export function LikeButton({
         aria-label={liked ? 'Unlike' : 'Like'}
         aria-pressed={liked}
         style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-        className="group/like inline-flex cursor-pointer items-center gap-1.5 rounded-sm p-1 -m-1 font-mono text-[11px] tabular-nums text-coverage-fg/50 outline-none transition-colors hover:text-pink focus-visible:ring-2 focus-visible:ring-pink disabled:cursor-default"
+        className="group/like focus-ring -m-1 inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center gap-1.5 rounded-control p-1 font-mono text-label tabular-nums text-umber-soft transition-colors hover:text-rose disabled:cursor-default"
       >
         <HeartIcon filled={liked} />
         {count}
       </button>
       {error && (
-        <span role="alert" className="font-mono text-[9px] text-pink">
+        <span role="alert" className="font-mono text-label text-brick">
           {error}
         </span>
       )}
@@ -107,7 +107,7 @@ function HeartIcon({ filled }: { filled: boolean }) {
         stroke="currentColor"
         strokeWidth="1.3"
         strokeLinejoin="round"
-        className={filled ? 'text-pink' : 'text-current group-hover/like:text-pink'}
+        className={filled ? 'text-rose' : 'text-current group-hover/like:text-rose'}
       />
     </svg>
   )
@@ -152,9 +152,9 @@ function CoverageCard({
           }
         }}
         style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-        className="flex h-full cursor-pointer select-none flex-col border border-coverage-fg/15 bg-coverage-bg outline-none transition-all duration-150 motion-reduce:transition-none hover:-translate-x-0.5 hover:-translate-y-0.5 hover:border-pink hover:shadow-[4px_4px_0_0_var(--color-pink)] focus-visible:ring-2 focus-visible:ring-pink"
+        className="focus-ring flex h-full cursor-pointer select-none flex-col overflow-hidden rounded-control bg-vellum text-umber shadow-hairline transition-shadow duration-150 motion-reduce:transition-none hover:shadow-menu"
       >
-        <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden border-b border-coverage-fg/15 bg-coverage-fg/5">
+        <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden border-b border-rule bg-bone">
           {showImage ? (
             // Re-hosted on Supabase storage (lib/links/store-image.ts), same
             // tradeoff as Avatar.tsx — plain img, not next/image.
@@ -172,15 +172,15 @@ function CoverageCard({
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col gap-2 p-5">
-          <span className="truncate font-mono text-[0.65rem] font-semibold uppercase tracking-[0.03em] text-coverage-fg/60">
+          <span className="truncate font-mono text-label uppercase text-umber-soft">
             {coverage.outlet_name}
           </span>
-          <h3 className="min-w-0 break-words font-display text-[1.02rem] font-extrabold leading-[1.3] text-coverage-fg line-clamp-2">
+          <h3 className="min-w-0 break-words font-serif text-card-title text-umber line-clamp-2">
             {coverage.title}
           </h3>
 
-          <div className="mt-auto flex items-center justify-between gap-3 border-t border-coverage-fg/15 pt-3">
-            <span className="truncate font-mono text-[0.58rem] text-coverage-fg/40">{dateLabel}</span>
+          <div className="mt-auto flex items-center justify-between gap-3 border-t border-rule pt-3">
+            <span className="truncate font-mono text-label tabular-nums text-umber-soft">{dateLabel}</span>
             <div className="flex shrink-0 items-center gap-3">
               <LikeButton
                 coverageId={coverage.id}
@@ -195,7 +195,7 @@ function CoverageCard({
                 rel="noopener noreferrer"
                 aria-label={`Read “${coverage.title}” at ${coverage.outlet_name}`}
                 style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-                className="group/link flex h-6 w-6 shrink-0 items-center justify-center rounded-sm text-coverage-fg/50 outline-none transition-colors hover:text-pink focus-visible:ring-2 focus-visible:ring-pink"
+                className="group/link focus-ring flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-cobalt transition-colors hover:bg-cobalt-wash"
                 onClick={(e) => e.stopPropagation()}
               >
                 <svg
@@ -238,7 +238,7 @@ export function CoverageCarousel({
 }) {
   if (coverage.length === 0) {
     return (
-      <p className="font-mono text-xs text-coverage-fg/50">
+      <p className="font-ui text-ui-sm text-umber-soft">
         {isLoggedIn
           ? 'Coverage of this topic goes here, from mainstream articles to independent newsletters.'
           : 'Coverage of this topic will appear here.'}
@@ -250,7 +250,7 @@ export function CoverageCarousel({
     <Carousel.Provider>
       <Carousel.PrevButton />
       <Carousel.NextButton />
-      <Carousel.Track fadeColor="var(--color-coverage-bg)" ariaLabel="Press coverage">
+      <Carousel.Track fadeColor="var(--color-band-soft)" ariaLabel="Press coverage">
         {coverage.map((c) => (
           <CoverageCard
             key={c.id}
