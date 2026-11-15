@@ -97,3 +97,5 @@ Constraints for every step: Bun only (never npm, npx or node). Do NOT run Playwr
 
 **Done:** `edcf9b6` - tests/design-system-phase4d.spec.ts added (UNEXECUTED, tsc+eslint clean); OLD grep under app/briefs returns zero hits, no fused utilities; lint, tsc, build clean; docs status updated. Specs for CI: tests/brief-extras-smoke.spec.ts, design-system-phase4d.spec.ts, ctas.spec.ts, brief-qa-smoke.spec.ts, brief-quotes-smoke.spec.ts, brief-shell-smoke.spec.ts, design-system-phase4a.spec.ts, design-system-phase4c.spec.ts, qa-votes.spec.ts, briefs.spec.ts, home-dashboard.spec.ts. Band-soft: Covered by uses bg-band-soft with text-umber* (single tinted band on the brief page); modals under app/briefs (add coverage, coverage detail, suggest CTA, flag point, likers, reviewers) are on the shared Modal. Known unfixed: Contribute menu unmounts items on select so modals opened from it lose focus return.
 > DECISION (2026-11-15): Stale-test sweep found nothing to change - only tests/faq-answers.spec.ts admin card locator (border-line) remains, left as instructed.
+
+**Approved:** 2026-11-15 (agent-review)
