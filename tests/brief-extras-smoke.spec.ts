@@ -103,6 +103,9 @@ const extras = {
   commentText: (page: Page, text: string) => page.locator('#explainer-comments').getByText(text),
   replyButton: (page: Page) => page.locator('#explainer-comments').getByRole('button', { name: 'Reply' }).first(),
   replyField: (page: Page) => page.locator('#explainer-comments').getByLabel(/^Reply to /),
+  /** The logged-out "Log in to reply." link (distinct from the "Log in to comment." link). */
+  replyLoginPrompt: (page: Page) =>
+    page.locator('#explainer-comments p').filter({ hasText: 'to reply.' }).getByRole('link', { name: 'Log in' }),
 
   /** The "useful" count control in the explainer header (its text is the count) and its dialog. */
   usefulCountButton: (page: Page, count: number) =>
@@ -276,7 +279,7 @@ test.describe('Brief extras smoke test', () => {
 
       await extras.replyButton(page).click()
       await expect(extras.replyButton(page)).toHaveAttribute('aria-expanded', 'true')
-      await expect(page.locator('#explainer-comments').getByRole('link', { name: 'Log in' })).toBeVisible()
+      await expect(extras.replyLoginPrompt(page)).toBeVisible()
     })
   })
 
