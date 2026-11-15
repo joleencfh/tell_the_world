@@ -30,15 +30,21 @@ const OLD_COVERAGE_BG = 'rgb(12, 13, 14)' // retired --color-coverage-bg (#0C0D0
 const stamp = Date.now()
 const SLUG = `ds4d-spec-${stamp}`
 const SOURCE_ONE = `Platform transparency report ${stamp}`
+const SOURCE_TWO = `Independent audit of ranking systems ${stamp}`
 const EVENT_ONE = `Regulation proposed ${stamp}`
 const EVENT_TWO = `Regulation adopted ${stamp}`
 const COVERAGE_TITLE = `Coverage headline ${stamp}`
 
+// parseSources renders a source list only when it has at least two items.
 const SOURCES_TEXT = [
   `• ${SOURCE_ONE}`,
   'Publisher: Example Press',
   'A first source description.',
   'https://example.com/source-one',
+  `• ${SOURCE_TWO}`,
+  'Publisher: Example Institute',
+  'A second source description.',
+  'https://example.com/source-two',
 ].join('\n')
 
 async function horizontalOverflow(page: Page) {
