@@ -9,7 +9,7 @@ import type { ExplainerComment } from '../page'
 import type { EngagementAuthor } from '@/lib/data/explainer-engagement'
 
 export const buttonBase =
-  'inline-flex items-center gap-1.5 px-4 py-2 font-mono text-[10px] tracking-[0.1em] uppercase outline-none transition-colors disabled:cursor-default disabled:opacity-60'
+  'focus-ring inline-flex min-h-11 items-center gap-1.5 rounded-control px-4 py-2 font-mono text-label uppercase transition-colors disabled:cursor-default disabled:opacity-60'
 
 export function ThumbsUpIcon({ filled, className }: { filled: boolean; className?: string }) {
   return (
@@ -71,7 +71,7 @@ export function LikeReplyBar({
   replyOpen: boolean
 }) {
   return (
-    <div className="mt-1 flex items-center gap-4">
+    <div className="mt-1 flex items-center gap-2">
       {showLike &&
         (isLoggedIn ? (
           <button
@@ -81,15 +81,15 @@ export function LikeReplyBar({
             aria-pressed={myLike}
             aria-label={myLike ? 'Unlike' : 'Like'}
             style={{ touchAction: 'manipulation' }}
-            className={`inline-flex items-center gap-1 font-mono text-[10px] tabular-nums outline-none transition-colors focus-visible:ring-2 focus-visible:ring-blue disabled:cursor-default ${
-              myLike ? 'text-blue-ink' : 'text-ink-faint hover:text-blue-ink'
+            className={`focus-ring inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-control font-mono text-label tabular-nums transition-colors disabled:cursor-default ${
+              myLike ? 'text-cobalt' : 'text-umber-soft hover:text-cobalt'
             }`}
           >
             <ThumbsUpIcon filled={!!myLike} className="h-3 w-3" />
             {!!likeCount && likeCount}
           </button>
         ) : (
-          <span className="inline-flex items-center gap-1 font-mono text-[10px] tabular-nums text-ink-faint">
+          <span className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1 font-mono text-label tabular-nums text-umber-soft">
             <ThumbsUpIcon filled={false} className="h-3 w-3" />
             {!!likeCount && likeCount}
           </span>
@@ -100,7 +100,7 @@ export function LikeReplyBar({
         aria-expanded={replyOpen}
         aria-label="Reply"
         style={{ touchAction: 'manipulation' }}
-        className="inline-flex items-center gap-1 font-mono text-[10px] tabular-nums text-ink-faint outline-none transition-colors hover:text-blue-ink focus-visible:ring-2 focus-visible:ring-blue"
+        className="focus-ring inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-control font-mono text-label tabular-nums text-umber-soft transition-colors hover:text-cobalt"
       >
         <ReplyIcon />
         {!!replyCount && replyCount}
@@ -170,19 +170,19 @@ function ReplyForm({
         placeholder={placeholder}
         disabled={isPending}
         autoFocus
-        className="w-full resize-none border border-line bg-paper py-2 pl-3 pr-11 font-body text-[13px] text-ink placeholder:text-ink-faint/70 focus:outline-none focus:ring-2 focus:ring-pink disabled:opacity-50"
+        className="focus-ring w-full resize-none rounded-control border border-field-line bg-white py-2 pl-3 pr-14 font-ui text-ui-sm text-umber placeholder:text-umber-soft disabled:opacity-50"
       />
       <button
         type="submit"
         disabled={isPending || !body.trim()}
         aria-label="Post reply"
         style={{ touchAction: 'manipulation' }}
-        className="absolute bottom-1.5 right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-ink text-paper outline-none transition-colors hover:bg-blue-ink focus-visible:ring-2 focus-visible:ring-blue disabled:cursor-default disabled:opacity-40 disabled:hover:bg-ink"
+        className="focus-ring absolute bottom-0.5 right-0.5 flex size-11 items-center justify-center rounded-full bg-umber text-parchment transition-colors hover:bg-umber-hover disabled:cursor-default disabled:opacity-40 disabled:hover:bg-umber"
       >
         <ArrowIcon />
       </button>
       {error && (
-        <p role="alert" className="mt-1 font-mono text-[10px] text-pink-ink">
+        <p role="alert" className="mt-1 font-ui text-caption text-brick">
           {error}
         </p>
       )}
@@ -215,8 +215,8 @@ function ReplyArea({
   if (!open) return null
   if (!currentUser) {
     return (
-      <p className="mt-2 font-mono text-[10px] text-ink-faint">
-        <Link href="/login" className="text-blue-ink hover:underline">
+      <p className="mt-2 font-ui text-caption text-umber-soft">
+        <Link href="/login" className="focus-ring rounded-control text-cobalt underline">
           Log in
         </Link>{' '}
         to reply.
@@ -281,12 +281,12 @@ export function ReplyRow({
       <Avatar name={name} avatarUrl={reply.users.avatar_url} size="2xs" palette="colored" shape={reply.users.role === 'organisation' ? 'square' : 'circle'} />
       <div className="min-w-0 flex-1">
         <p className="flex flex-wrap items-baseline gap-x-2">
-          <Link href={`/profile/${reply.users.id}`} className="font-mono text-[10px] font-semibold text-ink hover:text-blue-ink transition-colors">
+          <Link href={`/profile/${reply.users.id}`} className="focus-ring rounded-control font-ui text-ui-sm font-semibold text-umber transition-colors hover:text-cobalt">
             {name}
           </Link>
-          <span className="font-mono text-[8.5px] text-ink-faint">{formatDate(reply.created_at)}</span>
+          <span className="font-mono text-label text-umber-soft">{formatDate(reply.created_at)}</span>
         </p>
-        <p className="mt-0.5 break-words font-body text-[13px] leading-snug text-ink-soft">{reply.body}</p>
+        <p className="mt-0.5 break-words font-ui text-ui-sm text-umber-body">{reply.body}</p>
         <LikeReplyBar
           isLoggedIn={!!currentUser}
           showLike
