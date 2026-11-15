@@ -1,4 +1,3 @@
-import DarkBand from '@/components/ui/DarkBand'
 import Button from '@/components/ui/Button'
 import { SectionHeader } from './section-content'
 import { QuestionsList, QuestionForm } from './qa'
@@ -69,8 +68,8 @@ export function CtaSection({
   onSuggestCta: () => void
 }) {
   return (
-    <div id="section-cta" className="scroll-mt-26 md:scroll-mt-28 border-t-4 border-t-pink border-b border-b-line bg-paper px-6 py-16">
-      <div className="mx-auto max-w-4xl">
+    <div id="section-cta" className="scroll-mt-26 md:scroll-mt-28 border-t border-rule px-4 py-14 md:px-gutter md:py-section">
+      <div className="mx-auto max-w-content anim-rise" style={{ animationDelay: '100ms' }}>
         <SectionHeader
           num="07"
           label="Calls to Action"
@@ -78,14 +77,9 @@ export function CtaSection({
           numTone="blue"
           action={
             canSuggestCta ? (
-              <button
-                type="button"
-                onClick={onSuggestCta}
-                style={{ touchAction: 'manipulation' }}
-                className="border-2 border-blue bg-blue px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.08em] text-white outline-none transition-colors hover:bg-paper hover:text-blue focus-visible:ring-2 focus-visible:ring-blue"
-              >
+              <Button type="button" variant="cobalt" small onClick={onSuggestCta}>
                 + New CTA
-              </button>
+              </Button>
             ) : undefined
           }
         />
@@ -113,30 +107,24 @@ export function CoverageSection({
   onOpenCoverage: (coverage: Coverage) => void
 }) {
   return (
-    <DarkBand id="section-coverage" className="scroll-mt-26 md:scroll-mt-28 border-t-4 border-t-pink border-b border-b-line px-6 py-16">
-      <div className="mx-auto max-w-4xl">
+    <div id="section-coverage" className="scroll-mt-26 md:scroll-mt-28 border-t border-rule bg-band-soft px-4 py-14 text-umber md:px-gutter md:py-section">
+      <div className="mx-auto max-w-content anim-rise" style={{ animationDelay: '100ms' }}>
         <SectionHeader
           num="08"
           label="Covered By"
           description="How this topic is being covered elsewhere"
           numTone="pink"
-          onDark
           action={
             isLoggedIn ? (
-              <button
-                type="button"
-                onClick={onAddCoverage}
-                style={{ touchAction: 'manipulation' }}
-                className="border-2 border-pink bg-pink px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.08em] text-white outline-none transition-colors hover:bg-transparent hover:text-pink focus-visible:ring-2 focus-visible:ring-pink"
-              >
+              <Button type="button" variant="secondary" small onClick={onAddCoverage}>
                 + Add coverage
-              </button>
+              </Button>
             ) : undefined
           }
         />
         <CoverageCarousel coverage={coverage} briefSlug={briefSlug} isLoggedIn={isLoggedIn} onOpenCoverage={onOpenCoverage} />
       </div>
-    </DarkBand>
+    </div>
   )
 }
 
@@ -150,8 +138,8 @@ export function CoverageSection({
 
 export function RelatedBriefsSection({ relatedBriefs }: { relatedBriefs: RelatedBrief[] }) {
   return (
-    <div id="section-related" className="scroll-mt-26 md:scroll-mt-28 border-t-4 border-line bg-paper-raised px-6 py-16">
-      <div className="mx-auto max-w-4xl">
+    <div id="section-related" className="scroll-mt-26 md:scroll-mt-28 border-t border-rule px-4 py-14 md:px-gutter md:py-section">
+      <div className="mx-auto max-w-content anim-rise" style={{ animationDelay: '100ms' }}>
         <SectionHeader
           num="09"
           label="Related Briefs"
@@ -177,25 +165,16 @@ export function FooterActions({
   onProposeBrief: () => void
 }) {
   return (
-    <div className="px-6 py-6 border-t border-line">
-      <div className="mx-auto max-w-4xl flex flex-wrap items-center gap-6">
+    <div className="border-t border-rule px-4 py-6 md:px-gutter">
+      <div className="mx-auto flex max-w-content flex-wrap items-center gap-6">
         {canContribute && (
-          <button
-            type="button"
-            onClick={onProposeCorrection}
-            className="font-mono text-[10px] tracking-[0.15em] uppercase text-ink-soft hover:text-ink transition-colors inline-flex items-center gap-2"
-          >
+          <Button type="button" variant="ghost" onClick={onProposeCorrection}>
             <span aria-hidden>→</span> Propose a correction or addition
-          </button>
+          </Button>
         )}
-        <button
-          type="button"
-          onClick={onProposeBrief}
-          style={{ touchAction: 'manipulation' }}
-          className="ml-auto inline-flex items-center gap-2 border-2 border-blue bg-paper px-8 py-3 font-display text-sm uppercase tracking-widest text-blue-ink transition-colors hover:bg-blue hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue"
-        >
+        <Button type="button" variant="secondary" className="ml-auto" onClick={onProposeBrief}>
           Propose a new brief <span aria-hidden>→</span>
-        </button>
+        </Button>
       </div>
     </div>
   )

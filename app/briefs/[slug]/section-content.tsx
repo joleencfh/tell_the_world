@@ -281,7 +281,7 @@ export function ReviewersModal({
   const orgEndorsers = endorsers.filter((r) => r.role === 'organisation')
 
   return (
-    <Modal open onClose={onClose} size="narrow" title="Reviews &amp; endorsements">
+    <Modal open onClose={onClose} size="narrow" title="Reviews and endorsements">
       <div className="mt-3 flex max-h-[60vh] flex-col gap-4 overflow-y-auto">
         {endorsers.length > 0 && (
           <VerificationPanel icon="★" title="Endorsed" count={endorsers.length} experts={expertEndorsers} orgs={orgEndorsers} />
@@ -406,17 +406,12 @@ export function SectionHeader({
   label,
   description,
   numTone = 'ink',
-  onDark = false,
   action,
 }: {
   num: string
   label: string
   description: string
   numTone?: 'ink' | 'blue' | 'pink'
-  // The Covered By band (plan 4d) is still the fixed dark coverage-bg, so
-  // onDark swaps label, description and rule to light text until it moves
-  // to band-soft.
-  onDark?: boolean
   // Optional trailing control (e.g. Quotes' role filter, CTA's "+ New CTA").
   action?: ReactNode
 }) {
@@ -426,15 +421,15 @@ export function SectionHeader({
           label/description/action row below, so a wide action never
           shortens the hairline. */}
       <div className="mb-4 flex items-center gap-4">
-        <span className={`font-mono text-label tabular-nums ${onDark ? 'text-parchment' : NUM_TONE_CLASSES[numTone]}`}>
+        <span className={`font-mono text-label tabular-nums ${NUM_TONE_CLASSES[numTone]}`}>
           {num}
         </span>
-        <div className={`h-px flex-1 ${onDark ? 'bg-parchment/20' : 'bg-rule'}`} />
+        <div className="h-px flex-1 bg-rule" />
       </div>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0 flex-1">
-          <h2 className={`font-serif text-section ${onDark ? 'text-parchment' : 'text-umber'}`}>{label}</h2>
-          <p className={`mt-2 font-ui text-ui-sm ${onDark ? 'text-parchment' : 'text-umber-soft'}`}>{description}</p>
+          <h2 className="font-serif text-section text-umber">{label}</h2>
+          <p className="mt-2 font-ui text-ui-sm text-umber-deep">{description}</p>
         </div>
         {action && <div className="shrink-0">{action}</div>}
       </div>

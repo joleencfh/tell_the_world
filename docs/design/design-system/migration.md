@@ -98,7 +98,7 @@ Where the right answer depends on role, the first column says which.
 | `Logo` | Segoe extrabold, 12px multiply circles | Circle pair (rose-bright, cobalt-bright) and Inter 500 wordmark | S |
 | `Footer` | Plain and "bold" variants (2px ink rule) | One footer; the bold variant retires with its test | S |
 | `Pagination` | Mono uppercase buttons | Secondary `sm` buttons, `aria-current` | S |
-| `DarkBand` | Fixed dark section | `band-soft` or `inverse` (decision 1) | S |
+| `DarkBand` | Fixed dark section | `band-soft` or `inverse` (decision 1) | S (done in 4d: retired, Covered by uses `band-soft`) |
 | `Carousel`, `Thumb`, `DuotonePlaceholder`, `CardGoLink`, `SignOutButton` | Old tokens | Re-token; duotone becomes `rose-wash` and `cobalt-wash` on `bone` | S |
 | `ClarityFlagsPanel` | red-50 alert | Inline alert, danger tone, or the rose-wash flag panel from the demos | S |
 | `ContactModal`, `PostModal`, `ProposeBriefModal`, `EditProfileModal`, brief and coverage modals | Seven separate modal shells (`bg-black/50`, `rounded-xl`, some with no focus handling) | **One shared Modal shell** (the landing `WaitlistModal` behaviour: labelled, focus trapped, inert background, focus returned) plus a Confirm dialog | M |
