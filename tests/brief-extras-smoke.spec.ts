@@ -323,7 +323,7 @@ test.describe('Brief extras smoke test', () => {
     })
 
     // The opener (a menu item) unmounts on select, so focus return is NOT asserted.
-    test.fixme('(e2) Escape closes the suggest-CTA dialog', async ({ page }) => {
+    test('(e2) Escape closes the suggest-CTA dialog', async ({ page }) => {
       await page.goto(`/briefs/${SLUG}`)
       await extras.contributeButton(page).click()
       await extras.suggestCtaMenuItem(page).click()
