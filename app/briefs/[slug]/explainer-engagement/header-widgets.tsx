@@ -2,7 +2,8 @@
 
 import { cloneElement, useEffect, useId, useState, useTransition, type ReactElement } from 'react'
 import Link from 'next/link'
-import Avatar from '@/components/ui/Avatar'
+import Author from '@/components/ui/Author'
+import Modal from '@/components/ui/Modal'
 import { submitExplainerUsefulVote, getExplainerUsefulLikers } from '@/lib/briefs/explainer-engagement-actions'
 import { getDisplayName } from '../helpers'
 import type { ExplainerUsefulness } from '../page'
@@ -189,44 +190,27 @@ export function UsefulLikersModal({ briefId, onClose }: { briefId: string; onClo
   }, [briefId])
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label="Found this useful">
-      <div className="absolute inset-0 bg-ink/60 backdrop-blur-sm" onClick={onClose} aria-hidden />
-      <div className="relative w-full max-w-sm overflow-hidden border-[1.5px] border-ink bg-paper">
-        <div className="flex items-start justify-between border-b-[1.5px] border-ink px-7 pb-5 pt-7">
-          <div>
-            <p className="mb-1 font-mono text-[9px] uppercase tracking-[0.2em] text-blue-ink">Explainer &middot; Useful</p>
-            <h2 className="font-display text-xl uppercase leading-tight text-ink">Found this useful</h2>
-          </div>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            style={{ touchAction: 'manipulation' }}
-            className="ml-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-paper-raised text-lg leading-none text-ink-soft outline-none transition-colors hover:bg-line hover:text-ink focus-visible:ring-2 focus-visible:ring-blue"
-          >
-            ×
-          </button>
-        </div>
-        <div className="max-h-[60vh] overflow-y-auto px-7 py-6">
-          {likers === null ? (
-            <p className="font-mono text-[10px] text-ink-faint">Loading…</p>
-          ) : likers.length === 0 ? (
-            <p className="font-mono text-xs text-ink-faint">No one yet.</p>
-          ) : (
-            <div className="space-y-1">
-              {likers.map((l) => {
-                const name = getDisplayName({ display_name: l.display_name })
-                return (
-                  <Link key={l.id} href={`/profile/${l.id}`} className="flex items-center gap-2.5 py-1.5 transition-colors hover:text-blue-ink">
-                    <Avatar name={name} avatarUrl={l.avatar_url} size="xs" palette="colored" shape={l.role === 'organisation' ? 'square' : 'circle'} />
-                    <span className="font-mono text-[11px] text-ink">{name}</span>
-                    <span className="font-body text-[10px] italic capitalize text-ink-faint">{l.role}</span>
+    <Modal open onClose={onClose} size="narrow" eyebrow="Explainer · Useful" title="Found this useful">
+      <div className="mt-3 max-h-[60vh] overflow-y-auto">
+        {likers === null ? (
+          <p className="font-ui text-ui-sm text-umber-soft">Loading…</p>
+        ) : likers.length === 0 ? (
+          <p className="font-ui text-ui-sm text-umber-soft">No one yet.</p>
+        ) : (
+          <ul className="space-y-1">
+            {likers.map((l) => {
+              const name = getDisplayName({ display_name: l.display_name })
+              return (
+                <li key={l.id}>
+                  <Link href={`/profile/${l.id}`} className="focus-ring flex min-h-11 items-center rounded-control transition-colors hover:text-cobalt">
+                    <Author name={name} role={l.role} avatarUrl={l.avatar_url} size="sm" />
                   </Link>
-                )
-              })}
-            </div>
-          )}
-        </div>
+                </li>
+              )
+            })}
+          </ul>
+        )}
       </div>
-    </div>
+    </Modal>
   )
 }

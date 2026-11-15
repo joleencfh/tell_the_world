@@ -355,7 +355,7 @@ test.describe('Brief extras smoke test', () => {
     })
 
     // The opener (the count button) stays mounted, so focus return is assertable.
-    test.fixme('(g2) Escape closes the likers dialog and returns focus to the count', async ({ page }) => {
+    test('(g2) Escape closes the likers dialog and returns focus to the count', async ({ page }) => {
       await page.goto(`/briefs/${SLUG}`)
       const opener = extras.usefulCountButton(page, 1)
       await opener.click()

@@ -3,6 +3,10 @@
 import { useId, useRef, useState, useTransition } from 'react'
 import Link from 'next/link'
 import Avatar from '@/components/ui/Avatar'
+import Alert from '@/components/ui/Alert'
+import Button from '@/components/ui/Button'
+import Field, { Select, Textarea } from '@/components/ui/Field'
+import Modal from '@/components/ui/Modal'
 import { submitContentiousPoint, submitContentiousPointLike } from '@/lib/briefs/explainer-engagement-actions'
 import { getDisplayName } from '../helpers'
 import type { ContentiousPoint, ExplainerComment } from '../page'
@@ -62,52 +66,27 @@ export function FlagContentiousPointModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label="Flag a contentious point">
-      <div className="absolute inset-0 bg-ink/60 backdrop-blur-sm" onClick={onClose} aria-hidden />
-      <div className="relative w-full max-w-xl overflow-hidden border border-line bg-paper">
-        <div className="flex items-start justify-between border-b border-line px-7 pb-5 pt-7">
-          <div>
-            <p className="mb-1 font-mono text-[9px] uppercase tracking-[0.2em] text-pink-ink">Public &middot; visible to every reader</p>
-            <h2 className="font-display text-xl uppercase leading-tight text-ink">Flag a contentious point</h2>
-            <p className="mt-1.5 font-body text-xs italic leading-snug text-ink-soft">For: {briefTitle}</p>
-          </div>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            style={{ touchAction: 'manipulation' }}
-            className="ml-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-paper-raised text-lg leading-none text-ink-soft outline-none transition-colors hover:bg-line hover:text-ink focus-visible:ring-2 focus-visible:ring-pink"
-          >
-            ×
-          </button>
-        </div>
+    <Modal open onClose={onClose} size="narrow" eyebrow="Public · visible to every reader" title="Flag a contentious point">
+      <p className="font-ui text-ui-sm text-umber-soft">For: {briefTitle}</p>
 
-        <form onSubmit={handleSubmit} className="space-y-4 px-7 py-6">
-          {subsections.length > 0 && (
-            <div>
-              <label htmlFor={subsectionFieldId} className="mb-2 block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
-                Which part is this about? (optional)
-              </label>
-              <select
-                id={subsectionFieldId}
-                value={subsectionId}
-                onChange={(e) => setSubsectionId(e.target.value)}
-                disabled={isPending || isSubmitted}
-                className="w-full border border-line bg-paper px-4 py-2.5 font-body text-sm text-ink transition focus:outline-none focus:ring-2 focus:ring-pink disabled:opacity-50"
-              >
+      <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+        {subsections.length > 0 && (
+          <Field id={subsectionFieldId} label="Which part is this about? (optional)">
+            {(p) => (
+              <Select {...p} value={subsectionId} onChange={(e) => setSubsectionId(e.target.value)} disabled={isPending || isSubmitted}>
                 <option value="">General — about the Explainer as a whole</option>
                 {subsections.map((s) => (
                   <option key={s.id} value={s.id}>{s.title}</option>
                 ))}
-              </select>
-            </div>
-          )}
+              </Select>
+            )}
+          </Field>
+        )}
 
-          <div>
-            <label htmlFor={bodyId} className="mb-2 block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
-              Your take
-            </label>
-            <textarea
-              id={bodyId}
+        <Field id={bodyId} label="Your take">
+          {(p) => (
+            <Textarea
+              {...p}
               ref={bodyRef}
               value={body}
               onChange={(e) => setBody(e.target.value)}
@@ -115,38 +94,26 @@ export function FlagContentiousPointModal({
               maxLength={1000}
               placeholder="What's contentious here, and what's your read on it?"
               disabled={isPending || isSubmitted}
-              className="w-full resize-none border border-line bg-paper px-4 py-2.5 font-body text-sm text-ink placeholder:text-ink-faint/70 transition focus:outline-none focus:ring-2 focus:ring-pink disabled:opacity-50"
             />
-          </div>
-
-          {feedback && (
-            <p
-              role={feedback.type === 'error' ? 'alert' : undefined}
-              aria-live="polite"
-              className={`font-mono text-[10px] tracking-[0.1em] leading-relaxed ${feedback.type === 'error' ? 'text-pink-ink' : 'text-blue-ink'}`}
-            >
-              {feedback.message}
-            </p>
           )}
+        </Field>
 
-          <div className="flex items-center gap-4 pt-1">
-            {!isSubmitted && (
-              <button
-                type="submit"
-                disabled={isPending || !canSubmit}
-                style={{ touchAction: 'manipulation' }}
-                className="bg-ink px-6 py-3 font-mono text-xs uppercase tracking-widest text-paper transition-opacity hover:opacity-90 disabled:opacity-40"
-              >
-                {isPending ? 'Submitting…' : 'Submit for review'}
-              </button>
-            )}
-            <button type="button" onClick={onClose} className="font-mono text-[10px] uppercase tracking-[0.15em] text-ink-faint transition-colors hover:text-ink">
-              {isSubmitted ? 'Close' : 'Cancel'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        {feedback && (
+          <Alert tone={feedback.type === 'error' ? 'danger' : 'success'}>{feedback.message}</Alert>
+        )}
+
+        <div className="flex flex-wrap items-center gap-3 pt-1">
+          {!isSubmitted && (
+            <Button type="submit" disabled={!canSubmit} pending={isPending} style={{ touchAction: 'manipulation' }}>
+              {isPending ? 'Submitting…' : 'Submit for review'}
+            </Button>
+          )}
+          <Button variant="ghost" onClick={onClose}>
+            {isSubmitted ? 'Close' : 'Cancel'}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   )
 }
 
@@ -190,22 +157,22 @@ function ContentiousPointRow({
   }
 
   return (
-    <div className="py-2.5 first:pt-0 [&:not(:first-child)]:border-t [&:not(:first-child)]:border-pink-ink/15">
+    <div className="py-3 first:pt-0 [&:not(:first-child)]:border-t [&:not(:first-child)]:border-rule">
       <div className="flex gap-2.5">
         <Avatar name={name} avatarUrl={point.users.avatar_url} size="xs" palette="colored" shape={point.users.role === 'organisation' ? 'square' : 'circle'} />
         <div className="min-w-0 flex-1">
           <p className="flex flex-wrap items-baseline gap-x-2">
-            <Link href={`/profile/${point.users.id}`} className="font-mono text-[10.5px] font-semibold text-ink hover:text-pink-ink transition-colors">
+            <Link href={`/profile/${point.users.id}`} className="focus-ring rounded-control font-ui text-ui-sm font-semibold text-umber transition-colors hover:text-cobalt">
               {name}
             </Link>
-            {credential && <span className="font-body text-[10px] italic text-ink-faint">{credential}</span>}
+            {credential && <span className="font-ui text-caption text-umber-soft">{credential}</span>}
             {point.subsection_label && (
-              <span className="border border-pink-ink/30 bg-paper px-1.5 py-[0.05rem] font-mono text-[8.5px] text-pink-ink">
+              <span className="rounded-control border border-rule bg-vellum px-1.5 py-0.5 font-ui text-caption text-umber-deep">
                 on &ldquo;{point.subsection_label}&rdquo;
               </span>
             )}
           </p>
-          <p className="mt-0.5 break-words font-body text-sm leading-relaxed text-ink-soft">{point.body}</p>
+          <p className="mt-0.5 break-words font-ui text-ui text-umber-body">{point.body}</p>
           <LikeReplyBar
             isLoggedIn={!!currentUser}
             showLike
@@ -232,7 +199,7 @@ function ContentiousPointRow({
         </div>
       </div>
       {replies.length > 0 && (
-        <div className="ml-[2.65rem] mt-1 border-l-2 border-pink-ink/20 pl-3">
+        <div className="ml-[2.65rem] mt-1 border-l border-rule pl-3">
           {replies.map((r) => (
             <ReplyRow
               key={r.id}
@@ -277,8 +244,8 @@ export function ContentiousPointsList({
   const remaining = points.length - visible.length
 
   return (
-    <div className="border-l-[3px] border-pink bg-pink-soft px-4 py-3.5">
-      <p className="mb-1 flex items-center gap-1.5 font-mono text-[9px] font-semibold uppercase tracking-[0.14em] text-pink-ink">
+    <div className="rounded-control bg-bone px-4 py-3.5">
+      <p className="mb-1 flex items-center gap-1.5 font-mono text-label uppercase text-umber-deep">
         <span aria-hidden>⚡</span> Contested &middot; {points.length} {points.length === 1 ? 'expert' : 'experts'}
       </p>
       {visible.map((p) => (
@@ -293,14 +260,9 @@ export function ContentiousPointsList({
         />
       ))}
       {points.length > 1 && (
-        <button
-          type="button"
-          onClick={() => setShowAll((s) => !s)}
-          style={{ touchAction: 'manipulation' }}
-          className="mt-2 inline-flex border-[1.5px] border-pink bg-paper px-4 py-1.5 font-mono text-[0.68rem] uppercase tracking-[0.1em] text-pink-ink outline-none transition-colors hover:bg-pink hover:text-white focus-visible:ring-2 focus-visible:ring-pink"
-        >
+        <Button type="button" variant="secondary" small onClick={() => setShowAll((s) => !s)} className="mt-2" style={{ touchAction: 'manipulation' }}>
           {showAll ? 'Show less' : `Show ${remaining} more`}
-        </button>
+        </Button>
       )}
     </div>
   )
