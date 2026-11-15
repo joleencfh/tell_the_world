@@ -258,7 +258,7 @@ test.describe('Brief extras smoke test', () => {
     // Old hand-rolled modal has no Escape handling or focus return; enabled by
     // the step that moves it onto the shared Modal. The opener is the card,
     // which stays mounted, so focus return is assertable.
-    test.fixme('(c2) Escape closes the coverage detail dialog and returns focus to the card', async ({ page }) => {
+    test('(c2) Escape closes the coverage detail dialog and returns focus to the card', async ({ page }) => {
       await page.goto(`/briefs/${SLUG}`)
       const card = extras.coverageCard(page, COVERAGE_TITLE)
       await card.focus()
@@ -297,7 +297,7 @@ test.describe('Brief extras smoke test', () => {
       await expect(dialog).toHaveCount(0)
     })
 
-    test.fixme('(d2) Escape closes the add-coverage dialog and returns focus to "+ Add coverage"', async ({ page }) => {
+    test('(d2) Escape closes the add-coverage dialog and returns focus to "+ Add coverage"', async ({ page }) => {
       await page.goto(`/briefs/${SLUG}`)
       const opener = extras.addCoverageButton(page)
       await opener.click()
