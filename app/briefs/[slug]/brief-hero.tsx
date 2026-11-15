@@ -78,8 +78,11 @@ export function BriefHero({
             )}
           </div>
 
+          {/* anim-rise leaves a transform behind, which makes the wrapper below its own
+              stacking context: while the menu is open, lift it above the sticky
+              section nav (z-10) so the dropdown items stay clickable. */}
           {currentUser && (
-            <div className="anim-rise" style={{ animationDelay: '100ms' }}>
+            <div className="relative anim-rise has-[[aria-expanded=true]]:z-20" style={{ animationDelay: '100ms' }}>
               <ContributeMenu
                 role={currentUser.role} onOpenModal={onOpenModal}
                 onSuggestCta={onSuggestCta} onAddCoverage={onAddCoverage}

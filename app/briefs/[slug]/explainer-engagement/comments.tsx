@@ -49,17 +49,17 @@ export function CommentRow({
   }
 
   return (
-    <div className="border-t border-line py-3 first:border-t-0 first:pt-0">
+    <div className="border-t border-rule py-3 first:border-t-0 first:pt-0">
       <div className="flex gap-2.5">
         <Avatar name={name} avatarUrl={comment.users.avatar_url} size="xs" palette="colored" shape={comment.users.role === 'organisation' ? 'square' : 'circle'} />
         <div className="min-w-0 flex-1">
           <p className="flex flex-wrap items-baseline gap-x-2">
-            <Link href={`/profile/${comment.users.id}`} className="font-mono text-[10.5px] font-semibold text-ink hover:text-blue-ink transition-colors">
+            <Link href={`/profile/${comment.users.id}`} className="focus-ring rounded-control font-ui text-ui-sm font-semibold text-umber transition-colors hover:text-cobalt">
               {name}
             </Link>
-            <span className="font-mono text-[9px] text-ink-faint">{formatDate(comment.created_at)}</span>
+            <span className="font-mono text-label text-umber-soft">{formatDate(comment.created_at)}</span>
           </p>
-          <p className="mt-0.5 break-words font-body text-sm leading-relaxed text-ink-soft">{comment.body}</p>
+          <p className="mt-0.5 break-words font-ui text-ui text-umber-body">{comment.body}</p>
           <LikeReplyBar
             isLoggedIn={!!currentUser}
             showLike
@@ -86,7 +86,7 @@ export function CommentRow({
         </div>
       </div>
       {replies.length > 0 && (
-        <div className="ml-[2.65rem] mt-1 border-l-2 border-line pl-3">
+        <div className="ml-[2.65rem] mt-1 border-l border-rule pl-3">
           {replies.map((r) => (
             <ReplyRow
               key={r.id}
@@ -153,7 +153,7 @@ export function CommentForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-2 border-t border-line pt-4">
+    <form onSubmit={handleSubmit} className="space-y-2 border-t border-rule pt-4">
       <div className="relative">
         <label htmlFor={fieldId} className="sr-only">Add a comment</label>
         <textarea
@@ -164,20 +164,20 @@ export function CommentForm({
           maxLength={1000}
           placeholder="Add a comment"
           disabled={isPending}
-          className="w-full resize-none border border-line bg-paper py-2.5 pl-3 pr-12 font-body text-sm text-ink placeholder:text-ink-faint/70 focus:outline-none focus:ring-2 focus:ring-pink disabled:opacity-50"
+          className="focus-ring w-full resize-none rounded-control border border-field-line bg-white py-2.5 pl-3 pr-14 font-ui text-ui text-umber placeholder:text-umber-soft disabled:opacity-50"
         />
         <button
           type="submit"
           disabled={isPending || !body.trim()}
           aria-label="Post comment"
           style={{ touchAction: 'manipulation' }}
-          className="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-ink text-paper outline-none transition-colors hover:bg-blue-ink focus-visible:ring-2 focus-visible:ring-blue disabled:cursor-default disabled:opacity-40 disabled:hover:bg-ink"
+          className="focus-ring absolute bottom-1 right-1 flex size-11 items-center justify-center rounded-full bg-umber text-parchment transition-colors hover:bg-umber-hover disabled:cursor-default disabled:opacity-40 disabled:hover:bg-umber"
         >
           <ArrowIcon />
         </button>
       </div>
       {error && (
-        <p role="alert" className="font-mono text-[10px] text-pink-ink">
+        <p role="alert" className="font-ui text-caption text-brick">
           {error}
         </p>
       )}

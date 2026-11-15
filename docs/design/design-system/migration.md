@@ -98,7 +98,7 @@ Where the right answer depends on role, the first column says which.
 | `Logo` | Segoe extrabold, 12px multiply circles | Circle pair (rose-bright, cobalt-bright) and Inter 500 wordmark | S |
 | `Footer` | Plain and "bold" variants (2px ink rule) | One footer; the bold variant retires with its test | S |
 | `Pagination` | Mono uppercase buttons | Secondary `sm` buttons, `aria-current` | S |
-| `DarkBand` | Fixed dark section | `band-soft` or `inverse` (decision 1) | S |
+| `DarkBand` | Fixed dark section | `band-soft` or `inverse` (decision 1) | S (done in 4d: retired, Covered by uses `band-soft`) |
 | `Carousel`, `Thumb`, `DuotonePlaceholder`, `CardGoLink`, `SignOutButton` | Old tokens | Re-token; duotone becomes `rose-wash` and `cobalt-wash` on `bone` | S |
 | `ClarityFlagsPanel` | red-50 alert | Inline alert, danger tone, or the rose-wash flag panel from the demos | S |
 | `ContactModal`, `PostModal`, `ProposeBriefModal`, `EditProfileModal`, brief and coverage modals | Seven separate modal shells (`bg-black/50`, `rounded-xl`, some with no focus handling) | **One shared Modal shell** (the landing `WaitlistModal` behaviour: labelled, focus trapped, inert background, focus returned) plus a Confirm dialog | M |
@@ -131,7 +131,7 @@ Each phase is its own PR with its own tests. A phase is done when its screens us
 
 **Phase 4: the brief page.** The largest (34 files, about 1,100 uses). Split into sub-PRs: (a) hero, section nav, reading column and explainer; (b) quotes and the Quote card; (c) Q&A and contributions (the thread from the landing demo); (d) sources, timeline, related briefs, coverage; (e) modals (contribute, quote, coverage). Each sub-PR keeps the page whole.
 
-*Status (2026-11-10): 4a (brief page shell), 4b (quotes) and 4c (Q&A, votes, endorsements, FAQ, feedback) done on branches `plan/design-system-phase4a`, `plan/design-system-phase4b` and `plan/design-system-phase4c`; 4d and 4e not started.*
+*Status (2026-11-15; 4d done on branch `plan/design-system-phase4d`: sources, timeline, coverage, CTAs, comments, reviewers; 4e not started): 4a (brief page shell), 4b (quotes) and 4c (Q&A, votes, endorsements, FAQ, feedback) done on branches `plan/design-system-phase4a`, `plan/design-system-phase4b` and `plan/design-system-phase4c`.*
 
 **Phase 5: admin.** 27 files, about 560 uses. Mostly lists, accordion rows, key-value rows and status chips, so it benefits most from the Phase 1 primitives. Settle decision 4 (density) before starting.
 

@@ -38,21 +38,21 @@ function SourceCard({
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClick() }}
       style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-      className={`group flex cursor-pointer select-none items-center gap-2.5 sm:gap-3.5 border border-line border-l-[3px] bg-paper px-3 py-2 sm:px-4 sm:py-3 outline-none transition-all duration-150 motion-reduce:transition-none focus-visible:ring-2 focus-visible:ring-blue
+      className={`group focus-ring flex min-h-11 cursor-pointer select-none items-center gap-2.5 rounded-control bg-vellum px-3 py-2 transition-colors duration-150 motion-reduce:transition-none sm:gap-3.5 sm:px-4 sm:py-3
         ${isSelected
-          ? 'border-l-blue ring-1 ring-blue/20'
+          ? 'shadow-[0_0_0_2px_var(--color-cobalt)]'
           : isOtherSelected
-            ? 'border-l-blue/20 opacity-50'
-            : 'border-l-blue/50 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:border-blue hover:shadow-[3px_3px_0_0_var(--color-blue)]'
+            ? 'opacity-60 shadow-hairline'
+            : 'shadow-hairline hover:bg-bone'
         }`}
     >
-      <span className="shrink-0 font-mono text-[11px] sm:text-xs font-bold tabular-nums tracking-[0.15em] text-blue-ink">
+      <span className="shrink-0 font-mono text-label tabular-nums text-umber-soft">
         {String(index + 1).padStart(2, '0')}
       </span>
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-baseline gap-x-2.5">
-          <p className={`font-body text-[0.8rem] sm:text-[0.9rem] font-bold leading-snug transition-colors ${isSelected ? 'text-blue-ink' : 'text-ink group-hover:text-blue-ink'}`}>
+          <p className={`font-ui text-ui-sm font-semibold transition-colors ${isSelected ? 'text-cobalt' : 'text-umber group-hover:text-cobalt'}`}>
             {item.title}
           </p>
           {/* Publisher — provenance (Part 5 step 5), required at authoring
@@ -62,7 +62,7 @@ function SourceCard({
               thin without crowding a long title — sm+ reverts to the
               original inline-wrap treatment. */}
           {item.publisher && (
-            <span className="shrink-0 font-mono text-[9px] sm:text-[10px] uppercase tracking-[0.1em] text-ink-faint mt-0.5 sm:mt-0">
+            <span className="shrink-0 text-caption text-umber-soft mt-0.5 sm:mt-0">
               {item.publisher}
             </span>
           )}
@@ -70,7 +70,7 @@ function SourceCard({
         {/* Description hidden on mobile — it's what made the collapsed row
             tall on a phone; sm+ still shows it since there's room there. */}
         {item.description && (
-          <p className="mt-0.5 line-clamp-2 font-body text-sm leading-snug text-ink-soft hidden sm:block">
+          <p className="mt-0.5 line-clamp-2 hidden font-ui text-caption text-umber-soft sm:block">
             {item.description}
           </p>
         )}
@@ -83,10 +83,10 @@ function SourceCard({
           rel="noopener noreferrer"
           aria-label={`Visit source: ${item.title}`}
           style={{ touchAction: 'manipulation' }}
-          className="group/link flex h-6 w-6 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-blue-soft text-blue-ink transition-all hover:bg-blue hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue"
+          className="group/link focus-ring flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-cobalt transition-colors hover:bg-cobalt-wash"
           onClick={(e) => e.stopPropagation()}
         >
-          <span className="text-xs sm:text-sm transition-transform group-hover/link:translate-x-0.5" aria-hidden>→</span>
+          <span className="text-ui-sm transition-transform group-hover/link:translate-x-0.5" aria-hidden>→</span>
         </a>
       )}
     </div>
@@ -119,19 +119,19 @@ function SourceDrawer({
   const isPlaceholder = !item.summary
 
   return (
-    <div className="anim-drawer mt-3 overflow-hidden border border-t-[3px] border-line border-t-blue bg-paper-raised">
+    <div className="anim-drawer mt-3 overflow-hidden rounded-control bg-vellum shadow-hairline">
       <div className="px-7 py-8">
         {/* Header */}
         <div className="mb-7 flex items-start justify-between gap-4">
           <div>
-            <p className="mb-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-blue-ink">
+            <p className="mb-1.5 font-mono text-label uppercase text-umber-soft">
               Source {String(index + 1).padStart(2, '0')} — Summary
             </p>
-            <h3 className="font-display text-xl uppercase leading-tight text-ink">
+            <h3 className="font-serif text-card-title text-umber">
               {item.title}
             </h3>
             {item.publisher && (
-              <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.15em] text-ink-faint">{item.publisher}</p>
+              <p className="mt-1.5 text-caption text-umber-soft">{item.publisher}</p>
             )}
           </div>
           <button
@@ -139,7 +139,7 @@ function SourceDrawer({
             onClick={onClose}
             aria-label="Close summary"
             style={{ touchAction: 'manipulation' }}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-soft text-lg leading-none text-blue-ink transition-all hover:bg-blue hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue"
+            className="focus-ring flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg leading-none text-umber transition-colors hover:bg-bone"
           >
             ×
           </button>
@@ -149,24 +149,24 @@ function SourceDrawer({
         <div className="grid gap-6 sm:grid-cols-[1fr_220px] sm:gap-10">
           {/* Summary */}
           <div>
-            <p className="mb-3 font-mono text-[9px] uppercase tracking-[0.2em] text-ink-faint">
+            <p className="mb-3 font-mono text-label uppercase text-umber-soft">
               Overview
             </p>
-            <p className={`font-body text-[0.95rem] leading-relaxed ${isPlaceholder ? 'italic text-ink-faint' : 'text-ink-soft'}`}>
+            <p className={`font-serif text-message ${isPlaceholder ? 'italic text-umber-soft' : 'text-umber'}`}>
               {summary}
             </p>
           </div>
 
           {/* Takeaways */}
-          <div className="sm:border-l sm:border-line sm:pl-8">
-            <p className="mb-3 font-mono text-[9px] uppercase tracking-[0.2em] text-ink-faint">
+          <div className="sm:border-l sm:border-rule sm:pl-8">
+            <p className="mb-3 font-mono text-label uppercase text-umber-soft">
               Key takeaways
             </p>
             <ul className="space-y-2.5">
               {takeaways.map((point, i) => (
                 <li key={i} className="flex items-start gap-2.5">
-                  <span className="mt-[3px] shrink-0 text-[10px] text-blue" aria-hidden>▸</span>
-                  <span className={`font-body text-sm leading-snug ${isPlaceholder ? 'italic text-ink-faint' : 'text-ink-soft'}`}>
+                  <span className="mt-[3px] shrink-0 text-label text-cobalt" aria-hidden>▸</span>
+                  <span className={`font-ui text-ui-sm ${isPlaceholder ? 'italic text-umber-soft' : 'text-umber'}`}>
                     {point}
                   </span>
                 </li>
@@ -177,8 +177,8 @@ function SourceDrawer({
 
         {/* Footer CTA */}
         {item.url && (
-          <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6">
-            <p className="font-mono text-[9px] uppercase tracking-[0.12em] text-ink-faint">
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-rule pt-6">
+            <p className="font-mono text-label uppercase text-umber-soft">
               Ready to go deeper?
             </p>
             <a
@@ -186,7 +186,7 @@ function SourceDrawer({
               target="_blank"
               rel="noopener noreferrer"
               style={{ touchAction: 'manipulation' }}
-              className="inline-flex items-center gap-2 bg-blue px-5 py-2.5 font-display text-xs uppercase tracking-widest text-white transition-colors hover:bg-blue-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue"
+              className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-control bg-umber px-5 py-2.5 font-ui text-ui font-medium text-parchment transition-colors hover:bg-umber-hover"
             >
               Visit source <span aria-hidden>→</span>
             </a>
@@ -249,7 +249,7 @@ export function SourcesGrid({ items }: { items: SourceItem[] }) {
           type="button"
           onClick={() => setShowAll(true)}
           style={{ touchAction: 'manipulation' }}
-          className="w-full border-[1.5px] border-line-strong bg-paper px-4 py-2.5 font-mono text-[0.68rem] uppercase tracking-[0.1em] text-ink-soft outline-none transition-colors hover:border-blue hover:text-blue-ink focus-visible:ring-2 focus-visible:ring-blue"
+          className="focus-ring min-h-11 w-full rounded-control bg-vellum px-4 py-2.5 font-mono text-label uppercase text-umber-soft shadow-hairline transition-colors hover:bg-bone hover:text-umber"
         >
           Show {remaining} more source{remaining === 1 ? '' : 's'} <span aria-hidden>↓</span>
         </button>
@@ -259,7 +259,7 @@ export function SourcesGrid({ items }: { items: SourceItem[] }) {
           type="button"
           onClick={collapse}
           style={{ touchAction: 'manipulation' }}
-          className="w-full border-[1.5px] border-line bg-paper px-4 py-2.5 font-mono text-[0.68rem] uppercase tracking-[0.1em] text-ink-soft outline-none transition-colors hover:border-blue hover:text-blue-ink focus-visible:ring-2 focus-visible:ring-blue"
+          className="focus-ring min-h-11 w-full rounded-control bg-vellum px-4 py-2.5 font-mono text-label uppercase text-umber-soft shadow-hairline transition-colors hover:bg-bone hover:text-umber"
         >
           Show less <span aria-hidden>↑</span>
         </button>

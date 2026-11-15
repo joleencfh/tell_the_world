@@ -17,20 +17,20 @@ export function TimelineGraphic({ events }: { events: BriefTimelineEvent[] }) {
   const sorted = [...events].sort((a, b) => a.display_order - b.display_order)
 
   return (
-    <div className="max-w-2xl border-y border-line py-6">
-      <p className="mb-5 font-mono text-[10px] tracking-[0.2em] uppercase text-blue-ink">Timeline</p>
-      <ol className="relative space-y-6 border-l-2 border-line pl-6">
+    <div className="max-w-2xl border-y border-rule py-6">
+      <p className="mb-5 font-mono text-label uppercase text-umber-soft">Timeline</p>
+      <ol className="relative space-y-6 border-l border-rule pl-6">
         {sorted.map((event) => (
           <li key={event.id} className="relative">
             <span
-              className="absolute top-[0.3rem] h-2.5 w-2.5 rounded-full bg-blue ring-4 ring-paper"
+              className="absolute top-[0.3rem] h-2.5 w-2.5 rounded-full bg-umber ring-4 ring-parchment"
               style={{ left: 'calc(-1.5rem - 5px)' }}
               aria-hidden
             />
-            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-blue-ink tabular-nums">
+            <p className="font-mono text-label tabular-nums text-umber-soft">
               {formatDateOnly(event.event_date)}
             </p>
-            <p className="mt-1 font-body text-[0.95rem] leading-snug text-ink">{event.event_name}</p>
+            <p className="mt-1 font-ui text-ui-sm text-umber">{event.event_name}</p>
           </li>
         ))}
       </ol>

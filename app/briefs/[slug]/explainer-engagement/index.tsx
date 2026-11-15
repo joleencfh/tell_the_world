@@ -100,14 +100,14 @@ export function ExplainerEngagement({
   const remainingComments = rootComments.length - visibleRootComments.length
 
   return (
-    <div className="mt-10 space-y-8 border-t-[3px] border-ink pt-8">
+    <div className="mt-10 space-y-8 border-t border-rule pt-8">
       <div id="contentious-points" className="scroll-mt-20 space-y-4">
         {canFlagContentious && (
           <button
             type="button"
             onClick={onFlagContentious}
             style={{ touchAction: 'manipulation' }}
-            className={`${buttonBase} border border-pink-ink/35 bg-pink-soft text-pink-ink hover:bg-pink-soft/70`}
+            className={`${buttonBase} border border-rose-deep/35 bg-rose-wash text-rose-deep hover:bg-rose-wash/70`}
           >
             <span aria-hidden>⚡</span> Flag a contentious point
           </button>
@@ -125,7 +125,7 @@ export function ExplainerEngagement({
       <div id="explainer-comments" className="scroll-mt-20 space-y-3">
         {/* Same treatment "Sources" gets elsewhere in the Explainer
             (explainer.tsx) — reused rather than a new label style. */}
-        <p className="font-mono text-[10px] font-semibold tracking-[0.2em] uppercase text-blue-ink">
+        <p className="font-mono text-label font-semibold uppercase text-cobalt">
           Comments {rootComments.length > 0 && `(${rootComments.length})`}
         </p>
         {visibleRootComments.length > 0 && (
@@ -148,7 +148,7 @@ export function ExplainerEngagement({
             type="button"
             onClick={() => setShowAllComments((s) => !s)}
             style={{ touchAction: 'manipulation' }}
-            className="inline-flex border-[1.5px] border-blue bg-paper px-4 py-1.5 font-mono text-[0.68rem] uppercase tracking-[0.1em] text-blue-ink outline-none transition-colors hover:bg-blue hover:text-white focus-visible:ring-2 focus-visible:ring-blue"
+            className="focus-ring inline-flex min-h-11 items-center rounded-control border border-cobalt bg-vellum px-4 py-1.5 font-mono text-label uppercase text-cobalt transition-colors hover:bg-cobalt hover:text-white"
           >
             {showAllComments ? 'Show less' : `Show ${remainingComments} more`}
           </button>
@@ -157,8 +157,8 @@ export function ExplainerEngagement({
         {currentUser ? (
           <CommentForm briefId={briefId} briefSlug={briefSlug} currentUser={currentUser} onPosted={appendComment} />
         ) : (
-          <p className="font-mono text-[10px] text-ink-faint">
-            <Link href="/login" className="text-blue-ink hover:underline">
+          <p className="font-ui text-caption text-umber-soft">
+            <Link href="/login" className="focus-ring rounded-control text-cobalt underline">
               Log in
             </Link>{' '}
             to comment.

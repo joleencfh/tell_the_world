@@ -167,6 +167,7 @@ Phase 4c: Q&A, votes, endorsements, contributions and feedback on the brief page
 
 Phase 4d: sources drawer, timeline, related briefs, "Covered by" coverage block (replace the dark band with band-soft, decision 1) and its modals, contentious points and header widgets, and the page footer. After this PR no old token may remain anywhere under app/briefs; prove it with a grep, and list any file you could not fully migrate and why.
 ```
+*Status (2026-11-15): done on branch `plan/design-system-phase4d`; zero old tokens remain under app/briefs, the coverage band is band-soft and DarkBand is retired.*
 
 **4e. Brief editing and remaining modals**
 ```

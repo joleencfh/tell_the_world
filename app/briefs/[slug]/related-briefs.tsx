@@ -17,24 +17,24 @@ function RelatedBriefCard({ brief }: { brief: RelatedBrief }) {
   return (
     <Link
       href={`/briefs/${brief.slug}`}
-      className="group/card block w-[300px] shrink-0 snap-start pt-1 first:pl-1"
+      className="group/card focus-ring block w-[300px] shrink-0 snap-start pt-1 first:pl-1"
     >
-      <div className="flex h-full flex-col gap-3 border border-line border-t-[3px] border-t-ink bg-paper p-5 transition-all duration-150 motion-reduce:transition-none group-hover/card:-translate-x-0.5 group-hover/card:-translate-y-0.5 group-hover/card:border-ink group-hover/card:shadow-[4px_4px_0_0_var(--color-ink)]">
+      <div className="flex h-full flex-col gap-3 rounded-control bg-vellum p-5 text-umber shadow-hairline transition-shadow duration-150 motion-reduce:transition-none group-hover/card:shadow-menu">
         {brief.topic_tag && (
-          <span className="font-mono text-[0.62rem] uppercase tracking-[0.1em] text-ink-faint">
+          <span className="font-mono text-label uppercase text-umber-soft">
             {brief.topic_tag}
           </span>
         )}
-        <h3 className="flex-1 break-words font-display text-[1.08rem] font-extrabold leading-[1.3] text-ink line-clamp-3">
+        <h3 className="flex-1 break-words font-serif text-card-title text-umber line-clamp-3">
           {brief.title}
         </h3>
-        <div className="flex items-center justify-between gap-3 border-t border-line pt-[0.7rem]">
-          <span className="truncate font-mono text-[0.6rem] text-ink-faint tabular-nums">
+        <div className="flex items-center justify-between gap-3 border-t border-rule pt-3">
+          <span className="truncate font-mono text-label tabular-nums text-umber-soft">
             {formatDate(brief.created_at)}
           </span>
           <span
             aria-hidden
-            className="flex h-8 w-8 shrink-0 items-center justify-center text-ink-soft transition-all duration-150 motion-reduce:transition-none group-hover/card:translate-x-0.5 group-hover/card:text-ink"
+            className="flex h-11 w-11 shrink-0 items-center justify-center text-umber-soft transition-all duration-150 motion-reduce:transition-none group-hover/card:translate-x-0.5 group-hover/card:text-cobalt"
           >
             <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4 stroke-current stroke-[1.6]">
               <path d="M4 10h11.5M10.5 5l5 5-5 5" strokeLinecap="round" strokeLinejoin="round" />
@@ -58,7 +58,7 @@ export function RelatedBriefsCarousel({ briefs }: { briefs: RelatedBrief[] }) {
     <Carousel.Provider>
       <Carousel.PrevButton />
       <Carousel.NextButton />
-      <Carousel.Track fadeColor="var(--color-paper-raised)" ariaLabel="Related briefs">
+      <Carousel.Track fadeColor="var(--color-parchment)" ariaLabel="Related briefs">
         {briefs.map((brief) => (
           <RelatedBriefCard key={brief.id} brief={brief} />
         ))}
