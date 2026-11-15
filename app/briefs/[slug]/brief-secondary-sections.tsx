@@ -1,4 +1,5 @@
 import DarkBand from '@/components/ui/DarkBand'
+import Button from '@/components/ui/Button'
 import { SectionHeader } from './section-content'
 import { QuestionsList, QuestionForm } from './qa'
 import { CtaCarousel } from './ctas'
@@ -28,20 +29,16 @@ export function QaSection({
   voterTone: 'blue' | 'pink' | null
 }) {
   return (
-    <div id="section-qa" className="scroll-mt-20 border-t-4 border-t-pink border-b border-b-line bg-paper-sunken px-6 py-16">
-      <div className="mx-auto max-w-4xl">
+    <div id="section-qa" className="scroll-mt-26 md:scroll-mt-28 border-t border-rule px-4 py-14 md:px-gutter md:py-section">
+      <div className="mx-auto max-w-content anim-rise" style={{ animationDelay: '100ms' }}>
         <SectionHeader
           num="06"
           label="Community Q&A"
           description="Questions from members, answered by experts"
-          numTone="pink"
           action={
-            <button
-              type="button"
-              className="border-[1.5px] border-pink bg-paper px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.06em] text-pink transition-colors hover:bg-pink hover:text-white"
-            >
+            <Button type="button" variant="secondary" small>
               + Ask a question
-            </button>
+            </Button>
           }
         />
         <QuestionsList
@@ -72,7 +69,7 @@ export function CtaSection({
   onSuggestCta: () => void
 }) {
   return (
-    <div id="section-cta" className="scroll-mt-20 border-t-4 border-t-pink border-b border-b-line bg-paper px-6 py-16">
+    <div id="section-cta" className="scroll-mt-26 md:scroll-mt-28 border-t-4 border-t-pink border-b border-b-line bg-paper px-6 py-16">
       <div className="mx-auto max-w-4xl">
         <SectionHeader
           num="07"
@@ -116,7 +113,7 @@ export function CoverageSection({
   onOpenCoverage: (coverage: Coverage) => void
 }) {
   return (
-    <DarkBand id="section-coverage" className="scroll-mt-20 border-t-4 border-t-pink border-b border-b-line px-6 py-16">
+    <DarkBand id="section-coverage" className="scroll-mt-26 md:scroll-mt-28 border-t-4 border-t-pink border-b border-b-line px-6 py-16">
       <div className="mx-auto max-w-4xl">
         <SectionHeader
           num="08"
@@ -153,7 +150,7 @@ export function CoverageSection({
 
 export function RelatedBriefsSection({ relatedBriefs }: { relatedBriefs: RelatedBrief[] }) {
   return (
-    <div id="section-related" className="scroll-mt-20 border-t-4 border-line bg-paper-raised px-6 py-16">
+    <div id="section-related" className="scroll-mt-26 md:scroll-mt-28 border-t-4 border-line bg-paper-raised px-6 py-16">
       <div className="mx-auto max-w-4xl">
         <SectionHeader
           num="09"

@@ -3,6 +3,7 @@
 import { useEffect, useId, useState, useTransition } from 'react'
 import Link from 'next/link'
 import Avatar from '@/components/ui/Avatar'
+import Modal from '@/components/ui/Modal'
 import RoleBadge from '@/components/ui/RoleBadge'
 import { voteQuestion, voteAnswer, endorseAnswer, getVoters } from '@/lib/briefs/actions'
 import type { Voter } from '@/lib/briefs/actions'
@@ -43,51 +44,37 @@ function VoterModal({ kind, id, title, onClose }: { kind: VoterKind; id: string;
   }, [kind, id])
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 sm:p-6" role="dialog" aria-modal="true" aria-label={title}>
-      <div className="absolute inset-0 bg-ink/50" onClick={onClose} aria-hidden />
-      <div className="relative flex max-h-[75vh] w-full max-w-sm flex-col border border-line-strong bg-paper">
-        <div className="flex shrink-0 items-center justify-between border-b border-line px-5 py-3.5">
-          <h2 className="font-display text-sm font-extrabold text-ink">{title}</h2>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            style={{ touchAction: 'manipulation' }}
-            className="flex h-7 w-7 cursor-pointer items-center justify-center text-ink-faint outline-none transition-colors hover:text-ink focus-visible:ring-2 focus-visible:ring-ink"
-          >
-            ×
-          </button>
-        </div>
-        <div className="overflow-y-auto p-2">
-          {error && (
-            <p role="alert" className="p-2 font-mono text-[10px] text-pink-ink">
-              {error}
-            </p>
-          )}
-          {!voters && !error && <p className="p-2 font-mono text-[10px] text-ink-faint">Loading…</p>}
-          {voters?.length === 0 && <p className="p-2 font-mono text-[10px] text-ink-faint">No one yet.</p>}
-          {voters?.map((voter, i) => {
-            const name = getDisplayName(voter)
-            const credential = voter.affiliation || voter.org_name
-            return (
-              <Link
-                key={`${voter.id}-${i}`}
-                href={`/profile/${voter.id}`}
-                className="flex items-center gap-2.5 px-2 py-2 transition-colors hover:bg-paper-raised"
-              >
-                <Avatar name={name} avatarUrl={voter.avatar_url} palette="colored" size="sm" />
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <span className="truncate font-display text-[0.82rem] font-extrabold text-ink">{name}</span>
-                    {voter.role && <RoleBadge role={voter.role} variant="outline" />}
-                  </div>
-                  {credential && <p className="truncate font-mono text-[9px] text-ink-faint">{credential}</p>}
+    <Modal open onClose={onClose} size="narrow" title={title}>
+      <div className="-mx-2 max-h-[60vh] overflow-y-auto">
+        {error && (
+          <p role="alert" className="p-2 font-ui text-caption text-brick">
+            {error}
+          </p>
+        )}
+        {!voters && !error && <p className="p-2 font-ui text-caption text-umber-soft">Loading…</p>}
+        {voters?.length === 0 && <p className="p-2 font-ui text-caption text-umber-soft">No one yet.</p>}
+        {voters?.map((voter, i) => {
+          const name = getDisplayName(voter)
+          const credential = voter.affiliation || voter.org_name
+          return (
+            <Link
+              key={`${voter.id}-${i}`}
+              href={`/profile/${voter.id}`}
+              className="flex min-h-11 items-center gap-2.5 rounded-control px-2 py-2 transition-colors hover:bg-bone focus-ring"
+            >
+              <Avatar name={name} avatarUrl={voter.avatar_url} palette="colored" size="sm" />
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="truncate font-ui text-ui-sm font-medium text-umber">{name}</span>
+                  {voter.role && <RoleBadge role={voter.role} variant="outline" />}
                 </div>
-              </Link>
-            )
-          })}
-        </div>
+                {credential && <p className="truncate font-ui text-caption text-umber-soft">{credential}</p>}
+              </div>
+            </Link>
+          )
+        })}
       </div>
-    </div>
+    </Modal>
   )
 }
 
@@ -112,22 +99,24 @@ export function VoteCountBadge({ votes, kind, id, modalTitle }: { votes: VoteSpl
         onClick={() => setModalOpen(true)}
         aria-describedby={tooltipId}
         style={{ touchAction: 'manipulation' }}
-        className="cursor-pointer font-mono text-[11px] tabular-nums text-ink-soft outline-none transition-colors hover:font-bold hover:text-ink focus-visible:ring-2 focus-visible:ring-ink"
+        className="group/count inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-control focus-ring"
       >
-        {total}
+        <span className="rounded-tag bg-bone px-1.5 py-0.5 font-mono text-label tabular-nums text-umber-soft transition-colors group-hover/count:text-umber">
+          {total}
+        </span>
       </button>
       <span
         id={tooltipId}
         role="tooltip"
-        className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1.5 hidden w-max max-w-[220px] -translate-x-1/2 whitespace-normal border border-ink bg-ink px-2.5 py-1.5 font-mono text-[10px] leading-snug text-paper group-hover:block group-focus-within:block"
+        className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1.5 hidden w-max max-w-[220px] -translate-x-1/2 whitespace-normal rounded-control bg-vellum px-2.5 py-1.5 font-ui text-caption leading-snug text-umber shadow-menu group-hover:block group-focus-within:block"
       >
         {votes.pinkCount > 0 && (
-          <span className="block text-pink">
+          <span className="block text-umber-soft">
             {votes.pinkCount} creator/journalist{votes.pinkCount === 1 ? '' : 's'}
           </span>
         )}
         {votes.blueCount > 0 && (
-          <span className="block text-blue">
+          <span className="block text-cobalt">
             {votes.blueCount} expert/organisation{votes.blueCount === 1 ? '' : 's'}
           </span>
         )}
@@ -193,9 +182,13 @@ export function VoteButton({
   }
 
   const iconSize = size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4'
+  const [stroke, fill, hoverFill] =
+    voterTone === 'blue'
+      ? ['stroke-cobalt', 'fill-cobalt', 'group-hover/vote:fill-cobalt-wash']
+      : ['stroke-umber', 'fill-umber', 'group-hover/vote:fill-bone']
 
   return (
-    <div className="flex items-center gap-1" aria-live="polite">
+    <div className="flex items-center" aria-live="polite">
       <button
         type="button"
         onClick={vote}
@@ -203,29 +196,27 @@ export function VoteButton({
         aria-label={myVote ? 'Remove your upvote' : 'Upvote'}
         aria-describedby={tooltipId}
         style={{ touchAction: 'manipulation' }}
-        className="group/vote relative flex cursor-pointer items-center justify-center rounded-sm p-1 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-pink disabled:cursor-default"
+        className="group/vote relative flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-control transition-colors focus-ring disabled:cursor-default"
       >
         <svg
           viewBox="0 0 12 11"
           strokeWidth="1.3"
           strokeLinejoin="round"
-          className={`${iconSize} stroke-pink transition-colors ${
-            myVote ? 'fill-pink' : 'fill-none group-hover/vote:fill-pink'
-          }`}
+          className={`${iconSize} ${stroke} transition-colors ${myVote ? fill : `fill-none ${hoverFill}`}`}
         >
           <path d="M6 0.8 L11.2 10 L0.8 10 Z" />
         </svg>
         <span
           id={tooltipId}
           role="tooltip"
-          className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1.5 hidden -translate-x-1/2 whitespace-nowrap border border-ink bg-ink px-2 py-1 font-mono text-[10px] text-paper group-hover/vote:block group-focus-within/vote:block"
+          className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1.5 hidden -translate-x-1/2 whitespace-nowrap rounded-control bg-vellum px-2 py-1 font-ui text-caption text-umber shadow-menu group-hover/vote:block group-focus-within/vote:block"
         >
           {myVote ? 'Remove upvote' : 'Upvote'}
         </span>
       </button>
       <VoteCountBadge votes={{ pinkCount, blueCount, myVote }} kind={voterKind} id={id} modalTitle={modalTitle} />
       {error && (
-        <span role="alert" className="font-mono text-[10px] text-pink-ink">
+        <span role="alert" className="font-ui text-caption text-brick">
           {error}
         </span>
       )}
@@ -270,21 +261,21 @@ export function EndorseButton({
   }
 
   return (
-    <div className="flex items-center gap-1.5" aria-live="polite">
+    <div className="flex items-center" aria-live="polite">
       <button
         type="button"
         onClick={endorse}
         disabled={isPending || endorsed}
         style={{ touchAction: 'manipulation' }}
-        className={`inline-flex cursor-pointer items-center gap-1 border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.06em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue disabled:cursor-default ${
-          endorsed ? 'border-blue bg-blue-soft text-blue-ink' : 'border-line-strong text-ink-soft hover:border-blue hover:text-blue-ink'
+        className={`inline-flex min-h-11 cursor-pointer items-center gap-1 rounded-control border px-3 font-mono text-label uppercase transition-colors focus-ring disabled:cursor-default ${
+          endorsed ? 'border-cobalt bg-cobalt-wash text-cobalt' : 'border-field-line text-umber-soft hover:border-cobalt hover:text-cobalt'
         }`}
       >
         {endorsed ? '★ Endorsed' : isPending ? 'Endorsing…' : '★ Endorse'}
       </button>
       <VoteCountBadge votes={{ pinkCount: 0, blueCount: count, myVote: endorsed }} kind="answer_endorsements" id={answerId} modalTitle="Endorsed by" />
       {error && (
-        <span role="alert" className="font-mono text-[10px] text-pink-ink">
+        <span role="alert" className="font-ui text-caption text-brick">
           {error}
         </span>
       )}

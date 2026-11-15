@@ -1,6 +1,10 @@
 'use client'
 
-import { useId, useRef, useState, useTransition } from 'react'
+import { useRef, useState, useTransition } from 'react'
+import Alert from '@/components/ui/Alert'
+import Button from '@/components/ui/Button'
+import Field, { Select, Textarea } from '@/components/ui/Field'
+import Modal from '@/components/ui/Modal'
 import { submitBriefFeedback } from '@/lib/briefs/actions'
 
 // ---------------------------------------------------------------------------
@@ -58,8 +62,6 @@ export function FeedbackModal({
   const [isPending, startTransition] = useTransition()
   const [feedback, setFeedback] = useState<{ type: 'error' | 'success'; message: string } | null>(null)
   const bodyRef = useRef<HTMLTextAreaElement>(null)
-  const bodyId = useId()
-  const subsectionFieldId = useId()
 
   const isSubmitted = feedback?.type === 'success'
   const canSubmit = body.trim().length > 0
@@ -82,75 +84,41 @@ export function FeedbackModal({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center sm:p-6"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Send feedback"
-    >
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-ink/60 backdrop-blur-sm" onClick={onClose} aria-hidden />
+    <Modal open onClose={onClose} size="narrow" eyebrow="Feedback" title="Send feedback">
+      <p className="mb-1 font-ui text-ui-sm font-medium text-umber">Feedback to the editorial team</p>
+      <p className="mb-5 font-ui text-ui-sm text-umber-soft">
+        For: {selectedSubsection ? `${selectedSubsection.title} (${context.sectionLabel}) — ` : context.sectionLabel ? `${context.sectionLabel} — ` : ''}
+        {context.briefTitle}
+      </p>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Alert tone="info">
+          Use this for a correction to a specific line or subsection, a factual concern, something you noticed
+          that doesn&rsquo;t belong in public discussion, or just a general thought.{' '}
+          <strong className="font-medium">If it doesn&rsquo;t fit a category, that&rsquo;s fine — tell us anyway.</strong>
+        </Alert>
 
-      {/* Panel */}
-      <div className="relative w-full max-w-xl overflow-hidden border border-line bg-paper">
-        {/* Header */}
-        <div className="flex items-start justify-between border-b border-line px-7 pb-5 pt-7">
-          <div>
-            <p className="mb-1 font-mono text-[9px] uppercase tracking-[0.2em] text-blue-ink">
-              Feedback
-            </p>
-            <h2 className="font-display text-xl uppercase leading-tight text-ink">
-              Feedback to the editorial team
-            </h2>
-            <p className="mt-1.5 font-body text-xs italic leading-snug text-ink-soft">
-              For: {selectedSubsection ? `${selectedSubsection.title} (${context.sectionLabel}) — ` : context.sectionLabel ? `${context.sectionLabel} — ` : ''}
-              {context.briefTitle}
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            style={{ touchAction: 'manipulation' }}
-            className="ml-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-paper-raised text-lg leading-none text-ink-soft outline-none transition-colors hover:bg-line hover:text-ink focus-visible:ring-2 focus-visible:ring-blue"
-          >
-            ×
-          </button>
-        </div>
-
-        {/* Body */}
-        <form onSubmit={handleSubmit} className="space-y-4 px-7 py-6">
-          <p className="border-l-2 border-line bg-paper-raised px-3 py-2.5 font-body text-xs leading-relaxed text-ink-soft">
-            Use this for a correction to a specific line or subsection, a factual concern, something you noticed
-            that doesn&rsquo;t belong in public discussion, or just a general thought.{' '}
-            <strong className="font-semibold text-ink">If it doesn&rsquo;t fit a category, that&rsquo;s fine — tell us anyway.</strong>
-          </p>
-
-          {subsections && subsections.length > 0 && (
-            <div>
-              <label htmlFor={subsectionFieldId} className="mb-2 block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
-                Which part is this about? (optional)
-              </label>
-              <select
-                id={subsectionFieldId}
+        {subsections && subsections.length > 0 && (
+          <Field label="Which part is this about?" optional>
+            {(p) => (
+              <Select
+                {...p}
                 value={subsectionId}
                 onChange={(e) => setSubsectionId(e.target.value)}
                 disabled={isPending || isSubmitted}
-                className="w-full border border-line bg-paper px-4 py-2.5 font-body text-sm text-ink transition focus:outline-none focus:ring-2 focus:ring-blue disabled:opacity-50"
               >
                 <option value="">General — not about one subsection</option>
                 {subsections.map((s) => (
                   <option key={s.id} value={s.id}>{s.title}</option>
                 ))}
-              </select>
-            </div>
-          )}
+              </Select>
+            )}
+          </Field>
+        )}
 
-          <div>
-            <label htmlFor={bodyId} className="mb-2 block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
-              Your message
-            </label>
-            <textarea
-              id={bodyId}
+        <Field label="Your message" error={feedback?.type === 'error' ? feedback.message : undefined}>
+          {(p) => (
+            <Textarea
+              {...p}
               ref={bodyRef}
               value={body}
               onChange={(e) => setBody(e.target.value)}
@@ -158,43 +126,24 @@ export function FeedbackModal({
               maxLength={2000}
               placeholder="What should we know or fix?"
               disabled={isPending || isSubmitted}
-              className="w-full resize-none border border-line bg-paper px-4 py-2.5 font-body text-sm text-ink placeholder:text-ink-faint/70 transition focus:outline-none focus:ring-2 focus:ring-blue disabled:opacity-50"
+              className="resize-none"
             />
-          </div>
-
-          {feedback && (
-            <p
-              role={feedback.type === 'error' ? 'alert' : undefined}
-              aria-live="polite"
-              className={`font-mono text-[10px] tracking-[0.1em] leading-relaxed ${
-                feedback.type === 'error' ? 'text-pink-ink' : 'text-blue-ink'
-              }`}
-            >
-              {feedback.message}
-            </p>
           )}
+        </Field>
 
-          <div className="flex items-center gap-4 pt-1">
-            {!isSubmitted && (
-              <button
-                type="submit"
-                disabled={isPending || !canSubmit}
-                style={{ touchAction: 'manipulation' }}
-                className="bg-ink px-6 py-3 font-mono text-xs uppercase tracking-widest text-paper transition-opacity hover:opacity-90 disabled:opacity-40"
-              >
-                {isPending ? 'Sending…' : 'Send feedback'}
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={onClose}
-              className="font-mono text-[10px] uppercase tracking-[0.15em] text-ink-faint transition-colors hover:text-ink"
-            >
-              {isSubmitted ? 'Close' : 'Cancel'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        {feedback?.type === 'success' && <Alert tone="success">{feedback.message}</Alert>}
+
+        <div className="flex items-center gap-3 pt-1">
+          {!isSubmitted && (
+            <Button type="submit" disabled={!canSubmit} pending={isPending} style={{ touchAction: 'manipulation' }}>
+              {isPending ? 'Sending…' : 'Send feedback'}
+            </Button>
+          )}
+          <Button type="button" variant="secondary" onClick={onClose}>
+            {isSubmitted ? 'Close' : 'Cancel'}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   )
 }

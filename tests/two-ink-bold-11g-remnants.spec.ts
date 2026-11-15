@@ -25,18 +25,6 @@ loadEnvConfig(process.cwd())
 const PUBLIC_BRIEF_SLUG = 'test-public-brief'
 const MEMBERS_BRIEF_SLUG = 'test-members-brief'
 
-// Two-Ink Bold token values (app/globals.css) as computed rgb() strings.
-const TOKEN = {
-  paper: 'rgb(255, 255, 255)',
-  line: 'rgb(226, 227, 229)',
-  ink: 'rgb(12, 13, 14)',
-  blueInk: 'rgb(11, 44, 153)',
-  pinkInk: 'rgb(153, 7, 90)',
-  pink: 'rgb(240, 25, 126)',
-  coverageBg: 'rgb(12, 13, 14)', // literally --color-ink's value too — the dark band is deliberately fixed, not a coincidence
-  coverageFg: 'rgb(241, 242, 243)',
-}
-
 // ---------------------------------------------------------------------------
 // Members Only gate + footer, logged-out visitor
 // ---------------------------------------------------------------------------
@@ -80,25 +68,15 @@ test.describe('Brief page dark-token remnants — Two-Ink Bold, logged-out visit
 test.describe('Correction proposal modal — Two-Ink Bold, authenticated expert', () => {
   test.use({ storageState: 'playwright/.auth/expert.json' })
 
-  test('modal panel and eyebrow label resolve to bg-paper / blue-ink, not the retired cream/amber', async ({ page }) => {
+  // The correction modal moved to the shared Modal in Phase 4c: assert the
+  // behaviour (dialog, eyebrow label, Cancel closes), not the retired colours.
+  test('correction proposal modal opens with its eyebrow label and Cancel closes it', async ({ page }) => {
     await page.goto(`/briefs/${PUBLIC_BRIEF_SLUG}`)
 
     await page.getByRole('button', { name: 'Propose a correction or addition' }).click()
     const dialog = page.getByRole('dialog', { name: 'Propose a correction or addition' })
     await expect(dialog).toBeVisible()
-
-    const styles = await page.evaluate(() => {
-      const dialogEl = document.querySelector('[role="dialog"][aria-label="Propose a correction or addition"]')!
-      const panel = dialogEl.querySelector(':scope > div:last-child') as HTMLElement
-      const eyebrow = [...dialogEl.querySelectorAll('p')].find((p) => p.textContent?.trim() === 'Correction proposal')!
-      return {
-        panelBg: getComputedStyle(panel).backgroundColor,
-        eyebrowColor: getComputedStyle(eyebrow).color,
-      }
-    })
-
-    expect(styles.panelBg).toBe(TOKEN.paper)
-    expect(styles.eyebrowColor).toBe(TOKEN.blueInk)
+    await expect(dialog.getByText('Correction proposal', { exact: true })).toBeVisible()
 
     await page.getByRole('button', { name: 'Cancel' }).click()
     await expect(dialog).not.toBeVisible()

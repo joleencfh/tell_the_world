@@ -1,0 +1,17 @@
+{
+  "ship": {
+    "target": "master",
+    "productionBranch": "main",
+    "merge": "ask",
+    "mergeMethod": "merge",
+    "fixCi": true,
+    "maxCiFixRounds": 2,
+    "ciTimeoutMin": 25,
+    "noCiWaitMin": 4,
+    "requireCi": true,
+    "wholePlanReview": true,
+    "deleteBranch": true,
+    "cleanup": true,
+    "remote": "origin"
+  }
+}

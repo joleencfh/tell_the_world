@@ -119,7 +119,7 @@ export function ContributeMenu({
         Contribute <span aria-hidden>▾</span>
       </Button>
       {open && (
-        <div className="absolute right-0 top-[calc(100%+0.4rem)] z-[var(--z-dropdown)]min-w-[240px] overflow-hidden rounded-control bg-vellum shadow-menu">
+        <div className="absolute right-0 top-[calc(100%+0.4rem)] z-[var(--z-dropdown)] min-w-[240px] overflow-hidden rounded-control bg-vellum shadow-menu">
           {showExpertGroup && (
             <ContributeMenuGroup
               label="Expert / Org — verify"
