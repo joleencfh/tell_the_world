@@ -54,7 +54,7 @@ const LEGACY_CONTENT = 'Legacy paragraph with a {{keyterm|a definition}} inline.
 const LINK_INPUT_PLACEHOLDER = '/briefs/some-brief-slug or https://example.com'
 
 function sectionContainers(page: Page): Locator {
-  return page.locator('div.border.border-line.bg-paper-raised')
+  return page.getByTestId('richtext-editor')
 }
 
 test.describe('Explainer rich text editor (Part 0b)', () => {
