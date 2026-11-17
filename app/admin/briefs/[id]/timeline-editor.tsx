@@ -3,6 +3,9 @@
 // EditBriefScreen.tsx, which is already sized close to the repo's max-lines
 // budget.
 
+import Button from '@/components/ui/Button'
+import { TextInput } from '@/components/ui/Field'
+
 export interface EditableTimelineEvent {
   clientKey: string
   event_name: string
@@ -24,66 +27,61 @@ export function TimelineEditor({ events, onNameChange, onDateChange, onMoveUp, o
   return (
     <div className="space-y-3">
       <div>
-        <h2 className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">Timeline</h2>
-        <p className="mt-1 font-body text-xs text-ink-soft/70">
+        <h2 className="font-mono text-label uppercase tracking-[0.18em] text-umber-soft">Timeline</h2>
+        <p className="mt-1 font-ui text-caption text-umber-soft">
           Renders as a graphic after the Explainer&apos;s first subsection. Order here (not the date) controls
           display order — reorder with the arrows below.
         </p>
       </div>
 
       {events.map((event, i) => (
-        <div key={event.clientKey} className="flex items-center gap-2 border border-line bg-paper-raised px-3 py-2.5">
-          <input
+        <div key={event.clientKey} className="flex flex-wrap items-center gap-2 rounded-control border border-window-line bg-vellum px-3 py-2.5">
+          <TextInput
             type="date"
+            aria-label="Event date"
             value={event.event_date}
             onChange={(e) => onDateChange(event.clientKey, e.target.value)}
-            className="w-40 shrink-0 border border-line bg-paper px-2.5 py-2 font-mono text-xs text-ink focus:outline-none focus:border-ink"
+            className="w-44 shrink-0"
           />
-          <input
+          <TextInput
             type="text"
+            aria-label="Event name"
             value={event.event_name}
             onChange={(e) => onNameChange(event.clientKey, e.target.value)}
             placeholder="e.g. Export controls tightened on advanced chips"
-            className="min-w-0 flex-1 border border-line bg-paper px-3 py-2 font-body text-sm text-ink focus:outline-none focus:border-ink"
+            className="min-w-0 flex-1"
           />
           <div className="flex shrink-0 gap-1">
-            <button
-              type="button"
+            <Button
+              variant="secondary"
+              icon
               onClick={() => onMoveUp(event.clientKey)}
               disabled={i === 0}
               title="Move up"
-              className="px-2 py-1.5 font-mono text-[10px] border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
+              aria-label="Move up"
             >
               ↑
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
+              variant="secondary"
+              icon
               onClick={() => onMoveDown(event.clientKey)}
               disabled={i === events.length - 1}
               title="Move down"
-              className="px-2 py-1.5 font-mono text-[10px] border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
+              aria-label="Move down"
             >
               ↓
-            </button>
-            <button
-              type="button"
-              onClick={() => onRemove(event.clientKey)}
-              title="Remove this event"
-              className="px-2 py-1.5 font-mono text-[10px] border border-line text-ink-soft hover:border-red-600 hover:text-red-600 transition-colors"
-            >
+            </Button>
+            <Button variant="ghost" onClick={() => onRemove(event.clientKey)} title="Remove this event">
               Remove
-            </button>
+            </Button>
           </div>
         </div>
       ))}
 
-      <button
-        type="button"
-        onClick={onAdd}
-        className="w-full border border-dashed border-line px-4 py-3 font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:border-ink hover:text-ink transition-colors"
-      >
+      <Button variant="secondary" fullWidth onClick={onAdd}>
         + Add timeline event
-      </button>
+      </Button>
     </div>
   )
 }

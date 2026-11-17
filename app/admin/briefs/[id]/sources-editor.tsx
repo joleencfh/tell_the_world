@@ -10,6 +10,8 @@
 // subsections (uncontrolled after the first render).
 
 import { useState } from 'react'
+import Button from '@/components/ui/Button'
+import Field, { Textarea, TextInput } from '@/components/ui/Field'
 import { parseSourcesRaw, type SourceItem } from '@/lib/briefs/parse-sources'
 
 interface FormSource {
@@ -125,156 +127,137 @@ export function SourcesFormEditor({ initialContent, onChange }: Props) {
   return (
     <div className="space-y-3 px-4 py-3">
       {items.length > 0 && items.length < 2 && (
-        <p className="font-body text-xs text-ink-soft/70">
+        <p className="font-ui text-caption text-umber-soft">
           Needs at least one more source before this section renders on the public page.
         </p>
       )}
 
       {items.map((item, i) => (
-        <div key={item.clientKey} className="space-y-3 border border-line bg-paper p-4">
+        <div key={item.clientKey} className="space-y-3 rounded-control border border-window-line bg-vellum p-4">
           <div className="flex items-center justify-between">
-            <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">
+            <span className="font-mono text-label uppercase tracking-[0.18em] text-umber-soft">
               Source {String(i + 1).padStart(2, '0')}
             </span>
             <div className="flex gap-1">
-              <button
-                type="button"
+              <Button
+                variant="secondary"
+                icon
                 onClick={() => moveItem(item.clientKey, 'up')}
                 disabled={i === 0}
                 title="Move up"
-                className="px-2 py-1 font-mono text-[10px] border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
+                aria-label="Move up"
               >
                 ↑
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
+                variant="secondary"
+                icon
                 onClick={() => moveItem(item.clientKey, 'down')}
                 disabled={i === items.length - 1}
                 title="Move down"
-                className="px-2 py-1 font-mono text-[10px] border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
+                aria-label="Move down"
               >
                 ↓
-              </button>
-              <button
-                type="button"
-                onClick={() => removeItem(item.clientKey)}
-                title="Remove this source"
-                className="px-2 py-1 font-mono text-[10px] border border-line text-ink-soft hover:border-red-600 hover:text-red-600 transition-colors"
-              >
+              </Button>
+              <Button variant="ghost" onClick={() => removeItem(item.clientKey)} title="Remove this source">
                 Remove
-              </button>
+              </Button>
             </div>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <label className="block font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">
-                Title
-              </label>
-              <input
-                type="text"
-                value={item.title}
-                onChange={(e) => patchItem(item.clientKey, { title: e.target.value })}
-                className="w-full border border-line bg-paper-raised px-3 py-2 font-body text-sm text-ink focus:outline-none focus:border-ink"
-                placeholder="e.g. How export controls reshaped the chip market"
+            <Field label="Title">
+              {(p) => (
+                <TextInput
+                  {...p}
+                  value={item.title}
+                  onChange={(e) => patchItem(item.clientKey, { title: e.target.value })}
+                  placeholder="e.g. How export controls reshaped the chip market"
+                />
+              )}
+            </Field>
+            <Field label="Publisher">
+              {(p) => (
+                <TextInput
+                  {...p}
+                  value={item.publisher}
+                  onChange={(e) => patchItem(item.clientKey, { publisher: e.target.value })}
+                  placeholder="e.g. Financial Times"
+                />
+              )}
+            </Field>
+          </div>
+
+          <Field label="Description">
+            {(p) => (
+              <Textarea
+                {...p}
+                value={item.description}
+                onChange={(e) => patchItem(item.clientKey, { description: e.target.value })}
+                rows={2}
+                placeholder="A short description of the source, shown on its card."
               />
-            </div>
-            <div className="space-y-1.5">
-              <label className="block font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">
-                Publisher <span className="text-red-600">*</span>
-              </label>
-              <input
-                type="text"
-                value={item.publisher}
-                onChange={(e) => patchItem(item.clientKey, { publisher: e.target.value })}
-                className="w-full border border-line bg-paper-raised px-3 py-2 font-body text-sm text-ink focus:outline-none focus:border-ink"
-                placeholder="e.g. Financial Times"
+            )}
+          </Field>
+
+          <Field label="URL">
+            {(p) => (
+              <TextInput
+                {...p}
+                type="url"
+                value={item.url}
+                onChange={(e) => patchItem(item.clientKey, { url: e.target.value })}
+                placeholder="https://example.com/article"
               />
-            </div>
-          </div>
+            )}
+          </Field>
 
-          <div className="space-y-1.5">
-            <label className="block font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">
-              Description
-            </label>
-            <textarea
-              value={item.description}
-              onChange={(e) => patchItem(item.clientKey, { description: e.target.value })}
-              rows={2}
-              className="w-full border border-line bg-paper-raised px-3 py-2 font-body text-sm text-ink leading-relaxed focus:outline-none focus:border-ink resize-y"
-              placeholder="A short description of the source, shown on its card."
-            />
-          </div>
+          <Field label="Summary">
+            {(p) => (
+              <Textarea
+                {...p}
+                value={item.summary}
+                onChange={(e) => patchItem(item.clientKey, { summary: e.target.value })}
+                rows={3}
+                placeholder="A longer summary shown in the source's detail drawer on the public page."
+              />
+            )}
+          </Field>
 
-          <div className="space-y-1.5">
-            <label className="block font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">
-              URL
-            </label>
-            <input
-              type="url"
-              value={item.url}
-              onChange={(e) => patchItem(item.clientKey, { url: e.target.value })}
-              className="w-full border border-line bg-paper-raised px-3 py-2 font-mono text-sm text-ink focus:outline-none focus:border-ink"
-              placeholder="https://example.com/article"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="block font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">
-              Summary
-            </label>
-            <textarea
-              value={item.summary}
-              onChange={(e) => patchItem(item.clientKey, { summary: e.target.value })}
-              rows={3}
-              className="w-full border border-line bg-paper-raised px-3 py-2 font-body text-sm text-ink leading-relaxed focus:outline-none focus:border-ink resize-y"
-              placeholder="A longer summary shown in the source's detail drawer on the public page."
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="block font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">
-              Key takeaways
-            </label>
+          <div>
+            <p className="mb-1.5 font-ui text-caption font-medium text-umber">Key takeaways</p>
             <div className="space-y-1.5">
               {item.takeaways.map((takeaway, ti) => (
                 <div key={ti} className="flex items-center gap-2">
-                  <input
-                    type="text"
+                  <TextInput
+                    aria-label={`Key takeaway ${ti + 1}`}
                     value={takeaway}
                     onChange={(e) => updateTakeaway(item.clientKey, ti, e.target.value)}
-                    className="min-w-0 flex-1 border border-line bg-paper-raised px-3 py-2 font-body text-sm text-ink focus:outline-none focus:border-ink"
+                    className="min-w-0 flex-1"
                     placeholder="A key point worth pulling out"
                   />
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
+                    icon
                     onClick={() => removeTakeaway(item.clientKey, ti)}
                     title="Remove this takeaway"
-                    className="shrink-0 px-2 py-2 font-mono text-[10px] border border-line text-ink-soft hover:border-red-600 hover:text-red-600 transition-colors"
+                    aria-label="Remove this takeaway"
                   >
                     ×
-                  </button>
+                  </Button>
                 </div>
               ))}
             </div>
-            <button
-              type="button"
-              onClick={() => addTakeaway(item.clientKey)}
-              className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors"
-            >
+            <Button variant="ghost" small className="mt-1.5" onClick={() => addTakeaway(item.clientKey)}>
               + Add takeaway
-            </button>
+            </Button>
           </div>
         </div>
       ))}
 
-      <button
-        type="button"
-        onClick={addItem}
-        className="w-full border border-dashed border-line px-4 py-3 font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:border-ink hover:text-ink transition-colors"
-      >
+      <Button variant="secondary" fullWidth onClick={addItem}>
         + Add source
-      </button>
+      </Button>
     </div>
   )
 }
