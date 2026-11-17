@@ -193,7 +193,7 @@ export function SectionEditor({
   const useRichEditor = !!richConfig && (section.rich_content !== null || section.content.trim() === '')
 
   return (
-    <div className="rounded-control border border-window-line bg-vellum">
+    <div data-testid="section-editor" className="rounded-control border border-window-line bg-vellum">
       {/* Section header */}
       <div className="flex items-center justify-between gap-2 border-b border-window-line px-4 py-3">
         <span className="font-mono text-label uppercase text-umber">
