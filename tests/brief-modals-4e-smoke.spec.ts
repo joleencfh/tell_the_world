@@ -58,11 +58,11 @@ if (!creatorEmail) {
 const modals = {
   // --- ProposeBriefModal ---
   proposeOpenButton: (page: Page) => page.getByRole('button', { name: /^Propose a new brief/ }),
-  proposeHeading: (page: Page) => page.getByRole('heading', { name: 'Propose a new brief' }),
+  proposeHeading: (page: Page) => page.getByRole('dialog', { name: 'Propose a new brief' }),
   proposeTopicField: (page: Page) => page.getByPlaceholder('e.g. AI governance frameworks in the EU'),
   proposeCancel: (page: Page) => page.getByRole('button', { name: 'Cancel', exact: true }),
   proposeClose: (page: Page) => page.getByRole('button', { name: 'Close', exact: true }),
-  /** Migrating step: switch to page.getByRole('dialog', { name: 'Propose a new brief' }). */
+  /** ProposeBriefModal is on the shared Modal (dialog role). */
   proposeDialog: (page: Page) => page.getByRole('dialog', { name: 'Propose a new brief' }),
 
   // --- PostModal ---
@@ -138,9 +138,8 @@ test.describe('Brief modals smoke test', () => {
       await expect(modals.proposeHeading(page)).toHaveCount(0)
     })
 
-    // Old modal has no role="dialog" and no focus return; enabled by the step
-    // that moves it onto the shared Modal. The opener stays mounted.
-    test.fixme('(a4) the form is a named dialog and Escape returns focus to the opener', async ({ page }) => {
+    // Shared Modal: named dialog and focus return; the opener stays mounted.
+    test('(a4) the form is a named dialog and Escape returns focus to the opener', async ({ page }) => {
       await page.goto(`/briefs/${SLUG}`)
       const opener = modals.proposeOpenButton(page)
       await opener.click()
