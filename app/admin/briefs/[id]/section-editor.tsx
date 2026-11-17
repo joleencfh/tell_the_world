@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react'
 import type { BriefSection } from '@/lib/admin/brief-actions'
+import Button from '@/components/ui/Button'
+import Field, { Textarea, TextInput } from '@/components/ui/Field'
 import RichTextEditor from '@/lib/richtext/editor'
 import { SourcesFormEditor } from './sources-editor'
 
@@ -45,8 +47,8 @@ const SECTION_HELP: Record<BriefSection['section_type'], { instructions: ReactNo
     instructions: (
       <>
         One bullet per line, 3–5 lines. Optionally start a line with{' '}
-        <strong className="text-ink">**a bold lead term**</strong> followed by an em dash — e.g.{' '}
-        <code className="font-mono text-[11px]">**Compute race** — governments vs. governments, companies vs. companies.</code>
+        <strong className="font-medium text-umber">**a bold lead term**</strong> followed by an em dash — e.g.{' '}
+        <code className="font-mono text-label">**Compute race** — governments vs. governments, companies vs. companies.</code>
       </>
     ),
     placeholder: '**Compute race** — governments vs. governments, companies vs. companies.\nA second bullet line goes here.',
@@ -55,10 +57,10 @@ const SECTION_HELP: Record<BriefSection['section_type'], { instructions: ReactNo
   faq: {
     instructions: (
       <>
-        One question per block: a line starting with <code className="font-mono text-[11px]">Q:</code>, then a line
-        starting with <code className="font-mono text-[11px]">A:</code>. Separate blocks with a blank line.
+        One question per block: a line starting with <code className="font-mono text-label">Q:</code>, then a line
+        starting with <code className="font-mono text-label">A:</code>. Separate blocks with a blank line.
         {' '}
-        <strong className="text-ink">Renaming a question detaches its expert answers</strong> — additional expert
+        <strong className="font-medium text-umber">Renaming a question detaches its expert answers</strong> — additional expert
         answers are matched against the question&apos;s exact wording, so editing it here orphans anything already
         submitted under the old text.
       </>
@@ -69,7 +71,7 @@ const SECTION_HELP: Record<BriefSection['section_type'], { instructions: ReactNo
   going_deeper: {
     instructions: (
       <>
-        One card per source. <strong className="text-ink">Publisher is required</strong> — a source without one is
+        One card per source. <strong className="font-medium text-umber">Publisher is required</strong> — a source without one is
         rejected on save. Needs at least 2 sources to render, folded into the Explainer section&apos;s Sources block
         on the public page.
       </>
@@ -81,9 +83,9 @@ const SECTION_HELP: Record<BriefSection['section_type'], { instructions: ReactNo
     instructions: (
       <>
         Plain paragraphs, separated by a blank line. Mark a key term inline with{' '}
-        <code className="font-mono text-[11px]">{'{{term|definition}}'}</code> to get a hover/focus tooltip on the
+        <code className="font-mono text-label">{'{{term|definition}}'}</code> to get a hover/focus tooltip on the
         public page — e.g.{' '}
-        <code className="font-mono text-[11px]">{'{{alignment|making an AI system pursue what its designers actually intend}}'}</code>.
+        <code className="font-mono text-label">{'{{alignment|making an AI system pursue what its designers actually intend}}'}</code>.
       </>
     ),
     placeholder:
@@ -99,12 +101,12 @@ const SECTION_HELP: Record<BriefSection['section_type'], { instructions: ReactNo
 // the rich text editor (Part 0b).
 const EXPLAINER_RICH_HELP = (
   <>
-    Use the <strong className="text-ink">B</strong>, <strong className="text-ink">Link</strong>,{' '}
-    <strong className="text-ink">Section</strong>, and <strong className="text-ink">Subsection</strong> buttons
-    above to format text, and <strong className="text-ink">Image</strong> to drop in a picture anywhere in the
-    text. Link to another brief with a path like <code className="font-mono text-[11px]">/briefs/some-brief-slug</code>,
+    Use the <strong className="font-medium text-umber">B</strong>, <strong className="font-medium text-umber">Link</strong>,{' '}
+    <strong className="font-medium text-umber">Section</strong>, and <strong className="font-medium text-umber">Subsection</strong> buttons
+    above to format text, and <strong className="font-medium text-umber">Image</strong> to drop in a picture anywhere in the
+    text. Link to another brief with a path like <code className="font-mono text-label">/briefs/some-brief-slug</code>,
     or paste a full URL for an external link. Mark a key term inline with{' '}
-    <code className="font-mono text-[11px]">{'{{term|definition}}'}</code> to get a hover/focus tooltip on the
+    <code className="font-mono text-label">{'{{term|definition}}'}</code> to get a hover/focus tooltip on the
     public page — same syntax as the plain-text editor, no toolbar button needed.
   </>
 )
@@ -114,9 +116,9 @@ const EXPLAINER_RICH_HELP = (
 // both off below) — TL;DR is a flat list of short bullets, one per paragraph.
 const TLDR_RICH_HELP = (
   <>
-    Press <strong className="text-ink">Enter</strong> for a new bullet, 3–5 recommended. Use the{' '}
-    <strong className="text-ink">B</strong> button to bold a lead term at the start of a bullet, e.g.{' '}
-    <strong className="text-ink">Compute race</strong> — followed by an em dash and the rest of the line.
+    Press <strong className="font-medium text-umber">Enter</strong> for a new bullet, 3–5 recommended. Use the{' '}
+    <strong className="font-medium text-umber">B</strong> button to bold a lead term at the start of a bullet, e.g.{' '}
+    <strong className="font-medium text-umber">Compute race</strong> — followed by an em dash and the rest of the line.
   </>
 )
 
@@ -191,40 +193,41 @@ export function SectionEditor({
   const useRichEditor = !!richConfig && (section.rich_content !== null || section.content.trim() === '')
 
   return (
-    <div className="border border-line bg-paper-raised">
+    <div data-testid="section-editor" className="rounded-control border border-window-line bg-vellum">
       {/* Section header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-line">
-        <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink">
+      <div className="flex items-center justify-between gap-2 border-b border-window-line px-4 py-3">
+        <span className="font-mono text-label uppercase text-umber">
           {SECTION_LABELS[section.section_type]}
         </span>
         <div className="flex gap-1">
-          <button
-            type="button"
+          <Button
+            variant="secondary"
+            icon
             onClick={() => onMoveUp(section.clientKey)}
             disabled={isFirst}
             title="Move up"
-            className="px-2 py-1 font-mono text-[10px] border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
+            aria-label="Move up"
           >
             ↑
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant="secondary"
+            icon
             onClick={() => onMoveDown(section.clientKey)}
             disabled={isLast}
             title="Move down"
-            className="px-2 py-1 font-mono text-[10px] border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
+            aria-label="Move down"
           >
             ↓
-          </button>
+          </Button>
           {isExplainer && onRemove && (
-            <button
-              type="button"
+            <Button
+              variant="ghost"
               onClick={() => onRemove(section.clientKey)}
               title="Remove this subsection"
-              className="px-2 py-1 font-mono text-[10px] border border-line text-ink-soft hover:border-red-600 hover:text-red-600 transition-colors"
             >
               Remove
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -232,22 +235,22 @@ export function SectionEditor({
       {/* Subsection title — Explainer only (Part 3): multiple explainer rows
           per brief are rendered as titled subsections on the public page. */}
       {isExplainer && onTitleChange && (
-        <div className="px-4 py-3 border-b border-line bg-paper/60">
-          <label className="block font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft mb-1.5">
-            Subsection title (optional)
-          </label>
-          <input
-            type="text"
-            value={section.title ?? ''}
-            onChange={(e) => onTitleChange(section.clientKey, e.target.value)}
-            className="w-full border border-line bg-paper-raised px-3 py-2 font-body text-sm text-ink focus:outline-none focus:border-ink"
-            placeholder="e.g. How the training process works"
-          />
+        <div className="border-b border-window-line bg-parchment px-4 py-3">
+          <Field label="Subsection title (optional)">
+            {(p) => (
+              <TextInput
+                {...p}
+                value={section.title ?? ''}
+                onChange={(e) => onTitleChange(section.clientKey, e.target.value)}
+                placeholder="e.g. How the training process works"
+              />
+            )}
+          </Field>
         </div>
       )}
 
-      <div className="px-4 py-3 border-b border-line bg-paper/60">
-        <p className="font-body text-xs text-ink-soft leading-relaxed">
+      <div className="border-b border-window-line bg-parchment px-4 py-3">
+        <p className="font-ui text-caption leading-relaxed text-umber-soft">
           {useRichEditor && richConfig ? richConfig.helpText : help.instructions}
         </p>
       </div>
@@ -270,23 +273,22 @@ export function SectionEditor({
         />
       ) : (
         <>
-          <textarea
-            value={section.content}
-            onChange={(e) => onContentChange(section.clientKey, e.target.value)}
-            rows={help.rows}
-            className="w-full px-3 py-3 font-mono text-sm text-ink leading-relaxed focus:outline-none resize-y"
-            placeholder={help.placeholder}
-          />
+          <div className="p-3">
+            <Textarea
+              value={section.content}
+              onChange={(e) => onContentChange(section.clientKey, e.target.value)}
+              rows={help.rows}
+              className="leading-relaxed"
+              placeholder={help.placeholder}
+              aria-label={`${SECTION_LABELS[section.section_type]} content`}
+            />
+          </div>
           {richConfig && onSwitchToRichText && (
-            <div className="border-t border-line px-4 py-2.5">
-              <button
-                type="button"
-                onClick={() => onSwitchToRichText(section.clientKey)}
-                className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors"
-              >
+            <div className="border-t border-window-line px-4 py-2.5">
+              <Button variant="secondary" small onClick={() => onSwitchToRichText(section.clientKey)}>
                 Switch to rich text editor →
-              </button>
-              <p className="mt-1 font-body text-xs text-ink-soft/70">
+              </Button>
+              <p className="mt-2 font-ui text-caption text-umber-soft">
                 {isExplainer
                   ? 'Carries the existing text over as plain paragraphs. Key term tooltips become literal text.'
                   : 'Carries each existing bullet over as its own paragraph, keeping any bold lead term.'}

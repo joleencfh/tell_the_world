@@ -53,7 +53,7 @@ export class ImageNode extends DecoratorNode<ReactNode> {
 
   decorate(): ReactNode {
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src={this.__url} alt={this.__alt} className="max-h-64 w-auto border border-line" />
+    return <img src={this.__url} alt={this.__alt} className="max-h-64 w-auto border border-rule" />
   }
 }
 
