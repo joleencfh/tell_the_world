@@ -68,9 +68,9 @@ const modals = {
   // --- PostModal ---
   newPostButton: (page: Page) => page.getByRole('button', { name: 'New Post', exact: true }),
   editPostButton: (page: Page) => page.getByRole('button', { name: 'Edit post' }).first(),
-  postCreateHeading: (page: Page) => page.getByRole('heading', { name: 'Share something' }),
-  postEditHeading: (page: Page) => page.getByRole('heading', { name: 'Edit your post' }),
-  postTypeButton: (page: Page, label: string) => page.getByRole('button', { name: label, exact: true }),
+  postCreateHeading: (page: Page) => page.getByRole('dialog', { name: 'Share something' }),
+  postEditHeading: (page: Page) => page.getByRole('dialog', { name: 'Edit your post' }),
+  postTypeButton: (page: Page, label: string) => page.getByRole('radio', { name: label, exact: true }),
   postTitleField: (page: Page) => page.getByPlaceholder(/^(Title of your post|The quote itself)$/),
   postCancel: (page: Page) => page.getByRole('button', { name: 'Cancel', exact: true }),
   postClose: (page: Page) => page.getByRole('button', { name: 'Close', exact: true }),
@@ -219,16 +219,15 @@ test.describe('Brief modals smoke test', () => {
       await expect(modals.postEditHeading(page)).toHaveCount(0)
     })
 
-    // Old modal has no role="dialog" and no focus return; enabled by the step
-    // that moves it onto the shared Modal. The "New Post" opener stays mounted.
-    test.fixme('(b3) the create form is a named dialog and Escape returns focus to "New Post"', async ({ page }) => {
+    // Shared Modal: named dialog and focus return; the "New Post" opener stays mounted.
+    test('(b3) the create form is a named dialog and Escape returns focus to "New Post"', async ({ page }) => {
       await page.goto(`/profile/${creator.id}`)
       const opener = modals.newPostButton(page)
       await opener.click()
-      await expect(page.getByRole('dialog', { name: 'Share something' })).toBeVisible()
+      await expect(modals.postCreateHeading(page)).toBeVisible()
 
       await page.keyboard.press('Escape')
-      await expect(page.getByRole('dialog', { name: 'Share something' })).toHaveCount(0)
+      await expect(modals.postCreateHeading(page)).toHaveCount(0)
       await expect(opener).toBeFocused()
     })
   })
