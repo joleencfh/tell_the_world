@@ -1,4 +1,6 @@
 import type { Brief, MediaPickerOption } from '@/lib/admin/brief-actions'
+import Button from '@/components/ui/Button'
+import Field, { Select, TextInput } from '@/components/ui/Field'
 import { TagInput } from './tag-input'
 
 // ---------------------------------------------------------------------------
@@ -6,6 +8,9 @@ import { TagInput } from './tag-input'
 // pinned media (drive the auto Quotes/Media sections), visibility, dashboard
 // featured flag, and the Explainer title shown once above its subsections.
 // ---------------------------------------------------------------------------
+
+// Label for a group of controls that is not one labelable input (tags, toggles).
+const GROUP_LABEL = 'mb-1.5 block font-ui text-caption font-medium text-umber'
 
 export function BriefMetaFields({
   title,
@@ -47,112 +52,94 @@ export function BriefMetaFields({
   return (
     <>
       {/* Title */}
-      <div className="space-y-1.5">
-        <label className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">
-          Title
-        </label>
-        <input
-          type="text"
-          value={title}
-          onChange={e => onTitleChange(e.target.value)}
-          className="w-full border border-line bg-paper-raised px-4 py-3 font-body text-lg text-ink focus:outline-none focus:border-ink"
-          placeholder="Brief title"
-        />
-      </div>
+      <Field label="Title">
+        {(p) => (
+          <TextInput
+            {...p}
+            value={title}
+            onChange={e => onTitleChange(e.target.value)}
+            placeholder="Brief title"
+          />
+        )}
+      </Field>
 
       {/* Subtitle */}
-      <div className="space-y-1.5">
-        <label className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">
-          Subtitle
-        </label>
-        <input
-          type="text"
-          value={subtitle}
-          onChange={e => onSubtitleChange(e.target.value)}
-          className="w-full border border-line bg-paper-raised px-4 py-3 font-body text-sm text-ink focus:outline-none focus:border-ink"
-          placeholder="One sentence, allowed a point of view"
-        />
-      </div>
+      <Field label="Subtitle">
+        {(p) => (
+          <TextInput
+            {...p}
+            value={subtitle}
+            onChange={e => onSubtitleChange(e.target.value)}
+            placeholder="One sentence, allowed a point of view"
+          />
+        )}
+      </Field>
 
       {/* TL;DR teaser — the one-liner shown under the TL;DR section
           header on the public page, in place of the generic default
           (Part 3 step 1). */}
-      <div className="space-y-1.5">
-        <label className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">
-          TL;DR teaser
-        </label>
-        <input
-          type="text"
-          value={tldrTeaser}
-          onChange={e => onTldrTeaserChange(e.target.value)}
-          className="w-full border border-line bg-paper-raised px-4 py-3 font-body text-sm text-ink focus:outline-none focus:border-ink"
-          placeholder="e.g. Three races, conflated constantly — the skim version"
-        />
-        <p className="font-body text-xs text-ink-soft/70">
-          Shown under the TL;DR heading on the public page. Leave blank to fall back to a generic default.
-        </p>
-      </div>
+      <Field
+        label="TL;DR teaser"
+        hint="Shown under the TL;DR heading on the public page. Leave blank to fall back to a generic default."
+      >
+        {(p) => (
+          <TextInput
+            {...p}
+            value={tldrTeaser}
+            onChange={e => onTldrTeaserChange(e.target.value)}
+            placeholder="e.g. Three races, conflated constantly — the skim version"
+          />
+        )}
+      </Field>
 
       {/* Topic tag + pinned media (drive the auto Quotes/Media sections) */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-1.5">
-          <label className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">
-            Topic tags
-          </label>
+      <div className="grid gap-6 sm:grid-cols-2">
+        <div>
+          <span className={GROUP_LABEL}>Topic tags</span>
           <TagInput tags={topicTags} onChange={onTopicTagsChange} />
-          <p className="font-body text-xs text-ink-soft/70">
+          <p className="mt-1 font-ui text-caption text-umber-soft">
             Drives the auto Quotes and Media sections — must match the tags used on content_posts. Enter or comma to add a tag.
           </p>
         </div>
-        <div className="space-y-1.5">
-          <label className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">
-            Pinned media (&quot;Start here&quot;)
-          </label>
-          <select
-            value={pinnedMediaPostId}
-            onChange={e => onPinnedMediaPostIdChange(e.target.value)}
-            className="w-full border border-line bg-paper-raised px-4 py-3 font-body text-sm text-ink focus:outline-none focus:border-ink"
-          >
-            <option value="">None</option>
-            {mediaOptions.map(option => (
-              <option key={option.id} value={option.id}>
-                [{option.post_type}] {option.title}
-              </option>
-            ))}
-          </select>
-        </div>
+        <Field label={'Pinned media ("Start here")'}>
+          {(p) => (
+            <Select
+              {...p}
+              value={pinnedMediaPostId}
+              onChange={e => onPinnedMediaPostIdChange(e.target.value)}
+            >
+              <option value="">None</option>
+              {mediaOptions.map(option => (
+                <option key={option.id} value={option.id}>
+                  [{option.post_type}] {option.title}
+                </option>
+              ))}
+            </Select>
+          )}
+        </Field>
       </div>
 
-      {/* Visibility */}
-      <div className="space-y-1.5">
-        <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">
+      {/* Visibility: two-state control kept as two buttons (not radios) so the
+          accessible names and roles stay as they were; aria-pressed adds state. */}
+      <div role="group" aria-labelledby="brief-visibility-label">
+        <span id="brief-visibility-label" className={GROUP_LABEL}>
           Visibility
         </span>
-        <div className="flex gap-0">
-          <button
-            type="button"
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant={visibility === 'members_only' ? 'primary' : 'secondary'}
+            aria-pressed={visibility === 'members_only'}
             onClick={() => onVisibilityChange('members_only')}
-            className={[
-              'px-5 py-2.5 font-mono text-[10px] tracking-[0.18em] uppercase border transition-colors',
-              visibility === 'members_only'
-                ? 'border-ink bg-ink text-paper'
-                : 'border-line text-ink-soft hover:border-ink hover:text-ink',
-            ].join(' ')}
           >
             Members only
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant={visibility === 'public' ? 'primary' : 'secondary'}
+            aria-pressed={visibility === 'public'}
             onClick={() => onVisibilityChange('public')}
-            className={[
-              'px-5 py-2.5 font-mono text-[10px] tracking-[0.18em] uppercase border border-l-0 transition-colors',
-              visibility === 'public'
-                ? 'border-ink bg-ink text-paper'
-                : 'border-line text-ink-soft hover:border-ink hover:text-ink',
-            ].join(' ')}
           >
             Public
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -160,37 +147,27 @@ export function BriefMetaFields({
           (home-dashboard-part1). At most one brief can be featured at a
           time (partial unique index, migration 057); saveBrief clears
           any other featured brief when this one is turned on. */}
-      <div className="space-y-1.5">
-        <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">
+      <div role="group" aria-labelledby="brief-dashboard-label">
+        <span id="brief-dashboard-label" className={GROUP_LABEL}>
           Dashboard
         </span>
-        <div className="flex gap-0">
-          <button
-            type="button"
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant={!dashboardFeatured ? 'primary' : 'secondary'}
+            aria-pressed={!dashboardFeatured}
             onClick={() => onDashboardFeaturedChange(false)}
-            className={[
-              'px-5 py-2.5 font-mono text-[10px] tracking-[0.18em] uppercase border transition-colors',
-              !dashboardFeatured
-                ? 'border-ink bg-ink text-paper'
-                : 'border-line text-ink-soft hover:border-ink hover:text-ink',
-            ].join(' ')}
           >
             Not featured
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant={dashboardFeatured ? 'primary' : 'secondary'}
+            aria-pressed={dashboardFeatured}
             onClick={() => onDashboardFeaturedChange(true)}
-            className={[
-              'px-5 py-2.5 font-mono text-[10px] tracking-[0.18em] uppercase border border-l-0 transition-colors',
-              dashboardFeatured
-                ? 'border-ink bg-ink text-paper'
-                : 'border-line text-ink-soft hover:border-ink hover:text-ink',
-            ].join(' ')}
           >
             Featured on dashboard
-          </button>
+          </Button>
         </div>
-        <p className="font-body text-xs text-ink-soft/70">
+        <p className="mt-1 font-ui text-caption text-umber-soft">
           Shown in the home dashboard&apos;s Highlighted section. Turning this on for this brief turns it off for any other featured brief.
         </p>
       </div>
@@ -198,21 +175,19 @@ export function BriefMetaFields({
       {/* Explainer title — shown once above the Explainer's subsections
           on the public page, distinct from the section band's own
           "Explainer" label and from each subsection's title below. */}
-      <div className="space-y-1.5">
-        <label className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">
-          Explainer title
-        </label>
-        <input
-          type="text"
-          value={explainerTitle}
-          onChange={e => onExplainerTitleChange(e.target.value)}
-          className="w-full border border-line bg-paper-raised px-4 py-3 font-body text-base text-ink focus:outline-none focus:border-ink"
-          placeholder="e.g. Why the compute race keeps escalating"
-        />
-        <p className="font-body text-xs text-ink-soft/70">
-          Shown once above the Explainer subsections below. Leave blank to show nothing there.
-        </p>
-      </div>
+      <Field
+        label="Explainer title"
+        hint="Shown once above the Explainer subsections below. Leave blank to show nothing there."
+      >
+        {(p) => (
+          <TextInput
+            {...p}
+            value={explainerTitle}
+            onChange={e => onExplainerTitleChange(e.target.value)}
+            placeholder="e.g. Why the compute race keeps escalating"
+          />
+        )}
+      </Field>
     </>
   )
 }

@@ -1,5 +1,6 @@
 'use client'
 
+import Field, { CONTROL } from '@/components/ui/Field'
 import RichTextEditor from '@/lib/richtext/editor'
 import type { UserOption } from '@/lib/admin/brief-actions'
 
@@ -42,22 +43,23 @@ function UserMultiSelect({
   onChange: (ids: string[]) => void
 }) {
   return (
-    <div className="space-y-1">
-      <label className="block font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">{label}</label>
-      <select
-        multiple
-        value={selectedIds}
-        onChange={(e) => onChange(Array.from(e.target.selectedOptions, (o) => o.value))}
-        className="h-28 w-full border border-line bg-paper-raised px-2 py-1.5 font-body text-xs text-ink focus:outline-none focus:border-ink"
-      >
-        {userOptions.map((u) => (
-          <option key={u.id} value={u.id}>
-            {optionLabel(u)}
-          </option>
-        ))}
-      </select>
-      <p className="font-body text-[10px] text-ink-soft/60">Ctrl/Cmd-click to select multiple.</p>
-    </div>
+    <Field label={label} hint="Ctrl/Cmd-click to select multiple.">
+      {(p) => (
+        <select
+          {...p}
+          multiple
+          value={selectedIds}
+          onChange={(e) => onChange(Array.from(e.target.selectedOptions, (o) => o.value))}
+          className={`${CONTROL} h-28`}
+        >
+          {userOptions.map((u) => (
+            <option key={u.id} value={u.id}>
+              {optionLabel(u)}
+            </option>
+          ))}
+        </select>
+      )}
+    </Field>
   )
 }
 
@@ -73,9 +75,9 @@ function FaqMetaRowEditor({
   onChange: (patch: Partial<EditableFaqMeta>) => void
 }) {
   return (
-    <div className="space-y-3 border border-line bg-paper-raised p-4">
-      <p className="font-body text-sm font-medium text-ink">{question}</p>
-      <div className="grid gap-3 sm:grid-cols-2">
+    <div className="space-y-4 rounded-control border border-window-line bg-vellum p-4">
+      <p className="font-ui text-ui-sm font-medium text-umber">{question}</p>
+      <div className="grid gap-4 sm:grid-cols-2">
         <UserMultiSelect
           label="Collaborators (linked on the info panel)"
           userOptions={userOptions}
@@ -90,9 +92,9 @@ function FaqMetaRowEditor({
         />
       </div>
       <div>
-        <label className="mb-1 block font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">
+        <span className="mb-1.5 block font-ui text-caption font-medium text-umber">
           Rich-text answer override (optional)
-        </label>
+        </span>
         <RichTextEditor
           key={question}
           initialValue={meta.richContent}
@@ -118,8 +120,8 @@ export function FaqMetaEditor({
   if (questions.length === 0) return null
 
   return (
-    <div className="space-y-3">
-      <h2 className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">
+    <div className="space-y-4">
+      <h2 className="font-mono text-label uppercase text-umber-soft">
         FAQ answer info — collaborators, feedback, rich text
       </h2>
       {questions.map((question) => (
