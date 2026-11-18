@@ -43,8 +43,7 @@ const ui = {
   row: (page: Page) => ui.summary(page).locator('xpath=..'),
   card: (page: Page) => ui.summary(page).locator('xpath=../..'),
   quickReject: (page: Page) => ui.row(page).getByRole('button', { name: 'Reject this application' }),
-  // Current inline confirm (replaced by a dialog in step 4).
-  inlineCancel: (page: Page) => ui.row(page).getByRole('button', { name: 'No', exact: true }),
+  dialog: (page: Page) => page.getByRole('dialog', { name: new RegExp(SEED_NAME) }),
 }
 
 /**
@@ -133,35 +132,15 @@ test.describe('Admin 5a smoke: shell and applications (behaviour only)', () => {
     }
   })
 
-  // Current behaviour: the quick reject control swaps in an inline Yes / No.
-  // Step 4 replaces this with a ConfirmDialog; update this test there (the
-  // cancel path must still leave the row listed and unconfirmed).
-  test('cancelling the quick reject returns to the unconfirmed state', async ({ page }) => {
-    const email = `playwright-5a-${Date.now()}@example.com`
-    const pendingPage = await seedPending(email)
-    try {
-      await page.goto(`/admin?pendingPage=${pendingPage}`)
-      await expect(ui.summary(page)).toBeVisible()
-
-      await ui.quickReject(page).click()
-      await expect(ui.quickReject(page)).toHaveCount(0)
-
-      await ui.inlineCancel(page).click()
-      await expect(ui.quickReject(page)).toBeVisible()
-      await expect(ui.summary(page)).toBeVisible()
-    } finally {
-      await deleteTestApplication(email)
-    }
-  })
-
-  // Enable in step 4, when the quick reject opens a ConfirmDialog.
-  test.fixme('the quick reject opens a dialog named for the applicant and Cancel keeps the row', async ({ page }) => {
+  // The quick reject opens a ConfirmDialog named for the applicant; Cancel
+  // closes it and the row stays listed.
+  test('the quick reject opens a dialog named for the applicant and Cancel keeps the row', async ({ page }) => {
     const email = `playwright-5a-${Date.now()}@example.com`
     const pendingPage = await seedPending(email)
     try {
       await page.goto(`/admin?pendingPage=${pendingPage}`)
       await ui.quickReject(page).click()
-      const dialog = page.getByRole('dialog', { name: new RegExp(SEED_NAME) })
+      const dialog = ui.dialog(page)
       await expect(dialog).toBeVisible()
       await dialog.getByRole('button', { name: 'Cancel' }).click()
       await expect(dialog).toHaveCount(0)

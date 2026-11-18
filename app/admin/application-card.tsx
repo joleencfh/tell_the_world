@@ -3,7 +3,14 @@
 import { useState } from 'react'
 import { approveApplication, rejectApplication } from '@/lib/admin/actions'
 import type { Application } from '@/lib/admin/actions'
-import { ROLE_LABELS, REFERRAL_LABELS, RoleBadge, formatDate, Field, LinkField } from './admin-shared'
+import Alert from '@/components/ui/Alert'
+import Button from '@/components/ui/Button'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import { Icon } from '@/components/ui/icons'
+import RoleLabel from '@/components/ui/RoleLabel'
+import StatusChip from '@/components/ui/StatusChip'
+import type { UserRole } from '@/lib/types'
+import { ROLE_LABELS, REFERRAL_LABELS, formatDate, Field, LinkField } from './admin-shared'
 
 // ---------------------------------------------------------------------------
 // Application card
@@ -41,81 +48,73 @@ export function ApplicationCard({ app }: { app: Application }) {
   }
 
   return (
-    <div className="border border-line bg-paper-raised">
-      {/* Summary row — always visible. The name/role/email area toggles the
-          expanded body; the delete control on the right is a sibling button
+    <div className="border border-rule bg-vellum">
+      {/* Summary row, always visible. The name/role/email area toggles the
+          expanded body; the reject control on the right is a sibling button
           (not nested inside it) so admins can reject straight from here
           without opening the card. */}
-      <div className="flex items-center gap-4 px-5 py-4 hover:bg-paper/60 transition-colors">
+      <div className="flex items-center gap-3 px-4 py-2 transition-colors hover:bg-bone">
         <button
           type="button"
-          className="flex-1 min-w-0 flex items-center gap-4 text-left"
+          className="flex min-h-11 min-w-0 flex-1 items-center gap-3 text-left focus-ring"
           onClick={() => setExpanded(e => !e)}
           aria-expanded={expanded}
         >
-          <span
-            className="font-mono text-[9px] tracking-[0.15em] text-ink-soft shrink-0 transition-transform duration-150"
-            aria-hidden
+          <Icon
+            name="chevron-right"
+            className="shrink-0 text-umber-soft transition-transform duration-150"
             style={{ transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)' }}
-          >
-            ▶
-          </span>
+          />
 
-          <div className="flex-1 min-w-0">
-            <div className="flex flex-wrap items-center gap-2.5 mb-0.5">
-              <span className="font-body text-sm font-semibold text-ink truncate">{displayName}</span>
-              <RoleBadge role={app.desired_role} />
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2.5">
+              <span className="truncate font-ui text-ui-sm font-semibold text-umber">{displayName}</span>
+              <RoleLabel role={app.desired_role as UserRole} />
             </div>
-            <span className="font-mono text-[10px] text-ink-soft">{app.email}</span>
+            <span className="font-ui text-ui-sm text-umber-soft">{app.email}</span>
           </div>
 
-          <span className="font-mono text-[9px] text-ink-soft shrink-0 hidden sm:block">
+          <span className="hidden shrink-0 font-ui text-ui-sm text-umber-soft sm:block">
             {formatDate(app.created_at)}
           </span>
         </button>
 
-        {confirmingDelete ? (
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="font-mono text-[9px] text-ink-soft hidden md:inline">Reject?</span>
-            <button
-              type="button"
-              onClick={handleReject}
-              disabled={loading !== null}
-              className="font-mono text-[9px] tracking-[0.15em] uppercase px-2.5 py-1.5 bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              {loading === 'rejecting' ? '…' : 'Yes'}
-            </button>
-            <button
-              type="button"
-              onClick={() => setConfirmingDelete(false)}
-              disabled={loading !== null}
-              className="font-mono text-[9px] tracking-[0.15em] uppercase px-2.5 py-1.5 border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              No
-            </button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setConfirmingDelete(true)}
-            aria-label="Reject this application"
-            title="Reject application"
-            className="shrink-0 font-mono text-sm leading-none text-ink-soft/50 hover:text-red-600 transition-colors px-1.5 py-1"
-          >
-            ✕
-          </button>
-        )}
+        <StatusChip status="pending" className="hidden shrink-0 md:inline-flex" />
+
+        <Button
+          variant="ghost"
+          icon
+          onClick={() => setConfirmingDelete(true)}
+          aria-label="Reject this application"
+          title="Reject application"
+        >
+          <Icon name="x" />
+        </Button>
       </div>
 
-      {/* Quick-reject error — surfaced even while collapsed, since the
-          control above no longer requires expanding the card first. */}
+      <ConfirmDialog
+        open={confirmingDelete}
+        title={`Reject ${displayName}?`}
+        confirmLabel="Reject application"
+        tone="danger"
+        pending={loading === 'rejecting'}
+        onConfirm={handleReject}
+        onCancel={() => setConfirmingDelete(false)}
+      >
+        This application is removed from the pending list.
+      </ConfirmDialog>
+
+      {/* Quick-reject error, surfaced even while collapsed, since the
+          control above does not require expanding the card first. */}
       {error && !expanded && (
-        <p className="px-5 pb-4 font-mono text-[10px] text-red-600" role="alert">{error}</p>
+        <div className="px-4 pb-4">
+          <Alert tone="danger">{error}</Alert>
+        </div>
       )}
 
       {/* Expanded body */}
       {expanded && (
-        <div className="border-t border-line px-5 pt-4 pb-5">
+        <div className="border-t border-rule px-5 pb-5 pt-4">
 
           {/* All submitted fields */}
           <div className="mb-5">
@@ -128,7 +127,7 @@ export function ApplicationCard({ app }: { app: Application }) {
             } />
             <Field label="Bio" value={app.bio} />
             <LinkField label="Website" value={app.website_url} />
-            <span className="block font-mono text-[9px] text-ink-soft mt-2 mb-1 pl-0">Submitted {formatDate(app.created_at)}</span>
+            <span className="mb-1 mt-2 block pl-0 font-ui text-ui-sm text-umber-soft">Submitted {formatDate(app.created_at)}</span>
 
             {/* Creator / Journalist */}
             {(app.desired_role === 'creator' || app.desired_role === 'journalist') && (
@@ -185,26 +184,27 @@ export function ApplicationCard({ app }: { app: Application }) {
           </div>
 
           {/* Error */}
-          {error && (
-            <p className="mb-3 font-mono text-[10px] text-red-600" role="alert">{error}</p>
-          )}
+          {error && <Alert tone="danger" className="mb-3">{error}</Alert>}
 
-          {/* Action buttons */}
-          <div className="flex gap-3">
-            <button
+          {/* Action buttons. The Reject here acts immediately, as before; the
+              quick reject in the summary row asks first. */}
+          <div className="flex flex-wrap gap-3">
+            <Button
+              variant="primary"
               onClick={handleApprove}
               disabled={loading !== null}
-              className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 bg-ink text-paper hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+              pending={loading === 'approving'}
             >
               {loading === 'approving' ? 'Approving…' : 'Approve'}
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="secondary"
               onClick={handleReject}
               disabled={loading !== null}
-              className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              pending={loading === 'rejecting'}
             >
               {loading === 'rejecting' ? 'Rejecting…' : 'Reject'}
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -219,16 +219,16 @@ export function ApplicationCard({ app }: { app: Application }) {
 export function ApprovedRow({ app }: { app: Partial<Application> }) {
   const displayName = app.full_name || [app.first_name, app.last_name].filter(Boolean).join(' ') || app.email
   return (
-    <div className="flex flex-wrap items-center gap-3 py-3 border-b border-line last:border-0">
-      <div className="flex-1 min-w-0">
-        <div className="flex flex-wrap items-center gap-2 mb-0.5">
-          <span className="font-body text-sm text-ink">{displayName}</span>
-          {app.desired_role && <RoleBadge role={app.desired_role} />}
+    <div className="flex min-h-11 flex-wrap items-center gap-3 border-b border-rule py-3 last:border-0">
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="font-ui text-ui-sm font-semibold text-umber">{displayName}</span>
+          {app.desired_role && <RoleLabel role={app.desired_role as UserRole} />}
         </div>
-        <span className="font-mono text-[10px] text-ink-soft">{app.email}</span>
+        <span className="font-ui text-ui-sm text-umber-soft">{app.email}</span>
       </div>
       {app.reviewed_at && (
-        <span className="font-mono text-[9px] text-ink-soft shrink-0">
+        <span className="shrink-0 font-ui text-ui-sm text-umber-soft">
           Approved {formatDate(app.reviewed_at)}
         </span>
       )}

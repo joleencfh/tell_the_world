@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// Role badges
+// Role labels
 // ---------------------------------------------------------------------------
 
 export const ROLE_LABELS: Record<string, string> = {
@@ -9,24 +9,6 @@ export const ROLE_LABELS: Record<string, string> = {
   organisation: 'Organisation',
   comms_specialist: 'Comms Specialist',
   other:        'Other',
-}
-
-export const ROLE_COLORS: Record<string, string> = {
-  creator:      'bg-amber-100 text-amber-800',
-  journalist:   'bg-blue-100 text-blue-800',
-  expert:       'bg-green-100 text-green-800',
-  organisation: 'bg-purple-100 text-purple-800',
-  comms_specialist: 'bg-pink-100 text-pink-800',
-  other:        'bg-gray-100 text-gray-600',
-}
-
-export function RoleBadge({ role }: { role: string }) {
-  const colors = ROLE_COLORS[role] ?? 'bg-gray-100 text-gray-600'
-  return (
-    <span className={`inline-flex items-center px-2 py-0.5 font-mono text-[9px] tracking-[0.18em] uppercase ${colors}`}>
-      {ROLE_LABELS[role] ?? role}
-    </span>
-  )
 }
 
 // ---------------------------------------------------------------------------
@@ -48,9 +30,9 @@ export function formatDate(iso: string) {
 export function Field({ label, value }: { label: string; value: string | number | null | undefined }) {
   if (!value && value !== 0) return null
   return (
-    <div className="grid grid-cols-[160px_1fr] gap-3 py-2.5 border-b border-line last:border-0">
-      <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft pt-0.5">{label}</span>
-      <span className="font-body text-sm text-ink leading-relaxed break-words">{String(value)}</span>
+    <div className="grid grid-cols-1 gap-1 border-b border-rule py-2.5 last:border-0 sm:grid-cols-[160px_1fr] sm:gap-3">
+      <span className="pt-0.5 font-mono text-label uppercase text-umber-soft">{label}</span>
+      <span className="break-words font-ui text-ui-sm leading-relaxed text-umber">{String(value)}</span>
     </div>
   )
 }
@@ -58,13 +40,13 @@ export function Field({ label, value }: { label: string; value: string | number 
 export function LinkField({ label, value }: { label: string; value: string | null | undefined }) {
   if (!value) return null
   return (
-    <div className="grid grid-cols-[160px_1fr] gap-3 py-2.5 border-b border-line last:border-0">
-      <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft pt-0.5">{label}</span>
+    <div className="grid grid-cols-1 gap-1 border-b border-rule py-2.5 last:border-0 sm:grid-cols-[160px_1fr] sm:gap-3">
+      <span className="pt-0.5 font-mono text-label uppercase text-umber-soft">{label}</span>
       <a
         href={value}
         target="_blank"
         rel="noopener noreferrer"
-        className="font-body text-sm text-blue-ink hover:underline break-all"
+        className="break-all font-ui text-ui-sm text-cobalt underline focus-ring"
       >
         {value}
       </a>
