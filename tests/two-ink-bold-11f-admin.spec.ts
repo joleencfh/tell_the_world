@@ -1,14 +1,13 @@
 /**
- * Two-Ink Bold — Part 11f (admin) token regression checks.
+ * Admin dashboard and brief editor behaviour checks (originally Two-Ink Bold
+ * Part 11f, rewritten across design system Phases 5a to 5c).
  *
- * What this proves: every migrated admin class resolves to a real Two-Ink
- * Bold color value (not an undefined Tailwind utility, which is the exact
- * "invisible text" failure mode this whole Part 11 migration exists to
- * avoid — see two-ink-bold-plan.md's Part 11 intro). It does NOT diff
- * against the old Punchy Media Brand values — several old/new near-black
- * tokens (e.g. the old --color-dark #0D0D0D vs. the new --color-ink
- * #0C0D0E) are close enough that "did the hex change" is a weak signal;
- * "does the class resolve to a real, expected value" is the actual bar.
+ * What this proves: the admin dashboard heading and brand mark render with
+ * the design-system umber, rose and cobalt values; a pending application
+ * shows a tab count and a visible first card in the Applications list; and
+ * the brief editor shows an editable title, an enabled Save button and the
+ * visibility toggle. It asserts roles, text and behaviour rather than old
+ * Tailwind classes. Tab-by-tab coverage lives in the Phase 5a to 5c specs.
  *
  * Prerequisites
  * ─────────────

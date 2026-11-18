@@ -2,7 +2,7 @@
 
 Version 1.0, 2026-10-01. Companion to [design-system.md](design-system.md) and [app/app-theme.css](../../../app/app-theme.css).
 
-The landing page is already on the new system. This document is the plan for moving everything else. Status: Phases 1 and 2 are merged (PRs 126 and 128). Phase 3 (dashboard, directory, profile) is done on the branch `plan/design-system-phase3`. The brief page (Phase 4a to 4e) and the admin brief edit screen are migrated. Phases 5a (admin shell and applications) and 5b (moderation queues) are done; 5c (analytics tab and cleanup) is not started.
+The landing page is already on the new system. This document is the plan for moving everything else. Status: Phases 1 and 2 are merged (PRs 126 and 128). Phase 3 (dashboard, directory, profile) is done on the branch `plan/design-system-phase3`. The brief page (Phase 4a to 4e) and the admin brief edit screen are migrated. Phase 5 (admin) is complete: 5a (admin shell and applications), 5b (moderation queues) and 5c (analytics tab and acceptance spec). Phase 6 (cleanup) is next.
 
 ## 1. How the move works
 
