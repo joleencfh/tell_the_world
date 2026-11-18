@@ -1,5 +1,6 @@
 import type { PendingContentPost, PendingCoverage, PendingBriefFeedback } from '@/lib/admin/actions'
 import { ADMIN_PAGE_SIZE } from '@/lib/data/admin'
+import EmptyState from '@/components/ui/EmptyState'
 import Pagination from '@/components/ui/Pagination'
 import { ContentPostCard } from '../content-post-card'
 import { CoverageCard } from '../coverage-card'
@@ -19,11 +20,9 @@ export function QuotesTab({
   return (
     <>
       {pendingContentPosts.length === 0 ? (
-        <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-          No pending submissions.
-        </p>
+        <EmptyState title="No pending submissions." />
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2" data-testid="admin-queue-list">
           {pendingContentPosts.map(q => (
             <ContentPostCard key={q.id} quote={q} />
           ))}
@@ -48,11 +47,9 @@ export function CoverageTab({
   return (
     <>
       {pendingCoverage.length === 0 ? (
-        <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-          No pending coverage.
-        </p>
+        <EmptyState title="No pending coverage." />
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2" data-testid="admin-queue-list">
           {pendingCoverage.map(c => (
             <CoverageCard key={c.id} coverage={c} />
           ))}
@@ -77,11 +74,9 @@ export function FeedbackTab({
   return (
     <>
       {pendingBriefFeedback.length === 0 ? (
-        <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-          No new feedback.
-        </p>
+        <EmptyState title="No new feedback." />
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2" data-testid="admin-queue-list">
           {pendingBriefFeedback.map(f => (
             <FeedbackCard key={f.id} feedback={f} />
           ))}

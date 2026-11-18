@@ -182,7 +182,7 @@ Phase 4e: the remaining brief-related surfaces: ProposeBriefModal, PostModal, Co
 
 Admin is the second-biggest area but mostly repetition of the same four patterns, so Phase 1's primitives pay off here.
 
-Status (2026-11-18): Phase 5a done on branch `plan/design-system-phase5a`: admin shell, tab row, Applications tab, application card (reject through ConfirmDialog) and Recently approved list. 5b and 5c not started.
+Status (2026-11-18): Phase 5a done on branch `plan/design-system-phase5a`: admin shell, tab row, Applications tab, application card (reject through ConfirmDialog) and Recently approved list. Phase 5b done on branch `plan/design-system-phase5b`: every moderation queue card and tab on the shared QueueItem pieces. 5c (analytics tab, cleanup) not started.
 
 ```
 [Standing rules]

@@ -8,7 +8,11 @@ import {
 } from '@/lib/admin/actions'
 import type { PendingQuestion, PendingCorrectionProposal, BriefProposal } from '@/lib/admin/actions'
 import type { BriefOption } from '@/lib/admin/brief-actions'
-import { formatDate, Field } from './admin-shared'
+import Button from '@/components/ui/Button'
+import Checkbox from '@/components/ui/Checkbox'
+import { Select } from '@/components/ui/Field'
+import { Icon } from '@/components/ui/icons'
+import { formatDate, Field, QueueItem, AdminActions, AdminError } from './admin-shared'
 
 // ---------------------------------------------------------------------------
 // Pending question card
@@ -34,36 +38,34 @@ export function QuestionCard({ question }: { question: PendingQuestion }) {
   }
 
   return (
-    <div className="border border-line bg-paper-raised px-5 py-4 space-y-3">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div className="space-y-0.5">
-          <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-blue-ink">
-            {question.briefs.title}
-          </p>
-          <p className="font-mono text-[9px] text-ink-soft">
-            {submitterName} · {formatDate(question.created_at)}
-          </p>
-        </div>
-      </div>
-      <p className="font-body text-sm text-ink leading-snug">{question.question_text}</p>
-      {error && <p className="font-mono text-[10px] text-red-600">{error}</p>}
-      <div className="flex gap-3">
-        <button
-          onClick={handleApprove}
-          disabled={loading !== null}
-          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 bg-ink text-paper hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          {loading === 'approving' ? 'Approving…' : 'Approve'}
-        </button>
-        <button
-          onClick={handleDismiss}
-          disabled={loading !== null}
-          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          {loading === 'dismissing' ? 'Dismissing…' : 'Dismiss'}
-        </button>
-      </div>
-    </div>
+    <QueueItem
+      testId="admin-question-card"
+      title={question.briefs.title}
+      meta={`${submitterName} · ${formatDate(question.created_at)}`}
+      error={error}
+      actions={
+        <>
+          <Button
+            variant="primary"
+            onClick={handleApprove}
+            disabled={loading !== null}
+            pending={loading === 'approving'}
+          >
+            {loading === 'approving' ? 'Approving…' : 'Approve'}
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={handleDismiss}
+            disabled={loading !== null}
+            pending={loading === 'dismissing'}
+          >
+            {loading === 'dismissing' ? 'Dismissing…' : 'Dismiss'}
+          </Button>
+        </>
+      }
+    >
+      <p className="font-ui text-ui-sm leading-snug text-umber">{question.question_text}</p>
+    </QueueItem>
   )
 }
 
@@ -91,42 +93,44 @@ export function CorrectionProposalCard({ proposal }: { proposal: PendingCorrecti
   }
 
   return (
-    <div className="border border-line bg-paper-raised px-5 py-4 space-y-3">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div className="space-y-0.5">
-          <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-blue-ink">
-            {proposal.briefs.title}
-          </p>
-          <p className="font-mono text-[9px] text-ink-soft">
-            {submitterName}
-            {' · '}
-            <span className="capitalize">{proposal.users.role}</span>
-            {' · '}
-            {formatDate(proposal.created_at)}
-          </p>
-        </div>
-      </div>
-      <p className="font-body text-sm text-ink leading-relaxed whitespace-pre-wrap">
+    <QueueItem
+      testId="admin-correction-proposal-card"
+      title={proposal.briefs.title}
+      meta={
+        <>
+          {submitterName}
+          {' · '}
+          <span className="capitalize">{proposal.users.role}</span>
+          {' · '}
+          {formatDate(proposal.created_at)}
+        </>
+      }
+      error={error}
+      actions={
+        <>
+          <Button
+            variant="primary"
+            onClick={handleApprove}
+            disabled={loading !== null}
+            pending={loading === 'approving'}
+          >
+            {loading === 'approving' ? 'Approving…' : 'Approve'}
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={handleDismiss}
+            disabled={loading !== null}
+            pending={loading === 'dismissing'}
+          >
+            {loading === 'dismissing' ? 'Dismissing…' : 'Dismiss'}
+          </Button>
+        </>
+      }
+    >
+      <p className="whitespace-pre-wrap font-ui text-ui-sm leading-relaxed text-umber">
         {proposal.contribution_text}
       </p>
-      {error && <p className="font-mono text-[10px] text-red-600">{error}</p>}
-      <div className="flex gap-3">
-        <button
-          onClick={handleApprove}
-          disabled={loading !== null}
-          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 bg-ink text-paper hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          {loading === 'approving' ? 'Approving…' : 'Approve'}
-        </button>
-        <button
-          onClick={handleDismiss}
-          disabled={loading !== null}
-          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          {loading === 'dismissing' ? 'Dismissing…' : 'Dismiss'}
-        </button>
-      </div>
-    </div>
+    </QueueItem>
   )
 }
 
@@ -166,99 +170,98 @@ export function BriefProposalCard({ proposal, briefOptions }: { proposal: BriefP
   }
 
   return (
-    <div className="border border-line bg-paper-raised">
+    <div className="border border-rule bg-vellum" data-testid="admin-brief-proposal-card">
       {/* Summary row */}
       <button
-        className="w-full text-left px-5 py-4 flex items-center gap-4 hover:bg-paper/60 transition-colors"
+        type="button"
+        className="flex min-h-11 w-full items-center gap-3 px-4 py-2 text-left transition-colors hover:bg-bone focus-ring"
         onClick={() => setExpanded(e => !e)}
         aria-expanded={expanded}
       >
-        <span
-          className="font-mono text-[9px] tracking-[0.15em] text-ink-soft shrink-0 transition-transform duration-150"
-          aria-hidden
+        <Icon
+          name="chevron-right"
+          className="shrink-0 text-umber-soft transition-transform duration-150"
           style={{ transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)' }}
-        >
-          ▶
-        </span>
-        <div className="flex-1 min-w-0">
-          <p className="font-body text-sm font-semibold text-ink truncate mb-0.5">
+        />
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-ui text-ui-sm font-semibold text-umber">
             {proposal.topic_title}
           </p>
-          <p className="font-mono text-[10px] text-ink-soft">
+          <p className="truncate font-ui text-ui-sm text-umber-soft">
             {proposal.submitter_name} · {proposal.submitter_email}
           </p>
         </div>
-        <span className="font-mono text-[9px] text-ink-soft shrink-0 hidden sm:block">
+        <span className="hidden shrink-0 font-ui text-ui-sm text-umber-soft sm:block">
           {formatDate(proposal.created_at)}
         </span>
       </button>
 
       {/* Expanded body */}
       {expanded && (
-        <div className="border-t border-line px-5 pt-4 pb-5 space-y-4">
+        <div className="space-y-4 border-t border-rule px-5 pb-5 pt-4">
           {proposal.from_brief_title && (
-            <p className="font-mono text-[9px] tracking-[0.15em] uppercase text-ink-soft">
-              Submitted from brief: <span className="text-blue-ink">{proposal.from_brief_title}</span>
+            <p className="font-ui text-ui-sm text-umber-soft">
+              Submitted from brief: <span className="font-semibold text-cobalt">{proposal.from_brief_title}</span>
             </p>
           )}
           <div>
-            <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft mb-2">
-              Why it matters / what it should cover
-            </p>
-            <p className="font-body text-sm text-ink leading-relaxed whitespace-pre-wrap">
-              {proposal.why_it_matters}
-            </p>
+            <div className="grid grid-cols-1 gap-1 border-b border-rule py-2.5 sm:grid-cols-[160px_1fr] sm:gap-3">
+              <span className="pt-0.5 font-mono text-label uppercase text-umber-soft">Why it matters / what it should cover</span>
+              <p className="whitespace-pre-wrap break-words font-ui text-ui-sm leading-relaxed text-umber">
+                {proposal.why_it_matters}
+              </p>
+            </div>
+            <Field label="Submitted by" value={`${proposal.submitter_name} (${proposal.submitter_email})`} />
           </div>
-          <Field label="Submitted by" value={`${proposal.submitter_name} (${proposal.submitter_email})`} />
 
-          <label className="flex items-center gap-2 font-mono text-[10px] tracking-[0.1em] uppercase text-ink-soft">
-            <input
-              type="checkbox"
-              checked={minorChanges}
-              onChange={(e) => setMinorChanges(e.target.checked)}
-              className="h-3.5 w-3.5"
-            />
-            Not too significant changes from the proposal
-          </label>
+          <Checkbox
+            checked={minorChanges}
+            onChange={(e) => setMinorChanges(e.target.checked)}
+            label="Not too significant changes from the proposal"
+          />
 
-          {error && <p className="font-mono text-[10px] text-red-600" role="alert">{error}</p>}
+          <AdminError message={error} />
 
-          <div className="flex flex-wrap items-center gap-3 pt-1">
-            <button
+          <AdminActions className="items-center">
+            <Button
+              variant="primary"
               onClick={handleConvert}
               disabled={loading}
-              className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 bg-ink text-paper hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+              pending={loading}
             >
               {loading ? 'Working…' : 'Convert to new brief'}
-            </button>
+            </Button>
 
-            <select
-              value={linkBriefId}
-              onChange={(e) => setLinkBriefId(e.target.value)}
-              disabled={loading}
-              className="font-mono text-[10px] tracking-[0.1em] border border-line bg-paper px-3 py-2.5 text-ink disabled:opacity-40"
-            >
-              <option value="">Link to existing brief…</option>
-              {briefOptions.map((b) => (
-                <option key={b.id} value={b.id}>{b.title}</option>
-              ))}
-            </select>
-            <button
+            <div className="min-w-56">
+              <Select
+                value={linkBriefId}
+                onChange={(e) => setLinkBriefId(e.target.value)}
+                disabled={loading}
+                aria-label="Link to existing brief"
+              >
+                <option value="">Link to existing brief…</option>
+                {briefOptions.map((b) => (
+                  <option key={b.id} value={b.id}>{b.title}</option>
+                ))}
+              </Select>
+            </div>
+            <Button
+              variant="secondary"
               onClick={handleLink}
               disabled={loading || !linkBriefId}
-              className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Link
-            </button>
+            </Button>
 
-            <button
+            <Button
+              variant="secondary"
               onClick={handleDecline}
               disabled={loading}
-              className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-40 disabled:cursor-not-allowed ml-auto"
+              className="sm:ml-auto"
             >
               {loading ? 'Working…' : 'Decline'}
-            </button>
-          </div>
+            </Button>
+          </AdminActions>
         </div>
       )}
     </div>

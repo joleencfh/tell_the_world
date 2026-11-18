@@ -20,7 +20,7 @@ export function ApplicationCard({ app }: { app: Application }) {
   const [expanded, setExpanded] = useState(false)
   const [loading, setLoading] = useState<'approving' | 'rejecting' | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const [confirmingReject, setConfirmingReject] = useState(false)
 
   const displayName = app.full_name || [app.first_name, app.last_name].filter(Boolean).join(' ') || app.email
 
@@ -43,12 +43,12 @@ export function ApplicationCard({ app }: { app: Application }) {
     if (result.error) {
       setError(result.error)
       setLoading(null)
-      setConfirmingDelete(false)
+      setConfirmingReject(false)
     }
   }
 
   return (
-    <div className="border border-rule bg-vellum">
+    <div className="border border-rule bg-vellum" data-testid="application-card">
       {/* Summary row, always visible. The name/role/email area toggles the
           expanded body; the reject control on the right is a sibling button
           (not nested inside it) so admins can reject straight from here
@@ -84,7 +84,7 @@ export function ApplicationCard({ app }: { app: Application }) {
         <Button
           variant="ghost"
           icon
-          onClick={() => setConfirmingDelete(true)}
+          onClick={() => setConfirmingReject(true)}
           aria-label="Reject this application"
           title="Reject application"
         >
@@ -93,13 +93,13 @@ export function ApplicationCard({ app }: { app: Application }) {
       </div>
 
       <ConfirmDialog
-        open={confirmingDelete}
+        open={confirmingReject}
         title={`Reject ${displayName}?`}
         confirmLabel="Reject application"
         tone="danger"
         pending={loading === 'rejecting'}
         onConfirm={handleReject}
-        onCancel={() => setConfirmingDelete(false)}
+        onCancel={() => setConfirmingReject(false)}
       >
         This application is removed from the pending list.
       </ConfirmDialog>
@@ -186,8 +186,8 @@ export function ApplicationCard({ app }: { app: Application }) {
           {/* Error */}
           {error && <Alert tone="danger" className="mb-3">{error}</Alert>}
 
-          {/* Action buttons. The Reject here acts immediately, as before; the
-              quick reject in the summary row asks first. */}
+          {/* Action buttons. Reject here opens the same confirm dialog as the
+              quick reject in the summary row. */}
           <div className="flex flex-wrap gap-3">
             <Button
               variant="primary"
@@ -199,7 +199,7 @@ export function ApplicationCard({ app }: { app: Application }) {
             </Button>
             <Button
               variant="secondary"
-              onClick={handleReject}
+              onClick={() => setConfirmingReject(true)}
               disabled={loading !== null}
               pending={loading === 'rejecting'}
             >

@@ -3,15 +3,14 @@
 import { useState } from 'react'
 import { approveCta, dismissCta, setCtaDisplayOrder } from '@/lib/admin/actions'
 import type { PendingCta, PublishedCta } from '@/lib/admin/actions'
+import Button from '@/components/ui/Button'
+import Field, { TextInput } from '@/components/ui/Field'
+import { formatDate, QueueItem } from './admin-shared'
 
 // Split out of cards.tsx to keep that file under the project's ~500-line
 // convention (CONTRIBUTING.md) — same card shape as FaqAnswerCard in
 // app/admin/faq-answer-card.tsx, just for brief_ctas pending rows
 // (two-ink-bold-plan.md Part 6).
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-}
 
 export function CtaCard({ cta }: { cta: PendingCta }) {
   const [loading, setLoading] = useState<'approving' | 'dismissing' | null>(null)
@@ -33,60 +32,64 @@ export function CtaCard({ cta }: { cta: PendingCta }) {
   }
 
   return (
-    <div className="border border-line bg-paper-raised px-5 py-4 space-y-3">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div className="space-y-0.5">
-          <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-blue-ink">
-            {cta.briefs.title}
-          </p>
-          <p className="font-mono text-[9px] text-ink-soft">
-            {submitterName}
-            {' · '}
-            <span className="capitalize">{cta.users.role}</span>
-            {' · '}
-            {formatDate(cta.created_at)}
-          </p>
-        </div>
-      </div>
-      <div>
-        <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft mb-1">Title</p>
-        <p className="font-body text-sm text-ink font-semibold leading-snug">{cta.title}</p>
-      </div>
-      {cta.description && (
+    <QueueItem
+      testId="admin-cta-card"
+      title={cta.briefs.title}
+      meta={
+        <>
+          {submitterName}
+          {' · '}
+          <span className="capitalize">{cta.users.role}</span>
+          {' · '}
+          {formatDate(cta.created_at)}
+        </>
+      }
+      error={error}
+      actions={
+        <>
+          <Button
+            variant="primary"
+            onClick={handleApprove}
+            disabled={loading !== null}
+            pending={loading === 'approving'}
+          >
+            {loading === 'approving' ? 'Approving…' : 'Approve'}
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={handleDismiss}
+            disabled={loading !== null}
+            pending={loading === 'dismissing'}
+          >
+            {loading === 'dismissing' ? 'Dismissing…' : 'Dismiss'}
+          </Button>
+        </>
+      }
+    >
+      <div className="space-y-3">
         <div>
-          <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft mb-1">Description</p>
-          <p className="font-body text-sm text-ink leading-relaxed whitespace-pre-wrap">{cta.description}</p>
+          <p className="mb-1 font-mono text-label uppercase text-umber-soft">Title</p>
+          <p className="font-ui text-ui-sm font-semibold leading-snug text-umber">{cta.title}</p>
         </div>
-      )}
-      <div>
-        <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft mb-1">Link</p>
-        <a
-          href={cta.link_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-body text-sm text-blue-ink hover:underline break-all"
-        >
-          {cta.link_url}
-        </a>
+        {cta.description && (
+          <div>
+            <p className="mb-1 font-mono text-label uppercase text-umber-soft">Description</p>
+            <p className="whitespace-pre-wrap font-ui text-ui-sm leading-relaxed text-umber">{cta.description}</p>
+          </div>
+        )}
+        <div>
+          <p className="mb-1 font-mono text-label uppercase text-umber-soft">Link</p>
+          <a
+            href={cta.link_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="break-all font-ui text-ui-sm text-cobalt underline focus-ring"
+          >
+            {cta.link_url}
+          </a>
+        </div>
       </div>
-      {error && <p className="font-mono text-[10px] text-red-600">{error}</p>}
-      <div className="flex gap-3">
-        <button
-          onClick={handleApprove}
-          disabled={loading !== null}
-          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 bg-ink text-paper hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          {loading === 'approving' ? 'Approving…' : 'Approve'}
-        </button>
-        <button
-          onClick={handleDismiss}
-          disabled={loading !== null}
-          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          {loading === 'dismissing' ? 'Dismissing…' : 'Dismiss'}
-        </button>
-      </div>
-    </div>
+    </QueueItem>
   )
 }
 
@@ -122,34 +125,26 @@ export function PublishedCtaCard({ cta }: { cta: PublishedCta }) {
   }
 
   return (
-    <div className="border border-line bg-paper-raised px-5 py-4 space-y-3">
-      <div className="space-y-0.5">
-        <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-blue-ink">{cta.briefs.title}</p>
-        <p className="font-body text-sm text-ink font-semibold leading-snug">{cta.title}</p>
-      </div>
-      {error && <p className="font-mono text-[10px] text-red-600">{error}</p>}
-      <div className="flex items-center gap-3">
-        <label className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft" htmlFor={`order-${cta.id}`}>
-          Order
-        </label>
-        <input
-          id={`order-${cta.id}`}
-          type="number"
-          inputMode="numeric"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder="default"
-          disabled={saving}
-          className="w-24 border border-line bg-paper px-2.5 py-1.5 font-mono text-xs text-ink focus:outline-none focus:border-ink disabled:opacity-50"
-        />
-        <button
-          onClick={handleSave}
-          disabled={saving || !dirty}
-          className="font-mono text-[10px] tracking-[0.18em] uppercase px-4 py-2 bg-ink text-paper hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-        >
+    <QueueItem testId="admin-published-cta-card" title={cta.briefs.title} error={error}>
+      <p className="font-ui text-ui-sm font-semibold leading-snug text-umber">{cta.title}</p>
+      <div className="mt-3 flex flex-wrap items-end gap-3">
+        <Field label="Order" id={`order-${cta.id}`} className="w-32">
+          {(p) => (
+            <TextInput
+              {...p}
+              type="number"
+              inputMode="numeric"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              placeholder="default"
+              disabled={saving}
+            />
+          )}
+        </Field>
+        <Button variant="primary" onClick={handleSave} disabled={saving || !dirty} pending={saving}>
           {saving ? 'Saving…' : 'Save'}
-        </button>
+        </Button>
       </div>
-    </div>
+    </QueueItem>
   )
 }

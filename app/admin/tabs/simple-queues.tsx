@@ -1,6 +1,7 @@
 import type { PendingQuestion, PendingCorrectionProposal, PendingFaqAnswer, PendingQuestionAnswer } from '@/lib/admin/actions'
 import type { PendingContentiousPoint } from '@/lib/admin/explainer-actions'
 import { ADMIN_PAGE_SIZE } from '@/lib/data/admin'
+import EmptyState from '@/components/ui/EmptyState'
 import Pagination from '@/components/ui/Pagination'
 import { QuestionCard, CorrectionProposalCard } from '../cards'
 import { FaqAnswerCard } from '../faq-answer-card'
@@ -17,11 +18,9 @@ export function QuestionsTab({
   return (
     <>
       {pendingQuestions.length === 0 ? (
-        <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-          No pending questions.
-        </p>
+        <EmptyState title="No pending questions." />
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2" data-testid="admin-queue-list">
           {pendingQuestions.map(q => (
             <QuestionCard key={q.id} question={q} />
           ))}
@@ -50,11 +49,9 @@ export function CorrectionProposalsTab({
   return (
     <>
       {pendingCorrectionProposals.length === 0 ? (
-        <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-          No pending correction proposals.
-        </p>
+        <EmptyState title="No pending correction proposals." />
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2" data-testid="admin-queue-list">
           {pendingCorrectionProposals.map(c => (
             <CorrectionProposalCard key={c.id} proposal={c} />
           ))}
@@ -79,11 +76,9 @@ export function FaqAnswersTab({
   return (
     <>
       {pendingFaqAnswers.length === 0 ? (
-        <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-          No pending FAQ answers.
-        </p>
+        <EmptyState title="No pending FAQ answers." />
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2" data-testid="admin-queue-list">
           {pendingFaqAnswers.map(a => (
             <FaqAnswerCard key={a.id} answer={a} />
           ))}
@@ -113,11 +108,9 @@ export function ContentiousPointsTab({
   return (
     <>
       {pendingContentiousPoints.length === 0 ? (
-        <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-          No pending contentious points.
-        </p>
+        <EmptyState title="No pending contentious points." />
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2" data-testid="admin-queue-list">
           {pendingContentiousPoints.map(p => (
             <ContentiousPointCard key={p.id} point={p} />
           ))}
@@ -146,11 +139,9 @@ export function QuestionAnswersTab({
   return (
     <>
       {pendingQuestionAnswers.length === 0 ? (
-        <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-          No pending Q&amp;A answers.
-        </p>
+        <EmptyState title="No pending Q&A answers." />
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2" data-testid="admin-queue-list">
           {pendingQuestionAnswers.map(a => (
             <QuestionAnswerCard key={a.id} answer={a} />
           ))}

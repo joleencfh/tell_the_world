@@ -3,15 +3,13 @@
 import { useState } from 'react'
 import { approveFaqAnswer, dismissFaqAnswer } from '@/lib/admin/actions'
 import type { PendingFaqAnswer } from '@/lib/admin/actions'
+import Button from '@/components/ui/Button'
+import { formatDate, QueueItem } from './admin-shared'
 
 // Split out of cards.tsx to keep that file under the project's ~500-line
 // convention (CONTRIBUTING.md) — same card shape as CorrectionProposalCard
 // there, just for brief_faq_answers pending rows (two-ink-bold-plan.md
 // Part 4b).
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-}
 
 export function FaqAnswerCard({ answer }: { answer: PendingFaqAnswer }) {
   const [loading, setLoading] = useState<'approving' | 'dismissing' | null>(null)
@@ -33,46 +31,50 @@ export function FaqAnswerCard({ answer }: { answer: PendingFaqAnswer }) {
   }
 
   return (
-    <div className="border border-line bg-paper-raised px-5 py-4 space-y-3">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div className="space-y-0.5">
-          <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-blue-ink">
-            {answer.briefs.title}
-          </p>
-          <p className="font-mono text-[9px] text-ink-soft">
-            {submitterName}
-            {' · '}
-            <span className="capitalize">{answer.users.role}</span>
-            {' · '}
-            {formatDate(answer.created_at)}
-          </p>
+    <QueueItem
+      testId="admin-faq-answer-card"
+      title={answer.briefs.title}
+      meta={
+        <>
+          {submitterName}
+          {' · '}
+          <span className="capitalize">{answer.users.role}</span>
+          {' · '}
+          {formatDate(answer.created_at)}
+        </>
+      }
+      error={error}
+      actions={
+        <>
+          <Button
+            variant="primary"
+            onClick={handleApprove}
+            disabled={loading !== null}
+            pending={loading === 'approving'}
+          >
+            {loading === 'approving' ? 'Approving…' : 'Approve'}
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={handleDismiss}
+            disabled={loading !== null}
+            pending={loading === 'dismissing'}
+          >
+            {loading === 'dismissing' ? 'Dismissing…' : 'Dismiss'}
+          </Button>
+        </>
+      }
+    >
+      <div className="space-y-3">
+        <div>
+          <p className="mb-1 font-mono text-label uppercase text-umber-soft">Question</p>
+          <p className="font-ui text-ui-sm font-semibold leading-snug text-umber">{answer.question}</p>
+        </div>
+        <div>
+          <p className="mb-1 font-mono text-label uppercase text-umber-soft">Answer</p>
+          <p className="whitespace-pre-wrap font-ui text-ui-sm leading-relaxed text-umber">{answer.body}</p>
         </div>
       </div>
-      <div>
-        <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft mb-1">Question</p>
-        <p className="font-body text-sm text-ink font-semibold leading-snug">{answer.question}</p>
-      </div>
-      <div>
-        <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft mb-1">Answer</p>
-        <p className="font-body text-sm text-ink leading-relaxed whitespace-pre-wrap">{answer.body}</p>
-      </div>
-      {error && <p className="font-mono text-[10px] text-red-600">{error}</p>}
-      <div className="flex gap-3">
-        <button
-          onClick={handleApprove}
-          disabled={loading !== null}
-          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 bg-ink text-paper hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          {loading === 'approving' ? 'Approving…' : 'Approve'}
-        </button>
-        <button
-          onClick={handleDismiss}
-          disabled={loading !== null}
-          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          {loading === 'dismissing' ? 'Dismissing…' : 'Dismiss'}
-        </button>
-      </div>
-    </div>
+    </QueueItem>
   )
 }
