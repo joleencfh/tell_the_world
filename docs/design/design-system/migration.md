@@ -2,7 +2,7 @@
 
 Version 1.0, 2026-10-01. Companion to [design-system.md](design-system.md) and [app/app-theme.css](../../../app/app-theme.css).
 
-The landing page is already on the new system. This document is the plan for moving everything else. Status: Phases 1 and 2 are merged (PRs 126 and 128). Phase 3 (dashboard, directory, profile) is done on the branch `plan/design-system-phase3`. The brief page is migrated (Phase 4). Admin is in progress: Phase 5a (admin shell and applications) is done on the branch `plan/design-system-phase5a`; 5b and 5c are not started.
+The landing page is already on the new system. This document is the plan for moving everything else. Status: Phases 1 and 2 are merged (PRs 126 and 128). Phase 3 (dashboard, directory, profile) is done on the branch `plan/design-system-phase3`. The brief page (Phase 4a to 4e) and the admin brief edit screen are migrated. Phase 5a (admin shell and applications) is done; 5b and 5c are not started.
 
 ## 1. How the move works
 
@@ -131,7 +131,7 @@ Each phase is its own PR with its own tests. A phase is done when its screens us
 
 **Phase 4: the brief page.** The largest (34 files, about 1,100 uses). Split into sub-PRs: (a) hero, section nav, reading column and explainer; (b) quotes and the Quote card; (c) Q&A and contributions (the thread from the landing demo); (d) sources, timeline, related briefs, coverage; (e) modals (contribute, quote, coverage). Each sub-PR keeps the page whole.
 
-*Status (2026-11-15; 4d done on branch `plan/design-system-phase4d`: sources, timeline, coverage, CTAs, comments, reviewers; 4e not started): 4a (brief page shell), 4b (quotes) and 4c (Q&A, votes, endorsements, FAQ, feedback) done on branches `plan/design-system-phase4a`, `plan/design-system-phase4b` and `plan/design-system-phase4c`.*
+*Status (2026-11-17; 4a to 4e done; 4e on branch `plan/design-system-phase4e`: ContactModal, ProposeBriefModal and PostModal on the shared Modal, Lexical editor toolbar and vellum surface, admin brief edit screen; 4d on branch `plan/design-system-phase4d`: sources, timeline, coverage, CTAs, comments, reviewers): 4a (brief page shell), 4b (quotes) and 4c (Q&A, votes, endorsements, FAQ, feedback) done on branches `plan/design-system-phase4a`, `plan/design-system-phase4b` and `plan/design-system-phase4c`.*
 
 **Phase 5: admin.** 27 files, about 560 uses. Mostly lists, accordion rows, key-value rows and status chips, so it benefits most from the Phase 1 primitives. Settle decision 4 (density) before starting.
 

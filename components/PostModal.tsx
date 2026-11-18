@@ -6,6 +6,11 @@ import type { PostType } from '@/lib/posts/actions'
 import { useClarityGate } from '@/lib/clarity/useClarityGate'
 import { ClarityFlagsPanel } from '@/components/ClarityFlagsPanel'
 import type { UserRole } from '@/lib/types'
+import Modal from '@/components/ui/Modal'
+import Button from '@/components/ui/Button'
+import Alert from '@/components/ui/Alert'
+import ChoiceChips from '@/components/ui/ChoiceChips'
+import Field, { TextInput, Textarea } from '@/components/ui/Field'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -35,9 +40,6 @@ interface PostModalProps {
 // Shared UI
 // ---------------------------------------------------------------------------
 
-const inputCls =
-  'border border-gray-300 rounded-lg px-3 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-500'
-
 const POST_TYPES: { value: PostType; label: string }[] = [
   { value: 'video', label: 'Video' },
   { value: 'article', label: 'Article' },
@@ -50,7 +52,16 @@ const POST_TYPES: { value: PostType; label: string }[] = [
 // Tag input (for topic_tags)
 // ---------------------------------------------------------------------------
 
-function TagInput({ tags, onChange }: { tags: string[]; onChange: (tags: string[]) => void }) {
+function TagInput({
+  tags,
+  onChange,
+  ...fieldProps
+}: {
+  tags: string[]
+  onChange: (tags: string[]) => void
+  id?: string
+  'aria-describedby'?: string
+}) {
   const [draft, setDraft] = useState('')
 
   function addTag(raw: string) {
@@ -69,17 +80,17 @@ function TagInput({ tags, onChange }: { tags: string[]; onChange: (tags: string[
   }
 
   return (
-    <div className="border border-gray-300 rounded-lg px-3 py-2 flex flex-wrap gap-1.5 focus-within:ring-2 focus-within:ring-blue-500">
+    <div className="flex min-h-11 flex-wrap items-center gap-1.5 rounded-control border border-field-line bg-white px-3 py-1.5 focus-within:border-umber focus-within:outline-2 focus-within:outline-offset-1 focus-within:outline-umber">
       {tags.map((tag) => (
         <span
           key={tag}
-          className="bg-gray-100 text-gray-700 rounded-full px-2 py-0.5 text-xs inline-flex items-center gap-1"
+          className="inline-flex items-center gap-1 rounded-tag border border-window-line px-2 py-0.5 font-mono text-label uppercase text-umber-soft"
         >
           {tag}
           <button
             type="button"
             onClick={() => onChange(tags.filter((t) => t !== tag))}
-            className="text-gray-400 hover:text-gray-700 leading-none"
+            className="-my-3 -mr-3 grid size-11 place-items-center rounded-control text-umber-soft hover:text-umber focus-ring"
             aria-label={`Remove ${tag}`}
           >
             ×
@@ -87,6 +98,7 @@ function TagInput({ tags, onChange }: { tags: string[]; onChange: (tags: string[
         </span>
       ))}
       <input
+        {...fieldProps}
         type="text"
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
@@ -95,7 +107,7 @@ function TagInput({ tags, onChange }: { tags: string[]; onChange: (tags: string[
           if (draft.trim()) addTag(draft)
         }}
         placeholder={tags.length === 0 ? 'Type a tag and press Enter' : ''}
-        className="text-sm outline-none flex-1 min-w-[120px] bg-transparent"
+        className="min-h-9 min-w-[120px] flex-1 bg-transparent font-ui text-base text-umber outline-none placeholder:text-umber-soft"
       />
     </div>
   )
@@ -132,20 +144,17 @@ export default function PostModal({
   const clarityGate = useClarityGate(`${title}\n\n${body}`, isGated)
   const needsFlagReview = isGated && clarityGate.status === 'flagged' && !clarityGate.confirmedAnyway
 
-  // Close on Escape
+  // Escape: the shared Modal closes the dialog on Escape while the main form
+  // shows. During the delete confirm the Modal is not dismissible, so the first
+  // Escape only cancels the confirm (as before) and the next one closes.
   useEffect(() => {
+    if (!confirmDelete) return
     function onKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') {
-        if (confirmDelete) {
-          setConfirmDelete(false)
-        } else {
-          onClose()
-        }
-      }
+      if (e.key === 'Escape') setConfirmDelete(false)
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [onClose, confirmDelete])
+  }, [confirmDelete])
 
   function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -196,114 +205,65 @@ export default function PostModal({
     })
   }
 
+  // Callers render this conditionally, so it is always open while mounted.
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget && !confirmDelete) onClose()
-      }}
+    <Modal
+      open
+      onClose={onClose}
+      dismissible={!confirmDelete}
+      eyebrow={isEditMode ? 'Edit post' : 'New post'}
+      title={isEditMode ? 'Edit your post' : 'Share something'}
+      focusKey={confirmDelete ? 'confirm' : 'form'}
     >
-      <div className="bg-white rounded-xl w-full max-w-lg shadow-xl overflow-y-auto max-h-[90vh]">
-
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 sticky top-0 bg-white rounded-t-xl">
-          <div>
-            <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-gray-400 mb-0.5">
-              {isEditMode ? 'Edit post' : 'New post'}
-            </p>
-            <h2 className="text-sm font-semibold text-gray-900">
-              {isEditMode ? 'Edit your post' : 'Share something'}
-            </h2>
+      {confirmDelete ? (
+        <div className="pt-2">
+          <p className="mb-2 font-ui text-ui font-medium text-umber">Delete this post?</p>
+          <p className="mb-6 font-ui text-ui-sm text-umber-soft">
+            This cannot be undone. The post will be permanently removed.
+          </p>
+          <div className="flex items-center justify-end gap-3">
+            <Button type="button" variant="ghost" onClick={() => setConfirmDelete(false)} disabled={isPending}>
+              Cancel
+            </Button>
+            <Button type="button" variant="danger" onClick={handleDelete} pending={isPending}>
+              {isPending ? 'Deleting…' : 'Delete post'}
+            </Button>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-700 text-xl leading-none"
-            aria-label="Close"
-          >
-            ×
-          </button>
+          {error && (
+            <Alert tone="danger" className="mt-4">
+              {error}
+            </Alert>
+          )}
         </div>
+      ) : (
+        <form onSubmit={handleSave} className="mt-4 space-y-5" noValidate>
+          <ChoiceChips
+            label="Post type"
+            options={POST_TYPES}
+            value={postType}
+            onChange={setPostType}
+            disabled={isPending}
+            className="grid-cols-2 sm:grid-cols-5"
+          />
 
-        {/* Delete confirmation */}
-        {confirmDelete ? (
-          <div className="px-6 py-8 text-center">
-            <p className="text-base font-semibold text-gray-900 mb-2">Delete this post?</p>
-            <p className="text-sm text-gray-500 mb-6">
-              This cannot be undone. The post will be permanently removed.
-            </p>
-            <div className="flex items-center justify-center gap-3">
-              <button
-                type="button"
-                onClick={() => setConfirmDelete(false)}
-                className="text-gray-500 hover:text-gray-700 text-sm"
-                disabled={isPending}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={isPending}
-                className="bg-red-600 text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition-colors"
-              >
-                {isPending ? 'Deleting…' : 'Delete post'}
-              </button>
-            </div>
-            {error && (
-              <p className="text-sm text-red-600 mt-4">{error}</p>
-            )}
-          </div>
-        ) : (
-          /* Form */
-          <form onSubmit={handleSave} className="px-6 py-6 space-y-5" noValidate>
-
-            {/* Post type */}
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-gray-700">Post type</label>
-              <div className="flex flex-wrap gap-2">
-                {POST_TYPES.map(({ value, label }) => (
-                  <button
-                    key={value}
-                    type="button"
-                    onClick={() => setPostType(value)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                      postType === value
-                        ? 'bg-gray-900 text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Title */}
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-gray-700">
-                Title <span className="text-red-500">*</span>
-              </label>
-              <input
+          <Field label="Title">
+            {(p) => (
+              <TextInput
+                {...p}
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder={postType === 'quote' ? 'The quote itself' : 'Title of your post'}
-                className={inputCls}
                 required
                 disabled={isPending}
               />
-            </div>
+            )}
+          </Field>
 
-            {/* Body — optional */}
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-gray-700">
-                Body{' '}
-                <span className="text-gray-400 font-normal">
-                  {postType === 'quote' ? '(attribution or context)' : '(optional)'}
-                </span>
-              </label>
-              <textarea
+          <Field label={postType === 'quote' ? 'Body (attribution or context)' : 'Body (optional)'}>
+            {(p) => (
+              <Textarea
+                {...p}
                 rows={4}
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
@@ -312,88 +272,63 @@ export default function PostModal({
                     ? 'Attribution, context, or a note…'
                     : 'A short description or excerpt…'
                 }
-                className={inputCls}
                 disabled={isPending}
               />
-            </div>
+            )}
+          </Field>
 
-            {/* URL — optional */}
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-gray-700">
-                URL <span className="text-gray-400 font-normal">(optional)</span>
-              </label>
-              <input
+          <Field label="URL (optional)">
+            {(p) => (
+              <TextInput
+                {...p}
                 type="url"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="https://"
-                className={inputCls}
                 disabled={isPending}
               />
-            </div>
-
-            {/* Topic tags */}
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-gray-700">Topic tags</label>
-              <TagInput tags={topicTags} onChange={setTopicTags} />
-              <p className="text-xs text-gray-400">Press Enter or comma to add a tag</p>
-            </div>
-
-            {isGated && <ClarityFlagsPanel flaggedTerms={clarityGate.flaggedTerms} />}
-
-            {error && (
-              <p className="text-sm text-red-600 border border-red-200 rounded-lg px-3 py-2 bg-red-50">
-                {error}
-              </p>
             )}
+          </Field>
 
-            {/* Actions */}
-            <div className="flex items-center justify-between pt-1">
-              {isEditMode ? (
-                <button
-                  type="button"
-                  onClick={() => setConfirmDelete(true)}
-                  className="text-red-500 hover:text-red-700 text-sm transition-colors"
-                  disabled={isPending}
-                >
-                  Delete post
-                </button>
-              ) : (
-                <span />
-              )}
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="text-gray-500 hover:text-gray-700 text-sm"
-                  disabled={isPending}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isPending || !title.trim()}
-                  className="bg-blue-600 text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
-                >
-                  {isPending
-                    ? isEditMode
-                      ? 'Saving…'
-                      : clarityGate.confirmedAnyway
-                        ? 'Submitting…'
-                        : 'Publishing…'
-                    : isEditMode
-                      ? 'Save changes'
-                      : needsFlagReview
-                        ? 'Review flags'
-                        : isGated && clarityGate.status === 'flagged'
-                          ? 'Submit anyway'
-                          : 'Publish post'}
-                </button>
-              </div>
+          <Field label="Topic tags" hint="Press Enter or comma to add a tag">
+            {(p) => <TagInput {...p} tags={topicTags} onChange={setTopicTags} />}
+          </Field>
+
+          {isGated && <ClarityFlagsPanel flaggedTerms={clarityGate.flaggedTerms} />}
+
+          {error && <Alert tone="danger">{error}</Alert>}
+
+          <div className="flex items-center justify-between gap-3 pt-1">
+            {isEditMode ? (
+              <Button type="button" variant="ghost" onClick={() => setConfirmDelete(true)} disabled={isPending}>
+                Delete post
+              </Button>
+            ) : (
+              <span />
+            )}
+            <div className="flex items-center gap-3">
+              <Button type="button" variant="ghost" onClick={onClose} disabled={isPending}>
+                Cancel
+              </Button>
+              <Button type="submit" pending={isPending} disabled={!title.trim()}>
+                {isPending
+                  ? isEditMode
+                    ? 'Saving…'
+                    : clarityGate.confirmedAnyway
+                      ? 'Submitting…'
+                      : 'Publishing…'
+                  : isEditMode
+                    ? 'Save changes'
+                    : needsFlagReview
+                      ? 'Review flags'
+                      : isGated && clarityGate.status === 'flagged'
+                        ? 'Submit anyway'
+                        : 'Publish post'}
+              </Button>
             </div>
-          </form>
-        )}
-      </div>
-    </div>
+          </div>
+        </form>
+      )}
+    </Modal>
   )
 }

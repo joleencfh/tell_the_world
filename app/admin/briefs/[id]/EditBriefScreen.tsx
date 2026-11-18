@@ -4,6 +4,8 @@ import { useState, useCallback } from 'react'
 import Link from 'next/link'
 import Logo from '@/components/ui/Logo'
 import SignOutButton from '@/components/ui/SignOutButton'
+import Button from '@/components/ui/Button'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import { saveBrief, deleteBrief, uploadExplainerImage } from '@/lib/admin/brief-actions'
 import type { Brief, BriefSection, MediaPickerOption, TimelineEvent, UserOption, FaqMetaRow } from '@/lib/admin/brief-actions'
 import { plainTextToRichContent, tldrPlainTextToRichContent } from '@/lib/richtext/types'
@@ -248,21 +250,21 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
   }
 
   return (
-    <div className="min-h-screen bg-paper text-ink">
+    <div className="min-h-screen bg-parchment font-ui text-umber">
 
       {/* Header */}
-      <header className="border-b-2 border-ink px-6">
+      <header className="border-b border-rule px-6">
         <div className="mx-auto flex max-w-4xl items-center justify-between py-4">
           <div className="flex items-center gap-4">
             <Logo href="/admin" />
-            <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-ink-soft border border-line px-2 py-0.5">
+            <span className="rounded-control border border-rule px-2 py-0.5 font-ui text-caption text-umber-soft">
               Admin
             </span>
-            <span className="font-mono text-[9px] text-ink-soft hidden sm:block">/ Edit Brief</span>
+            <span className="hidden font-ui text-ui-sm text-umber-soft sm:block">/ Edit Brief</span>
           </div>
           <div className="flex items-center gap-4">
-            <span className="font-mono text-[9px] text-ink-soft hidden sm:block">{adminEmail}</span>
-            <SignOutButton className="font-mono text-[9px] tracking-[0.2em] uppercase text-ink-soft hover:text-ink transition-colors" />
+            <span className="hidden font-ui text-ui-sm text-umber-soft sm:block">{adminEmail}</span>
+            <SignOutButton />
           </div>
         </div>
       </header>
@@ -276,7 +278,7 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
               <div className="flex items-center gap-4">
                 <Link
                   href="/admin"
-                  className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft hover:text-ink transition-colors"
+                  className="inline-flex min-h-11 items-center font-ui text-ui-sm text-umber-soft hover:text-umber hover:underline hover:underline-offset-[3px] focus-ring"
                 >
                   ← Back to admin
                 </Link>
@@ -288,12 +290,12 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
                   href={`/briefs/${brief.slug}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-mono text-[9px] tracking-[0.18em] uppercase text-blue-ink hover:text-blue transition-colors"
+                  className="inline-flex min-h-11 items-center font-ui text-ui-sm text-cobalt hover:underline hover:underline-offset-[3px] focus-ring"
                 >
                   View brief →
                 </Link>
               </div>
-              <h1 className="font-display uppercase text-[2rem] tracking-tight text-ink leading-none mt-1">
+              <h1 className="mt-1 font-serif text-title text-umber">
                 Edit Brief
               </h1>
             </div>
@@ -323,7 +325,7 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
 
           {/* Sections */}
           <div className="space-y-3">
-            <h2 className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft">Sections</h2>
+            <h2 className="font-serif text-card-title text-umber">Sections</h2>
             {sections.map((section, i) => {
               return (
                 <SectionEditor
@@ -342,13 +344,9 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
                 />
               )
             })}
-            <button
-              type="button"
-              onClick={addExplainerSection}
-              className="w-full border border-dashed border-line px-4 py-3 font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:border-ink hover:text-ink transition-colors"
-            >
+            <Button variant="secondary" fullWidth onClick={addExplainerSection}>
               + Add explainer subsection
-            </button>
+            </Button>
           </div>
 
           <TimelineEditor
@@ -372,36 +370,22 @@ export default function EditBriefScreen({ adminEmail, brief, sections: initialSe
           />
 
           {/* Bottom save */}
-          <div className="flex items-center justify-between pt-2 border-t border-line">
+          <div className="flex items-center justify-between border-t border-rule pt-2">
             <div>
-              {!confirmDelete ? (
-                <button
-                  type="button"
-                  onClick={() => setConfirmDelete(true)}
-                  className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-soft hover:text-red-600 transition-colors"
-                >
-                  Delete brief
-                </button>
-              ) : (
-                <div className="flex items-center gap-3">
-                  <span className="font-body text-sm text-ink">Delete this brief permanently?</span>
-                  <button
-                    type="button"
-                    onClick={handleDelete}
-                    disabled={deleting}
-                    className="font-mono text-[10px] tracking-[0.18em] uppercase px-4 py-2 bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-40"
-                  >
-                    {deleting ? 'Deleting…' : 'Yes, delete'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setConfirmDelete(false)}
-                    className="font-mono text-[10px] tracking-[0.18em] uppercase px-4 py-2 border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              )}
+              <Button variant="ghost" onClick={() => setConfirmDelete(true)}>
+                Delete brief
+              </Button>
+              <ConfirmDialog
+                open={confirmDelete}
+                title="Delete brief"
+                confirmLabel="Yes, delete"
+                tone="danger"
+                pending={deleting}
+                onConfirm={handleDelete}
+                onCancel={() => setConfirmDelete(false)}
+              >
+                Delete this brief permanently?
+              </ConfirmDialog>
             </div>
 
             <SaveStatus saving={saving} saveError={saveError} saved={saved} onSave={handleSave} />

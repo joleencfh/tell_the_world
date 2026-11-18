@@ -4,8 +4,7 @@ import { useState } from 'react'
 
 // Topic tags input — mirrors PostModal.tsx's TagInput behavior (Enter/comma
 // commits the draft as a chip, Backspace on an empty draft pops the last
-// chip) but styled to this screen's mono/border-line admin look rather than
-// PostModal's rounded-pill one.
+// chip) but styled with the shared Field control recipe and Tag-style chips.
 export function TagInput({ tags, onChange }: { tags: string[]; onChange: (tags: string[]) => void }) {
   const [draft, setDraft] = useState('')
 
@@ -25,17 +24,17 @@ export function TagInput({ tags, onChange }: { tags: string[]; onChange: (tags: 
   }
 
   return (
-    <div className="w-full border-x border-y border-line bg-paper-raised px-3 py-2 flex flex-wrap items-center gap-1.5 focus-within:border-ink">
+    <div className="flex min-h-11 w-full flex-wrap items-center gap-1.5 rounded-control border border-field-line bg-white px-3 py-1.5 hover:border-umber-soft focus-within:border-umber focus-within:outline-2 focus-within:outline-offset-1 focus-within:outline-umber">
       {tags.map((tag) => (
         <span
           key={tag}
-          className="inline-flex items-center gap-1 border border-line px-2 py-0.5 font-mono text-xs text-ink"
+          className="inline-flex items-center gap-1 rounded-tag border border-window-line px-2 py-0.5 font-mono text-label uppercase text-umber-soft"
         >
           {tag}
           <button
             type="button"
             onClick={() => onChange(tags.filter((t) => t !== tag))}
-            className="text-ink-soft hover:text-ink leading-none"
+            className="focus-ring relative inline-flex size-6 items-center justify-center rounded-tag leading-none text-umber-soft hover:text-umber after:absolute after:-inset-2.5 after:content-['']"
             aria-label={`Remove ${tag}`}
           >
             ×
@@ -51,7 +50,7 @@ export function TagInput({ tags, onChange }: { tags: string[]; onChange: (tags: 
           if (draft.trim()) addTag(draft)
         }}
         placeholder={tags.length === 0 ? 'e.g. ai-safety, then Enter' : ''}
-        className="flex-1 min-w-[120px] bg-transparent font-mono text-sm text-ink focus:outline-none py-1"
+        className="min-w-[120px] flex-1 bg-transparent py-1 font-ui text-base text-umber placeholder:text-umber-soft focus:outline-none"
       />
     </div>
   )

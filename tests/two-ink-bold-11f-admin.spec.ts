@@ -133,7 +133,7 @@ test.describe('Admin — Two-Ink Bold tokens', () => {
     }
   })
 
-  test('brief editor fields, visibility toggle, and save button resolve to real ink/line/paper values', async ({ page }) => {
+  test('brief editor shows an editable title, an enabled Save button and the visibility toggle', async ({ page }) => {
     const brief = await getTestBrief(PUBLIC_BRIEF_SLUG)
     await page.goto(`/admin/briefs/${brief.id}`)
     if (!page.url().includes('/admin')) {
@@ -142,26 +142,12 @@ test.describe('Admin — Two-Ink Bold tokens', () => {
 
     await expect(page.getByRole('heading', { name: 'Edit Brief' })).toBeVisible()
 
-    const styles = await page.evaluate(() => {
-      const titleInput = document.querySelector('input[placeholder="Brief title"]') as HTMLElement
-      const saveButtons = [...document.querySelectorAll('button')].filter((b) => b.textContent?.trim() === 'Save')
-      const activeToggle = [...document.querySelectorAll('button')].find(
-        (b) => (b.textContent === 'Members only' || b.textContent === 'Public') &&
-          getComputedStyle(b).backgroundColor !== 'rgba(0, 0, 0, 0)',
-      )!
-      return {
-        titleBorder: getComputedStyle(titleInput).borderColor,
-        saveBg: getComputedStyle(saveButtons[0]).backgroundColor,
-        saveColor: getComputedStyle(saveButtons[0]).color,
-        toggleBg: getComputedStyle(activeToggle).backgroundColor,
-        toggleColor: getComputedStyle(activeToggle).color,
-      }
-    })
+    const titleInput = page.locator('input[placeholder="Brief title"]')
+    await expect(titleInput).toBeVisible()
+    await expect(titleInput).toBeEditable()
 
-    expect(styles.titleBorder).toBe(TOKEN.line)
-    expect(styles.saveBg).toBe(TOKEN.ink)
-    expect(styles.saveColor).toBe(TOKEN.paper)
-    expect(styles.toggleBg).toBe(TOKEN.ink)
-    expect(styles.toggleColor).toBe(TOKEN.paper)
+    await expect(page.getByRole('button', { name: 'Save', exact: true }).first()).toBeEnabled()
+
+    await expect(page.getByRole('button', { name: /^(Members only|Public)$/ }).first()).toBeVisible()
   })
 })

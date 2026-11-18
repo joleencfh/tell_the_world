@@ -1,9 +1,13 @@
 'use client'
 
-import { useEffect, useState, useTransition } from 'react'
+import { useState, useTransition } from 'react'
 import { sendMessage } from '@/lib/messages/actions'
 import type { UserRole } from '@/lib/types'
 import RoleBadge from '@/components/ui/RoleBadge'
+import Modal from '@/components/ui/Modal'
+import Button from '@/components/ui/Button'
+import Alert from '@/components/ui/Alert'
+import Field, { TextInput, Textarea } from '@/components/ui/Field'
 
 interface ContactModalProps {
   recipient: {
@@ -20,13 +24,6 @@ interface ContactModalProps {
 }
 
 // ---------------------------------------------------------------------------
-// Shared UI
-// ---------------------------------------------------------------------------
-
-const inputCls =
-  'border border-gray-300 rounded-lg px-3 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-500'
-
-// ---------------------------------------------------------------------------
 // Modal
 // ---------------------------------------------------------------------------
 
@@ -39,15 +36,6 @@ export default function ContactModal({ recipient, sender, onClose }: ContactModa
 
   const recipientName = recipient.display_name || recipient.email.split('@')[0]
   const senderName = sender.display_name || 'You'
-
-  // Close on Escape
-  useEffect(() => {
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose()
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [onClose])
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -69,135 +57,86 @@ export default function ContactModal({ recipient, sender, onClose }: ContactModa
     })
   }
 
+  // Callers render this conditionally, so it is always open while mounted.
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose()
-      }}
+    <Modal
+      open
+      onClose={onClose}
+      eyebrow="Contact"
+      title={
+        <span className="flex flex-wrap items-center gap-3">
+          <span>{recipientName}</span>
+          <RoleBadge role={recipient.role} />
+        </span>
+      }
+      focusKey={success ? 'sent' : 'form'}
     >
-      <div role="dialog" aria-modal="true" className="bg-white rounded-xl w-full max-w-lg shadow-xl overflow-y-auto max-h-[90vh]">
-
-        {/* Header — recipient info */}
-        <div className="px-6 py-5 border-b border-gray-100 sticky top-0 bg-white rounded-t-xl">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-gray-400 mb-1">
-                Contact
-              </p>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-sm font-semibold text-gray-900">{recipientName}</h2>
-                <RoleBadge role={recipient.role} />
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-700 text-xl leading-none shrink-0 mt-0.5"
-              aria-label="Close"
-            >
-              ×
-            </button>
+      {success ? (
+        <div className="pt-2">
+          <Alert tone="success" lead="Message sent">
+            {recipientName} has been notified by email. It&apos;s now up to them whether to respond.
+          </Alert>
+          <div className="mt-6 flex justify-end">
+            <Button type="button" variant="secondary" onClick={onClose}>
+              Close
+            </Button>
           </div>
         </div>
-
-        {success ? (
-          /* Success state */
-          <div className="px-6 py-10 text-center">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-100 mb-5">
-              <svg viewBox="0 0 20 20" fill="currentColor" className="w-6 h-6 text-green-600">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <p className="text-base font-semibold text-gray-900 mb-2">Message sent</p>
-            <p className="text-sm text-gray-500 mb-6">
-              {recipientName} has been notified by email. It&apos;s now up to them whether to respond.
-            </p>
-            <button
-              type="button"
-              onClick={onClose}
-              className="font-mono text-[10px] tracking-[0.15em] uppercase text-gray-500 hover:text-gray-800 transition-colors"
-            >
-              Close
-            </button>
-          </div>
-        ) : (
-          /* Form */
-          <form onSubmit={handleSubmit} className="px-6 py-6 space-y-5" noValidate>
-
-            {/* Subject */}
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-gray-700">
-                Subject <span className="text-red-500">*</span>
-              </label>
-              <input
+      ) : (
+        <form onSubmit={handleSubmit} className="mt-4 space-y-5" noValidate>
+          <Field label="Subject">
+            {(p) => (
+              <TextInput
+                {...p}
                 type="text"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 placeholder="What is this about?"
-                className={inputCls}
                 required
                 disabled={isPending}
               />
-            </div>
+            )}
+          </Field>
 
-            {/* Message body */}
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-gray-700">
-                Message <span className="text-red-500">*</span>
-              </label>
-              <textarea
+          <Field label="Message">
+            {(p) => (
+              <Textarea
+                {...p}
                 rows={6}
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
                 placeholder="Introduce yourself and explain what you're hoping to collaborate on…"
-                className={inputCls}
                 required
                 disabled={isPending}
               />
-            </div>
-
-            {/* Pre-filled sender info */}
-            <div className="bg-gray-50 rounded-lg px-4 py-3 space-y-1.5 border border-gray-100">
-              <p className="font-mono text-[9px] tracking-[0.15em] uppercase text-gray-400">
-                Sending as
-              </p>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-700">{senderName}</span>
-                <RoleBadge role={sender.role} />
-              </div>
-            </div>
-
-            <p className="text-xs text-gray-400 leading-relaxed">
-              {recipientName} will be notified by email. This is a one-way contact request — replies happen outside the platform for now.
-            </p>
-
-            {error && (
-              <p className="text-sm text-red-600 border border-red-200 rounded-lg px-3 py-2 bg-red-50">
-                {error}
-              </p>
             )}
+          </Field>
 
-            <div className="flex items-center justify-end gap-3 pt-1">
-              <button
-                type="button"
-                onClick={onClose}
-                className="text-gray-500 hover:text-gray-700 text-sm"
-                disabled={isPending}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isPending || !subject.trim() || !body.trim()}
-                className="bg-blue-600 text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
-              >
-                {isPending ? 'Sending…' : 'Send message'}
-              </button>
+          {/* Pre-filled sender info */}
+          <div className="space-y-1.5 rounded-control border border-window-line bg-bone px-4 py-3">
+            <p className="font-mono text-label uppercase text-umber-soft">Sending as</p>
+            <div className="flex items-center gap-2">
+              <span className="font-ui text-ui-sm text-umber">{senderName}</span>
+              <RoleBadge role={sender.role} />
             </div>
-          </form>
-        )}
-      </div>
-    </div>
+          </div>
+
+          <p className="font-ui text-caption text-umber-soft">
+            {recipientName} will be notified by email. This is a one-way contact request — replies happen outside the platform for now.
+          </p>
+
+          {error && <Alert tone="danger">{error}</Alert>}
+
+          <div className="flex items-center justify-end gap-3 pt-1">
+            <Button type="button" variant="ghost" onClick={onClose} disabled={isPending}>
+              Cancel
+            </Button>
+            <Button type="submit" pending={isPending} disabled={!subject.trim() || !body.trim()}>
+              {isPending ? 'Sending…' : 'Send message'}
+            </Button>
+          </div>
+        </form>
+      )}
+    </Modal>
   )
 }

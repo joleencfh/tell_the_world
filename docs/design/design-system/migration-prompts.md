@@ -176,6 +176,8 @@ Phase 4d: sources drawer, timeline, related briefs, "Covered by" coverage block 
 Phase 4e: the remaining brief-related surfaces: ProposeBriefModal, PostModal, ContactModal (components/*.tsx), brief edit screens under app/admin/briefs/[id] (Lexical editor toolbar as secondary icon buttons, editing area as vellum serif surface), and any leftover bg-black/50 backdrops. Convert each to the shared Modal or Field set. Keyboard-test every converted modal.
 ```
 
+*Status (2026-11-17): done on branch `plan/design-system-phase4e`; the three modals use the shared Modal, the Lexical toolbar is secondary icon buttons on a vellum serif surface, and app/admin/briefs has no old tokens (the rest of admin is Phase 5).*
+
 ## Phase 5: Admin (3 to 4 sessions, 3 PRs)
 
 Admin is the second-biggest area but mostly repetition of the same four patterns, so Phase 1's primitives pay off here.
