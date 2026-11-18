@@ -182,7 +182,9 @@ Phase 4e: the remaining brief-related surfaces: ProposeBriefModal, PostModal, Co
 
 Admin is the second-biggest area but mostly repetition of the same four patterns, so Phase 1's primitives pay off here.
 
-Status (2026-11-18): Phase 5a done on branch `plan/design-system-phase5a`: admin shell, tab row, Applications tab, application card (reject through ConfirmDialog) and Recently approved list. Phase 5b done on branch `plan/design-system-phase5b`: every moderation queue card and tab on the shared QueueItem pieces. 5c (analytics tab, cleanup) not started.
+Status (2026-11-18): Phase 5a done on branch `plan/design-system-phase5a`: admin shell, tab row, Applications tab, application card (reject through ConfirmDialog) and Recently approved list. Phase 5b done on branch `plan/design-system-phase5b`: every moderation queue card and tab on the shared QueueItem pieces. Phase 5c done on branch `plan/design-system-phase5c`: analytics tab on the new tokens and an acceptance spec over all 15 admin tabs. Phase 5 is complete.
+
+Phase 5 summary: in `tests/two-ink-bold-11f-admin.spec.ts` the ink header-border assertion was removed in 5a, the brand-mark check moved to the design-system umber, rose and cobalt values in 5a, the tab-count and first-card check now uses the `admin-applications-list` testid and role-based locators (5a and 5b), and 5c rewrote the header comment to describe behaviour checks; the unused `TOKEN` constant is left in place for a later cleanup.
 
 ```
 [Standing rules]
