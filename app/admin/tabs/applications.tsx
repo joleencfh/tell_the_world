@@ -1,7 +1,7 @@
 import type { Application } from '@/lib/admin/actions'
 import { ADMIN_PAGE_SIZE } from '@/lib/data/admin'
 import Pagination from '@/components/ui/Pagination'
-import { ApplicationCard, ApprovedRow } from '../cards'
+import { ApplicationCard, ApprovedRow } from '../application-card'
 import type { TabProps } from './shared'
 
 export function PendingApplicationsTab({
