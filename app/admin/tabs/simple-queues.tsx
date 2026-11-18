@@ -1,6 +1,7 @@
 import type { PendingQuestion, PendingCorrectionProposal, PendingFaqAnswer, PendingQuestionAnswer } from '@/lib/admin/actions'
 import type { PendingContentiousPoint } from '@/lib/admin/explainer-actions'
 import { ADMIN_PAGE_SIZE } from '@/lib/data/admin'
+import EmptyState from '@/components/ui/EmptyState'
 import Pagination from '@/components/ui/Pagination'
 import { QuestionCard, CorrectionProposalCard } from '../cards'
 import { FaqAnswerCard } from '../faq-answer-card'
@@ -17,11 +18,9 @@ export function QuestionsTab({
   return (
     <>
       {pendingQuestions.length === 0 ? (
-        <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-          No pending questions.
-        </p>
+        <EmptyState title="No pending questions." />
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2" data-testid="admin-queue-list">
           {pendingQuestions.map(q => (
             <QuestionCard key={q.id} question={q} />
           ))}
@@ -50,11 +49,9 @@ export function CorrectionProposalsTab({
   return (
     <>
       {pendingCorrectionProposals.length === 0 ? (
-        <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-          No pending correction proposals.
-        </p>
+        <EmptyState title="No pending correction proposals." />
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2" data-testid="admin-queue-list">
           {pendingCorrectionProposals.map(c => (
             <CorrectionProposalCard key={c.id} proposal={c} />
           ))}

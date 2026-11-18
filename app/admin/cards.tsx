@@ -8,7 +8,8 @@ import {
 } from '@/lib/admin/actions'
 import type { PendingQuestion, PendingCorrectionProposal, BriefProposal } from '@/lib/admin/actions'
 import type { BriefOption } from '@/lib/admin/brief-actions'
-import { formatDate, Field } from './admin-shared'
+import Button from '@/components/ui/Button'
+import { formatDate, Field, QueueItem } from './admin-shared'
 
 // ---------------------------------------------------------------------------
 // Pending question card
@@ -34,36 +35,34 @@ export function QuestionCard({ question }: { question: PendingQuestion }) {
   }
 
   return (
-    <div className="border border-line bg-paper-raised px-5 py-4 space-y-3">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div className="space-y-0.5">
-          <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-blue-ink">
-            {question.briefs.title}
-          </p>
-          <p className="font-mono text-[9px] text-ink-soft">
-            {submitterName} · {formatDate(question.created_at)}
-          </p>
-        </div>
-      </div>
-      <p className="font-body text-sm text-ink leading-snug">{question.question_text}</p>
-      {error && <p className="font-mono text-[10px] text-red-600">{error}</p>}
-      <div className="flex gap-3">
-        <button
-          onClick={handleApprove}
-          disabled={loading !== null}
-          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 bg-ink text-paper hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          {loading === 'approving' ? 'Approving…' : 'Approve'}
-        </button>
-        <button
-          onClick={handleDismiss}
-          disabled={loading !== null}
-          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          {loading === 'dismissing' ? 'Dismissing…' : 'Dismiss'}
-        </button>
-      </div>
-    </div>
+    <QueueItem
+      testId="admin-question-card"
+      title={question.briefs.title}
+      meta={`${submitterName} · ${formatDate(question.created_at)}`}
+      error={error}
+      actions={
+        <>
+          <Button
+            variant="primary"
+            onClick={handleApprove}
+            disabled={loading !== null}
+            pending={loading === 'approving'}
+          >
+            {loading === 'approving' ? 'Approving…' : 'Approve'}
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={handleDismiss}
+            disabled={loading !== null}
+            pending={loading === 'dismissing'}
+          >
+            {loading === 'dismissing' ? 'Dismissing…' : 'Dismiss'}
+          </Button>
+        </>
+      }
+    >
+      <p className="font-ui text-ui-sm leading-snug text-umber">{question.question_text}</p>
+    </QueueItem>
   )
 }
 
@@ -91,42 +90,44 @@ export function CorrectionProposalCard({ proposal }: { proposal: PendingCorrecti
   }
 
   return (
-    <div className="border border-line bg-paper-raised px-5 py-4 space-y-3">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div className="space-y-0.5">
-          <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-blue-ink">
-            {proposal.briefs.title}
-          </p>
-          <p className="font-mono text-[9px] text-ink-soft">
-            {submitterName}
-            {' · '}
-            <span className="capitalize">{proposal.users.role}</span>
-            {' · '}
-            {formatDate(proposal.created_at)}
-          </p>
-        </div>
-      </div>
-      <p className="font-body text-sm text-ink leading-relaxed whitespace-pre-wrap">
+    <QueueItem
+      testId="admin-correction-proposal-card"
+      title={proposal.briefs.title}
+      meta={
+        <>
+          {submitterName}
+          {' · '}
+          <span className="capitalize">{proposal.users.role}</span>
+          {' · '}
+          {formatDate(proposal.created_at)}
+        </>
+      }
+      error={error}
+      actions={
+        <>
+          <Button
+            variant="primary"
+            onClick={handleApprove}
+            disabled={loading !== null}
+            pending={loading === 'approving'}
+          >
+            {loading === 'approving' ? 'Approving…' : 'Approve'}
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={handleDismiss}
+            disabled={loading !== null}
+            pending={loading === 'dismissing'}
+          >
+            {loading === 'dismissing' ? 'Dismissing…' : 'Dismiss'}
+          </Button>
+        </>
+      }
+    >
+      <p className="whitespace-pre-wrap font-ui text-ui-sm leading-relaxed text-umber">
         {proposal.contribution_text}
       </p>
-      {error && <p className="font-mono text-[10px] text-red-600">{error}</p>}
-      <div className="flex gap-3">
-        <button
-          onClick={handleApprove}
-          disabled={loading !== null}
-          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 bg-ink text-paper hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          {loading === 'approving' ? 'Approving…' : 'Approve'}
-        </button>
-        <button
-          onClick={handleDismiss}
-          disabled={loading !== null}
-          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          {loading === 'dismissing' ? 'Dismissing…' : 'Dismiss'}
-        </button>
-      </div>
-    </div>
+    </QueueItem>
   )
 }
 
