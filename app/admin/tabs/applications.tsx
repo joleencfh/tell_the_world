@@ -1,7 +1,8 @@
 import type { Application } from '@/lib/admin/actions'
 import { ADMIN_PAGE_SIZE } from '@/lib/data/admin'
+import EmptyState from '@/components/ui/EmptyState'
 import Pagination from '@/components/ui/Pagination'
-import { ApplicationCard, ApprovedRow } from '../cards'
+import { ApplicationCard, ApprovedRow } from '../application-card'
 import type { TabProps } from './shared'
 
 export function PendingApplicationsTab({
@@ -13,11 +14,9 @@ export function PendingApplicationsTab({
   return (
     <>
       {pending.length === 0 ? (
-        <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-          No pending applications.
-        </p>
+        <EmptyState title="No pending applications." />
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2" data-testid="admin-applications-list">
           {pending.map(app => (
             <ApplicationCard key={app.id} app={app} />
           ))}
@@ -42,11 +41,9 @@ export function ApprovedTab({
   return (
     <>
       {approved.length === 0 ? (
-        <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-          No approved users yet.
-        </p>
+        <EmptyState title="No approved users yet." />
       ) : (
-        <div className="bg-paper-raised border border-line px-5 py-1">
+        <div className="border border-rule bg-vellum px-5 py-1" data-testid="admin-approved-list">
           {approved.map(app => (
             <ApprovedRow key={app.id} app={app} />
           ))}

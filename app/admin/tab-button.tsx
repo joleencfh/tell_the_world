@@ -10,11 +10,12 @@ export function TabButton({
   return (
     <button
       onClick={onClick}
+      aria-current={active ? 'page' : undefined}
       className={[
-        'flex items-center px-4 py-2.5 font-mono text-[10px] tracking-[0.18em] uppercase border-b-2 -mb-px transition-colors',
+        'flex min-h-11 items-center whitespace-nowrap px-4 font-ui text-ui-sm border-b-2 -mb-px transition-colors focus-ring',
         active
-          ? 'border-ink text-ink'
-          : 'border-transparent text-ink-soft hover:text-ink',
+          ? 'border-umber text-umber font-semibold'
+          : 'border-transparent text-umber-soft hover:text-umber',
       ].join(' ')}
     >
       {children}
