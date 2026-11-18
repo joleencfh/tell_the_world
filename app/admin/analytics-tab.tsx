@@ -1,4 +1,5 @@
 import type { AnalyticsEventRow } from '@/lib/admin/actions'
+import Tag from '@/components/ui/Tag'
 
 const EVENT_LABELS: Record<string, string> = {
   login: 'Login',
@@ -31,13 +32,13 @@ export function AnalyticsEventRowItem({ event }: { event: AnalyticsEventRow }) {
   const targetLabel = event.target_type ? TARGET_LABELS[event.target_type] ?? event.target_type : null
 
   return (
-    <div className="flex flex-wrap items-center gap-3 py-3 border-b border-line last:border-0">
-      <span className="font-mono text-[9px] text-ink-soft shrink-0 w-40">{formatDateTime(event.created_at)}</span>
-      <span className="font-mono text-[10px] tracking-[0.1em] uppercase text-ink shrink-0">
-        {EVENT_LABELS[event.event_type] ?? event.event_type}
-      </span>
-      <span className="font-body text-sm text-ink flex-1 min-w-0 truncate">{who}</span>
-      {targetLabel && <span className="font-mono text-[10px] text-ink-soft shrink-0">{targetLabel}</span>}
+    <div className="flex min-h-11 flex-wrap items-center gap-3 border-b border-rule py-3 font-ui text-ui-sm last:border-0">
+      <time dateTime={event.created_at} className="shrink-0 text-umber-soft sm:w-44">
+        {formatDateTime(event.created_at)}
+      </time>
+      <Tag className="shrink-0">{EVENT_LABELS[event.event_type] ?? event.event_type}</Tag>
+      <span className="min-w-0 flex-1 truncate text-umber">{who}</span>
+      {targetLabel && <span className="shrink-0 text-umber-soft">{targetLabel}</span>}
     </div>
   )
 }

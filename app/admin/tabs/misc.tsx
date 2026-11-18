@@ -109,11 +109,9 @@ export function AnalyticsTab({
   return (
     <>
       {analyticsEvents.length === 0 ? (
-        <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-          No activity recorded yet.
-        </p>
+        <EmptyState title="No activity recorded yet." />
       ) : (
-        <div className="bg-paper-raised border border-line px-5 py-1">
+        <div className="border border-rule bg-vellum px-4" data-testid="admin-analytics-list">
           {analyticsEvents.map((event) => (
             <AnalyticsEventRowItem key={event.id} event={event} />
           ))}
