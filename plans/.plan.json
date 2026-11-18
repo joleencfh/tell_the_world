@@ -2,6 +2,7 @@
   "setup": "bun install --frozen-lockfile",
   "copy": [{ "from": ".env.plan", "to": ".env.local" }],
   "test": "none",
+  "allowedTools": ["Bash(bunx *)"],
   "notes": "The worktree gets a build-only .env.local (public Supabase values, dummy secrets). Never run Playwright in unattended steps; it needs real keys and would write rows to the real Supabase project. Verify with bun run lint, bunx tsc --noEmit, bun run build and greps. Bun only.",
   "ship": {
     "target": "master",
