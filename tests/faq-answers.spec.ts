@@ -254,7 +254,7 @@ test.describe('FAQ answer moderation — full loop (expert submits, admin approv
       // every ancestor wrapper and make the Approve lookup ambiguous.
       const bodyText = adminPage.getByText(body, { exact: true })
       await expect(bodyText).toBeVisible()
-      const card = bodyText.locator('xpath=ancestor::div[contains(@class, "border-line")][1]')
+      const card = adminPage.getByTestId('admin-faq-answer-card').filter({ hasText: body })
       await card.getByRole('button', { name: 'Approve' }).click()
 
       // The action's revalidatePath('/admin') drops it from the pending list.

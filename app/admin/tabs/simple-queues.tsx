@@ -76,11 +76,9 @@ export function FaqAnswersTab({
   return (
     <>
       {pendingFaqAnswers.length === 0 ? (
-        <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-          No pending FAQ answers.
-        </p>
+        <EmptyState title="No pending FAQ answers." />
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2" data-testid="admin-queue-list">
           {pendingFaqAnswers.map(a => (
             <FaqAnswerCard key={a.id} answer={a} />
           ))}
@@ -110,11 +108,9 @@ export function ContentiousPointsTab({
   return (
     <>
       {pendingContentiousPoints.length === 0 ? (
-        <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-          No pending contentious points.
-        </p>
+        <EmptyState title="No pending contentious points." />
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2" data-testid="admin-queue-list">
           {pendingContentiousPoints.map(p => (
             <ContentiousPointCard key={p.id} point={p} />
           ))}
@@ -143,11 +139,9 @@ export function QuestionAnswersTab({
   return (
     <>
       {pendingQuestionAnswers.length === 0 ? (
-        <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-          No pending Q&amp;A answers.
-        </p>
+        <EmptyState title="No pending Q&A answers." />
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2" data-testid="admin-queue-list">
           {pendingQuestionAnswers.map(a => (
             <QuestionAnswerCard key={a.id} answer={a} />
           ))}
