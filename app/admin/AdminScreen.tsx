@@ -8,6 +8,7 @@ import type { Application, PendingQuestion, PendingCorrectionProposal, BriefProp
 import type { PendingContentiousPoint } from '@/lib/admin/explainer-actions'
 import Logo from '@/components/ui/Logo'
 import SignOutButton from '@/components/ui/SignOutButton'
+import Button from '@/components/ui/Button'
 import { TabButton } from './tab-button'
 import { PendingApplicationsTab, ApprovedTab } from './tabs/applications'
 import {
@@ -175,19 +176,19 @@ export default function AdminScreen({
   const activeTabLabel = tabDefs.find((t) => t.key === tab)?.label ?? 'Applications'
 
   return (
-    <div className="min-h-screen bg-paper text-ink">
+    <div className="min-h-screen bg-parchment text-umber font-ui">
       {/* Header */}
-      <header className="border-b-2 border-ink px-6">
+      <header className="border-b border-rule px-6">
         <div className="mx-auto flex max-w-4xl items-center justify-between py-4">
           <div className="flex items-center gap-4">
             <Logo href="/admin" />
-            <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-ink-soft border border-line px-2 py-0.5">
+            <span className="inline-block rounded-tag border border-window-line px-2 py-0.5 font-mono text-label uppercase text-umber-soft">
               Admin
             </span>
           </div>
           <div className="flex items-center gap-4">
-            <span className="font-mono text-[9px] text-ink-soft hidden sm:block">{adminEmail}</span>
-            <SignOutButton className="font-mono text-[9px] tracking-[0.2em] uppercase text-ink-soft hover:text-ink transition-colors" />
+            <span className="hidden font-ui text-ui-sm text-umber-soft sm:block">{adminEmail}</span>
+            <SignOutButton />
           </div>
         </div>
       </header>
@@ -196,50 +197,49 @@ export default function AdminScreen({
         <div className="mx-auto max-w-4xl">
 
           {/* Page title */}
-          <div className="flex items-center justify-between mb-8">
-            <h1 className="font-display uppercase text-[2rem] tracking-tight text-ink leading-none">
+          <div className="flex items-center justify-between gap-4 mb-8">
+            <h1 className="font-serif text-title text-umber">
               {activeTabLabel}
             </h1>
             <form action={createBrief}>
-              <button
-                type="submit"
-                className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors"
-              >
+              <Button type="submit" variant="secondary">
                 + New brief
-              </button>
+              </Button>
             </form>
           </div>
 
           {/* Tabs — 15 of them now, split across fixed-size pages (see
-              tabPage's own comment above) rather than one overcrowded row. */}
-          <div className="flex items-center justify-between gap-4 border-b border-line mb-6">
-            <div className="flex gap-0">
+              tabPage's own comment above) rather than one overcrowded row.
+              A nav of buttons with aria-current, not role="tablist": the
+              content below has no tabpanel wiring. */}
+          <div className="flex items-center justify-between gap-4 border-b border-rule mb-6">
+            <nav aria-label="Admin sections" className="flex min-w-0 gap-0 overflow-x-auto">
               {tabPages[tabPage].map((t) => (
                 <TabButton key={t.key} active={tab === t.key} onClick={() => setTab(t.key)}>
                   {t.label}
                   {!!t.count && t.count > 0 && (
-                    <span className="ml-2 font-mono text-[9px] bg-blue text-white px-1.5 py-0.5">{t.count}</span>
+                    <span className="ml-2 rounded-tag bg-cobalt-wash px-1.5 py-0.5 font-mono text-label tabular-nums text-cobalt">{t.count}</span>
                   )}
                 </TabButton>
               ))}
-            </div>
-            <div className="flex items-center gap-2 pb-2 shrink-0">
+            </nav>
+            <div className="flex shrink-0 items-center gap-1">
               <button
                 type="button"
                 onClick={() => setTabPage((p) => Math.max(0, p - 1))}
                 disabled={tabPage === 0}
                 aria-label="Previous tabs"
-                className="font-mono text-xs text-ink-soft hover:text-ink disabled:opacity-30 disabled:cursor-default"
+                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-control font-ui text-ui text-umber-soft hover:text-umber disabled:opacity-30 disabled:cursor-default focus-ring"
               >
                 ‹
               </button>
-              <span className="font-mono text-[9px] text-ink-faint tabular-nums">{tabPage + 1}/{tabPages.length}</span>
+              <span className="font-mono text-label text-umber-soft tabular-nums">{tabPage + 1}/{tabPages.length}</span>
               <button
                 type="button"
                 onClick={() => setTabPage((p) => Math.min(tabPages.length - 1, p + 1))}
                 disabled={tabPage === tabPages.length - 1}
                 aria-label="More tabs"
-                className="font-mono text-xs text-ink-soft hover:text-ink disabled:opacity-30 disabled:cursor-default"
+                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-control font-ui text-ui text-umber-soft hover:text-umber disabled:opacity-30 disabled:cursor-default focus-ring"
               >
                 ›
               </button>
