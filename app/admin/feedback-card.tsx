@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { markBriefFeedbackReviewed } from '@/lib/admin/actions'
 import type { PendingBriefFeedback } from '@/lib/admin/actions'
+import Button from '@/components/ui/Button'
+import { formatDate, QueueItem } from './admin-shared'
 
 // Split out of cards.tsx to keep that file under the project's ~500-line
 // convention (CONTRIBUTING.md) — same card shape as CorrectionProposalCard
@@ -10,10 +12,6 @@ import type { PendingBriefFeedback } from '@/lib/admin/actions'
 // Part 0c). Only one action (mark reviewed) — unlike the other moderation
 // cards there's no approve/dismiss distinction, since nothing here is
 // ever published.
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-}
 
 export function FeedbackCard({ feedback }: { feedback: PendingBriefFeedback }) {
   const [loading, setLoading] = useState(false)
@@ -28,35 +26,31 @@ export function FeedbackCard({ feedback }: { feedback: PendingBriefFeedback }) {
   }
 
   return (
-    <div className="border border-line bg-paper-raised px-5 py-4 space-y-3">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div className="space-y-0.5">
-          <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-blue-ink">
-            {feedback.briefs.title}
-            {feedback.section && ` · ${feedback.section}`}
-          </p>
-          <p className="font-mono text-[9px] text-ink-soft">
-            {submitterName}
-            {' · '}
-            <span className="capitalize">{feedback.users.role}</span>
-            {' · '}
-            {formatDate(feedback.created_at)}
-          </p>
-        </div>
-      </div>
-      <p className="font-body text-sm text-ink leading-relaxed whitespace-pre-wrap">
-        {feedback.body}
-      </p>
-      {error && <p className="font-mono text-[10px] text-red-600">{error}</p>}
-      <div className="flex gap-3">
-        <button
-          onClick={handleMarkReviewed}
-          disabled={loading}
-          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 bg-ink text-paper hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-        >
+    <QueueItem
+      testId="admin-feedback-card"
+      title={
+        <>
+          {feedback.briefs.title}
+          {feedback.section && ` · ${feedback.section}`}
+        </>
+      }
+      meta={
+        <>
+          {submitterName}
+          {' · '}
+          <span className="capitalize">{feedback.users.role}</span>
+          {' · '}
+          {formatDate(feedback.created_at)}
+        </>
+      }
+      error={error}
+      actions={
+        <Button variant="primary" onClick={handleMarkReviewed} disabled={loading} pending={loading}>
           {loading ? 'Marking reviewed…' : 'Mark reviewed'}
-        </button>
-      </div>
-    </div>
+        </Button>
+      }
+    >
+      <p className="whitespace-pre-wrap font-ui text-ui-sm leading-relaxed text-umber">{feedback.body}</p>
+    </QueueItem>
   )
 }

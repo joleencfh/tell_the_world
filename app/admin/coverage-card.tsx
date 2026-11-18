@@ -3,6 +3,9 @@
 import { useState } from 'react'
 import { approveCoverage, dismissCoverage } from '@/lib/admin/actions'
 import type { PendingCoverage } from '@/lib/admin/actions'
+import Button from '@/components/ui/Button'
+import Field, { TextInput } from '@/components/ui/Field'
+import { formatDate, QueueItem } from './admin-shared'
 
 // Split out of cards.tsx to keep that file under the project's ~500-line
 // convention (CONTRIBUTING.md) — same card shape as CtaCard in
@@ -10,10 +13,6 @@ import type { PendingCoverage } from '@/lib/admin/actions'
 // (two-ink-bold-plan.md Part 7). The extra piece CtaCard doesn't have: an
 // optional score field, since score is set by the admin at approval time
 // (no separate UI for it elsewhere) rather than self-reported.
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-}
 
 export function CoverageCard({ coverage }: { coverage: PendingCoverage }) {
   const [loading, setLoading] = useState<'approving' | 'dismissing' | null>(null)
@@ -43,85 +42,84 @@ export function CoverageCard({ coverage }: { coverage: PendingCoverage }) {
   }
 
   return (
-    <div className="border border-line bg-paper-raised px-5 py-4 space-y-3">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div className="space-y-0.5">
-          <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-blue-ink">
-            {coverage.briefs.title}
-          </p>
-          <p className="font-mono text-[9px] text-ink-soft">
-            {submitterName}
-            {' · '}
-            <span className="capitalize">{coverage.users.role}</span>
-            {' · '}
-            {formatDate(coverage.created_at)}
-          </p>
-        </div>
-      </div>
-
-      <div className="flex gap-3">
-        {coverage.image_url && (
-          // Re-hosted on Supabase storage (lib/links/store-image.ts), same
-          // tradeoff as Avatar.tsx — plain img, not next/image.
-          <img
-            src={coverage.image_url}
-            alt=""
-            referrerPolicy="no-referrer"
-            className="h-16 w-24 shrink-0 border border-line object-cover"
-          />
-        )}
-        <div className="min-w-0 flex-1 space-y-2">
-          <div>
-            <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft mb-1">
-              {coverage.outlet_name}
-              {coverage.published_date && ` · ${formatDate(coverage.published_date)}`}
-            </p>
-            <p className="font-body text-sm text-ink font-semibold leading-snug">{coverage.title}</p>
-          </div>
-          <a
-            href={coverage.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-body text-sm text-blue-ink hover:underline break-all"
+    <QueueItem
+      testId="admin-coverage-card"
+      title={coverage.briefs.title}
+      meta={
+        <>
+          {submitterName}
+          {' · '}
+          <span className="capitalize">{coverage.users.role}</span>
+          {' · '}
+          {formatDate(coverage.created_at)}
+        </>
+      }
+      error={error}
+      actions={
+        <>
+          <Button
+            variant="primary"
+            onClick={handleApprove}
+            disabled={loading !== null}
+            pending={loading === 'approving'}
           >
-            {coverage.url}
-          </a>
+            {loading === 'approving' ? 'Approving…' : 'Approve'}
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={handleDismiss}
+            disabled={loading !== null}
+            pending={loading === 'dismissing'}
+          >
+            {loading === 'dismissing' ? 'Dismissing…' : 'Dismiss'}
+          </Button>
+        </>
+      }
+    >
+      <div className="space-y-3">
+        <div className="flex gap-3">
+          {coverage.image_url && (
+            // Re-hosted on Supabase storage (lib/links/store-image.ts), same
+            // tradeoff as Avatar.tsx — plain img, not next/image.
+            <img
+              src={coverage.image_url}
+              alt=""
+              referrerPolicy="no-referrer"
+              className="h-16 w-24 shrink-0 border border-rule object-cover"
+            />
+          )}
+          <div className="min-w-0 flex-1 space-y-2">
+            <div>
+              <p className="mb-1 font-mono text-label uppercase text-umber-soft">
+                {coverage.outlet_name}
+                {coverage.published_date && ` · ${formatDate(coverage.published_date)}`}
+              </p>
+              <p className="font-ui text-ui-sm font-semibold leading-snug text-umber">{coverage.title}</p>
+            </div>
+            <a
+              href={coverage.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="break-all font-ui text-ui-sm text-cobalt underline focus-ring"
+            >
+              {coverage.url}
+            </a>
+          </div>
         </div>
-      </div>
 
-      <div>
-        <label htmlFor={`score-${coverage.id}`} className="block font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft mb-1">
-          Score (optional)
-        </label>
-        <input
-          id={`score-${coverage.id}`}
-          type="text"
-          inputMode="decimal"
-          value={score}
-          onChange={(e) => setScore(e.target.value)}
-          disabled={loading !== null}
-          placeholder="e.g. 8.5"
-          className="w-32 border border-line bg-paper px-2.5 py-1.5 font-mono text-xs text-ink disabled:opacity-50"
-        />
+        <Field label="Score (optional)" id={`score-${coverage.id}`} className="w-40">
+          {(p) => (
+            <TextInput
+              {...p}
+              inputMode="decimal"
+              value={score}
+              onChange={(e) => setScore(e.target.value)}
+              disabled={loading !== null}
+              placeholder="e.g. 8.5"
+            />
+          )}
+        </Field>
       </div>
-
-      {error && <p className="font-mono text-[10px] text-red-600">{error}</p>}
-      <div className="flex gap-3">
-        <button
-          onClick={handleApprove}
-          disabled={loading !== null}
-          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 bg-ink text-paper hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          {loading === 'approving' ? 'Approving…' : 'Approve'}
-        </button>
-        <button
-          onClick={handleDismiss}
-          disabled={loading !== null}
-          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          {loading === 'dismissing' ? 'Dismissing…' : 'Dismiss'}
-        </button>
-      </div>
-    </div>
+    </QueueItem>
   )
 }

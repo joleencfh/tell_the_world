@@ -4,6 +4,9 @@ import { useState } from 'react'
 import { approveQuote, dismissQuote } from '@/lib/admin/actions'
 import type { PendingContentPost } from '@/lib/admin/actions'
 import type { FlaggedTerm } from '@/lib/clarity/check'
+import Button from '@/components/ui/Button'
+import Tag from '@/components/ui/Tag'
+import { formatDate, QueueItem } from './admin-shared'
 
 // Renamed from quote-card.tsx / QuoteCard — this queue now holds any
 // pending content_posts row (brief-attached quotes from submitQuote, or
@@ -11,10 +14,6 @@ import type { FlaggedTerm } from '@/lib/clarity/check'
 // getPendingContentPosts), not just brief-scoped quotes, so the old name
 // actively misled once a flagged profile post could show up here. Also
 // disambiguates from the unrelated public-facing app/directory/QuoteCard.tsx.
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-}
 
 export function ContentPostCard({ quote }: { quote: PendingContentPost }) {
   const [loading, setLoading] = useState<'approving' | 'dismissing' | null>(null)
@@ -38,72 +37,72 @@ export function ContentPostCard({ quote }: { quote: PendingContentPost }) {
   }
 
   return (
-    <div className="border border-line bg-paper-raised px-5 py-4 space-y-3">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div className="space-y-0.5">
-          <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-blue-ink">
-            {quote.briefs?.title ?? 'Profile post'}
+    <QueueItem
+      testId="admin-content-post-card"
+      title={quote.briefs?.title ?? 'Profile post'}
+      meta={
+        <>
+          {submitterName}
+          {' · '}
+          <span className="capitalize">{quote.users.role}</span>
+          {' · '}
+          {formatDate(quote.created_at)}
+        </>
+      }
+      error={error}
+      actions={
+        <>
+          <Button
+            variant="primary"
+            onClick={handleApprove}
+            disabled={loading !== null}
+            pending={loading === 'approving'}
+          >
+            {loading === 'approving' ? 'Approving…' : 'Approve'}
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={handleDismiss}
+            disabled={loading !== null}
+            pending={loading === 'dismissing'}
+          >
+            {loading === 'dismissing' ? 'Dismissing…' : 'Dismiss'}
+          </Button>
+        </>
+      }
+    >
+      <div className="space-y-3">
+        <div>
+          <p className="mb-1 font-mono text-label uppercase text-umber-soft">{isQuote ? 'Quote' : 'Post'}</p>
+          <p className="font-ui text-ui-sm font-semibold leading-snug text-umber">
+            {isQuote ? <>&ldquo;{quote.title}&rdquo;</> : quote.title}
           </p>
-          <p className="font-mono text-[9px] text-ink-soft">
-            {submitterName}
-            {' · '}
-            <span className="capitalize">{quote.users.role}</span>
-            {' · '}
-            {formatDate(quote.created_at)}
-          </p>
+          {!isQuote && quote.body && (
+            <p className="mt-1 font-ui text-ui-sm leading-snug text-umber-soft">{quote.body}</p>
+          )}
         </div>
-      </div>
-      <div>
-        <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-ink-soft mb-1">
-          {isQuote ? 'Quote' : 'Post'}
-        </p>
-        <p className="font-body text-sm text-ink font-semibold leading-snug">
-          {isQuote ? <>&ldquo;{quote.title}&rdquo;</> : quote.title}
-        </p>
-        {!isQuote && quote.body && (
-          <p className="mt-1 font-body text-xs text-ink-soft leading-snug">{quote.body}</p>
+        {flaggedTerms.length > 0 && (
+          <div>
+            <p className="mb-1 font-mono text-label uppercase text-brick">
+              Flagged — {flaggedTerms.length === 1 ? '1 term' : `${flaggedTerms.length} terms`}
+            </p>
+            <ul className="space-y-1">
+              {flaggedTerms.map((term) => (
+                <li key={term.id} className="font-ui text-ui-sm leading-snug text-umber-soft">
+                  <span className="font-semibold text-umber">&ldquo;{term.matchedText}&rdquo;</span> — {term.explanation}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {quote.topic_tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {quote.topic_tags.map((tag) => (
+              <Tag key={tag}>{tag}</Tag>
+            ))}
+          </div>
         )}
       </div>
-      {flaggedTerms.length > 0 && (
-        <div>
-          <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-pink-ink mb-1">
-            Flagged — {flaggedTerms.length === 1 ? '1 term' : `${flaggedTerms.length} terms`}
-          </p>
-          <ul className="space-y-1">
-            {flaggedTerms.map((term) => (
-              <li key={term.id} className="font-body text-xs text-ink-soft leading-snug">
-                <span className="font-semibold text-ink">&ldquo;{term.matchedText}&rdquo;</span> — {term.explanation}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-      {quote.topic_tags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {quote.topic_tags.map((tag) => (
-            <span key={tag} className="border border-line px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.06em] text-ink-soft">
-              {tag}
-            </span>
-          ))}
-        </div>
-      )}
-      {error && <p className="font-mono text-[10px] text-red-600">{error}</p>}
-      <div className="flex gap-3">
-        <button
-          onClick={handleApprove}
-          disabled={loading !== null}
-          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 bg-ink text-paper hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          {loading === 'approving' ? 'Approving…' : 'Approve'}
-        </button>
-        <button
-          onClick={handleDismiss}
-          disabled={loading !== null}
-          className="font-mono text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 border border-line text-ink-soft hover:border-ink hover:text-ink transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          {loading === 'dismissing' ? 'Dismissing…' : 'Dismiss'}
-        </button>
-      </div>
-    </div>
+    </QueueItem>
   )
 }

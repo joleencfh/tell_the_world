@@ -19,11 +19,9 @@ export function ReviewsTab({
   return (
     <>
       {briefReviews.length === 0 ? (
-        <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-          No reviews or endorsements yet.
-        </p>
+        <EmptyState title="No reviews or endorsements yet." />
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2" data-testid="admin-queue-list">
           {briefReviews.map(r => (
             <ReviewCard key={r.id} review={r} />
           ))}
@@ -82,11 +80,9 @@ export function WaitlistTab({
   return (
     <>
       {waitlistSignups.length === 0 ? (
-        <p className="font-body text-sm text-ink-soft italic py-8 text-center">
-          No waitlist signups yet.
-        </p>
+        <EmptyState title="No waitlist signups yet." />
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2" data-testid="admin-queue-list">
           {waitlistSignups.map(w => (
             <WaitlistCard key={w.id} signup={w} />
           ))}
