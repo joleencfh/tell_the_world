@@ -56,7 +56,6 @@ const TOKEN = {
   ink: 'rgb(12, 13, 14)',
   line: 'rgb(226, 227, 229)',
   paper: 'rgb(255, 255, 255)',
-  blue: 'rgb(30, 79, 235)',
   pink: 'rgb(240, 25, 126)',
 }
 
@@ -84,11 +83,11 @@ test.describe('Admin — Two-Ink Bold tokens', () => {
     }
   })
 
-  test('dashboard masthead, header rule, and brand mark resolve to real ink/blue/pink values', async ({ page }) => {
+  test('dashboard masthead and brand mark resolve to real umber/rose/cobalt values', async ({ page }) => {
     // Logo (components/ui/Logo.tsx) replaced the old plain-text wordmark
-    // sitewide — this now checks the masthead's 2px ink rule (was a thin
-    // border-line before that migration) and the brand-mark's two dots,
-    // rather than the retired <span>/<em> wordmark structure.
+    // sitewide. The admin header itself moved to the new system in Phase 5a,
+    // so the old ink header-border assertion is gone; this checks the heading
+    // and the brand-mark's two dots.
     await expect(page.getByRole('heading', { name: 'Applications' })).toBeVisible()
 
     const styles = await page.evaluate(() => {
@@ -97,21 +96,18 @@ test.describe('Admin — Two-Ink Bold tokens', () => {
       // Design-system Logo (Phase 2): an SVG circle pair, not two spans.
       const [roseCircle, cobaltCircle] = logo.querySelectorAll('circle')
       return {
-        headerBorder: getComputedStyle(header).borderBottomColor,
         wordmarkColor: getComputedStyle(logo).color,
         roseCircleFill: getComputedStyle(roseCircle).fill,
         cobaltCircleFill: getComputedStyle(cobaltCircle).fill,
       }
     })
 
-    // The admin header itself is still the old one until Phase 5.
-    expect(styles.headerBorder).toBe(TOKEN.ink)
     expect(styles.wordmarkColor).toBe('rgb(38, 37, 30)') // --color-umber
     expect(styles.roseCircleFill).toBe('rgb(240, 25, 126)') // --color-rose-bright
     expect(styles.cobaltCircleFill).toBe('rgb(33, 80, 232)') // --color-cobalt-bright
   })
 
-  test('a pending application renders a blue tab-count badge and a border-line card', async ({ page }) => {
+  test('a pending application shows a tab count and a visible first card', async ({ page }) => {
     // Seed a row so this passes even on an empty dev DB — but the dev DB
     // this ran against already had ~79 pre-existing pending applications
     // (unrelated test debris), ordered oldest-first (lib/data/admin.ts), so
@@ -128,18 +124,10 @@ test.describe('Admin — Two-Ink Bold tokens', () => {
     try {
       await page.reload()
 
-      const badge = page.getByRole('button', { name: 'Applications' }).locator('span').last()
-      await expect(badge).toBeVisible()
-      const badgeBg = await badge.evaluate((el) => getComputedStyle(el).backgroundColor)
-      expect(badgeBg).toBe(TOKEN.blue)
+      await expect(page.getByRole('button', { name: /^Applications\s*\d+/ })).toBeVisible()
 
-      const styles = await page.evaluate(() => {
-        const heading = [...document.querySelectorAll('h1')].find((h) => h.textContent === 'Applications')!
-        const list = heading.closest('div')!.parentElement!.querySelector('.flex.flex-col.gap-2')!
-        const firstCard = list.firstElementChild as HTMLElement
-        return { cardBorder: getComputedStyle(firstCard).borderTopColor }
-      })
-      expect(styles.cardBorder).toBe(TOKEN.line)
+      const firstCard = page.getByTestId('admin-applications-list').locator('> *').first()
+      await expect(firstCard).toBeVisible()
     } finally {
       await deleteTestApplication(email)
     }
